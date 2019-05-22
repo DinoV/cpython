@@ -1039,6 +1039,8 @@ _PyEval_EvalFrameDefault(PyFrameObject *f, int throwflag)
         assert(_Py_IS_ALIGNED(code_view.buf, sizeof(_Py_CODEUNIT)));
         first_instr = (_Py_CODEUNIT *) code_view.buf;
     } else {
+        PyErr_SetString(PyExc_RuntimeError,
+            "unable to get buffer from code object");
         goto exit_eval_frame;
     }
 

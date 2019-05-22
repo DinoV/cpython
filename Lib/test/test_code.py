@@ -184,9 +184,10 @@ implementing the buffer protocol and that they can successfully be evaluated'''
 
         code = f.__code__
         ct = type(f.__code__)
+        arr_code = array.array('B', code.co_code)
         c = ct(code.co_argcount, code.co_posonlyargcount,
                code.co_kwonlyargcount, code.co_nlocals, code.co_stacksize,
-               code.co_flags, array.array('B', code.co_code),
+               code.co_flags, arr_code,
                code.co_consts, code.co_names, code.co_varnames,
                code.co_filename, code.co_name, code.co_firstlineno,
                code.co_lnotab, code.co_freevars, code.co_cellvars)

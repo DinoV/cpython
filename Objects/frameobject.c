@@ -206,6 +206,8 @@ frame_setlineno(PyFrameObject *f, PyObject* p_new_lineno, void *Py_UNUSED(ignore
         code = (unsigned char *)view.buf;
         code_len = view.len;
     } else {
+        PyErr_SetString(PyExc_RuntimeError,
+            "unable to get buffer from code object");
         return -1;
     }
 
@@ -324,8 +326,9 @@ frame_setlineno(PyFrameObject *f, PyObject* p_new_lineno, void *Py_UNUSED(ignore
         delta--;
     }
 
-    if (view.obj != NULL)
+    if (view.obj != NULL) {
         PyBuffer_Release(&view);
+    }
 
     /* Finally set the new f_lineno and f_lasti and return OK. */
     f->f_lineno = new_lineno;
