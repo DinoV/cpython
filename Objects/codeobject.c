@@ -133,8 +133,9 @@ PyCode_New(int argcount, int posonlyargcount, int kwonlyargcount,
     Py_ssize_t i, n_cellvars, n_varnames, total_args;
 
     /* Check argument types */
-    if (argcount < 0 || posonlyargcount < 0 || kwonlyargcount < 0 ||
-        nlocals < 0 || stacksize < 0 || flags < 0 ||
+    if (argcount < posonlyargcount || posonlyargcount < 0 ||
+        kwonlyargcount < 0 || nlocals < 0 ||
+        stacksize < 0 || flags < 0 ||
         code == NULL || !code_check_buffer(code) ||
         consts == NULL || !PyTuple_Check(consts) ||
         names == NULL || !PyTuple_Check(names) ||
@@ -171,11 +172,9 @@ PyCode_New(int argcount, int posonlyargcount, int kwonlyargcount,
     }
 
     n_varnames = PyTuple_GET_SIZE(varnames);
-    if (posonlyargcount + argcount <= n_varnames
-        && kwonlyargcount <= n_varnames) {
+    if (argcount <= n_varnames && kwonlyargcount <= n_varnames) {
         /* Never overflows. */
-        total_args = (Py_ssize_t)posonlyargcount + (Py_ssize_t)argcount
-                      + (Py_ssize_t)kwonlyargcount +
+        total_args = (Py_ssize_t)argcount + (Py_ssize_t)kwonlyargcount +
                       ((flags & CO_VARARGS) != 0) + ((flags & CO_VARKEYWORDS) != 0);
     }
     else {
