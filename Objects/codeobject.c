@@ -301,7 +301,7 @@ _PyCode_InitOpcache(PyCodeObject *co)
         co->co_opcache = NULL;
     }
 
-    co->co_opcache_size = opts;
+    co->co_opcache_size = (unsigned char)opts;
     return 0;
 }
 
