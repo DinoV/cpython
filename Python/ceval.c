@@ -2952,8 +2952,8 @@ main_loop:
         }
 
         case TARGET(MAP_ADD): {
-            PyObject *key = TOP();
-            PyObject *value = SECOND();
+            PyObject *value = TOP();
+            PyObject *key = SECOND();
             PyObject *map;
             int err;
             STACK_SHRINK(2);
