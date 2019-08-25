@@ -2254,6 +2254,13 @@ main_loop:
             }
         }
 
+        case TARGET(LOAD_ASSERTION_ERROR): {
+            PyObject *value = PyExc_AssertionError;
+            Py_INCREF(value);
+            PUSH(value);
+            FAST_DISPATCH();
+        }
+
         case TARGET(LOAD_BUILD_CLASS): {
             _Py_IDENTIFIER(__build_class__);
 
