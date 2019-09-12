@@ -6355,7 +6355,6 @@ static PyType_Spec HeapCTypeSubclassWithFinalizer_spec = {
     HeapCTypeSubclassWithFinalizer_slots
 };
 
-
 typedef struct {
     PyObject_HEAD
     PyObject *dict;
@@ -6370,7 +6369,6 @@ static struct PyMemberDef heapctypewithdict_members[] = {
     {"dictobj", T_OBJECT, offsetof(HeapCTypeWithDictObject, dict)},
     {NULL} /* Sentinel */
 };
-
 
 static PyType_Slot HeapCTypeWithDict_slots[] = {
     {Py_tp_dictoffset, (void*)offsetof(HeapCTypeWithDictObject, dict)},
@@ -6400,6 +6398,30 @@ static PyType_Spec HeapCTypeWithNegativeDict_spec = {
     0,
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     HeapCTypeWithNegativeDict_slots
+};
+
+typedef struct {
+    PyObject_HEAD
+    PyObject *weakref;
+} HeapCTypeWithWeakrefObject;
+
+static struct PyMemberDef heapctypewithweakref_members[] = {
+    {"weakref", T_OBJECT, offsetof(HeapCTypeWithWeakrefObject, weakref)},
+    {NULL} /* Sentinel */
+};
+
+static PyType_Slot HeapCTypeWithWeakref_slots[] = {
+    {Py_tp_weaklistoffset, (void*)offsetof(HeapCTypeWithWeakrefObject, weakref)},
+    {Py_tp_members, heapctypewithweakref_members},
+    {0, 0},
+};
+
+static PyType_Spec HeapCTypeWithWeakref_spec = {
+    "_testcapi.HeapCTypeWithWeakref",
+    sizeof(HeapCTypeWithWeakrefObject),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
+    HeapCTypeWithWeakref_slots
 };
 
 static PyMethodDef meth_instance_methods[] = {
@@ -6646,6 +6668,12 @@ PyInit__testcapi(void)
         return NULL;
     }
     PyModule_AddObject(m, "HeapCTypeWithNegativeDict", HeapCTypeWithNegativeDict);
+
+    PyObject *HeapCTypeWithWeakref = PyType_FromSpec(&HeapCTypeWithWeakref_spec);
+    if (HeapCTypeWithWeakref == NULL) {
+        return NULL;
+    }
+    PyModule_AddObject(m, "HeapCTypeWithWeakref", HeapCTypeWithWeakref);
 
     PyObject *subclass_with_finalizer_bases = PyTuple_Pack(1, HeapCTypeSubclass);
     if (subclass_with_finalizer_bases == NULL) {
