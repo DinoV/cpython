@@ -743,6 +743,7 @@ static PyType_Slot AST_type_slots[] = {
     {Py_tp_new, PyType_GenericNew},
     {Py_tp_free, PyType_GenericNew},
     {Py_tp_free, PyObject_GC_Del},
+    {Py_tp_dictoffset, (void*)offsetof(AST_object, dict)},
     {0, 0},
 };
 
@@ -926,7 +927,7 @@ static int add_ast_fields(void)
         self.emit("if (init_identifiers() < 0) return 0;", 1)
         self.emit("state->AST_type = PyType_FromSpec(&AST_type_spec);", 1)
         self.emit("if (!state->AST_type) return 0;", 1)
-        self.emit("((PyTypeObject*)state->AST_type)->tp_dictoffset = offsetof(AST_object, dict);", 1)
+        #self.emit("((PyTypeObject*)state->AST_type)->tp_dictoffset = offsetof(AST_object, dict);", 1)
         self.emit("if (add_ast_fields() < 0) return 0;", 1)
         for dfn in mod.dfns:
             self.visit(dfn)

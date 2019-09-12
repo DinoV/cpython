@@ -1235,6 +1235,7 @@ static PyType_Slot AST_type_slots[] = {
     {Py_tp_new, PyType_GenericNew},
     {Py_tp_free, PyType_GenericNew},
     {Py_tp_free, PyObject_GC_Del},
+    {Py_tp_dictoffset, (void*)offsetof(AST_object, dict)},
     {0, 0},
 };
 
@@ -1417,8 +1418,6 @@ static int init_types(void)
     if (init_identifiers() < 0) return 0;
     state->AST_type = PyType_FromSpec(&AST_type_spec);
     if (!state->AST_type) return 0;
-    ((PyTypeObject*)state->AST_type)->tp_dictoffset = offsetof(AST_object,
-     dict);
     if (add_ast_fields() < 0) return 0;
     state->mod_type = make_type("mod", state->AST_type, NULL, 0);
     if (!state->mod_type) return 0;
