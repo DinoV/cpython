@@ -435,6 +435,26 @@ class CAPITest(unittest.TestCase):
         # Test that subtype_dealloc decref the newly assigned __class__ only once
         self.assertEqual(new_type_refcnt, sys.getrefcount(A))
 
+    def test_heaptype_with_dict(self):
+        inst = _testcapi.HeapCTypeWithDict()
+        inst.foo = 42
+        self.assertEqual(inst.foo, 42)
+        self.assertEqual(inst.dictobj, inst.__dict__)
+        self.assertEqual(inst.dictobj, {"foo": 42})
+
+        inst = _testcapi.HeapCTypeWithDict()
+        self.assertEqual({}, inst.__dict__)
+
+    def test_heaptype_with_negative_dict(self):
+        inst = _testcapi.HeapCTypeWithNegativeDict()
+        inst.foo = 42
+        self.assertEqual(inst.foo, 42)
+        self.assertEqual(inst.dictobj, inst.__dict__)
+        self.assertEqual(inst.dictobj, {"foo": 42})
+
+        inst = _testcapi.HeapCTypeWithNegativeDict()
+        self.assertEqual({}, inst.__dict__)
+
     def test_c_subclass_of_heap_ctype_with_tpdealloc_decrefs_once(self):
         subclass_instance = _testcapi.HeapCTypeSubclass()
         type_refcnt = sys.getrefcount(_testcapi.HeapCTypeSubclass)

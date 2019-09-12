@@ -1952,7 +1952,7 @@ unicode_asutf8andsize(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    buffer = PyUnicode_AsUTF8AndSize(unicode, &utf8_len); 
+    buffer = PyUnicode_AsUTF8AndSize(unicode, &utf8_len);
     if (buffer == NULL) {
         return NULL;
     }
@@ -6355,6 +6355,53 @@ static PyType_Spec HeapCTypeSubclassWithFinalizer_spec = {
     HeapCTypeSubclassWithFinalizer_slots
 };
 
+
+typedef struct {
+    PyObject_HEAD
+    PyObject *dict;
+} HeapCTypeWithDictObject;
+
+static PyGetSetDef heapctypewithdict_getsetlist[] = {
+    {"__dict__", PyObject_GenericGetDict, PyObject_GenericSetDict},
+    {NULL} /* Sentinel */
+};
+
+static struct PyMemberDef heapctypewithdict_members[] = {
+    {"dictobj", T_OBJECT, offsetof(HeapCTypeWithDictObject, dict)},
+    {NULL} /* Sentinel */
+};
+
+
+static PyType_Slot HeapCTypeWithDict_slots[] = {
+    {Py_tp_dictoffset, (void*)offsetof(HeapCTypeWithDictObject, dict)},
+    {Py_tp_members, heapctypewithdict_members},
+    {Py_tp_getset, heapctypewithdict_getsetlist},
+    {0, 0},
+};
+
+static PyType_Spec HeapCTypeWithDict_spec = {
+    "_testcapi.HeapCTypeWithDict",
+    sizeof(HeapCTypeWithDictObject),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
+    HeapCTypeWithDict_slots
+};
+
+static PyType_Slot HeapCTypeWithNegativeDict_slots[] = {
+    {Py_tp_dictoffset, (void*)-sizeof(void*)},
+    {Py_tp_members, heapctypewithdict_members},
+    {Py_tp_getset, heapctypewithdict_getsetlist},
+    {0, 0},
+};
+
+static PyType_Spec HeapCTypeWithNegativeDict_spec = {
+    "_testcapi.HeapCTypeWithNegativeDict",
+    sizeof(HeapCTypeWithDictObject),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
+    HeapCTypeWithNegativeDict_slots
+};
+
 static PyMethodDef meth_instance_methods[] = {
     {"meth_varargs", meth_varargs, METH_VARARGS},
     {"meth_varargs_keywords", (PyCFunction)(void(*)(void))meth_varargs_keywords, METH_VARARGS|METH_KEYWORDS},
@@ -6587,6 +6634,18 @@ PyInit__testcapi(void)
     }
     Py_DECREF(subclass_bases);
     PyModule_AddObject(m, "HeapCTypeSubclass", HeapCTypeSubclass);
+
+    PyObject *HeapCTypeWithDict = PyType_FromSpec(&HeapCTypeWithDict_spec);
+    if (HeapCTypeWithDict == NULL) {
+        return NULL;
+    }
+    PyModule_AddObject(m, "HeapCTypeWithDict", HeapCTypeWithDict);
+
+    PyObject *HeapCTypeWithNegativeDict = PyType_FromSpec(&HeapCTypeWithNegativeDict_spec);
+    if (HeapCTypeWithNegativeDict == NULL) {
+        return NULL;
+    }
+    PyModule_AddObject(m, "HeapCTypeWithNegativeDict", HeapCTypeWithNegativeDict);
 
     PyObject *subclass_with_finalizer_bases = PyTuple_Pack(1, HeapCTypeSubclass);
     if (subclass_with_finalizer_bases == NULL) {
