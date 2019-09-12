@@ -6367,11 +6367,11 @@ static PyGetSetDef heapctypewithdict_getsetlist[] = {
 
 static struct PyMemberDef heapctypewithdict_members[] = {
     {"dictobj", T_OBJECT, offsetof(HeapCTypeWithDictObject, dict)},
+    {"__dictoffset__", T_OBJECT, offsetof(HeapCTypeWithDictObject, dict)},
     {NULL} /* Sentinel */
 };
 
 static PyType_Slot HeapCTypeWithDict_slots[] = {
-    {Py_tp_dictoffset, (void*)offsetof(HeapCTypeWithDictObject, dict)},
     {Py_tp_members, heapctypewithdict_members},
     {Py_tp_getset, heapctypewithdict_getsetlist},
     {0, 0},
@@ -6385,9 +6385,14 @@ static PyType_Spec HeapCTypeWithDict_spec = {
     HeapCTypeWithDict_slots
 };
 
+static struct PyMemberDef heapctypewithnegativedict_members[] = {
+    {"dictobj", T_OBJECT, offsetof(HeapCTypeWithDictObject, dict)},
+    {"__dictoffset__", T_OBJECT, -sizeof(void*)},
+    {NULL} /* Sentinel */
+};
+
 static PyType_Slot HeapCTypeWithNegativeDict_slots[] = {
-    {Py_tp_dictoffset, (void*)-sizeof(void*)},
-    {Py_tp_members, heapctypewithdict_members},
+    {Py_tp_members, heapctypewithnegativedict_members},
     {Py_tp_getset, heapctypewithdict_getsetlist},
     {0, 0},
 };
@@ -6407,11 +6412,11 @@ typedef struct {
 
 static struct PyMemberDef heapctypewithweakref_members[] = {
     {"weakref", T_OBJECT, offsetof(HeapCTypeWithWeakrefObject, weakref)},
+    {"__weaklistoffset__", T_OBJECT, offsetof(HeapCTypeWithWeakrefObject, weakref)},
     {NULL} /* Sentinel */
 };
 
 static PyType_Slot HeapCTypeWithWeakref_slots[] = {
-    {Py_tp_weaklistoffset, (void*)offsetof(HeapCTypeWithWeakrefObject, weakref)},
     {Py_tp_members, heapctypewithweakref_members},
     {0, 0},
 };

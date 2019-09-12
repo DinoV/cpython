@@ -4,6 +4,7 @@
 
 #include "Python.h"
 #include "Python-ast.h"
+#include "structmember.h"
 
 typedef struct {
     int initialized;
@@ -1222,6 +1223,11 @@ static PyGetSetDef ast_type_getsets[] = {
     {NULL}
 };
 
+static PyMemberDef ast_type_members[] = {
+    {"__dictoffset__", T_OBJECT, offsetof(AST_object, dict)},
+    {NULL}
+};
+
 static PyType_Slot AST_type_slots[] = {
     {Py_tp_dealloc, ast_dealloc},
     {Py_tp_getattro, PyObject_GenericGetAttr},
@@ -1235,7 +1241,7 @@ static PyType_Slot AST_type_slots[] = {
     {Py_tp_new, PyType_GenericNew},
     {Py_tp_free, PyType_GenericNew},
     {Py_tp_free, PyObject_GC_Del},
-    {Py_tp_dictoffset, (void*)offsetof(AST_object, dict)},
+    {Py_tp_members, ast_type_members},
     {0, 0},
 };
 
@@ -10278,5 +10284,3 @@ int PyAST_Check(PyObject* obj)
         return -1;
     return PyObject_IsInstance(obj, astmodulestate_global->AST_type);
 }
-
-

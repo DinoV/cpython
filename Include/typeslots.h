@@ -83,7 +83,3 @@
 /* New in 3.5 */
 #define Py_tp_finalize 80
 #endif
-#if !defined(Py_LIMITED_API) || Py_LIMITED_API+0 >= 0x03090000
-#define Py_tp_weaklistoffset 81
-#define Py_tp_dictoffset 82
-#endif
