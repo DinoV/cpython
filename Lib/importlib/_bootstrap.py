@@ -976,7 +976,10 @@ def _find_and_load_unlocked(name, import_):
     if parent:
         # Set the module as an attribute on its parent.
         parent_module = sys.modules[parent]
-        setattr(parent_module, name.rpartition('.')[2], module)
+        try:
+            setattr(parent_module, name.rpartition('.')[2], module)
+        except AttributeError:
+            pass
     return module
 
 
