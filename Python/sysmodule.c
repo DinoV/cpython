@@ -23,6 +23,7 @@ Data members:
 #include "pycore_pylifecycle.h"   // _PyErr_WriteUnraisableDefaultHook()
 #include "pycore_pymem.h"         // _PyMem_SetDefaultAllocator()
 #include "pycore_pystate.h"       // _PyThreadState_GET()
+#include "pycore_shadowcode.h"    // _PyShadow_ClearCache
 #include "pycore_tuple.h"         // _PyTuple_FromArray()
 #include "pycore_structseq.h"     // PyStructSequence_InitType()
 
@@ -1959,19 +1960,18 @@ sys_getandroidapilevel_impl(PyObject *module)
 #endif   /* ANDROID_API_LEVEL */
 
 
-/*[clinic input]
-sys._deactivate_opcache
-
-Deactivate the opcode cache permanently
-[clinic start generated code]*/
-
 static PyObject *
-sys__deactivate_opcache_impl(PyObject *module)
-/*[clinic end generated code: output=00e20982bd012122 input=501eac146735ccf9]*/
+clear_shadow_cache(PyObject *self, PyObject *obj)
 {
-    _PyEval_DeactivateOpCache();
+    _PyShadow_ClearCache(obj);
     Py_RETURN_NONE;
 }
+
+PyDoc_STRVAR(inline_cache_stats_doc, "inline_cache_stats() -> tuple of stats\n\
+\n\
+Return a tuple of inline cache statistics, if INLINE_CACHE_PROFILE was defined\n\
+when Python was built.  Otherwise, return None.\n\
+");
 
 
 static PyMethodDef sys_methods[] = {
@@ -1980,6 +1980,7 @@ static PyMethodDef sys_methods[] = {
     {"audit",           (PyCFunction)(void(*)(void))sys_audit, METH_FASTCALL, audit_doc },
     {"breakpointhook",  (PyCFunction)(void(*)(void))sys_breakpointhook,
      METH_FASTCALL | METH_KEYWORDS, breakpointhook_doc},
+    {"_clear_shadow_cache", clear_shadow_cache, METH_O, ""},
     SYS__CLEAR_TYPE_CACHE_METHODDEF
     SYS__CURRENT_FRAMES_METHODDEF
     SYS__CURRENT_EXCEPTIONS_METHODDEF
@@ -2012,6 +2013,10 @@ static PyMethodDef sys_methods[] = {
     SYS_SETSWITCHINTERVAL_METHODDEF
     SYS_GETSWITCHINTERVAL_METHODDEF
     SYS_SETDLOPENFLAGS_METHODDEF
+    {"_inline_cache_stats",
+     (PyCFunction)_PyShadow_GetInlineCacheStats,
+     METH_NOARGS,
+     inline_cache_stats_doc},
     {"setprofile",      sys_setprofile, METH_O, setprofile_doc},
     SYS_GETPROFILE_METHODDEF
     SYS_SETRECURSIONLIMIT_METHODDEF
@@ -2026,7 +2031,6 @@ static PyMethodDef sys_methods[] = {
     SYS_GET_ASYNCGEN_HOOKS_METHODDEF
     SYS_GETANDROIDAPILEVEL_METHODDEF
     SYS_UNRAISABLEHOOK_METHODDEF
-    SYS__DEACTIVATE_OPCACHE_METHODDEF
     {NULL,              NULL}           /* sentinel */
 };
 

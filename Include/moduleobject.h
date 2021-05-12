@@ -68,6 +68,7 @@ typedef struct PyModuleDef_Slot{
 
 #ifndef Py_LIMITED_API
 #define _Py_mod_LAST_SLOT 2
+
 #endif
 
 #endif /* New in 3.5 */
