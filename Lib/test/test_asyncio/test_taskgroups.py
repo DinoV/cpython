@@ -740,15 +740,15 @@ class TestTaskGroup(unittest.IsolatedAsyncioTestCase):
 
     async def test_taskgroup_enqueue_02(self):
 
-        async def foo1():
+        async def eager1():
             return 42
 
-        async def eager():
+        async def eager2():
             return 11
 
         async with taskgroups.TaskGroup() as g:
-            t1 = g.enqueue(foo1(), no_future=False)
-            t2 = g.enqueue(eager(), no_future=False)
+            t1 = g.enqueue(eager1(), no_future=False)
+            t2 = g.enqueue(eager2(), no_future=False)
 
         self.assertEqual(t1.result(), 42)
         self.assertEqual(t2.result(), 11)

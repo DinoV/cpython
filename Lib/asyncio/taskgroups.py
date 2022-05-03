@@ -30,7 +30,6 @@ class TaskGroup:
         self._errors = []
         self._base_error = None
         self._on_completed_fut = None
-        self._enqueues = {}
 
     def __repr__(self):
         info = ['']
@@ -64,16 +63,6 @@ class TaskGroup:
 
         return self
 
-    def eager_eval(self, coro):
-        try:
-            fut = coro.send(None)
-        except StopIteration as e:
-            return PyCoroEagerResult(e.args[0] if e.args else None)
-        else:
-            task = self.create_task(coro)
-            task._set_fut_awaiter(fut)
-            return task
-
     async def __aexit__(self, et, exc, tb):
         self._exiting = True
         propagate_cancellation_error = None
@@ -105,23 +94,6 @@ class TaskGroup:
                 #        1 / 0
                 #
                 self._abort()
-
-        if self._enqueues:
-            for coro in self._enqueues:
-                res = self.eager_eval(coro)
-                if isinstance(res, PyCoroEagerResult):
-                    fut = self._enqueues[coro]
-                    if fut is not None:
-                        fut.set_result(res.value)
-                else:
-                    def queue_callback():
-                        fut = self._enqueues[coro]
-                        if fut is not None:
-                            res.add_done_callback(lambda task: fut.set_result(task.result()))
-                    queue_callback()
-
-            self._unfinished_tasks -= len(self._enqueues)
-            self._enqueues.clear()
 
         # We use while-loop here because "self._on_completed_fut"
         # can be cancelled multiple times if our parent task
@@ -187,30 +159,33 @@ class TaskGroup:
         self._tasks.add(task)
         return task
 
+    def _eager_eval(self, coro):
+        try:
+            fut = coro.send(None)
+            task = self.create_task(coro)
+            task._set_fut_awaiter(fut)
+            return task
+        except StopIteration as e:
+            # The co-routine has completed synchronously and we've got
+            # our result.
+            return PyCoroEagerResult(e.args[0] if e.args else None)
+        except Exception as e:
+            res = Future(loop=self._loop)
+            res.set_exception(e)
+            return res
+
     def enqueue(self, coro, no_future=True):
         if not self._entered:
             raise RuntimeError(f"TaskGroup {self!r} has not been entered")
 
-        if coro in self._enqueues:
-            return self._enqueues[coro]
-
-        if not self._enqueues:
-            # if the looop starts running because someone awaits, we want
-            # to run the co-routines which are enqueued as well.
-            self._loop.call_soon(self._enqueue_enqueus)
-
-        self._unfinished_tasks += 1
-        if no_future:
-            fut = self._enqueues[coro] = None
+        res = self._eager_eval(coro)
+        if isinstance(res, PyCoroEagerResult):
+            if not no_future:
+                fut = Future(loop=self._loop)
+                fut.set_result(res.value)
+                return fut
         else:
-            fut = self._enqueues[coro] = Future(loop=self._loop)
-        return fut
-
-    def _enqueue_enqueus(self):
-        for coro in self._enqueues:
-            self.create_task(coro)
-        self._unfinished_tasks -= len(self._enqueues)
-        self._enqueues.clear()
+            return res
 
     # Since Python 3.8 Tasks propagate all exceptions correctly,
     # except for KeyboardInterrupt and SystemExit which are
