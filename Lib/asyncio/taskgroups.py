@@ -159,7 +159,10 @@ class TaskGroup:
         self._tasks.add(task)
         return task
 
-    def _eager_eval(self, coro):
+    def enqueue(self, coro, no_future=True):
+        if not self._entered:
+            raise RuntimeError(f"TaskGroup {self!r} has not been entered")
+
         try:
             fut = coro.send(None)
             task = self.create_task(coro)
@@ -168,23 +171,8 @@ class TaskGroup:
         except StopIteration as e:
             # The co-routine has completed synchronously and we've got
             # our result.
-            return PyCoroEagerResult(e.args[0] if e.args else None)
-        except Exception as e:
             res = Future(loop=self._loop)
-            res.set_exception(e)
-            return res
-
-    def enqueue(self, coro, no_future=True):
-        if not self._entered:
-            raise RuntimeError(f"TaskGroup {self!r} has not been entered")
-
-        res = self._eager_eval(coro)
-        if isinstance(res, PyCoroEagerResult):
-            if not no_future:
-                fut = Future(loop=self._loop)
-                fut.set_result(res.value)
-                return fut
-        else:
+            res.set_result(e.args[0] if e.args else None)
             return res
 
     # Since Python 3.8 Tasks propagate all exceptions correctly,

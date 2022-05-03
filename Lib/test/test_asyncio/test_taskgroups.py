@@ -753,6 +753,16 @@ class TestTaskGroup(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(t1.result(), 42)
         self.assertEqual(t2.result(), 11)
 
+    async def test_taskgroup_enqueue_exception(self):
+        async def foo1():
+            1 / 0
+
+        with self.assertRaises(ExceptionGroup) as cm:
+            async with taskgroups.TaskGroup() as g:
+                g.enqueue(foo1())
+
+        self.assertEqual(get_error_types(cm.exception), {ZeroDivisionError})
+
     async def test_taskgroup_fanout_task(self):
         async def step(i):
             if i == 0:
