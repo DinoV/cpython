@@ -722,6 +722,101 @@ class TestTaskGroup(unittest.IsolatedAsyncioTestCase):
             await t2
             self.assertEqual(2, ctx.get(cvar))
 
+    async def test_taskgroup_enqueue_01(self):
+
+        async def foo1():
+            await asyncio.sleep(0.1)
+            return 42
+
+        async def eager():
+            return 11
+
+        async with taskgroups.TaskGroup() as g:
+            t1 = g.enqueue(foo1(), no_future=False)
+            t2 = g.enqueue(eager(), no_future=False)
+
+        self.assertEqual(t1.result(), 42)
+        self.assertEqual(t2.result(), 11)
+
+    async def test_taskgroup_enqueue_02(self):
+
+        async def foo1():
+            return 42
+
+        async def eager():
+            return 11
+
+        async with taskgroups.TaskGroup() as g:
+            t1 = g.enqueue(foo1(), no_future=False)
+            t2 = g.enqueue(eager(), no_future=False)
+
+        self.assertEqual(t1.result(), 42)
+        self.assertEqual(t2.result(), 11)
+
+    async def test_taskgroup_fanout_task(self):
+        async def step(i):
+            if i == 0:
+                return
+            async with taskgroups.TaskGroup() as g:
+                for _ in range(6):
+                    g.create_task(step(i - 1))
+
+        import time
+        s = time.perf_counter()
+        await step(6)
+        e = time.perf_counter()
+        print(e-s)
+
+    async def test_taskgroup_fanout_enqueue(self):
+        async def step(i):
+            if i == 0:
+                return
+            async with taskgroups.TaskGroup() as g:
+                for _ in range(6):
+                    g.enqueue(step(i - 1))
+
+        import time
+        s = time.perf_counter()
+        await step(6)
+        e = time.perf_counter()
+        print(e-s)
+
+    async def test_taskgroup_fanout_enqueue_02(self):
+        async def intermediate2(i):
+            return await intermediate(i)
+
+        async def intermediate(i):
+            async with taskgroups.TaskGroup() as g:
+                for _ in range(6):
+                    g.enqueue(step(i - 1))
+
+        async def step(i):
+            if i == 0:
+                return
+
+            return await intermediate2(i)
+
+
+        import time
+        s = time.perf_counter()
+        await step(6)
+        e = time.perf_counter()
+        print(e-s)
+
+
+    async def test_taskgroup_fanout_enqueue_future(self):
+        async def step(i):
+            if i == 0:
+                return
+            async with taskgroups.TaskGroup() as g:
+                for _ in range(6):
+                    g.enqueue(step(i - 1), no_future=False)
+
+        import time
+        s = time.perf_counter()
+        await step(6)
+        e = time.perf_counter()
+        print(e-s)
 
 if __name__ == "__main__":
     unittest.main()
