@@ -329,10 +329,11 @@ gen_close_iter(PyObject *yf)
 static inline bool
 is_resume(_Py_CODEUNIT *instr)
 {
+    uint8_t code = FT_ATOMIC_LOAD_UINT8_RELAXED(instr->op.code);
     return (
-        instr->op.code == RESUME ||
-        instr->op.code == RESUME_CHECK ||
-        instr->op.code == INSTRUMENTED_RESUME
+        code == RESUME ||
+        code == RESUME_CHECK ||
+        code == INSTRUMENTED_RESUME
     );
 }
 
