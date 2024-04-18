@@ -16,7 +16,6 @@ race:_in_weak_set
 race:_mi_heap_delayed_free_partial
 race:_Py_IsImmortal
 race:_Py_IsOwnedByCurrentThread
-race:_PyEval_EvalFrameDefault
 race:_PyFunction_SetVersion
 race:_PyImport_AcquireLock
 race:_PyImport_ReleaseLock
@@ -27,9 +26,11 @@ race:_PyObject_GC_SET_SHARED
 race:_PyObject_GC_TRACK
 race:_PyType_HasFeature
 race:assign_version_tag
-race:compare_unicode_unicode
-race:delitem_common
-race:dictresize
+#race:compare_unicode_unicode
+#race:delitem_common
+#race:dictkeys_decref
+#race:dictkeys_incref
+#race:dictresize
 race:gc_collect_main
 race:gc_restore_tid
 race:initialize_new_array
@@ -44,3 +45,11 @@ race:set_inheritable
 race:start_the_world
 race:tstate_set_detached
 race:unicode_hash
+race:update_cache
+race:update_cache_gil_disabled
+race:_PySemaphore_Wait
+race:_Py_qsbr_unregister
+race:_Py_qsbr_poll
+race:connect
+race:recv
+race:count_next
