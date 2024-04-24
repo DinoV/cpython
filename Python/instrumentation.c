@@ -704,7 +704,6 @@ instrument(PyCodeObject *code, int i)
         int instrumented = INSTRUMENTED_OPCODES[deopt];
         assert(instrumented);
         FT_ATOMIC_STORE_UINT8_RELAXED(*opcode_ptr, instrumented);
-        *opcode_ptr = instrumented;
         if (_PyOpcode_Caches[deopt]) {
           FT_ATOMIC_STORE_UINT16_RELAXED(instr[1].counter.as_counter,
                                          adaptive_counter_warmup().as_counter);
