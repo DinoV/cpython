@@ -502,7 +502,7 @@ _PyList_AppendTakeRefListResize(PyListObject *self, PyObject *newitem)
         Py_DECREF(newitem);
         return -1;
     }
-    PyList_SET_ITEM(self, len, newitem);
+    FT_ATOMIC_STORE_PTR_RELAXED(self->ob_item[len], newitem);
     return 0;
 }
 
