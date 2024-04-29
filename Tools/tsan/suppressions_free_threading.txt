@@ -53,3 +53,5 @@ race:_Py_qsbr_poll
 race:connect
 race:recv
 race:count_next
+race:dump_traceback
+race:PyUnstable_InterpreterFrame_GetLine
