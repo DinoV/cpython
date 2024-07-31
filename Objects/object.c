@@ -1,4 +1,3 @@
-
 /* Generic object operations; and implementation of None */
 
 #include "Python.h"
@@ -1618,7 +1617,21 @@ _PyObject_GenericGetAttrWithDict(PyObject *obj, PyObject *name,
         }
     }
     if (dict != NULL) {
+#ifdef Py_GIL_DISABLED
+        if (!_Py_TryIncref(dict)) {
+            Py_BEGIN_CRITICAL_SECTION(obj);
+            if ((tp->tp_flags & Py_TPFLAGS_MANAGED_DICT)) {
+                dict = (PyObject *)_PyObject_GetManagedDict(obj);
+            }
+            else {
+                dict = *_PyObject_ComputedDictPointer(obj);
+            }
+            Py_INCREF(dict);
+            Py_END_CRITICAL_SECTION();
+        }
+#else
         Py_INCREF(dict);
+#endif
         int rc = PyDict_GetItemRef(dict, name, &res);
         Py_DECREF(dict);
         if (res != NULL) {

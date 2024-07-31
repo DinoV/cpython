@@ -7082,6 +7082,7 @@ _PyObject_SetManagedDict(PyObject *obj, PyObject *new_dict)
     PyTypeObject *tp = Py_TYPE(obj);
     if (tp->tp_flags & Py_TPFLAGS_INLINE_VALUES) {
         PyDictObject *dict = _PyObject_GetManagedDict(obj);
+        PyDictObject *locked_dict;
         if (dict == NULL) {
 #ifdef Py_GIL_DISABLED
             Py_BEGIN_CRITICAL_SECTION(obj);
@@ -7090,6 +7091,9 @@ _PyObject_SetManagedDict(PyObject *obj, PyObject *new_dict)
             if (dict == NULL) {
                 set_dict_inline_values(obj, (PyDictObject *)new_dict);
             }
+
+            Py_XINCREF(dict);
+            locked_dict = dict;
 
             Py_END_CRITICAL_SECTION();
 
@@ -7101,6 +7105,21 @@ _PyObject_SetManagedDict(PyObject *obj, PyObject *new_dict)
             return 0;
 #endif
         }
+
+#ifdef Py_GIL_DISABLED
+        else {
+            // We only have a borrowed reference to the dict, so we
+            // need to incref it.
+            locked_dict = dict;
+            if (!_Py_TryIncref((PyObject *)locked_dict)) {
+                Py_BEGIN_CRITICAL_SECTION(obj);
+                locked_dict = _PyObject_GetManagedDict(obj);
+                Py_INCREF(locked_dict);
+                dict = locked_dict;
+                Py_END_CRITICAL_SECTION();
+            }
+        }
+#endif
 
         Py_BEGIN_CRITICAL_SECTION2(dict, obj);
 
@@ -7115,7 +7134,10 @@ _PyObject_SetManagedDict(PyObject *obj, PyObject *new_dict)
         Py_END_CRITICAL_SECTION2();
 
         if (err == 0) {
-            Py_XDECREF(dict);
+#ifdef Py_GIL_DISABLED
+            Py_DECREF(locked_dict); // Reference for keeping dict alive
+#endif
+            Py_XDECREF(dict);       // Reference we replaced in object
         }
     }
     else {
