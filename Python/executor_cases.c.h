@@ -3232,17 +3232,9 @@
             dict = (PyDictObject *)stack_pointer[-1].bits;
             owner = stack_pointer[-2];
             uint16_t hint = (uint16_t)CURRENT_OPERAND0();
+            PyDictKeysObject *dk = FT_ATOMIC_LOAD_PTR(dict->ma_keys);
             PyObject *attr_o;
-            if (!LOCK_OBJECT(dict)) {
-                stack_pointer += -1;
-                assert(WITHIN_STACK_BOUNDS());
-                if (true) {
-                    UOP_STAT_INC(uopcode, miss);
-                    JUMP_TO_JUMP_TARGET();
-                }
-            }
-            if (hint >= (size_t)dict->ma_keys->dk_nentries) {
-                UNLOCK_OBJECT(dict);
+            if (hint >= (size_t)dk->dk_nentries) {
                 stack_pointer += -1;
                 assert(WITHIN_STACK_BOUNDS());
                 if (true) {
@@ -3251,8 +3243,7 @@
                 }
             }
             PyObject *name = GETITEM(FRAME_CO_NAMES, oparg>>1);
-            if (dict->ma_keys->dk_kind != DICT_KEYS_UNICODE) {
-                UNLOCK_OBJECT(dict);
+            if (dk->dk_kind != DICT_KEYS_UNICODE) {
                 stack_pointer += -1;
                 assert(WITHIN_STACK_BOUNDS());
                 if (true) {
@@ -3260,9 +3251,8 @@
                     JUMP_TO_JUMP_TARGET();
                 }
             }
-            PyDictUnicodeEntry *ep = DK_UNICODE_ENTRIES(dict->ma_keys) + hint;
+            PyDictUnicodeEntry *ep = DK_UNICODE_ENTRIES(dk) + hint;
             if (ep->me_key != name) {
-                UNLOCK_OBJECT(dict);
                 stack_pointer += -1;
                 assert(WITHIN_STACK_BOUNDS());
                 if (true) {
@@ -3270,9 +3260,8 @@
                     JUMP_TO_JUMP_TARGET();
                 }
             }
-            attr_o = ep->me_value;
+            attr_o = FT_ATOMIC_LOAD_PTR(ep->me_value);
             if (attr_o == NULL) {
-                UNLOCK_OBJECT(dict);
                 stack_pointer += -1;
                 assert(WITHIN_STACK_BOUNDS());
                 if (true) {
@@ -3280,9 +3269,31 @@
                     JUMP_TO_JUMP_TARGET();
                 }
             }
-            STAT_INC(LOAD_ATTR, hit);
+            #ifdef Py_GIL_DISABLED
+            if (!_Py_TryIncrefCompareStackRef(&ep->me_value, attr_o, &attr)) {
+                stack_pointer += -1;
+                assert(WITHIN_STACK_BOUNDS());
+                if (true) {
+                    UOP_STAT_INC(uopcode, miss);
+                    JUMP_TO_JUMP_TARGET();
+                }
+            } else {
+                if (dk != FT_ATOMIC_LOAD_PTR(dict->ma_keys)) {
+                    _PyFrame_SetStackPointer(frame, stack_pointer);
+                    PyStackRef_CLOSE(attr);
+                    stack_pointer = _PyFrame_GetStackPointer(frame);
+                    stack_pointer += -1;
+                    assert(WITHIN_STACK_BOUNDS());
+                    if (true) {
+                        UOP_STAT_INC(uopcode, miss);
+                        JUMP_TO_JUMP_TARGET();
+                    }
+                }
+            }
+            #else
             attr = PyStackRef_FromPyObjectNew(attr_o);
-            UNLOCK_OBJECT(dict);
+            #endif
+            STAT_INC(LOAD_ATTR, hit);
             stack_pointer += -1;
             assert(WITHIN_STACK_BOUNDS());
             _PyFrame_SetStackPointer(frame, stack_pointer);
