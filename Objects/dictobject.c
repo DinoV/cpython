@@ -2570,11 +2570,9 @@ _PyDict_LoadBuiltinsFromGlobals(PyObject *globals)
 }
 
 /* Consumes references to key and value */
-static int
-setitem_take2_lock_held(PyDictObject *mp, PyObject *key, PyObject *value)
+int
+_PyDict_SetItem_Take2_NoLock(PyDictObject *mp, PyObject *key, PyObject *value)
 {
-    ASSERT_DICT_LOCKED(mp);
-
     assert(key);
     assert(value);
     assert(PyDict_Check(mp));
@@ -2599,7 +2597,7 @@ _PyDict_SetItem_Take2(PyDictObject *mp, PyObject *key, PyObject *value)
 {
     int res;
     Py_BEGIN_CRITICAL_SECTION(mp);
-    res = setitem_take2_lock_held(mp, key, value);
+    res = _PyDict_SetItem_Take2_NoLock(mp, key, value);
     Py_END_CRITICAL_SECTION();
     return res;
 }
@@ -2628,8 +2626,8 @@ setitem_lock_held(PyDictObject *mp, PyObject *key, PyObject *value)
 {
     assert(key);
     assert(value);
-    return setitem_take2_lock_held(mp,
-                                   Py_NewRef(key), Py_NewRef(value));
+    return _PyDict_SetItem_Take2_NoLock(mp,
+                                        Py_NewRef(key), Py_NewRef(value));
 }
 
 

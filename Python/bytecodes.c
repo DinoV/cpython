@@ -1993,7 +1993,7 @@ dummy_func(
             assert(PyDict_CheckExact(dict));
             /* dict[key] = value */
             // Do not DECREF INPUTS because the function steals the references
-            int err = _PyDict_SetItem_Take2(
+            int err = _PyDict_SetItem_Take2_NoLock(
                 (PyDictObject *)dict,
                 PyStackRef_AsPyObjectSteal(key),
                 PyStackRef_AsPyObjectSteal(value)

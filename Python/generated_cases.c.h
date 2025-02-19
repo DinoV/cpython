@@ -9604,7 +9604,7 @@
             /* dict[key] = value */
             // Do not DECREF INPUTS because the function steals the references
             _PyFrame_SetStackPointer(frame, stack_pointer);
-            int err = _PyDict_SetItem_Take2(
+            int err = _PyDict_SetItem_Take2_NoLock(
                 (PyDictObject *)dict,
                 PyStackRef_AsPyObjectSteal(key),
                 PyStackRef_AsPyObjectSteal(value)
