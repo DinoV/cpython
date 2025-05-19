@@ -1,4 +1,5 @@
 from __future__ import annotations
+import inspect
 from typing import TYPE_CHECKING, Final
 
 import libclinic
@@ -9,10 +10,25 @@ from libclinic.function import (
 from libclinic.converter import CConverter
 from libclinic.converters import (
     defining_class_converter, object_converter, self_converter)
+from libclinic.utils import Sentinels
 if TYPE_CHECKING:
     from libclinic.clanguage import CLanguage
     from libclinic.codegen import CodeGen
 
+SUPPORTED_TYPED_DEFAULTS = {
+    "PyObject *": {
+        None: "{{.dfv_object = Py_None}}",
+        True: "{{.dfv_object = Py_True}}",
+        False: "{{.dfv_object = Py_False}}",
+        inspect.Parameter.empty: "{{.dfv_object = NULL}}",
+        Sentinels.unspecified: "{{.dfv_object = NULL}}",
+    },
+    "Py_ssize_t": (lambda default: (True, f"{{{{.dfv_ssize_t = {default}}}}}")),
+    "int": {
+        True:"{{.dfv_int32 = 1}}",
+        False:"{{.dfv_int32 = 0}}",
+    }
+}
 
 def declare_parser(
     f: Function,
@@ -159,7 +175,26 @@ IMPL_DEFINITION_PROTOTYPE: Final[str] = libclinic.normalize_snippet("""
 """)
 METHODDEF_PROTOTYPE_DEFINE: Final[str] = libclinic.normalize_snippet(r"""
     #define {methoddef_name}    \
-        {{"{name}", {methoddef_cast}{c_basename}{methoddef_cast_end}, {methoddef_flags}, {c_basename}__doc__}},
+        {{"{name}", {methoddef_cast}{ml_name}{methoddef_cast_end}, {methoddef_flags}, {c_basename}__doc__}},
+""")
+TYPED_METHODDEF_PROTOTYPE_DEFINE: Final[str] = libclinic.normalize_snippet(r"""
+    {methoddef_typed_sig}
+""")
+TYPED_METHODDEF_PROTOTYPE_DEFINE_TEMPLATE: Final[str] = libclinic.normalize_snippet(r"""
+    {methoddef_sig_params_def}
+    {methoddef_sig_kwnames_def}
+    const _PySigDefaultValue {c_basename}_typed_method_defs[] = {methoddef_sig_defaults};
+    _PyTypedMethodDef {c_basename}_typed_method_def = {{
+        {c_basename}_impl,
+        {methoddef_cast}{c_basename}{methoddef_cast_end},
+        {methoddef_flags},
+        _PyCType_Object,
+        {methoddef_arg_count},
+        {methoddef_minarg_count},
+        {methoddef_sig_params},
+        {methoddef_sig_kwnames},
+        {c_basename}_typed_method_defs
+    }};
 """)
 GETTERDEF_PROTOTYPE_DEFINE: Final[str] = libclinic.normalize_snippet(r"""
     #if !defined({getset_basename}_DOCSTR)
@@ -226,6 +261,7 @@ class ParseArgsCodeGen:
     impl_prototype: str | None
     impl_definition: str
     methoddef_define: str
+    typed_methoddef_define: str
     parser_prototype: str
     parser_definition: str
     cpp_if: str
@@ -307,6 +343,7 @@ class ParseArgsCodeGen:
         self.docstring_prototype = ''
         self.docstring_definition = ''
         self.methoddef_define = METHODDEF_PROTOTYPE_DEFINE
+        self.typed_methoddef_define = TYPED_METHODDEF_PROTOTYPE_DEFINE
         self.return_value_declaration = "PyObject *return_value = NULL;"
 
         if self.is_new_or_init() and not self.func.docstring:
@@ -446,6 +483,9 @@ class ParseArgsCodeGen:
                     }}
                     """ % argname
 
+            if self.parameters[0].converter.typed_method_type is None:
+                print('cant type', self.func.full_name, type(self.parameters[0].converter))
+
             parser_code = libclinic.normalize_snippet(parsearg, indent=4)
             self.parser_body(parser_code)
 
@@ -468,6 +508,26 @@ class ParseArgsCodeGen:
                               max_pos=self.max_pos,
                               fastcall=self.fastcall,
                               limited_capi=self.limited_capi)
+
+    def typed_param_supported(self, param: Parameter) -> bool:
+        if param.converter.typed_method_type is None:
+            return False
+        print(param.converter.c_default, param.default, type(param.converter.c_default), param.converter.type, self.func.full_name)
+        supported_convs = SUPPORTED_TYPED_DEFAULTS.get(param.converter.type)
+        if isinstance(supported_convs, dict):
+            if param.default not in supported_convs:
+                print('not supported', param.default, type(param.default), param.converter.c_default, self.func.full_name)
+                return False
+        elif callable(supported_convs):
+            supported, default = supported_convs(param.default)
+            if not supported:
+                print('not supported', param.default, self.func.full_name)
+                return False
+        else:
+            print('not supported', param.default, self.func.full_name)
+            return False
+
+        return True
 
     def parse_pos_only(self) -> None:
         if self.fastcall:
@@ -537,7 +597,11 @@ class ParseArgsCodeGen:
 
         has_optional = False
         use_parser_code = True
+        can_type = True
+        if self.flags == "METH_NOARGS":
+            can_type = False
         for i, p in enumerate(self.parameters):
+            can_type = can_type and self.typed_param_supported(p)
             displayname = p.get_displayname(i+1)
             argname = argname_fmt % i
             parsearg: str | None
@@ -588,13 +652,19 @@ class ParseArgsCodeGen:
                         goto exit;
                     }}
                     """, indent=4)]
+        if can_type:
+            self.flags += "|_METH_TYPED"
         self.parser_body(*parser_code)
 
     def parse_general(self, clang: CLanguage) -> None:
         parsearg: str | None
         deprecated_positionals: dict[int, Parameter] = {}
         deprecated_keywords: dict[int, Parameter] = {}
+        can_type = True
         for i, p in enumerate(self.parameters):
+            if not self.typed_param_supported(p):
+                print('cant type', self.func.full_name, p, p.converter)
+            can_type = can_type and self.typed_param_supported(p) is not None
             if p.deprecated_positional:
                 deprecated_positionals[i] = p
             if p.deprecated_keyword:
@@ -633,6 +703,8 @@ class ParseArgsCodeGen:
                 if has_optional_kw:
                     self.declarations += "\nPy_ssize_t noptargs = %s + (kwnames ? PyTuple_GET_SIZE(kwnames) : 0) - %d;" % (nargs, self.min_pos + self.min_kw_only)
                 unpack_args = 'args, nargs, NULL, kwnames'
+                if can_type:
+                    self.flags += "|_METH_TYPED"
             else:
                 # positional-or-keyword arguments
                 self.flags = "METH_VARARGS|METH_KEYWORDS"
@@ -833,8 +905,27 @@ class ParseArgsCodeGen:
 
         self.parser_body(*fields, declarations=self.declarations)
 
+    def format_typed_sig_element(self, param: Parameter) -> str:
+        return f"{{{{ {param.converter.typed_method_type} }}}}"
+
+    def format_typed_sig_default(self, index: int, param: Parameter) -> str:
+        if index < self.min_pos:
+            return "{{ NULL }}"
+        supported_convs = SUPPORTED_TYPED_DEFAULTS.get(param.converter.type)
+        if isinstance(supported_convs, dict):
+            default_val = supported_convs.get(param.default)
+            assert default_val is not None, (param.default, type(param.default))    
+        elif callable(supported_convs):
+            can_handle, default_val  = supported_convs(param.default)
+            assert can_handle
+        else:
+            default_val = "{{ NULL }}"
+
+        return default_val
+
     def process_methoddef(self, clang: CLanguage) -> None:
         methoddef_cast_end = ""
+        methoddef_typed_sig = ""
         if self.flags in ('METH_NOARGS', 'METH_O', 'METH_VARARGS'):
             methoddef_cast = "(PyCFunction)"
         elif self.func.kind is GETTER:
@@ -845,12 +936,74 @@ class ParseArgsCodeGen:
             methoddef_cast = "_PyCFunction_CAST("
             methoddef_cast_end = ")"
 
+        if "|_METH_TYPED" in self.flags:
+            orig_flags = self.flags.replace("|_METH_TYPED", "")
+            methoddef_typed_sig = TYPED_METHODDEF_PROTOTYPE_DEFINE_TEMPLATE
+            methoddef_typed_sig = methoddef_typed_sig.replace('{methoddef_flags}', orig_flags)
+            methoddef_typed_sig = methoddef_typed_sig.replace('{methoddef_cast}', methoddef_cast)
+            methoddef_typed_sig = methoddef_typed_sig.replace('{methoddef_cast_end}', methoddef_cast_end)
+
+            # Build up parameter types array or use common shared one for
+            # known supported pattern
+            param_types = []
+            all_object = True
+            for param in self.func.parameters.values():
+                if param.converter.typed_method_type != "_PyCType_Object":
+                    all_object = False
+                param_types.append(self.format_typed_sig_element(param))
+
+            if not all_object or len(param_types) < 2 or len(param_types) > 6:
+                # Not a known supported pattern
+                param_types = ", ".join(param_types)
+                params_def = f"const _PySigElemType {{c_basename}}_typed_method_sig[] = {{{{ {param_types} }}}};"
+                params_name = "{c_basename}_typed_method_sig"
+            else:
+                # Known supported pattern
+                params_def = ""
+                params_name = f"_PyMethodObjectSig{len(param_types)}"
+            
+            default_vals = "{{ " + ", ".join(self.format_typed_sig_default(i, p) for i, p in enumerate(self.func.parameters.values())) + " }}"
+
+            # Include keyword arugment names only if we support kw calls            
+            if "METH_KEYWORDS" in self.flags:
+                kwnames_def = "{{ " + ", ".join(f'"{p.name}"' for p in self.func.parameters.values()) + " }}"
+                kwnames_def = f"const char *{{c_basename}}_typed_method_kwnames[] = {kwnames_def};"
+                kwnames = "{c_basename}_typed_method_kwnames"
+            else:
+                kwnames_def = ""
+                kwnames = f"NULL"
+            print(default_vals)
+
+            methoddef_typed_sig = methoddef_typed_sig.replace('{methoddef_sig_params}', params_name)
+            methoddef_typed_sig = methoddef_typed_sig.replace('{methoddef_sig_params_def}', params_def)
+            methoddef_typed_sig = methoddef_typed_sig.replace('{methoddef_sig_kwnames}', kwnames)
+            methoddef_typed_sig = methoddef_typed_sig.replace('{methoddef_sig_kwnames_def}', kwnames_def)
+            methoddef_typed_sig = methoddef_typed_sig.replace('{methoddef_sig_defaults}', default_vals)
+            methoddef_typed_sig = methoddef_typed_sig.replace('{methoddef_arg_count}', str(len(self.func.parameters)))
+            methoddef_typed_sig = methoddef_typed_sig.replace('{methoddef_minarg_count}', str(self.min_pos + 1))
+
+            #         return (self.func.return_converter.type == 'PyObject *'
+            #                and not self.func.critical_section)
+
+            if self.limited_capi:
+                methoddef_cast = "(PyCFunction)(void(*)(void))"
+            else:
+                methoddef_cast = "_PyCFunction_CAST("
+                methoddef_cast_end = ")"
+
+            self.methoddef_define = self.methoddef_define.replace("{ml_name}", f"&{self.func.c_basename}_typed_method_def")
+            self.flags = "_METH_TYPED"
+            self.codegen.add_include('pycore_typedmethoddef.h', '_PyTypedMethodDef')
+
         if self.func.methoddef_flags:
             self.flags += '|' + self.func.methoddef_flags
 
         self.methoddef_define = self.methoddef_define.replace('{methoddef_flags}', self.flags)
         self.methoddef_define = self.methoddef_define.replace('{methoddef_cast}', methoddef_cast)
         self.methoddef_define = self.methoddef_define.replace('{methoddef_cast_end}', methoddef_cast_end)
+        self.methoddef_define = self.methoddef_define.replace("{ml_name}", "{c_basename}")
+
+        self.typed_methoddef_define = self.typed_methoddef_define.replace('{methoddef_typed_sig}', methoddef_typed_sig)
 
         self.methoddef_ifndef = ''
         conditional = clang.cpp.condition()
@@ -859,7 +1012,6 @@ class ParseArgsCodeGen:
         else:
             self.cpp_if = "#if " + conditional
             self.cpp_endif = "#endif /* " + conditional + " */"
-
             if self.methoddef_define and self.codegen.add_ifndef_symbol(self.func.full_name):
                 self.methoddef_ifndef = METHODDEF_PROTOTYPE_IFNDEF
 
@@ -894,6 +1046,7 @@ class ParseArgsCodeGen:
             "cpp_if" : self.cpp_if,
             "cpp_endif" : self.cpp_endif,
             "methoddef_ifndef" : self.methoddef_ifndef,
+            "typed_methoddef_define" : self.typed_methoddef_define,
         }
 
         # make sure we didn't forget to assign something,

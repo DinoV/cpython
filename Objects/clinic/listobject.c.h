@@ -9,15 +9,13 @@ preserve
 #include "pycore_abstract.h"      // _PyNumber_Index()
 #include "pycore_critical_section.h"// Py_BEGIN_CRITICAL_SECTION()
 #include "pycore_modsupport.h"    // _PyArg_CheckPositional()
+#include "pycore_typedmethoddef.h"// _PyTypedMethodDef
 
 PyDoc_STRVAR(list_insert__doc__,
 "insert($self, index, object, /)\n"
 "--\n"
 "\n"
 "Insert object before index.");
-
-#define LIST_INSERT_METHODDEF    \
-    {"insert", _PyCFunction_CAST(list_insert), METH_FASTCALL, list_insert__doc__},
 
 static PyObject *
 list_insert_impl(PyListObject *self, Py_ssize_t index, PyObject *object);
@@ -53,14 +51,29 @@ exit:
     return return_value;
 }
 
+const _PySigElemType list_insert_typed_method_sig[] = { { _PyCType_Object }, { _PyCType_SSizeT }, { _PyCType_Object } };
+
+const _PySigDefaultValue list_insert_typed_method_defs[] = { { NULL }, { NULL }, {.dfv_object = NULL} };
+_PyTypedMethodDef list_insert_typed_method_def = {
+    list_insert_impl,
+    _PyCFunction_CAST(list_insert),
+    METH_FASTCALL,
+    _PyCType_Object,
+    3,
+    3,
+    list_insert_typed_method_sig,
+    NULL,
+    list_insert_typed_method_defs
+};
+
+#define LIST_INSERT_METHODDEF    \
+    {"insert", _PyCFunction_CAST(&list_insert_typed_method_def), _METH_TYPED, list_insert__doc__},
+
 PyDoc_STRVAR(py_list_clear__doc__,
 "clear($self, /)\n"
 "--\n"
 "\n"
 "Remove all items from list.");
-
-#define PY_LIST_CLEAR_METHODDEF    \
-    {"clear", (PyCFunction)py_list_clear, METH_NOARGS, py_list_clear__doc__},
 
 static PyObject *
 py_list_clear_impl(PyListObject *self);
@@ -77,14 +90,14 @@ py_list_clear(PyObject *self, PyObject *Py_UNUSED(ignored))
     return return_value;
 }
 
+#define PY_LIST_CLEAR_METHODDEF    \
+    {"clear", (PyCFunction)py_list_clear, METH_NOARGS, py_list_clear__doc__},
+
 PyDoc_STRVAR(list_copy__doc__,
 "copy($self, /)\n"
 "--\n"
 "\n"
 "Return a shallow copy of the list.");
-
-#define LIST_COPY_METHODDEF    \
-    {"copy", (PyCFunction)list_copy, METH_NOARGS, list_copy__doc__},
 
 static PyObject *
 list_copy_impl(PyListObject *self);
@@ -101,14 +114,14 @@ list_copy(PyObject *self, PyObject *Py_UNUSED(ignored))
     return return_value;
 }
 
+#define LIST_COPY_METHODDEF    \
+    {"copy", (PyCFunction)list_copy, METH_NOARGS, list_copy__doc__},
+
 PyDoc_STRVAR(list_append__doc__,
 "append($self, object, /)\n"
 "--\n"
 "\n"
 "Append object to the end of the list.");
-
-#define LIST_APPEND_METHODDEF    \
-    {"append", (PyCFunction)list_append, METH_O, list_append__doc__},
 
 static PyObject *
 list_append_impl(PyListObject *self, PyObject *object);
@@ -125,14 +138,14 @@ list_append(PyObject *self, PyObject *object)
     return return_value;
 }
 
+#define LIST_APPEND_METHODDEF    \
+    {"append", (PyCFunction)list_append, METH_O, list_append__doc__},
+
 PyDoc_STRVAR(list_extend__doc__,
 "extend($self, iterable, /)\n"
 "--\n"
 "\n"
 "Extend list by appending elements from the iterable.");
-
-#define LIST_EXTEND_METHODDEF    \
-    {"extend", (PyCFunction)list_extend, METH_O, list_extend__doc__},
 
 static PyObject *
 list_extend_impl(PyListObject *self, PyObject *iterable);
@@ -147,6 +160,9 @@ list_extend(PyObject *self, PyObject *iterable)
     return return_value;
 }
 
+#define LIST_EXTEND_METHODDEF    \
+    {"extend", (PyCFunction)list_extend, METH_O, list_extend__doc__},
+
 PyDoc_STRVAR(list_pop__doc__,
 "pop($self, index=-1, /)\n"
 "--\n"
@@ -154,9 +170,6 @@ PyDoc_STRVAR(list_pop__doc__,
 "Remove and return item at index (default last).\n"
 "\n"
 "Raises IndexError if list is empty or index is out of range.");
-
-#define LIST_POP_METHODDEF    \
-    {"pop", _PyCFunction_CAST(list_pop), METH_FASTCALL, list_pop__doc__},
 
 static PyObject *
 list_pop_impl(PyListObject *self, Py_ssize_t index);
@@ -194,6 +207,24 @@ exit:
     return return_value;
 }
 
+const _PySigElemType list_pop_typed_method_sig[] = { { _PyCType_Object }, { _PyCType_SSizeT } };
+
+const _PySigDefaultValue list_pop_typed_method_defs[] = { { NULL }, {.dfv_ssize_t = -1} };
+_PyTypedMethodDef list_pop_typed_method_def = {
+    list_pop_impl,
+    _PyCFunction_CAST(list_pop),
+    METH_FASTCALL,
+    _PyCType_Object,
+    2,
+    1,
+    list_pop_typed_method_sig,
+    NULL,
+    list_pop_typed_method_defs
+};
+
+#define LIST_POP_METHODDEF    \
+    {"pop", _PyCFunction_CAST(&list_pop_typed_method_def), _METH_TYPED, list_pop__doc__},
+
 PyDoc_STRVAR(list_sort__doc__,
 "sort($self, /, *, key=None, reverse=False)\n"
 "--\n"
@@ -207,9 +238,6 @@ PyDoc_STRVAR(list_sort__doc__,
 "ascending or descending, according to their function values.\n"
 "\n"
 "The reverse flag can be set to sort in descending order.");
-
-#define LIST_SORT_METHODDEF    \
-    {"sort", _PyCFunction_CAST(list_sort), METH_FASTCALL|METH_KEYWORDS, list_sort__doc__},
 
 static PyObject *
 list_sort_impl(PyListObject *self, PyObject *keyfunc, int reverse);
@@ -277,14 +305,29 @@ exit:
     return return_value;
 }
 
+const _PySigElemType list_sort_typed_method_sig[] = { { _PyCType_Object }, { _PyCType_Object }, { _PyCType_Bool } };
+const char *list_sort_typed_method_kwnames[] = { "self", "key", "reverse" };
+const _PySigDefaultValue list_sort_typed_method_defs[] = { { NULL }, {.dfv_object = Py_None}, {.dfv_int32 = 0} };
+_PyTypedMethodDef list_sort_typed_method_def = {
+    list_sort_impl,
+    _PyCFunction_CAST(list_sort),
+    METH_FASTCALL|METH_KEYWORDS,
+    _PyCType_Object,
+    3,
+    1,
+    list_sort_typed_method_sig,
+    list_sort_typed_method_kwnames,
+    list_sort_typed_method_defs
+};
+
+#define LIST_SORT_METHODDEF    \
+    {"sort", _PyCFunction_CAST(&list_sort_typed_method_def), _METH_TYPED, list_sort__doc__},
+
 PyDoc_STRVAR(list_reverse__doc__,
 "reverse($self, /)\n"
 "--\n"
 "\n"
 "Reverse *IN PLACE*.");
-
-#define LIST_REVERSE_METHODDEF    \
-    {"reverse", (PyCFunction)list_reverse, METH_NOARGS, list_reverse__doc__},
 
 static PyObject *
 list_reverse_impl(PyListObject *self);
@@ -301,6 +344,9 @@ list_reverse(PyObject *self, PyObject *Py_UNUSED(ignored))
     return return_value;
 }
 
+#define LIST_REVERSE_METHODDEF    \
+    {"reverse", (PyCFunction)list_reverse, METH_NOARGS, list_reverse__doc__},
+
 PyDoc_STRVAR(list_index__doc__,
 "index($self, value, start=0, stop=sys.maxsize, /)\n"
 "--\n"
@@ -308,9 +354,6 @@ PyDoc_STRVAR(list_index__doc__,
 "Return first index of value.\n"
 "\n"
 "Raises ValueError if the value is not present.");
-
-#define LIST_INDEX_METHODDEF    \
-    {"index", _PyCFunction_CAST(list_index), METH_FASTCALL, list_index__doc__},
 
 static PyObject *
 list_index_impl(PyListObject *self, PyObject *value, Py_ssize_t start,
@@ -347,14 +390,14 @@ exit:
     return return_value;
 }
 
+#define LIST_INDEX_METHODDEF    \
+    {"index", _PyCFunction_CAST(list_index), METH_FASTCALL, list_index__doc__},
+
 PyDoc_STRVAR(list_count__doc__,
 "count($self, value, /)\n"
 "--\n"
 "\n"
 "Return number of occurrences of value.");
-
-#define LIST_COUNT_METHODDEF    \
-    {"count", (PyCFunction)list_count, METH_O, list_count__doc__},
 
 static PyObject *
 list_count_impl(PyListObject *self, PyObject *value);
@@ -369,6 +412,9 @@ list_count(PyObject *self, PyObject *value)
     return return_value;
 }
 
+#define LIST_COUNT_METHODDEF    \
+    {"count", (PyCFunction)list_count, METH_O, list_count__doc__},
+
 PyDoc_STRVAR(list_remove__doc__,
 "remove($self, value, /)\n"
 "--\n"
@@ -376,9 +422,6 @@ PyDoc_STRVAR(list_remove__doc__,
 "Remove first occurrence of value.\n"
 "\n"
 "Raises ValueError if the value is not present.");
-
-#define LIST_REMOVE_METHODDEF    \
-    {"remove", (PyCFunction)list_remove, METH_O, list_remove__doc__},
 
 static PyObject *
 list_remove_impl(PyListObject *self, PyObject *value);
@@ -394,6 +437,9 @@ list_remove(PyObject *self, PyObject *value)
 
     return return_value;
 }
+
+#define LIST_REMOVE_METHODDEF    \
+    {"remove", (PyCFunction)list_remove, METH_O, list_remove__doc__},
 
 PyDoc_STRVAR(list___init____doc__,
 "list(iterable=(), /)\n"
@@ -439,9 +485,6 @@ PyDoc_STRVAR(list___sizeof____doc__,
 "\n"
 "Return the size of the list in memory, in bytes.");
 
-#define LIST___SIZEOF___METHODDEF    \
-    {"__sizeof__", (PyCFunction)list___sizeof__, METH_NOARGS, list___sizeof____doc__},
-
 static PyObject *
 list___sizeof___impl(PyListObject *self);
 
@@ -451,14 +494,14 @@ list___sizeof__(PyObject *self, PyObject *Py_UNUSED(ignored))
     return list___sizeof___impl((PyListObject *)self);
 }
 
+#define LIST___SIZEOF___METHODDEF    \
+    {"__sizeof__", (PyCFunction)list___sizeof__, METH_NOARGS, list___sizeof____doc__},
+
 PyDoc_STRVAR(list___reversed____doc__,
 "__reversed__($self, /)\n"
 "--\n"
 "\n"
 "Return a reverse iterator over the list.");
-
-#define LIST___REVERSED___METHODDEF    \
-    {"__reversed__", (PyCFunction)list___reversed__, METH_NOARGS, list___reversed____doc__},
 
 static PyObject *
 list___reversed___impl(PyListObject *self);
@@ -468,4 +511,7 @@ list___reversed__(PyObject *self, PyObject *Py_UNUSED(ignored))
 {
     return list___reversed___impl((PyListObject *)self);
 }
-/*[clinic end generated code: output=ae13fc2b56dc27c2 input=a9049054013a1b77]*/
+
+#define LIST___REVERSED___METHODDEF    \
+    {"__reversed__", (PyCFunction)list___reversed__, METH_NOARGS, list___reversed____doc__},
+/*[clinic end generated code: output=3172f5659aacd268 input=a9049054013a1b77]*/

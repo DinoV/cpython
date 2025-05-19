@@ -133,6 +133,11 @@ PyAPI_FUNC(PyObject *) PyCMethod_New(PyMethodDef *, PyObject *,
 #define METH_METHOD 0x0200
 #endif
 
+#if !defined(Py_LIMITED_API)
+// Internal definition for typed methods. Method is a _PyTypedMethodDef object.
+#define _METH_TYPED 0x0400
+#endif
+
 
 #ifndef Py_LIMITED_API
 #  define Py_CPYTHON_METHODOBJECT_H

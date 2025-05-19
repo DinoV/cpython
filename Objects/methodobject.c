@@ -8,6 +8,7 @@
 #include "pycore_object.h"
 #include "pycore_pyerrors.h"
 #include "pycore_pystate.h"       // _PyThreadState_GET()
+#include "pycore_typedmethoddef.h"
 
 
 /* undefine macro trampoline to PyCFunction_NewEx */
@@ -20,7 +21,11 @@ static PyObject * cfunction_vectorcall_FASTCALL(
     PyObject *func, PyObject *const *args, size_t nargsf, PyObject *kwnames);
 static PyObject * cfunction_vectorcall_FASTCALL_KEYWORDS(
     PyObject *func, PyObject *const *args, size_t nargsf, PyObject *kwnames);
+static PyObject * cfunction_vectorcall_FASTCALL_KEYWORDS_TYPED(
+    PyObject *func, PyObject *const *args, size_t nargsf, PyObject *kwnames);
 static PyObject * cfunction_vectorcall_FASTCALL_KEYWORDS_METHOD(
+    PyObject *func, PyObject *const *args, size_t nargsf, PyObject *kwnames);
+static PyObject * cfunction_vectorcall_FASTCALL_KEYWORDS_METHOD_TYPED(
     PyObject *func, PyObject *const *args, size_t nargsf, PyObject *kwnames);
 static PyObject * cfunction_vectorcall_NOARGS(
     PyObject *func, PyObject *const *args, size_t nargsf, PyObject *kwnames);
@@ -28,7 +33,9 @@ static PyObject * cfunction_vectorcall_O(
     PyObject *func, PyObject *const *args, size_t nargsf, PyObject *kwnames);
 static PyObject * cfunction_call(
     PyObject *func, PyObject *args, PyObject *kwargs);
-
+static PyObject * cfunction_vectorcall_FASTCALL_TYPED(
+    PyObject *func, PyObject *const *args, size_t nargsf, PyObject *kwnames);
+    
 
 PyObject *
 PyCFunction_New(PyMethodDef *ml, PyObject *self)
@@ -42,13 +49,46 @@ PyCFunction_NewEx(PyMethodDef *ml, PyObject *self, PyObject *module)
     return PyCMethod_New(ml, self, module, NULL);
 }
 
+static vectorcallfunc
+get_typed_vectorcall(_PyTypedMethodDef *tmd)
+{
+    vectorcallfunc vectorcall;
+    switch (tmd->tmd_flags & (METH_VARARGS | METH_FASTCALL | METH_NOARGS |
+                            METH_O | METH_KEYWORDS | METH_METHOD | _METH_TYPED))
+    {
+        case METH_FASTCALL:
+            vectorcall = cfunction_vectorcall_FASTCALL_TYPED;
+            break;
+        case METH_VARARGS:
+        case METH_VARARGS | METH_KEYWORDS:
+            /* For METH_VARARGS functions, it's more efficient to use tp_call
+                * instead of vectorcall. */
+            vectorcall = NULL;
+            break;
+        case METH_FASTCALL | METH_KEYWORDS:
+            vectorcall = cfunction_vectorcall_FASTCALL_KEYWORDS_TYPED;
+            break;
+        case METH_O:
+            vectorcall = cfunction_vectorcall_O;
+            break;
+        case METH_METHOD | METH_FASTCALL | METH_KEYWORDS:
+            vectorcall = cfunction_vectorcall_FASTCALL_KEYWORDS_METHOD_TYPED;
+            break;
+        default:
+            PyErr_Format(PyExc_SystemError,
+                         "%s() method: bad call flags", "fixme");
+            return NULL;
+    }
+    return vectorcall;
+}
+
 PyObject *
 PyCMethod_New(PyMethodDef *ml, PyObject *self, PyObject *module, PyTypeObject *cls)
 {
     /* Figure out correct vectorcall function to use */
     vectorcallfunc vectorcall;
     switch (ml->ml_flags & (METH_VARARGS | METH_FASTCALL | METH_NOARGS |
-                            METH_O | METH_KEYWORDS | METH_METHOD))
+                            METH_O | METH_KEYWORDS | METH_METHOD | _METH_TYPED))
     {
         case METH_VARARGS:
         case METH_VARARGS | METH_KEYWORDS:
@@ -70,6 +110,12 @@ PyCMethod_New(PyMethodDef *ml, PyObject *self, PyObject *module, PyTypeObject *c
             break;
         case METH_METHOD | METH_FASTCALL | METH_KEYWORDS:
             vectorcall = cfunction_vectorcall_FASTCALL_KEYWORDS_METHOD;
+            break;
+        case _METH_TYPED:
+            vectorcall = get_typed_vectorcall((_PyTypedMethodDef *)ml->ml_meth);
+            if (vectorcall == NULL) {
+                return NULL;
+            }
             break;
         default:
             PyErr_Format(PyExc_SystemError,
@@ -432,6 +478,15 @@ cfunction_enter_call(PyThreadState *tstate, PyObject *func)
     return (funcptr)PyCFunction_GET_FUNCTION(func);
 }
 
+static inline funcptr
+cfunction_enter_call_typed(PyThreadState *tstate, PyObject *func)
+{
+    if (_Py_EnterRecursiveCallTstate(tstate, " while calling a Python object")) {
+        return NULL;
+    }
+    return (funcptr)PyCFunction_GetTypedCFunction(_PyCFunctionObject_CAST(func));
+}
+
 /* Now the actual vectorcall functions */
 static PyObject *
 cfunction_vectorcall_FASTCALL(
@@ -444,6 +499,25 @@ cfunction_vectorcall_FASTCALL(
     Py_ssize_t nargs = PyVectorcall_NARGS(nargsf);
     PyCFunctionFast meth = (PyCFunctionFast)
                             cfunction_enter_call(tstate, func);
+    if (meth == NULL) {
+        return NULL;
+    }
+    PyObject *result = meth(PyCFunction_GET_SELF(func), args, nargs);
+    _Py_LeaveRecursiveCallTstate(tstate);
+    return result;
+}
+
+static PyObject *
+cfunction_vectorcall_FASTCALL_TYPED(
+    PyObject *func, PyObject *const *args, size_t nargsf, PyObject *kwnames)
+{
+    PyThreadState *tstate = _PyThreadState_GET();
+    if (cfunction_check_kwargs(tstate, func, kwnames)) {
+        return NULL;
+    }
+    Py_ssize_t nargs = PyVectorcall_NARGS(nargsf);
+    PyCFunctionFast meth = (PyCFunctionFast)
+                            cfunction_enter_call_typed(tstate, func);
     if (meth == NULL) {
         return NULL;
     }
@@ -469,6 +543,22 @@ cfunction_vectorcall_FASTCALL_KEYWORDS(
 }
 
 static PyObject *
+cfunction_vectorcall_FASTCALL_KEYWORDS_TYPED(
+    PyObject *func, PyObject *const *args, size_t nargsf, PyObject *kwnames)
+{
+    PyThreadState *tstate = _PyThreadState_GET();
+    Py_ssize_t nargs = PyVectorcall_NARGS(nargsf);
+    PyCFunctionFastWithKeywords meth = (PyCFunctionFastWithKeywords)
+                                        cfunction_enter_call_typed(tstate, func);
+    if (meth == NULL) {
+        return NULL;
+    }
+    PyObject *result = meth(PyCFunction_GET_SELF(func), args, nargs, kwnames);
+    _Py_LeaveRecursiveCallTstate(tstate);
+    return result;
+}
+
+static PyObject *
 cfunction_vectorcall_FASTCALL_KEYWORDS_METHOD(
     PyObject *func, PyObject *const *args, size_t nargsf, PyObject *kwnames)
 {
@@ -476,6 +566,22 @@ cfunction_vectorcall_FASTCALL_KEYWORDS_METHOD(
     PyTypeObject *cls = PyCFunction_GET_CLASS(func);
     Py_ssize_t nargs = PyVectorcall_NARGS(nargsf);
     PyCMethod meth = (PyCMethod)cfunction_enter_call(tstate, func);
+    if (meth == NULL) {
+        return NULL;
+    }
+    PyObject *result = meth(PyCFunction_GET_SELF(func), cls, args, nargs, kwnames);
+    _Py_LeaveRecursiveCallTstate(tstate);
+    return result;
+}
+
+static PyObject *
+cfunction_vectorcall_FASTCALL_KEYWORDS_METHOD_TYPED(
+    PyObject *func, PyObject *const *args, size_t nargsf, PyObject *kwnames)
+{
+    PyThreadState *tstate = _PyThreadState_GET();
+    PyTypeObject *cls = PyCFunction_GET_CLASS(func);
+    Py_ssize_t nargs = PyVectorcall_NARGS(nargsf);
+    PyCMethod meth = (PyCMethod)cfunction_enter_call_typed(tstate, func);
     if (meth == NULL) {
         return NULL;
     }
@@ -557,7 +663,13 @@ cfunction_call(PyObject *func, PyObject *args, PyObject *kwargs)
 
     /* For METH_VARARGS, we cannot use vectorcall as the vectorcall pointer
      * is NULL. This is intentional, since vectorcall would be slower. */
-    PyCFunction meth = PyCFunction_GET_FUNCTION(func);
+    PyCFunction meth;
+    if (flags & _METH_TYPED) {
+        _PyTypedMethodDef *tmd = (_PyTypedMethodDef *)_PyCFunctionObject_CAST(func)->m_ml->ml_meth;
+        meth = tmd->tmd_meth;
+    } else {
+        meth = PyCFunction_GET_FUNCTION(func);
+    }
     PyObject *self = PyCFunction_GET_SELF(func);
 
     PyObject *result;

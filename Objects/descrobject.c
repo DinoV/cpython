@@ -11,6 +11,7 @@
 #include "pycore_object_deferred.h" // _PyObject_SetDeferredRefcount()
 #include "pycore_pystate.h"       // _PyThreadState_GET()
 #include "pycore_tuple.h"         // _PyTuple_ITEMS()
+#include "pycore_typedmethoddef.h"
 
 
 /*[clinic input]
@@ -303,6 +304,15 @@ method_enter_call(PyThreadState *tstate, PyObject *func)
     return (funcptr)((PyMethodDescrObject *)func)->d_method->ml_meth;
 }
 
+static inline funcptr
+method_enter_call_typed(PyThreadState *tstate, PyObject *func)
+{
+    if (_Py_EnterRecursiveCallTstate(tstate, " while calling a Python object")) {
+        return NULL;
+    }
+    return (funcptr)PyMethodDescr_GetTypedCFunction((PyMethodDescrObject *)func);
+}
+
 /* Now the actual vectorcall functions */
 static PyObject *
 method_vectorcall_VARARGS(
@@ -318,6 +328,31 @@ method_vectorcall_VARARGS(
         return NULL;
     }
     PyCFunction meth = (PyCFunction)method_enter_call(tstate, func);
+    if (meth == NULL) {
+        Py_DECREF(argstuple);
+        return NULL;
+    }
+    PyObject *result = _PyCFunction_TrampolineCall(
+        meth, args[0], argstuple);
+    Py_DECREF(argstuple);
+    _Py_LeaveRecursiveCallTstate(tstate);
+    return result;
+}
+
+static PyObject *
+method_vectorcall_VARARGS_TYPED(
+    PyObject *func, PyObject *const *args, size_t nargsf, PyObject *kwnames)
+{
+    PyThreadState *tstate = _PyThreadState_GET();
+    Py_ssize_t nargs = PyVectorcall_NARGS(nargsf);
+    if (method_check_args(func, args, nargs, kwnames)) {
+        return NULL;
+    }
+    PyObject *argstuple = _PyTuple_FromArray(args+1, nargs-1);
+    if (argstuple == NULL) {
+        return NULL;
+    }
+    PyCFunction meth = (PyCFunction)method_enter_call_typed(tstate, func);
     if (meth == NULL) {
         Py_DECREF(argstuple);
         return NULL;
@@ -366,6 +401,42 @@ exit:
 }
 
 static PyObject *
+method_vectorcall_VARARGS_KEYWORDS_TYPED(
+    PyObject *func, PyObject *const *args, size_t nargsf, PyObject *kwnames)
+{
+    PyThreadState *tstate = _PyThreadState_GET();
+    Py_ssize_t nargs = PyVectorcall_NARGS(nargsf);
+    if (method_check_args(func, args, nargs, NULL)) {
+        return NULL;
+    }
+    PyObject *argstuple = _PyTuple_FromArray(args+1, nargs-1);
+    if (argstuple == NULL) {
+        return NULL;
+    }
+    PyObject *result = NULL;
+    /* Create a temporary dict for keyword arguments */
+    PyObject *kwdict = NULL;
+    if (kwnames != NULL && PyTuple_GET_SIZE(kwnames) > 0) {
+        kwdict = _PyStack_AsDict(args + nargs, kwnames);
+        if (kwdict == NULL) {
+            goto exit;
+        }
+    }
+    PyCFunctionWithKeywords meth = (PyCFunctionWithKeywords)
+                                   method_enter_call_typed(tstate, func);
+    if (meth == NULL) {
+        goto exit;
+    }
+    result = _PyCFunctionWithKeywords_TrampolineCall(
+        meth, args[0], argstuple, kwdict);
+    _Py_LeaveRecursiveCallTstate(tstate);
+exit:
+    Py_DECREF(argstuple);
+    Py_XDECREF(kwdict);
+    return result;
+}
+
+static PyObject *
 method_vectorcall_FASTCALL_KEYWORDS_METHOD(
     PyObject *func, PyObject *const *args, size_t nargsf, PyObject *kwnames)
 {
@@ -375,6 +446,26 @@ method_vectorcall_FASTCALL_KEYWORDS_METHOD(
         return NULL;
     }
     PyCMethod meth = (PyCMethod) method_enter_call(tstate, func);
+    if (meth == NULL) {
+        return NULL;
+    }
+    PyObject *result = meth(args[0],
+                            ((PyMethodDescrObject *)func)->d_common.d_type,
+                            args+1, nargs-1, kwnames);
+    _Py_LeaveRecursiveCall();
+    return result;
+}
+
+static PyObject *
+method_vectorcall_FASTCALL_KEYWORDS_METHOD_TYPED(
+    PyObject *func, PyObject *const *args, size_t nargsf, PyObject *kwnames)
+{
+    PyThreadState *tstate = _PyThreadState_GET();
+    Py_ssize_t nargs = PyVectorcall_NARGS(nargsf);
+    if (method_check_args(func, args, nargs, NULL)) {
+        return NULL;
+    }
+    PyCMethod meth = (PyCMethod) method_enter_call_typed(tstate, func);
     if (meth == NULL) {
         return NULL;
     }
@@ -405,6 +496,25 @@ method_vectorcall_FASTCALL(
 }
 
 static PyObject *
+method_vectorcall_FASTCALL_TYPED(
+    PyObject *func, PyObject *const *args, size_t nargsf, PyObject *kwnames)
+{
+    PyThreadState *tstate = _PyThreadState_GET();
+    Py_ssize_t nargs = PyVectorcall_NARGS(nargsf);
+    if (method_check_args(func, args, nargs, kwnames)) {
+        return NULL;
+    }
+    PyCFunctionFast meth = (PyCFunctionFast)
+                            method_enter_call_typed(tstate, func);
+    if (meth == NULL) {
+        return NULL;
+    }
+    PyObject *result = meth(args[0], args+1, nargs-1);
+    _Py_LeaveRecursiveCallTstate(tstate);
+    return result;
+}
+
+static PyObject *
 method_vectorcall_FASTCALL_KEYWORDS(
     PyObject *func, PyObject *const *args, size_t nargsf, PyObject *kwnames)
 {
@@ -415,6 +525,25 @@ method_vectorcall_FASTCALL_KEYWORDS(
     }
     PyCFunctionFastWithKeywords meth = (PyCFunctionFastWithKeywords)
                                         method_enter_call(tstate, func);
+    if (meth == NULL) {
+        return NULL;
+    }
+    PyObject *result = meth(args[0], args+1, nargs-1, kwnames);
+    _Py_LeaveRecursiveCallTstate(tstate);
+    return result;
+}
+
+static PyObject *
+method_vectorcall_FASTCALL_KEYWORDS_TYPED(
+    PyObject *func, PyObject *const *args, size_t nargsf, PyObject *kwnames)
+{
+    PyThreadState *tstate = _PyThreadState_GET();
+    Py_ssize_t nargs = PyVectorcall_NARGS(nargsf);
+    if (method_check_args(func, args, nargs, NULL)) {
+        return NULL;
+    }
+    PyCFunctionFastWithKeywords meth = (PyCFunctionFastWithKeywords)
+                                        method_enter_call_typed(tstate, func);
     if (meth == NULL) {
         return NULL;
     }
@@ -478,6 +607,33 @@ method_vectorcall_O(
     return result;
 }
 
+static PyObject *
+method_vectorcall_O_TYPED(
+    PyObject *func, PyObject *const *args, size_t nargsf, PyObject *kwnames)
+{
+    PyThreadState *tstate = _PyThreadState_GET();
+    Py_ssize_t nargs = PyVectorcall_NARGS(nargsf);
+    if (method_check_args(func, args, nargs, kwnames)) {
+        return NULL;
+    }
+    if (nargs != 2) {
+        PyObject *funcstr = _PyObject_FunctionStr(func);
+        if (funcstr != NULL) {
+            PyErr_Format(PyExc_TypeError,
+                "%U takes exactly one argument (%zd given)",
+                funcstr, nargs-1);
+            Py_DECREF(funcstr);
+        }
+        return NULL;
+    }
+    PyCFunction meth = (PyCFunction)method_enter_call_typed(tstate, func);
+    if (meth == NULL) {
+        return NULL;
+    }
+    PyObject *result = _PyCFunction_TrampolineCall(meth, args[0], args[1]);
+    _Py_LeaveRecursiveCallTstate(tstate);
+    return result;
+}
 
 /* Instances of classmethod_descriptor are unlikely to be called directly.
    For one, the analogous class "classmethod" (for Python classes) is not
@@ -923,13 +1079,44 @@ descr_new(PyTypeObject *descrtype, PyTypeObject *type, const char *name)
     return descr;
 }
 
+static vectorcallfunc
+get_typed_vectorcall(_PyTypedMethodDef *tmd)
+{
+    vectorcallfunc vectorcall;
+    switch (tmd->tmd_flags & (METH_VARARGS | METH_FASTCALL | METH_NOARGS |
+                                METH_O | METH_KEYWORDS | METH_METHOD))
+    {
+        case METH_VARARGS:
+            vectorcall = method_vectorcall_VARARGS_TYPED;
+            break;
+        case METH_VARARGS | METH_KEYWORDS:
+            vectorcall = method_vectorcall_VARARGS_KEYWORDS_TYPED;
+            break;
+        case METH_FASTCALL:
+            vectorcall = method_vectorcall_FASTCALL_TYPED;
+            break;
+        case METH_FASTCALL | METH_KEYWORDS:
+            vectorcall = method_vectorcall_FASTCALL_KEYWORDS_TYPED;
+            break;
+        case METH_O:
+            vectorcall = method_vectorcall_O_TYPED;
+            break;
+        case METH_METHOD | METH_FASTCALL | METH_KEYWORDS:
+            vectorcall = method_vectorcall_FASTCALL_KEYWORDS_METHOD_TYPED;
+            break;
+        default:
+            return NULL;
+    }
+    return vectorcall;
+}
+
 PyObject *
 PyDescr_NewMethod(PyTypeObject *type, PyMethodDef *method)
 {
     /* Figure out correct vectorcall function to use */
     vectorcallfunc vectorcall;
     switch (method->ml_flags & (METH_VARARGS | METH_FASTCALL | METH_NOARGS |
-                                METH_O | METH_KEYWORDS | METH_METHOD))
+                                METH_O | METH_KEYWORDS | METH_METHOD | _METH_TYPED))
     {
         case METH_VARARGS:
             vectorcall = method_vectorcall_VARARGS;
@@ -952,7 +1139,15 @@ PyDescr_NewMethod(PyTypeObject *type, PyMethodDef *method)
         case METH_METHOD | METH_FASTCALL | METH_KEYWORDS:
             vectorcall = method_vectorcall_FASTCALL_KEYWORDS_METHOD;
             break;
-        default:
+        case _METH_TYPED:
+            vectorcall = get_typed_vectorcall((_PyTypedMethodDef *)method->ml_meth);
+            if (vectorcall == NULL) {
+                PyErr_Format(PyExc_SystemError,
+                    "%s() typed method: bad call flags", method->ml_name);
+                return NULL;
+            }
+            break;
+            default:
             PyErr_Format(PyExc_SystemError,
                          "%s() method: bad call flags", method->ml_name);
             return NULL;
@@ -2080,3 +2275,19 @@ PyTypeObject PyProperty_Type = {
     PyType_GenericNew,                          /* tp_new */
     PyObject_GC_Del,                            /* tp_free */
 };
+
+
+const _PySigElemType _PyMethodObjectSig2[] = { 
+    { _PyCType_Object }, { _PyCType_Object } };
+const _PySigElemType _PyMethodObjectSig3[] = { 
+    { _PyCType_Object }, { _PyCType_Object }, { _PyCType_Object } };
+const _PySigElemType _PyMethodObjectSig4[] = { 
+    { _PyCType_Object }, { _PyCType_Object }, { _PyCType_Object }, 
+    { _PyCType_Object } };
+const _PySigElemType _PyMethodObjectSig5[] = { 
+    { _PyCType_Object }, { _PyCType_Object }, { _PyCType_Object }, 
+    { _PyCType_Object }, { _PyCType_Object } };
+const _PySigElemType _PyMethodObjectSig6[] = { 
+    { _PyCType_Object }, { _PyCType_Object }, { _PyCType_Object },
+    { _PyCType_Object }, { _PyCType_Object }, { _PyCType_Object } };
+  

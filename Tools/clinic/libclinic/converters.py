@@ -70,6 +70,7 @@ class bool_converter(CConverter):
     default_type = bool
     format_unit = 'p'
     c_ignored_default = '0'
+    typed_method_type = "_PyCType_Bool"
 
     def converter_init(self, *, accept: TypeSet = {object}) -> None:
         if accept == {int}:
@@ -288,6 +289,7 @@ class int_converter(CConverter):
     default_type = int
     format_unit = 'i'
     c_ignored_default = "0"
+    typed_method_type = "_PyCType_Int"
 
     def converter_init(
         self, *, accept: TypeSet = {int}, type: str | None = None
@@ -444,6 +446,7 @@ class unsigned_long_long_converter(BaseUnsignedIntConverter):
 class Py_ssize_t_converter(CConverter):
     type = 'Py_ssize_t'
     c_ignored_default = "0"
+    typed_method_type = "_PyCType_SSizeT"
 
     def converter_init(self, *, accept: TypeSet = {int}) -> None:
         if accept == {int}:
@@ -677,6 +680,7 @@ class Py_complex_converter(CConverter):
 class object_converter(CConverter):
     type = 'PyObject *'
     format_unit = 'O'
+    typed_method_type = "_PyCType_Object"
 
     def converter_init(
             self, *,
@@ -727,6 +731,7 @@ class str_converter(CConverter):
     type = 'const char *'
     default_type = (str, Null, NoneType)
     format_unit = 's'
+    typed_method_type = "_PyCType_Str"
 
     def converter_init(
             self,
@@ -904,6 +909,7 @@ class unicode_converter(CConverter):
     type = 'PyObject *'
     default_type = (str, Null, NoneType)
     format_unit = 'U'
+    typed_method_type = "_PyCType_Unicode"
 
     def parse_arg(self, argname: str, displayname: str, *, limited_capi: bool) -> str | None:
         if self.format_unit == 'U':
@@ -1000,6 +1006,7 @@ class Py_buffer_converter(CConverter):
     format_unit = 'y*'
     impl_by_reference = True
     c_ignored_default = "{NULL, NULL}"
+    typed_method_type = "_PyCType_Buffer"
 
     def converter_init(self, *, accept: TypeSet = {buffer}) -> None:
         if self.default not in (unspecified, None):
@@ -1101,6 +1108,7 @@ class self_converter(CConverter):
     type: str | None = None
     format_unit = ''
     specified_type: str | None = None
+    typed_method_type = "_PyCType_Object"
 
     def converter_init(self, *, type: str | None = None) -> None:
         self.specified_type = type

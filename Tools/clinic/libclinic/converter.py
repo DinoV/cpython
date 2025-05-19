@@ -163,6 +163,9 @@ class CConverter(metaclass=CConverterAutoRegister):
 
     broken_limited_capi: bool = False
 
+    # The _PyCType type if this supports typed method calls
+    typed_method_type: str|None = None
+
     # keep in sync with self_converter.__init__!
     def __init__(self,
              # Positional args:

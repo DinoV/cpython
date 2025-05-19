@@ -76,6 +76,7 @@ impl_prototype suppress
 methoddef_define block
 parser_prototype block
 impl_definition block
+typed_methoddef_define block
 
 """
 
@@ -117,13 +118,14 @@ impl_definition block
             'cpp_if': d('file'),
             'docstring_prototype': d('suppress'),
             'docstring_definition': d('file'),
-            'methoddef_define': d('file'),
             'impl_prototype': d('file'),
             'parser_prototype': d('suppress'),
             'parser_definition': d('file'),
             'cpp_endif': d('file'),
             'methoddef_ifndef': d('file', 1),
             'impl_definition': d('block'),
+            'typed_methoddef_define': d('file'),
+            'methoddef_define': d('file'),
         }
 
         DestBufferType = dict[str, list[str]]
