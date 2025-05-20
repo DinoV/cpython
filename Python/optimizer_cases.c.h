@@ -2147,6 +2147,15 @@
             break;
         }
 
+        case _CALL_METHOD_DESCRIPTOR_3: {
+            JitOptSymbol *res;
+            res = sym_new_not_null(ctx);
+            stack_pointer[-2 - oparg] = res;
+            stack_pointer += -1 - oparg;
+            assert(WITHIN_STACK_BOUNDS());
+            break;
+        }
+
         case _CALL_METHOD_DESCRIPTOR_FAST_WITH_KEYWORDS: {
             JitOptSymbol *res;
             res = sym_new_not_null(ctx);

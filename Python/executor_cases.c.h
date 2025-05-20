@@ -6050,6 +6050,100 @@
             break;
         }
 
+        case _CALL_METHOD_DESCRIPTOR_3: {
+            _PyStackRef *args;
+            _PyStackRef self_or_null;
+            _PyStackRef callable;
+            _PyStackRef res;
+            oparg = CURRENT_OPARG();
+            args = &stack_pointer[-oparg];
+            self_or_null = stack_pointer[-1 - oparg];
+            callable = stack_pointer[-2 - oparg];
+            PyObject *callable_o = PyStackRef_AsPyObjectBorrow(callable);
+            PyMethodDescrObject *method = (PyMethodDescrObject *)callable_o;
+            if (!Py_IS_TYPE(method, &PyMethodDescr_Type)) {
+                UOP_STAT_INC(uopcode, miss);
+                JUMP_TO_JUMP_TARGET();
+            }
+            PyMethodDef *meth = method->d_method;
+            if (meth->ml_flags != _METH_TYPED) {
+                UOP_STAT_INC(uopcode, miss);
+                JUMP_TO_JUMP_TARGET();
+            }
+            _PyTypedMethodDef *tmd = (_PyTypedMethodDef *)meth->ml_meth;
+            int total_args = oparg;
+            _PyStackRef *arguments = args;
+            if (!PyStackRef_IsNull(self_or_null)) {
+                arguments--;
+                total_args++;
+            }
+            if (total_args < tmd->tmd_minargs) {
+                UOP_STAT_INC(uopcode, miss);
+                JUMP_TO_JUMP_TARGET();
+            }
+            if (tmd->tmd_sig != _PyMethodObjectSig3) {
+                UOP_STAT_INC(uopcode, miss);
+                JUMP_TO_JUMP_TARGET();
+            }
+            assert(totaL_args >= 1);
+            if (_Py_ReachedRecursionLimit(tstate)) {
+                UOP_STAT_INC(uopcode, miss);
+                JUMP_TO_JUMP_TARGET();
+            }
+            PyObject *self, *arg0, *arg1;
+            if (total_args < 3) {
+                arg1 = tmd->tmd_defaults[2].dfv_object;
+            } else {
+                arg1 = PyStackRef_AsPyObjectBorrow(arguments[2]);
+            }
+            if (total_args < 2) {
+                arg0 = tmd->tmd_defaults[1].dfv_object;
+            } else {
+                arg0 = PyStackRef_AsPyObjectBorrow(arguments[1]);
+            }
+            self = PyStackRef_AsPyObjectBorrow(arguments[0]);
+            if (!Py_IS_TYPE(self, method->d_common.d_type)) {
+                UOP_STAT_INC(uopcode, miss);
+                JUMP_TO_JUMP_TARGET();
+            }
+            STAT_INC(CALL, hit);
+            _PyFrame_SetStackPointer(frame, stack_pointer);
+            PyObject *res_o = _PyCFunctionWithKeywords_TrampolineCall(
+                (_PyMethodObjectSig3Func)tmd->tmd_cmeth,
+                self,
+                arg0,
+                arg1);
+            stack_pointer = _PyFrame_GetStackPointer(frame);
+            _Py_LeaveRecursiveCallTstate(tstate);
+            assert((res_o != NULL) ^ (_PyErr_Occurred(tstate) != NULL));
+            _PyFrame_SetStackPointer(frame, stack_pointer);
+            _PyStackRef tmp;
+            for (int _i = oparg; --_i >= 0;) {
+                tmp = args[_i];
+                args[_i] = PyStackRef_NULL;
+                PyStackRef_CLOSE(tmp);
+            }
+            tmp = self_or_null;
+            self_or_null = PyStackRef_NULL;
+            stack_pointer[-1 - oparg] = self_or_null;
+            PyStackRef_XCLOSE(tmp);
+            tmp = callable;
+            callable = PyStackRef_NULL;
+            stack_pointer[-2 - oparg] = callable;
+            PyStackRef_CLOSE(tmp);
+            stack_pointer = _PyFrame_GetStackPointer(frame);
+            stack_pointer += -2 - oparg;
+            assert(WITHIN_STACK_BOUNDS());
+            if (res_o == NULL) {
+                JUMP_TO_ERROR();
+            }
+            res = PyStackRef_FromPyObjectSteal(res_o);
+            stack_pointer[0] = res;
+            stack_pointer += 1;
+            assert(WITHIN_STACK_BOUNDS());
+            break;
+        }
+
         case _CALL_METHOD_DESCRIPTOR_FAST_WITH_KEYWORDS: {
             _PyStackRef *args;
             _PyStackRef self_or_null;

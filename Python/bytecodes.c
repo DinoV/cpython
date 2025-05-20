@@ -3698,6 +3698,7 @@ dummy_func(
             CALL_ISINSTANCE,
             CALL_LIST_APPEND,
             CALL_METHOD_DESCRIPTOR_O,
+            CALL_METHOD_DESCRIPTOR_3,
             CALL_METHOD_DESCRIPTOR_FAST_WITH_KEYWORDS,
             CALL_METHOD_DESCRIPTOR_NOARGS,
             CALL_METHOD_DESCRIPTOR_FAST,
@@ -4458,6 +4459,58 @@ dummy_func(
             _CALL_METHOD_DESCRIPTOR_O +
             _CHECK_PERIODIC;
 
+        op(_CALL_METHOD_DESCRIPTOR_3, (callable, self_or_null, args[oparg] -- res)) {
+            PyObject *callable_o = PyStackRef_AsPyObjectBorrow(callable);
+            PyMethodDescrObject *method = (PyMethodDescrObject *)callable_o;
+            EXIT_IF(!Py_IS_TYPE(method, &PyMethodDescr_Type));
+            PyMethodDef *meth = method->d_method;
+            EXIT_IF(!(meth->ml_flags & _METH_TYPED));
+            _PyTypedMethodDef *tmd = PyMethodDescr_GetTypedMethodDef(meth);
+
+            int total_args = oparg;
+            _PyStackRef *arguments = args;
+            if (!PyStackRef_IsNull(self_or_null)) {
+                arguments--;
+                total_args++;
+            }
+            EXIT_IF(total_args < tmd->tmd_minargs);
+            EXIT_IF(tmd->tmd_sig != _PyMethodObjectSig3);
+            assert(totaL_args >= 1); // self should always be required on a method desc
+
+            // CPython promises to check all non-vectorcall function calls.
+            EXIT_IF(_Py_ReachedRecursionLimit(tstate));
+            PyObject *self, *arg0, *arg1;
+            if (total_args < 3) {
+                arg1 = tmd->tmd_defaults[2].dfv_object;
+            } else {
+                arg1 = PyStackRef_AsPyObjectBorrow(arguments[2]);
+            }
+            if (total_args < 2) {
+                arg0 = tmd->tmd_defaults[1].dfv_object;
+            } else {
+                arg0 = PyStackRef_AsPyObjectBorrow(arguments[1]);
+            }
+            self = PyStackRef_AsPyObjectBorrow(arguments[0]);
+            EXIT_IF(!Py_IS_TYPE(self, method->d_common.d_type));
+            STAT_INC(CALL, hit);
+            PyObject *res_o = _PyCFunctionWithKeywords_TrampolineCall(
+                                    (_PyMethodObjectSig3Func)tmd->tmd_cmeth,
+                                    self,
+                                    arg0,
+                                    arg1);
+            _Py_LeaveRecursiveCallTstate(tstate);
+            assert((res_o != NULL) ^ (_PyErr_Occurred(tstate) != NULL));
+            DECREF_INPUTS();
+            ERROR_IF(res_o == NULL);
+            res = PyStackRef_FromPyObjectSteal(res_o);
+        }
+
+        macro(CALL_METHOD_DESCRIPTOR_3) =
+            unused/1 +
+            unused/2 +
+            _CALL_METHOD_DESCRIPTOR_3 +
+            _CHECK_PERIODIC;
+            
         op(_CALL_METHOD_DESCRIPTOR_FAST_WITH_KEYWORDS, (callable, self_or_null, args[oparg] -- res)) {
             PyObject *callable_o = PyStackRef_AsPyObjectBorrow(callable);
 

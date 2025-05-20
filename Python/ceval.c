@@ -40,6 +40,7 @@
 #include "pycore_traceback.h"     // _PyTraceBack_FromFrame
 #include "pycore_tuple.h"         // _PyTuple_ITEMS()
 #include "pycore_uop_ids.h"       // Uops
+#include "pycore_typedmethoddef.h"
 
 #include "dictobject.h"
 #include "frameobject.h"          // _PyInterpreterFrame_GetLine

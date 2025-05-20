@@ -19,6 +19,7 @@
 #include "pycore_pylifecycle.h"   // _PyOS_URandomNonblock()
 #include "pycore_runtime.h"       // _Py_ID()
 #include "pycore_unicodeobject.h" // _PyUnicodeASCIIIter_Type
+#include "pycore_typedmethoddef.h" // _PyTypedMethodDef
 
 #include <stdlib.h> // rand()
 
@@ -2026,7 +2027,7 @@ specialize_method_descriptor(PyMethodDescrObject *descr, _Py_CODEUNIT *instr,
 {
     switch (descr->d_method->ml_flags &
         (METH_VARARGS | METH_FASTCALL | METH_NOARGS | METH_O |
-        METH_KEYWORDS | METH_METHOD)) {
+        METH_KEYWORDS | METH_METHOD | _METH_TYPED)) {
         case METH_NOARGS: {
             if (nargs != 1) {
                 SPECIALIZATION_FAIL(CALL, SPEC_FAIL_WRONG_NUMBER_ARGUMENTS);
@@ -2059,6 +2060,19 @@ specialize_method_descriptor(PyMethodDescrObject *descr, _Py_CODEUNIT *instr,
         case METH_FASTCALL | METH_KEYWORDS: {
             specialize(instr, CALL_METHOD_DESCRIPTOR_FAST_WITH_KEYWORDS);
             return 0;
+        }
+        case _METH_TYPED: {
+            PyMethodDef *meth = descr->d_method;
+            _PyTypedMethodDef *tmd = (_PyTypedMethodDef *)meth->ml_meth;
+            switch (tmd->tmd_argcnt) {
+                case 3:
+                    if (tmd->tmd_sig == _PyMethodObjectSig3) {
+                        specialize(instr, CALL_METHOD_DESCRIPTOR_3);
+                        return 0;
+                    }
+                    break;
+            }            
+            break;
         }
     }
     specialize(instr, CALL_NON_PY_GENERAL);
