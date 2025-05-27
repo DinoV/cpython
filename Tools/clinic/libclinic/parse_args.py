@@ -193,7 +193,8 @@ TYPED_METHODDEF_PROTOTYPE_DEFINE_TEMPLATE: Final[str] = libclinic.normalize_snip
         {methoddef_minarg_count},
         {methoddef_sig_params},
         {methoddef_sig_kwnames},
-        {c_basename}_typed_method_defs
+        {c_basename}_typed_method_defs,
+        PyDoc_STR({docstring})
     }};
 """)
 GETTERDEF_PROTOTYPE_DEFINE: Final[str] = libclinic.normalize_snippet(r"""
@@ -981,7 +982,8 @@ class ParseArgsCodeGen:
             methoddef_typed_sig = methoddef_typed_sig.replace('{methoddef_sig_defaults}', default_vals)
             methoddef_typed_sig = methoddef_typed_sig.replace('{methoddef_arg_count}', str(len(self.func.parameters)))
             methoddef_typed_sig = methoddef_typed_sig.replace('{methoddef_minarg_count}', str(self.min_pos + 1))
-
+            methoddef_typed_sig = methoddef_typed_sig.replace('{methoddef_minarg_coun}', str(self.min_pos + 1))            
+            self.docstring_definition = self.docstring_definition.replace("{docstring}", "&{c_basename}_typed_method_def.tmd_doc")
             #         return (self.func.return_converter.type == 'PyObject *'
             #                and not self.func.critical_section)
 

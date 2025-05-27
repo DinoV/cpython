@@ -117,7 +117,6 @@ typed_methoddef_define block
         self.destination_buffers = {
             'cpp_if': d('file'),
             'docstring_prototype': d('suppress'),
-            'docstring_definition': d('file'),
             'impl_prototype': d('file'),
             'parser_prototype': d('suppress'),
             'parser_definition': d('file'),
@@ -125,6 +124,7 @@ typed_methoddef_define block
             'methoddef_ifndef': d('file', 1),
             'impl_definition': d('block'),
             'typed_methoddef_define': d('file'),
+            'docstring_definition': d('file'),
             'methoddef_define': d('file'),
         }
 

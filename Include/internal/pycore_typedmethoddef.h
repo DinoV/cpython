@@ -80,6 +80,7 @@ typedef struct {
   const _PySigElemType* tmd_sig;
   const char* const* tmd_kwnames;
   const _PySigDefaultValue* tmd_defaults;
+  const char tmd_doc[];
 } _PyTypedMethodDef;
 
 
