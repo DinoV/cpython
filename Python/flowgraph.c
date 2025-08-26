@@ -199,7 +199,6 @@ basicblock_addop(basicblock *b, int opcode, int oparg, location loc)
     cfg_instr *i = &b->b_instr[off];
     i->i_opcode = opcode;
     i->i_oparg = oparg;
-    i->i_target = NULL;
     i->i_loc = loc;
 
     return SUCCESS;
@@ -1096,6 +1095,7 @@ basicblock_remove_redundant_nops(basicblock *bb) {
     assert(dest <= bb->b_iused);
     int num_removed = bb->b_iused - dest;
     bb->b_iused = dest;
+    memset(&bb->b_instr[dest], 0, sizeof(cfg_instr) * num_removed);
     return num_removed;
 }
 
