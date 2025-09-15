@@ -842,24 +842,39 @@ builtin_compile_impl(PyObject *module, PyObject *source, PyObject *filename,
             mod_ty mod = PyAST_obj2mod(source, arena, compile_mode);
             if (mod == NULL || !_PyAST_Validate(mod)) {
                 _PyArena_Free(arena);
+#ifdef REF_CNT_AST
+                Py_XDECREF(mod);
+#endif
                 goto error;
             }
             int syntax_check_only = ((flags & PyCF_OPTIMIZED_AST) == PyCF_ONLY_AST); /* unoptiomized AST */
             if (_PyCompile_AstPreprocess(mod, filename, &cf, optimize,
                                            arena, syntax_check_only) < 0) {
                 _PyArena_Free(arena);
+#ifdef REF_CNT_AST
+                Py_DECREF(mod);
+#endif
                 goto error;
             }
             result = PyAST_mod2obj(mod);
+#ifdef REF_CNT_AST
+            Py_DECREF(mod);
+#endif
         }
         else {
             mod_ty mod = PyAST_obj2mod(source, arena, compile_mode);
             if (mod == NULL || !_PyAST_Validate(mod)) {
                 _PyArena_Free(arena);
+#ifdef REF_CNT_AST
+                Py_XDECREF(mod);
+#endif
                 goto error;
             }
             result = (PyObject*)_PyAST_Compile(mod, filename,
                                                &cf, optimize, arena);
+#ifdef REF_CNT_AST
+            Py_DECREF(mod);
+#endif
         }
         _PyArena_Free(arena);
         goto finally;

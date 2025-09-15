@@ -22,6 +22,29 @@ builtin_type_to_c_type = {
     "constant": "PyBaseObject_Type",
 }
 
+ENABLE_REFCOUNTS = False
+NON_PYOBJECT_TYPES = [
+    "int", 
+    "string",
+    "arguments_ty",
+    "asdl_alias_seq *",
+    "asdl_arg_seq *",
+    "asdl_comprehension_seq *",
+    "asdl_excepthandler_seq *",
+    "asdl_expr_seq *",
+    "asdl_identifier_seq *",
+    "asdl_int_seq *",
+    "asdl_keyword_seq *",
+    "asdl_match_case_seq *",
+    "asdl_pattern_seq *",
+    "asdl_stmt_seq *",
+    "asdl_withitem_seq *",
+    "expr_context_ty",
+    "boolop_ty",
+    "operator_ty",
+    "unaryop_ty",
+]
+
 def get_c_type(name):
     """Return a string for the C name of the type.
 
@@ -289,6 +312,7 @@ class StructVisitor(EmitVisitor):
         emit("enum _%(name)s_kind {" + ", ".join(enum) + "};")
 
         emit("struct _%(name)s {")
+        emit("PyObject_HEAD", depth + 1)
         emit("enum _%(name)s_kind kind;", depth + 1)
         emit("union {", depth + 1)
         for t in sum.types:
@@ -301,6 +325,7 @@ class StructVisitor(EmitVisitor):
             emit("%s %s;" % (type, field.name), depth + 1);
         emit("};")
         emit("")
+        emit(f"extern PyTypeObject PyAst_{name}_Type;")
 
     def visitConstructor(self, cons, depth):
         if cons.fields:
@@ -326,6 +351,7 @@ class StructVisitor(EmitVisitor):
 
     def visitProduct(self, product, name, depth):
         self.emit("struct _%(name)s {" % locals(), depth)
+        self.emit("PyObject_HEAD", depth + 1)
         for f in product.fields:
             self.visit(f, depth + 1)
         for field in product.attributes:
@@ -335,6 +361,7 @@ class StructVisitor(EmitVisitor):
             self.emit("%s %s;" % (type, field.name), depth + 1);
         self.emit("};", depth)
         self.emit("", depth)
+        self.emit(f"extern PyTypeObject PyAst_{name}_Type;", depth)
 
 
 def ast_func_name(name):
@@ -434,7 +461,7 @@ class FunctionVisitor(PrototypeVisitor):
                 emit('return NULL;', 2)
                 emit('}', 1)
 
-        emit("p = (%s)_PyArena_Malloc(arena, sizeof(*p));" % ctype, 1);
+        emit(f"p = ({ctype})_PyArena_NewObj(arena, &PyAst_{ctype[:-3]}_Type);", 1);
         emit("if (!p)", 1)
         emit("return NULL;", 2)
         if union:
@@ -450,7 +477,10 @@ class FunctionVisitor(PrototypeVisitor):
             self.emit(s, depth, reflow)
         emit("p->kind = %s_kind;" % name, 1)
         for argtype, argname, opt in args:
-            emit("p->v.%s.%s = %s;" % (name, argname, argname), 1)
+            if argtype not in NON_PYOBJECT_TYPES and ENABLE_REFCOUNTS:
+                emit("p->v.%s.%s = (%s)Py_XNewRef(%s);" % (name, argname, argtype, argname), 1)
+            else:
+                emit("p->v.%s.%s = %s;" % (name, argname, argname), 1)    
         for argtype, argname, opt in attrs:
             emit("p->%s = %s;" % (argname, argname), 1)
 
@@ -458,7 +488,11 @@ class FunctionVisitor(PrototypeVisitor):
         def emit(s, depth=0, reflow=True):
             self.emit(s, depth, reflow)
         for argtype, argname, opt in args:
-            emit("p->%s = %s;" % (argname, argname), 1)
+            print(argname, argtype, type(argtype))
+            if argtype not in NON_PYOBJECT_TYPES and ENABLE_REFCOUNTS:
+                emit("p->%s = (%s)Py_XNewRef(%s);" % (argname, argtype, argname), 1)
+            else:
+                emit("p->%s = %s;" % (argname, argname), 1)
         for argtype, argname, opt in attrs:
             emit("p->%s = %s;" % (argname, argname), 1)
 
@@ -2406,6 +2440,103 @@ def write_internal_h_header(mod, f):
     """).lstrip(), file=f)
 
 
+
+class NodesVisitor(EmitVisitor):
+    def visitModule(self, mod):
+        for dfn in mod.dfns:
+            self.visit(dfn)
+
+    def visitType(self, type):
+        print('type', type)
+        self.visit(type.value, type.name)
+
+    def emit_dealloc_header(self, name):
+        self.emit(f"static void {name}_dealloc(PyObject *self) {{", 0)
+        self.emit(f"{name}_ty obj = ({name}_ty)self;", 1)
+
+    def emit_dealloc_footer(self):
+        self.emit("Py_TYPE(self)->tp_free(self);", 1)
+        self.emit("}", 0)
+
+    def emit_type_dealloc(self, container, type, depth):
+        for field in type.fields:
+            if field.type in NON_PYOBJECT_TYPES:
+                continue
+            if field.seq:
+                pass
+                #self.emit(f"PyMem_Free({container}{field.name});", depth)
+            else:
+                self.emit(f"Py_XDECREF({container}{field.name});", depth)
+
+    def visitSum(self, sum, name, depth = 0):
+        if is_simple(sum):
+            return
+        self.emit_dealloc_header(name)
+        if ENABLE_REFCOUNTS:
+            self.emit("switch (obj->kind) {", 1)
+            for type in sum.types:
+                self.emit(f"case {type.name}_kind:", 2)
+                self.emit_type_dealloc(f"obj->v.{type.name}.", type, 3)
+                self.emit("break;", 3)
+
+            self.emit("}", 1)
+        self.emit_dealloc_footer()
+        self.sum_with_constructors(sum, name, depth)
+
+    def visitProduct(self, product, name, depth = 0):
+        self.emit_dealloc_header(name)
+        if ENABLE_REFCOUNTS:
+            self.emit_type_dealloc("obj->", product, 1)
+        self.emit_dealloc_footer()
+        self.sum_with_constructors(sum, name, depth)
+
+    def sum_with_constructors(self, sum_or_product, name, depth):
+
+        self.emit(f"""
+PyTypeObject PyAst_{name}_Type = {{
+    PyVarObject_HEAD_INIT(&PyType_Type, 0)
+    "{name}",                                   /* tp_name */
+    sizeof(struct _{name}),                     /* tp_basicsize */
+    0,                                          /* tp_itemsize */
+    {name}_dealloc,                                          /* tp_dealloc */
+    0,                                          /* tp_vectorcall_offset */
+    0,                                          /* tp_getattr */
+    0,                                          /* tp_setattr */
+    0,                                          /* tp_as_async */
+    0,                                          /* tp_repr */
+    0,                                          /* tp_as_number */
+    0,                                          /* tp_as_sequence */
+    0,                                          /* tp_as_mapping */
+    0,                                          /* tp_hash */
+    0,                                          /* tp_call */
+    0,                                          /* tp_str */
+    PyObject_GenericGetAttr,                    /* tp_getattro */
+    0,                                          /* tp_setattro */
+    0,                                          /* tp_as_buffer */
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,   /* tp_flags */
+    "",                                         /* tp_doc */
+    0,                                          /* tp_traverse */
+    0,                                          /* tp_clear */
+    0,                                          /* tp_richcompare */
+    0,                                          /* tp_weaklistoffset */
+    0,                                          /* tp_iter */
+    0,                                          /* tp_iternext */
+    0,                                          /* tp_methods */
+    0,                                          /* tp_members */
+    0,                                          /* tp_getset */
+    0,                                          /* tp_base */
+    0,                                          /* tp_dict */
+    0,                                          /* tp_descr_get */
+    0,                                          /* tp_descr_set */
+    0,                                          /* tp_dictoffset */
+    0,                                          /* tp_init */
+    0,                                          /* tp_alloc */
+    0,                                          /* tp_new */
+    PyObject_Free,                              /* tp_free */
+}};
+""", 0, reflow=False)
+
+
 def write_internal_h_footer(mod, f):
     print(textwrap.dedent("""
 
@@ -2433,7 +2564,21 @@ def write_source(mod, metadata, f, internal_h_file):
     )
     v.visit(mod)
 
-def main(input_filename, c_filename, h_filename, internal_h_filename, dump_module=False):
+def write_nodes(mod, metadata, f):
+    v = ChainOfVisitors(
+        NodesVisitor(f),
+        metadata=metadata
+    )
+
+    f.write("""
+#include <Python.h>
+
+#include "pycore_ast.h"           // asdl_seq *
+
+""")
+    v.visit(mod)
+
+def main(input_filename, c_filename, h_filename, internal_h_filename, nodes_filename, dump_module=False):
     auto_gen_msg = AUTOGEN_MESSAGE.format("/".join(Path(__file__).parts[-2:]))
     mod = asdl.parse(input_filename)
     if dump_module:
@@ -2448,7 +2593,8 @@ def main(input_filename, c_filename, h_filename, internal_h_filename, dump_modul
 
     with c_filename.open("w") as c_file, \
          h_filename.open("w") as h_file, \
-         internal_h_filename.open("w") as internal_h_file:
+         internal_h_filename.open("w") as internal_h_file, \
+         nodes_filename.open("w") as nodes_file:
         c_file.write(auto_gen_msg)
         h_file.write(auto_gen_msg)
         internal_h_file.write(auto_gen_msg)
@@ -2457,6 +2603,7 @@ def main(input_filename, c_filename, h_filename, internal_h_filename, dump_modul
         write_source(mod, metadata, c_file, internal_h_file)
         write_header(mod, metadata, h_file)
         write_internal_h_footer(mod, internal_h_file)
+        write_nodes(mod, metadata, nodes_file)
 
     print(f"{c_filename}, {h_filename}, {internal_h_filename} regenerated.")
 
@@ -2464,10 +2611,11 @@ if __name__ == "__main__":
     parser = ArgumentParser()
     parser.add_argument("input_file", type=Path)
     parser.add_argument("-C", "--c-file", type=Path, required=True)
+    parser.add_argument("-N", "--nodes-file", type=Path, required=True)
     parser.add_argument("-H", "--h-file", type=Path, required=True)
     parser.add_argument("-I", "--internal-h-file", type=Path, required=True)
     parser.add_argument("-d", "--dump-module", action="store_true")
 
     args = parser.parse_args()
     main(args.input_file, args.c_file, args.h_file,
-         args.internal_h_file, args.dump_module)
+         args.internal_h_file, args.nodes_file, args.dump_module)

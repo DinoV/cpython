@@ -59,6 +59,9 @@ parse_file(PyObject *self, PyObject *args, PyObject *kwds)
     }
 
     result = _build_return_object(res, mode, filename_ob, arena);
+#ifdef REF_CNT_AST
+    Py_DECREF(res);
+#endif
 
 error:
     Py_XDECREF(filename_ob);
@@ -98,6 +101,9 @@ parse_string(PyObject *self, PyObject *args, PyObject *kwds)
         goto error;
     }
     result = _build_return_object(res, mode, filename_ob, arena);
+#ifdef REF_CNT_AST
+    Py_DECREF(res);
+#endif
 
 error:
     Py_XDECREF(filename_ob);

@@ -1619,6 +1619,9 @@ _PyCompile_CodeGen(PyObject *ast, PyObject *filename, PyCompilerFlags *pflags,
 
     compiler *c = new_compiler(mod, filename, pflags, optimize, arena);
     if (c == NULL) {
+#ifdef REF_CNT_AST
+        Py_DECREF(mod);
+#endif
         _PyArena_Free(arena);
         return NULL;
     }
@@ -1626,6 +1629,10 @@ _PyCompile_CodeGen(PyObject *ast, PyObject *filename, PyCompilerFlags *pflags,
 
     metadata = PyDict_New();
     if (metadata == NULL) {
+#ifdef REF_CNT_AST
+        Py_DECREF(mod);
+#endif
+        _PyArena_Free(arena);
         return NULL;
     }
 
@@ -1654,12 +1661,19 @@ _PyCompile_CodeGen(PyObject *ast, PyObject *filename, PyCompilerFlags *pflags,
     }
 
     if (_PyInstructionSequence_ApplyLabelMap(_PyCompile_InstrSequence(c)) < 0) {
+#ifdef REF_CNT_AST
+        Py_DECREF(mod);
+#endif
+        _PyArena_Free(arena);
         return NULL;
     }
     /* Allocate a copy of the instruction sequence on the heap */
     res = PyTuple_Pack(2, _PyCompile_InstrSequence(c), metadata);
 
 finally:
+#ifdef REF_CNT_AST
+    Py_DECREF(mod);
+#endif
     Py_XDECREF(metadata);
     _PyCompile_ExitScope(c);
     compiler_free(c);

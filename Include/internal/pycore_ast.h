@@ -161,6 +161,7 @@ asdl_type_param_seq *_Py_asdl_type_param_seq_new(Py_ssize_t size, PyArena
 enum _mod_kind {Module_kind=1, Interactive_kind=2, Expression_kind=3,
                  FunctionType_kind=4};
 struct _mod {
+    PyObject_HEAD
     enum _mod_kind kind;
     union {
         struct {
@@ -184,6 +185,7 @@ struct _mod {
     } v;
 };
 
+extern PyTypeObject PyAst_mod_Type;
 enum _stmt_kind {FunctionDef_kind=1, AsyncFunctionDef_kind=2, ClassDef_kind=3,
                   Return_kind=4, Delete_kind=5, Assign_kind=6,
                   TypeAlias_kind=7, AugAssign_kind=8, AnnAssign_kind=9,
@@ -194,6 +196,7 @@ enum _stmt_kind {FunctionDef_kind=1, AsyncFunctionDef_kind=2, ClassDef_kind=3,
                   Nonlocal_kind=24, Expr_kind=25, Pass_kind=26, Break_kind=27,
                   Continue_kind=28};
 struct _stmt {
+    PyObject_HEAD
     enum _stmt_kind kind;
     union {
         struct {
@@ -356,6 +359,7 @@ struct _stmt {
     int end_col_offset;
 };
 
+extern PyTypeObject PyAst_stmt_Type;
 enum _expr_kind {BoolOp_kind=1, NamedExpr_kind=2, BinOp_kind=3, UnaryOp_kind=4,
                   Lambda_kind=5, IfExp_kind=6, Dict_kind=7, Set_kind=8,
                   ListComp_kind=9, SetComp_kind=10, DictComp_kind=11,
@@ -366,6 +370,7 @@ enum _expr_kind {BoolOp_kind=1, NamedExpr_kind=2, BinOp_kind=3, UnaryOp_kind=4,
                   Attribute_kind=23, Subscript_kind=24, Starred_kind=25,
                   Name_kind=26, List_kind=27, Tuple_kind=28, Slice_kind=29};
 struct _expr {
+    PyObject_HEAD
     enum _expr_kind kind;
     union {
         struct {
@@ -525,15 +530,19 @@ struct _expr {
     int end_col_offset;
 };
 
+extern PyTypeObject PyAst_expr_Type;
 struct _comprehension {
+    PyObject_HEAD
     expr_ty target;
     expr_ty iter;
     asdl_expr_seq *ifs;
     int is_async;
 };
 
+extern PyTypeObject PyAst_comprehension_Type;
 enum _excepthandler_kind {ExceptHandler_kind=1};
 struct _excepthandler {
+    PyObject_HEAD
     enum _excepthandler_kind kind;
     union {
         struct {
@@ -549,7 +558,9 @@ struct _excepthandler {
     int end_col_offset;
 };
 
+extern PyTypeObject PyAst_excepthandler_Type;
 struct _arguments {
+    PyObject_HEAD
     asdl_arg_seq *posonlyargs;
     asdl_arg_seq *args;
     arg_ty vararg;
@@ -559,7 +570,9 @@ struct _arguments {
     asdl_expr_seq *defaults;
 };
 
+extern PyTypeObject PyAst_arguments_Type;
 struct _arg {
+    PyObject_HEAD
     identifier arg;
     expr_ty annotation;
     string type_comment;
@@ -569,7 +582,9 @@ struct _arg {
     int end_col_offset;
 };
 
+extern PyTypeObject PyAst_arg_Type;
 struct _keyword {
+    PyObject_HEAD
     identifier arg;
     expr_ty value;
     int lineno;
@@ -578,7 +593,9 @@ struct _keyword {
     int end_col_offset;
 };
 
+extern PyTypeObject PyAst_keyword_Type;
 struct _alias {
+    PyObject_HEAD
     identifier name;
     identifier asname;
     int lineno;
@@ -587,22 +604,28 @@ struct _alias {
     int end_col_offset;
 };
 
+extern PyTypeObject PyAst_alias_Type;
 struct _withitem {
+    PyObject_HEAD
     expr_ty context_expr;
     expr_ty optional_vars;
 };
 
+extern PyTypeObject PyAst_withitem_Type;
 struct _match_case {
+    PyObject_HEAD
     pattern_ty pattern;
     expr_ty guard;
     asdl_stmt_seq *body;
 };
 
+extern PyTypeObject PyAst_match_case_Type;
 enum _pattern_kind {MatchValue_kind=1, MatchSingleton_kind=2,
                      MatchSequence_kind=3, MatchMapping_kind=4,
                      MatchClass_kind=5, MatchStar_kind=6, MatchAs_kind=7,
                      MatchOr_kind=8};
 struct _pattern {
+    PyObject_HEAD
     enum _pattern_kind kind;
     union {
         struct {
@@ -650,8 +673,10 @@ struct _pattern {
     int end_col_offset;
 };
 
+extern PyTypeObject PyAst_pattern_Type;
 enum _type_ignore_kind {TypeIgnore_kind=1};
 struct _type_ignore {
+    PyObject_HEAD
     enum _type_ignore_kind kind;
     union {
         struct {
@@ -662,8 +687,10 @@ struct _type_ignore {
     } v;
 };
 
+extern PyTypeObject PyAst_type_ignore_Type;
 enum _type_param_kind {TypeVar_kind=1, ParamSpec_kind=2, TypeVarTuple_kind=3};
 struct _type_param {
+    PyObject_HEAD
     enum _type_param_kind kind;
     union {
         struct {
@@ -689,6 +716,7 @@ struct _type_param {
     int end_col_offset;
 };
 
+extern PyTypeObject PyAst_type_param_Type;
 
 // Note: these macros affect function definitions, not only call sites.
 mod_ty _PyAST_Module(asdl_stmt_seq * body, asdl_type_ignore_seq * type_ignores,
