@@ -8,7 +8,7 @@
 // Since this is a "meta-include" file, "#ifdef __cplusplus / extern "C" {"
 // is not needed.
 
-
+#define REF_CNT_AST
 // Include Python header files
 #include "patchlevel.h"
 #include "pyconfig.h"

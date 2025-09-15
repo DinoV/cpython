@@ -7030,7 +7030,11 @@ _PyAST_Module(asdl_stmt_seq * body, asdl_type_ignore_seq * type_ignores,
         return NULL;
     p->kind = Module_kind;
     p->v.Module.body = body;
+#ifdef REF_CNT_AST
+    p->v.Module.type_ignores = (asdl_type_ignore_seq *)Py_XNewRef(type_ignores);
+#else
     p->v.Module.type_ignores = type_ignores;
+#endif
     return p;
 }
 
@@ -7059,7 +7063,11 @@ _PyAST_Expression(expr_ty body, PyArena *arena)
     if (!p)
         return NULL;
     p->kind = Expression_kind;
+#ifdef REF_CNT_AST
+    p->v.Expression.body = (expr_ty)Py_XNewRef(body);
+#else
     p->v.Expression.body = body;
+#endif
     return p;
 }
 
@@ -7077,7 +7085,11 @@ _PyAST_FunctionType(asdl_expr_seq * argtypes, expr_ty returns, PyArena *arena)
         return NULL;
     p->kind = FunctionType_kind;
     p->v.FunctionType.argtypes = argtypes;
+#ifdef REF_CNT_AST
+    p->v.FunctionType.returns = (expr_ty)Py_XNewRef(returns);
+#else
     p->v.FunctionType.returns = returns;
+#endif
     return p;
 }
 
@@ -7103,13 +7115,26 @@ _PyAST_FunctionDef(identifier name, arguments_ty args, asdl_stmt_seq * body,
     if (!p)
         return NULL;
     p->kind = FunctionDef_kind;
+#ifdef REF_CNT_AST
+    p->v.FunctionDef.name = (identifier)Py_XNewRef(name);
+#else
     p->v.FunctionDef.name = name;
+#endif
     p->v.FunctionDef.args = args;
     p->v.FunctionDef.body = body;
     p->v.FunctionDef.decorator_list = decorator_list;
+#ifdef REF_CNT_AST
+    p->v.FunctionDef.returns = (expr_ty)Py_XNewRef(returns);
+#else
     p->v.FunctionDef.returns = returns;
+#endif
     p->v.FunctionDef.type_comment = type_comment;
+#ifdef REF_CNT_AST
+    p->v.FunctionDef.type_params = (asdl_type_param_seq
+                                    *)Py_XNewRef(type_params);
+#else
     p->v.FunctionDef.type_params = type_params;
+#endif
     p->lineno = lineno;
     p->col_offset = col_offset;
     p->end_lineno = end_lineno;
@@ -7139,13 +7164,26 @@ _PyAST_AsyncFunctionDef(identifier name, arguments_ty args, asdl_stmt_seq *
     if (!p)
         return NULL;
     p->kind = AsyncFunctionDef_kind;
+#ifdef REF_CNT_AST
+    p->v.AsyncFunctionDef.name = (identifier)Py_XNewRef(name);
+#else
     p->v.AsyncFunctionDef.name = name;
+#endif
     p->v.AsyncFunctionDef.args = args;
     p->v.AsyncFunctionDef.body = body;
     p->v.AsyncFunctionDef.decorator_list = decorator_list;
+#ifdef REF_CNT_AST
+    p->v.AsyncFunctionDef.returns = (expr_ty)Py_XNewRef(returns);
+#else
     p->v.AsyncFunctionDef.returns = returns;
+#endif
     p->v.AsyncFunctionDef.type_comment = type_comment;
+#ifdef REF_CNT_AST
+    p->v.AsyncFunctionDef.type_params = (asdl_type_param_seq
+                                         *)Py_XNewRef(type_params);
+#else
     p->v.AsyncFunctionDef.type_params = type_params;
+#endif
     p->lineno = lineno;
     p->col_offset = col_offset;
     p->end_lineno = end_lineno;
@@ -7169,12 +7207,20 @@ _PyAST_ClassDef(identifier name, asdl_expr_seq * bases, asdl_keyword_seq *
     if (!p)
         return NULL;
     p->kind = ClassDef_kind;
+#ifdef REF_CNT_AST
+    p->v.ClassDef.name = (identifier)Py_XNewRef(name);
+#else
     p->v.ClassDef.name = name;
+#endif
     p->v.ClassDef.bases = bases;
     p->v.ClassDef.keywords = keywords;
     p->v.ClassDef.body = body;
     p->v.ClassDef.decorator_list = decorator_list;
+#ifdef REF_CNT_AST
+    p->v.ClassDef.type_params = (asdl_type_param_seq *)Py_XNewRef(type_params);
+#else
     p->v.ClassDef.type_params = type_params;
+#endif
     p->lineno = lineno;
     p->col_offset = col_offset;
     p->end_lineno = end_lineno;
@@ -7191,7 +7237,11 @@ _PyAST_Return(expr_ty value, int lineno, int col_offset, int end_lineno, int
     if (!p)
         return NULL;
     p->kind = Return_kind;
+#ifdef REF_CNT_AST
+    p->v.Return.value = (expr_ty)Py_XNewRef(value);
+#else
     p->v.Return.value = value;
+#endif
     p->lineno = lineno;
     p->col_offset = col_offset;
     p->end_lineno = end_lineno;
@@ -7232,7 +7282,11 @@ _PyAST_Assign(asdl_expr_seq * targets, expr_ty value, string type_comment, int
         return NULL;
     p->kind = Assign_kind;
     p->v.Assign.targets = targets;
+#ifdef REF_CNT_AST
+    p->v.Assign.value = (expr_ty)Py_XNewRef(value);
+#else
     p->v.Assign.value = value;
+#endif
     p->v.Assign.type_comment = type_comment;
     p->lineno = lineno;
     p->col_offset = col_offset;
@@ -7261,9 +7315,21 @@ _PyAST_TypeAlias(expr_ty name, asdl_type_param_seq * type_params, expr_ty
     if (!p)
         return NULL;
     p->kind = TypeAlias_kind;
+#ifdef REF_CNT_AST
+    p->v.TypeAlias.name = (expr_ty)Py_XNewRef(name);
+#else
     p->v.TypeAlias.name = name;
+#endif
+#ifdef REF_CNT_AST
+    p->v.TypeAlias.type_params = (asdl_type_param_seq *)Py_XNewRef(type_params);
+#else
     p->v.TypeAlias.type_params = type_params;
+#endif
+#ifdef REF_CNT_AST
+    p->v.TypeAlias.value = (expr_ty)Py_XNewRef(value);
+#else
     p->v.TypeAlias.value = value;
+#endif
     p->lineno = lineno;
     p->col_offset = col_offset;
     p->end_lineno = end_lineno;
@@ -7295,9 +7361,17 @@ _PyAST_AugAssign(expr_ty target, operator_ty op, expr_ty value, int lineno, int
     if (!p)
         return NULL;
     p->kind = AugAssign_kind;
+#ifdef REF_CNT_AST
+    p->v.AugAssign.target = (expr_ty)Py_XNewRef(target);
+#else
     p->v.AugAssign.target = target;
+#endif
     p->v.AugAssign.op = op;
+#ifdef REF_CNT_AST
+    p->v.AugAssign.value = (expr_ty)Py_XNewRef(value);
+#else
     p->v.AugAssign.value = value;
+#endif
     p->lineno = lineno;
     p->col_offset = col_offset;
     p->end_lineno = end_lineno;
@@ -7325,9 +7399,21 @@ _PyAST_AnnAssign(expr_ty target, expr_ty annotation, expr_ty value, int simple,
     if (!p)
         return NULL;
     p->kind = AnnAssign_kind;
+#ifdef REF_CNT_AST
+    p->v.AnnAssign.target = (expr_ty)Py_XNewRef(target);
+#else
     p->v.AnnAssign.target = target;
+#endif
+#ifdef REF_CNT_AST
+    p->v.AnnAssign.annotation = (expr_ty)Py_XNewRef(annotation);
+#else
     p->v.AnnAssign.annotation = annotation;
+#endif
+#ifdef REF_CNT_AST
+    p->v.AnnAssign.value = (expr_ty)Py_XNewRef(value);
+#else
     p->v.AnnAssign.value = value;
+#endif
     p->v.AnnAssign.simple = simple;
     p->lineno = lineno;
     p->col_offset = col_offset;
@@ -7356,8 +7442,16 @@ _PyAST_For(expr_ty target, expr_ty iter, asdl_stmt_seq * body, asdl_stmt_seq *
     if (!p)
         return NULL;
     p->kind = For_kind;
+#ifdef REF_CNT_AST
+    p->v.For.target = (expr_ty)Py_XNewRef(target);
+#else
     p->v.For.target = target;
+#endif
+#ifdef REF_CNT_AST
+    p->v.For.iter = (expr_ty)Py_XNewRef(iter);
+#else
     p->v.For.iter = iter;
+#endif
     p->v.For.body = body;
     p->v.For.orelse = orelse;
     p->v.For.type_comment = type_comment;
@@ -7388,8 +7482,16 @@ _PyAST_AsyncFor(expr_ty target, expr_ty iter, asdl_stmt_seq * body,
     if (!p)
         return NULL;
     p->kind = AsyncFor_kind;
+#ifdef REF_CNT_AST
+    p->v.AsyncFor.target = (expr_ty)Py_XNewRef(target);
+#else
     p->v.AsyncFor.target = target;
+#endif
+#ifdef REF_CNT_AST
+    p->v.AsyncFor.iter = (expr_ty)Py_XNewRef(iter);
+#else
     p->v.AsyncFor.iter = iter;
+#endif
     p->v.AsyncFor.body = body;
     p->v.AsyncFor.orelse = orelse;
     p->v.AsyncFor.type_comment = type_comment;
@@ -7415,7 +7517,11 @@ _PyAST_While(expr_ty test, asdl_stmt_seq * body, asdl_stmt_seq * orelse, int
     if (!p)
         return NULL;
     p->kind = While_kind;
+#ifdef REF_CNT_AST
+    p->v.While.test = (expr_ty)Py_XNewRef(test);
+#else
     p->v.While.test = test;
+#endif
     p->v.While.body = body;
     p->v.While.orelse = orelse;
     p->lineno = lineno;
@@ -7440,7 +7546,11 @@ _PyAST_If(expr_ty test, asdl_stmt_seq * body, asdl_stmt_seq * orelse, int
     if (!p)
         return NULL;
     p->kind = If_kind;
+#ifdef REF_CNT_AST
+    p->v.If.test = (expr_ty)Py_XNewRef(test);
+#else
     p->v.If.test = test;
+#endif
     p->v.If.body = body;
     p->v.If.orelse = orelse;
     p->lineno = lineno;
@@ -7504,7 +7614,11 @@ _PyAST_Match(expr_ty subject, asdl_match_case_seq * cases, int lineno, int
     if (!p)
         return NULL;
     p->kind = Match_kind;
+#ifdef REF_CNT_AST
+    p->v.Match.subject = (expr_ty)Py_XNewRef(subject);
+#else
     p->v.Match.subject = subject;
+#endif
     p->v.Match.cases = cases;
     p->lineno = lineno;
     p->col_offset = col_offset;
@@ -7522,8 +7636,16 @@ _PyAST_Raise(expr_ty exc, expr_ty cause, int lineno, int col_offset, int
     if (!p)
         return NULL;
     p->kind = Raise_kind;
+#ifdef REF_CNT_AST
+    p->v.Raise.exc = (expr_ty)Py_XNewRef(exc);
+#else
     p->v.Raise.exc = exc;
+#endif
+#ifdef REF_CNT_AST
+    p->v.Raise.cause = (expr_ty)Py_XNewRef(cause);
+#else
     p->v.Raise.cause = cause;
+#endif
     p->lineno = lineno;
     p->col_offset = col_offset;
     p->end_lineno = end_lineno;
@@ -7588,8 +7710,16 @@ _PyAST_Assert(expr_ty test, expr_ty msg, int lineno, int col_offset, int
     if (!p)
         return NULL;
     p->kind = Assert_kind;
+#ifdef REF_CNT_AST
+    p->v.Assert.test = (expr_ty)Py_XNewRef(test);
+#else
     p->v.Assert.test = test;
+#endif
+#ifdef REF_CNT_AST
+    p->v.Assert.msg = (expr_ty)Py_XNewRef(msg);
+#else
     p->v.Assert.msg = msg;
+#endif
     p->lineno = lineno;
     p->col_offset = col_offset;
     p->end_lineno = end_lineno;
@@ -7624,7 +7754,11 @@ _PyAST_ImportFrom(identifier module, asdl_alias_seq * names, int level, int
     if (!p)
         return NULL;
     p->kind = ImportFrom_kind;
+#ifdef REF_CNT_AST
+    p->v.ImportFrom.module = (identifier)Py_XNewRef(module);
+#else
     p->v.ImportFrom.module = module;
+#endif
     p->v.ImportFrom.names = names;
     p->v.ImportFrom.level = level;
     p->lineno = lineno;
@@ -7682,7 +7816,11 @@ _PyAST_Expr(expr_ty value, int lineno, int col_offset, int end_lineno, int
     if (!p)
         return NULL;
     p->kind = Expr_kind;
+#ifdef REF_CNT_AST
+    p->v.Expr.value = (expr_ty)Py_XNewRef(value);
+#else
     p->v.Expr.value = value;
+#endif
     p->lineno = lineno;
     p->col_offset = col_offset;
     p->end_lineno = end_lineno;
@@ -7780,8 +7918,16 @@ _PyAST_NamedExpr(expr_ty target, expr_ty value, int lineno, int col_offset, int
     if (!p)
         return NULL;
     p->kind = NamedExpr_kind;
+#ifdef REF_CNT_AST
+    p->v.NamedExpr.target = (expr_ty)Py_XNewRef(target);
+#else
     p->v.NamedExpr.target = target;
+#endif
+#ifdef REF_CNT_AST
+    p->v.NamedExpr.value = (expr_ty)Py_XNewRef(value);
+#else
     p->v.NamedExpr.value = value;
+#endif
     p->lineno = lineno;
     p->col_offset = col_offset;
     p->end_lineno = end_lineno;
@@ -7813,9 +7959,17 @@ _PyAST_BinOp(expr_ty left, operator_ty op, expr_ty right, int lineno, int
     if (!p)
         return NULL;
     p->kind = BinOp_kind;
+#ifdef REF_CNT_AST
+    p->v.BinOp.left = (expr_ty)Py_XNewRef(left);
+#else
     p->v.BinOp.left = left;
+#endif
     p->v.BinOp.op = op;
+#ifdef REF_CNT_AST
+    p->v.BinOp.right = (expr_ty)Py_XNewRef(right);
+#else
     p->v.BinOp.right = right;
+#endif
     p->lineno = lineno;
     p->col_offset = col_offset;
     p->end_lineno = end_lineno;
@@ -7843,7 +7997,11 @@ _PyAST_UnaryOp(unaryop_ty op, expr_ty operand, int lineno, int col_offset, int
         return NULL;
     p->kind = UnaryOp_kind;
     p->v.UnaryOp.op = op;
+#ifdef REF_CNT_AST
+    p->v.UnaryOp.operand = (expr_ty)Py_XNewRef(operand);
+#else
     p->v.UnaryOp.operand = operand;
+#endif
     p->lineno = lineno;
     p->col_offset = col_offset;
     p->end_lineno = end_lineno;
@@ -7871,7 +8029,11 @@ _PyAST_Lambda(arguments_ty args, expr_ty body, int lineno, int col_offset, int
         return NULL;
     p->kind = Lambda_kind;
     p->v.Lambda.args = args;
+#ifdef REF_CNT_AST
+    p->v.Lambda.body = (expr_ty)Py_XNewRef(body);
+#else
     p->v.Lambda.body = body;
+#endif
     p->lineno = lineno;
     p->col_offset = col_offset;
     p->end_lineno = end_lineno;
@@ -7903,9 +8065,21 @@ _PyAST_IfExp(expr_ty test, expr_ty body, expr_ty orelse, int lineno, int
     if (!p)
         return NULL;
     p->kind = IfExp_kind;
+#ifdef REF_CNT_AST
+    p->v.IfExp.test = (expr_ty)Py_XNewRef(test);
+#else
     p->v.IfExp.test = test;
+#endif
+#ifdef REF_CNT_AST
+    p->v.IfExp.body = (expr_ty)Py_XNewRef(body);
+#else
     p->v.IfExp.body = body;
+#endif
+#ifdef REF_CNT_AST
+    p->v.IfExp.orelse = (expr_ty)Py_XNewRef(orelse);
+#else
     p->v.IfExp.orelse = orelse;
+#endif
     p->lineno = lineno;
     p->col_offset = col_offset;
     p->end_lineno = end_lineno;
@@ -7963,7 +8137,11 @@ _PyAST_ListComp(expr_ty elt, asdl_comprehension_seq * generators, int lineno,
     if (!p)
         return NULL;
     p->kind = ListComp_kind;
+#ifdef REF_CNT_AST
+    p->v.ListComp.elt = (expr_ty)Py_XNewRef(elt);
+#else
     p->v.ListComp.elt = elt;
+#endif
     p->v.ListComp.generators = generators;
     p->lineno = lineno;
     p->col_offset = col_offset;
@@ -7987,7 +8165,11 @@ _PyAST_SetComp(expr_ty elt, asdl_comprehension_seq * generators, int lineno,
     if (!p)
         return NULL;
     p->kind = SetComp_kind;
+#ifdef REF_CNT_AST
+    p->v.SetComp.elt = (expr_ty)Py_XNewRef(elt);
+#else
     p->v.SetComp.elt = elt;
+#endif
     p->v.SetComp.generators = generators;
     p->lineno = lineno;
     p->col_offset = col_offset;
@@ -8016,8 +8198,16 @@ _PyAST_DictComp(expr_ty key, expr_ty value, asdl_comprehension_seq *
     if (!p)
         return NULL;
     p->kind = DictComp_kind;
+#ifdef REF_CNT_AST
+    p->v.DictComp.key = (expr_ty)Py_XNewRef(key);
+#else
     p->v.DictComp.key = key;
+#endif
+#ifdef REF_CNT_AST
+    p->v.DictComp.value = (expr_ty)Py_XNewRef(value);
+#else
     p->v.DictComp.value = value;
+#endif
     p->v.DictComp.generators = generators;
     p->lineno = lineno;
     p->col_offset = col_offset;
@@ -8041,7 +8231,11 @@ _PyAST_GeneratorExp(expr_ty elt, asdl_comprehension_seq * generators, int
     if (!p)
         return NULL;
     p->kind = GeneratorExp_kind;
+#ifdef REF_CNT_AST
+    p->v.GeneratorExp.elt = (expr_ty)Py_XNewRef(elt);
+#else
     p->v.GeneratorExp.elt = elt;
+#endif
     p->v.GeneratorExp.generators = generators;
     p->lineno = lineno;
     p->col_offset = col_offset;
@@ -8064,7 +8258,11 @@ _PyAST_Await(expr_ty value, int lineno, int col_offset, int end_lineno, int
     if (!p)
         return NULL;
     p->kind = Await_kind;
+#ifdef REF_CNT_AST
+    p->v.Await.value = (expr_ty)Py_XNewRef(value);
+#else
     p->v.Await.value = value;
+#endif
     p->lineno = lineno;
     p->col_offset = col_offset;
     p->end_lineno = end_lineno;
@@ -8081,7 +8279,11 @@ _PyAST_Yield(expr_ty value, int lineno, int col_offset, int end_lineno, int
     if (!p)
         return NULL;
     p->kind = Yield_kind;
+#ifdef REF_CNT_AST
+    p->v.Yield.value = (expr_ty)Py_XNewRef(value);
+#else
     p->v.Yield.value = value;
+#endif
     p->lineno = lineno;
     p->col_offset = col_offset;
     p->end_lineno = end_lineno;
@@ -8103,7 +8305,11 @@ _PyAST_YieldFrom(expr_ty value, int lineno, int col_offset, int end_lineno, int
     if (!p)
         return NULL;
     p->kind = YieldFrom_kind;
+#ifdef REF_CNT_AST
+    p->v.YieldFrom.value = (expr_ty)Py_XNewRef(value);
+#else
     p->v.YieldFrom.value = value;
+#endif
     p->lineno = lineno;
     p->col_offset = col_offset;
     p->end_lineno = end_lineno;
@@ -8126,7 +8332,11 @@ _PyAST_Compare(expr_ty left, asdl_int_seq * ops, asdl_expr_seq * comparators,
     if (!p)
         return NULL;
     p->kind = Compare_kind;
+#ifdef REF_CNT_AST
+    p->v.Compare.left = (expr_ty)Py_XNewRef(left);
+#else
     p->v.Compare.left = left;
+#endif
     p->v.Compare.ops = ops;
     p->v.Compare.comparators = comparators;
     p->lineno = lineno;
@@ -8151,7 +8361,11 @@ _PyAST_Call(expr_ty func, asdl_expr_seq * args, asdl_keyword_seq * keywords,
     if (!p)
         return NULL;
     p->kind = Call_kind;
+#ifdef REF_CNT_AST
+    p->v.Call.func = (expr_ty)Py_XNewRef(func);
+#else
     p->v.Call.func = func;
+#endif
     p->v.Call.args = args;
     p->v.Call.keywords = keywords;
     p->lineno = lineno;
@@ -8176,9 +8390,17 @@ _PyAST_FormattedValue(expr_ty value, int conversion, expr_ty format_spec, int
     if (!p)
         return NULL;
     p->kind = FormattedValue_kind;
+#ifdef REF_CNT_AST
+    p->v.FormattedValue.value = (expr_ty)Py_XNewRef(value);
+#else
     p->v.FormattedValue.value = value;
+#endif
     p->v.FormattedValue.conversion = conversion;
+#ifdef REF_CNT_AST
+    p->v.FormattedValue.format_spec = (expr_ty)Py_XNewRef(format_spec);
+#else
     p->v.FormattedValue.format_spec = format_spec;
+#endif
     p->lineno = lineno;
     p->col_offset = col_offset;
     p->end_lineno = end_lineno;
@@ -8206,10 +8428,22 @@ _PyAST_Interpolation(expr_ty value, constant str, int conversion, expr_ty
     if (!p)
         return NULL;
     p->kind = Interpolation_kind;
+#ifdef REF_CNT_AST
+    p->v.Interpolation.value = (expr_ty)Py_XNewRef(value);
+#else
     p->v.Interpolation.value = value;
+#endif
+#ifdef REF_CNT_AST
+    p->v.Interpolation.str = (constant)Py_XNewRef(str);
+#else
     p->v.Interpolation.str = str;
+#endif
     p->v.Interpolation.conversion = conversion;
+#ifdef REF_CNT_AST
+    p->v.Interpolation.format_spec = (expr_ty)Py_XNewRef(format_spec);
+#else
     p->v.Interpolation.format_spec = format_spec;
+#endif
     p->lineno = lineno;
     p->col_offset = col_offset;
     p->end_lineno = end_lineno;
@@ -8265,7 +8499,11 @@ _PyAST_Constant(constant value, string kind, int lineno, int col_offset, int
     if (!p)
         return NULL;
     p->kind = Constant_kind;
+#ifdef REF_CNT_AST
+    p->v.Constant.value = (constant)Py_XNewRef(value);
+#else
     p->v.Constant.value = value;
+#endif
     p->v.Constant.kind = kind;
     p->lineno = lineno;
     p->col_offset = col_offset;
@@ -8299,8 +8537,16 @@ _PyAST_Attribute(expr_ty value, identifier attr, expr_context_ty ctx, int
     if (!p)
         return NULL;
     p->kind = Attribute_kind;
+#ifdef REF_CNT_AST
+    p->v.Attribute.value = (expr_ty)Py_XNewRef(value);
+#else
     p->v.Attribute.value = value;
+#endif
+#ifdef REF_CNT_AST
+    p->v.Attribute.attr = (identifier)Py_XNewRef(attr);
+#else
     p->v.Attribute.attr = attr;
+#endif
     p->v.Attribute.ctx = ctx;
     p->lineno = lineno;
     p->col_offset = col_offset;
@@ -8334,8 +8580,16 @@ _PyAST_Subscript(expr_ty value, expr_ty slice, expr_context_ty ctx, int lineno,
     if (!p)
         return NULL;
     p->kind = Subscript_kind;
+#ifdef REF_CNT_AST
+    p->v.Subscript.value = (expr_ty)Py_XNewRef(value);
+#else
     p->v.Subscript.value = value;
+#endif
+#ifdef REF_CNT_AST
+    p->v.Subscript.slice = (expr_ty)Py_XNewRef(slice);
+#else
     p->v.Subscript.slice = slice;
+#endif
     p->v.Subscript.ctx = ctx;
     p->lineno = lineno;
     p->col_offset = col_offset;
@@ -8363,7 +8617,11 @@ _PyAST_Starred(expr_ty value, expr_context_ty ctx, int lineno, int col_offset,
     if (!p)
         return NULL;
     p->kind = Starred_kind;
+#ifdef REF_CNT_AST
+    p->v.Starred.value = (expr_ty)Py_XNewRef(value);
+#else
     p->v.Starred.value = value;
+#endif
     p->v.Starred.ctx = ctx;
     p->lineno = lineno;
     p->col_offset = col_offset;
@@ -8391,7 +8649,11 @@ _PyAST_Name(identifier id, expr_context_ty ctx, int lineno, int col_offset, int
     if (!p)
         return NULL;
     p->kind = Name_kind;
+#ifdef REF_CNT_AST
+    p->v.Name.id = (identifier)Py_XNewRef(id);
+#else
     p->v.Name.id = id;
+#endif
     p->v.Name.ctx = ctx;
     p->lineno = lineno;
     p->col_offset = col_offset;
@@ -8455,9 +8717,21 @@ _PyAST_Slice(expr_ty lower, expr_ty upper, expr_ty step, int lineno, int
     if (!p)
         return NULL;
     p->kind = Slice_kind;
+#ifdef REF_CNT_AST
+    p->v.Slice.lower = (expr_ty)Py_XNewRef(lower);
+#else
     p->v.Slice.lower = lower;
+#endif
+#ifdef REF_CNT_AST
+    p->v.Slice.upper = (expr_ty)Py_XNewRef(upper);
+#else
     p->v.Slice.upper = upper;
+#endif
+#ifdef REF_CNT_AST
+    p->v.Slice.step = (expr_ty)Py_XNewRef(step);
+#else
     p->v.Slice.step = step;
+#endif
     p->lineno = lineno;
     p->col_offset = col_offset;
     p->end_lineno = end_lineno;
@@ -8483,8 +8757,16 @@ _PyAST_comprehension(expr_ty target, expr_ty iter, asdl_expr_seq * ifs, int
     p = (comprehension_ty)_PyArena_NewObj(arena, &PyAst_comprehension_Type);
     if (!p)
         return NULL;
+#ifdef REF_CNT_AST
+    p->target = (expr_ty)Py_XNewRef(target);
+#else
     p->target = target;
+#endif
+#ifdef REF_CNT_AST
+    p->iter = (expr_ty)Py_XNewRef(iter);
+#else
     p->iter = iter;
+#endif
     p->ifs = ifs;
     p->is_async = is_async;
     return p;
@@ -8500,8 +8782,16 @@ _PyAST_ExceptHandler(expr_ty type, identifier name, asdl_stmt_seq * body, int
     if (!p)
         return NULL;
     p->kind = ExceptHandler_kind;
+#ifdef REF_CNT_AST
+    p->v.ExceptHandler.type = (expr_ty)Py_XNewRef(type);
+#else
     p->v.ExceptHandler.type = type;
+#endif
+#ifdef REF_CNT_AST
+    p->v.ExceptHandler.name = (identifier)Py_XNewRef(name);
+#else
     p->v.ExceptHandler.name = name;
+#endif
     p->v.ExceptHandler.body = body;
     p->lineno = lineno;
     p->col_offset = col_offset;
@@ -8522,10 +8812,18 @@ _PyAST_arguments(asdl_arg_seq * posonlyargs, asdl_arg_seq * args, arg_ty
         return NULL;
     p->posonlyargs = posonlyargs;
     p->args = args;
+#ifdef REF_CNT_AST
+    p->vararg = (arg_ty)Py_XNewRef(vararg);
+#else
     p->vararg = vararg;
+#endif
     p->kwonlyargs = kwonlyargs;
     p->kw_defaults = kw_defaults;
+#ifdef REF_CNT_AST
+    p->kwarg = (arg_ty)Py_XNewRef(kwarg);
+#else
     p->kwarg = kwarg;
+#endif
     p->defaults = defaults;
     return p;
 }
@@ -8543,8 +8841,16 @@ _PyAST_arg(identifier arg, expr_ty annotation, string type_comment, int lineno,
     p = (arg_ty)_PyArena_NewObj(arena, &PyAst_arg_Type);
     if (!p)
         return NULL;
+#ifdef REF_CNT_AST
+    p->arg = (identifier)Py_XNewRef(arg);
+#else
     p->arg = arg;
+#endif
+#ifdef REF_CNT_AST
+    p->annotation = (expr_ty)Py_XNewRef(annotation);
+#else
     p->annotation = annotation;
+#endif
     p->type_comment = type_comment;
     p->lineno = lineno;
     p->col_offset = col_offset;
@@ -8566,8 +8872,16 @@ _PyAST_keyword(identifier arg, expr_ty value, int lineno, int col_offset, int
     p = (keyword_ty)_PyArena_NewObj(arena, &PyAst_keyword_Type);
     if (!p)
         return NULL;
+#ifdef REF_CNT_AST
+    p->arg = (identifier)Py_XNewRef(arg);
+#else
     p->arg = arg;
+#endif
+#ifdef REF_CNT_AST
+    p->value = (expr_ty)Py_XNewRef(value);
+#else
     p->value = value;
+#endif
     p->lineno = lineno;
     p->col_offset = col_offset;
     p->end_lineno = end_lineno;
@@ -8588,8 +8902,16 @@ _PyAST_alias(identifier name, identifier asname, int lineno, int col_offset,
     p = (alias_ty)_PyArena_NewObj(arena, &PyAst_alias_Type);
     if (!p)
         return NULL;
+#ifdef REF_CNT_AST
+    p->name = (identifier)Py_XNewRef(name);
+#else
     p->name = name;
+#endif
+#ifdef REF_CNT_AST
+    p->asname = (identifier)Py_XNewRef(asname);
+#else
     p->asname = asname;
+#endif
     p->lineno = lineno;
     p->col_offset = col_offset;
     p->end_lineno = end_lineno;
@@ -8609,8 +8931,16 @@ _PyAST_withitem(expr_ty context_expr, expr_ty optional_vars, PyArena *arena)
     p = (withitem_ty)_PyArena_NewObj(arena, &PyAst_withitem_Type);
     if (!p)
         return NULL;
+#ifdef REF_CNT_AST
+    p->context_expr = (expr_ty)Py_XNewRef(context_expr);
+#else
     p->context_expr = context_expr;
+#endif
+#ifdef REF_CNT_AST
+    p->optional_vars = (expr_ty)Py_XNewRef(optional_vars);
+#else
     p->optional_vars = optional_vars;
+#endif
     return p;
 }
 
@@ -8627,8 +8957,16 @@ _PyAST_match_case(pattern_ty pattern, expr_ty guard, asdl_stmt_seq * body,
     p = (match_case_ty)_PyArena_NewObj(arena, &PyAst_match_case_Type);
     if (!p)
         return NULL;
+#ifdef REF_CNT_AST
+    p->pattern = (pattern_ty)Py_XNewRef(pattern);
+#else
     p->pattern = pattern;
+#endif
+#ifdef REF_CNT_AST
+    p->guard = (expr_ty)Py_XNewRef(guard);
+#else
     p->guard = guard;
+#endif
     p->body = body;
     return p;
 }
@@ -8647,7 +8985,11 @@ _PyAST_MatchValue(expr_ty value, int lineno, int col_offset, int end_lineno,
     if (!p)
         return NULL;
     p->kind = MatchValue_kind;
+#ifdef REF_CNT_AST
+    p->v.MatchValue.value = (expr_ty)Py_XNewRef(value);
+#else
     p->v.MatchValue.value = value;
+#endif
     p->lineno = lineno;
     p->col_offset = col_offset;
     p->end_lineno = end_lineno;
@@ -8669,7 +9011,11 @@ _PyAST_MatchSingleton(constant value, int lineno, int col_offset, int
     if (!p)
         return NULL;
     p->kind = MatchSingleton_kind;
+#ifdef REF_CNT_AST
+    p->v.MatchSingleton.value = (constant)Py_XNewRef(value);
+#else
     p->v.MatchSingleton.value = value;
+#endif
     p->lineno = lineno;
     p->col_offset = col_offset;
     p->end_lineno = end_lineno;
@@ -8706,7 +9052,11 @@ _PyAST_MatchMapping(asdl_expr_seq * keys, asdl_pattern_seq * patterns,
     p->kind = MatchMapping_kind;
     p->v.MatchMapping.keys = keys;
     p->v.MatchMapping.patterns = patterns;
+#ifdef REF_CNT_AST
+    p->v.MatchMapping.rest = (identifier)Py_XNewRef(rest);
+#else
     p->v.MatchMapping.rest = rest;
+#endif
     p->lineno = lineno;
     p->col_offset = col_offset;
     p->end_lineno = end_lineno;
@@ -8730,7 +9080,11 @@ _PyAST_MatchClass(expr_ty cls, asdl_pattern_seq * patterns, asdl_identifier_seq
     if (!p)
         return NULL;
     p->kind = MatchClass_kind;
+#ifdef REF_CNT_AST
+    p->v.MatchClass.cls = (expr_ty)Py_XNewRef(cls);
+#else
     p->v.MatchClass.cls = cls;
+#endif
     p->v.MatchClass.patterns = patterns;
     p->v.MatchClass.kwd_attrs = kwd_attrs;
     p->v.MatchClass.kwd_patterns = kwd_patterns;
@@ -8750,7 +9104,11 @@ _PyAST_MatchStar(identifier name, int lineno, int col_offset, int end_lineno,
     if (!p)
         return NULL;
     p->kind = MatchStar_kind;
+#ifdef REF_CNT_AST
+    p->v.MatchStar.name = (identifier)Py_XNewRef(name);
+#else
     p->v.MatchStar.name = name;
+#endif
     p->lineno = lineno;
     p->col_offset = col_offset;
     p->end_lineno = end_lineno;
@@ -8767,8 +9125,16 @@ _PyAST_MatchAs(pattern_ty pattern, identifier name, int lineno, int col_offset,
     if (!p)
         return NULL;
     p->kind = MatchAs_kind;
+#ifdef REF_CNT_AST
+    p->v.MatchAs.pattern = (pattern_ty)Py_XNewRef(pattern);
+#else
     p->v.MatchAs.pattern = pattern;
+#endif
+#ifdef REF_CNT_AST
+    p->v.MatchAs.name = (identifier)Py_XNewRef(name);
+#else
     p->v.MatchAs.name = name;
+#endif
     p->lineno = lineno;
     p->col_offset = col_offset;
     p->end_lineno = end_lineno;
@@ -8826,9 +9192,21 @@ _PyAST_TypeVar(identifier name, expr_ty bound, expr_ty default_value, int
     if (!p)
         return NULL;
     p->kind = TypeVar_kind;
+#ifdef REF_CNT_AST
+    p->v.TypeVar.name = (identifier)Py_XNewRef(name);
+#else
     p->v.TypeVar.name = name;
+#endif
+#ifdef REF_CNT_AST
+    p->v.TypeVar.bound = (expr_ty)Py_XNewRef(bound);
+#else
     p->v.TypeVar.bound = bound;
+#endif
+#ifdef REF_CNT_AST
+    p->v.TypeVar.default_value = (expr_ty)Py_XNewRef(default_value);
+#else
     p->v.TypeVar.default_value = default_value;
+#endif
     p->lineno = lineno;
     p->col_offset = col_offset;
     p->end_lineno = end_lineno;
@@ -8850,8 +9228,16 @@ _PyAST_ParamSpec(identifier name, expr_ty default_value, int lineno, int
     if (!p)
         return NULL;
     p->kind = ParamSpec_kind;
+#ifdef REF_CNT_AST
+    p->v.ParamSpec.name = (identifier)Py_XNewRef(name);
+#else
     p->v.ParamSpec.name = name;
+#endif
+#ifdef REF_CNT_AST
+    p->v.ParamSpec.default_value = (expr_ty)Py_XNewRef(default_value);
+#else
     p->v.ParamSpec.default_value = default_value;
+#endif
     p->lineno = lineno;
     p->col_offset = col_offset;
     p->end_lineno = end_lineno;
@@ -8874,8 +9260,16 @@ _PyAST_TypeVarTuple(identifier name, expr_ty default_value, int lineno, int
     if (!p)
         return NULL;
     p->kind = TypeVarTuple_kind;
+#ifdef REF_CNT_AST
+    p->v.TypeVarTuple.name = (identifier)Py_XNewRef(name);
+#else
     p->v.TypeVarTuple.name = name;
+#endif
+#ifdef REF_CNT_AST
+    p->v.TypeVarTuple.default_value = (expr_ty)Py_XNewRef(default_value);
+#else
     p->v.TypeVarTuple.default_value = default_value;
+#endif
     p->lineno = lineno;
     p->col_offset = col_offset;
     p->end_lineno = end_lineno;

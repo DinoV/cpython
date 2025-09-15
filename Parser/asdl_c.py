@@ -477,8 +477,12 @@ class FunctionVisitor(PrototypeVisitor):
             self.emit(s, depth, reflow)
         emit("p->kind = %s_kind;" % name, 1)
         for argtype, argname, opt in args:
-            if argtype not in NON_PYOBJECT_TYPES and ENABLE_REFCOUNTS:
+            if argtype not in NON_PYOBJECT_TYPES:
+                emit("#ifdef REF_CNT_AST", 0)
                 emit("p->v.%s.%s = (%s)Py_XNewRef(%s);" % (name, argname, argtype, argname), 1)
+                emit("#else", 0)
+                emit("p->v.%s.%s = %s;" % (name, argname, argname), 1)    
+                emit("#endif", 0)
             else:
                 emit("p->v.%s.%s = %s;" % (name, argname, argname), 1)    
         for argtype, argname, opt in attrs:
@@ -489,8 +493,12 @@ class FunctionVisitor(PrototypeVisitor):
             self.emit(s, depth, reflow)
         for argtype, argname, opt in args:
             print(argname, argtype, type(argtype))
-            if argtype not in NON_PYOBJECT_TYPES and ENABLE_REFCOUNTS:
+            if argtype not in NON_PYOBJECT_TYPES:
+                emit("#ifdef REF_CNT_AST", 0)
                 emit("p->%s = (%s)Py_XNewRef(%s);" % (argname, argtype, argname), 1)
+                emit("#else", 0)
+                emit("p->%s = %s;" % (argname, argname), 1)
+                emit("#endif", 0)
             else:
                 emit("p->%s = %s;" % (argname, argname), 1)
         for argtype, argname, opt in attrs:
@@ -2472,21 +2480,25 @@ class NodesVisitor(EmitVisitor):
         if is_simple(sum):
             return
         self.emit_dealloc_header(name)
-        if ENABLE_REFCOUNTS:
-            self.emit("switch (obj->kind) {", 1)
-            for type in sum.types:
-                self.emit(f"case {type.name}_kind:", 2)
-                self.emit_type_dealloc(f"obj->v.{type.name}.", type, 3)
-                self.emit("break;", 3)
+        self.emit("#ifdef REF_CNT_AST", 0)
+        self.emit("switch (obj->kind) {", 1)
+        for type in sum.types:
+            self.emit(f"case {type.name}_kind:", 2)
+            self.emit_type_dealloc(f"obj->v.{type.name}.", type, 3)
+            self.emit("break;", 3)
 
-            self.emit("}", 1)
+        self.emit("}", 1)
+        self.emit("#endif", 0)
+
         self.emit_dealloc_footer()
         self.sum_with_constructors(sum, name, depth)
 
     def visitProduct(self, product, name, depth = 0):
         self.emit_dealloc_header(name)
-        if ENABLE_REFCOUNTS:
-            self.emit_type_dealloc("obj->", product, 1)
+        self.emit("#ifdef REF_CNT_AST", 0)
+        self.emit_type_dealloc("obj->", product, 1)
+        self.emit("#endif", 0)
+        
         self.emit_dealloc_footer()
         self.sum_with_constructors(sum, name, depth)
 
