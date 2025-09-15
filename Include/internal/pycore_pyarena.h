@@ -55,6 +55,8 @@ PyAPI_FUNC(void) _PyArena_Free(PyArena *);
 // Export for test_peg_generator
 PyAPI_FUNC(void*) _PyArena_Malloc(PyArena *, size_t size);
 
+PyAPI_FUNC(PyObject*) _PyArena_NewObj(PyArena *, PyTypeObject *type);
+
 // This routine isn't a proper arena allocation routine.  It takes
 // a PyObject* and records it so that it can be DECREFed when the
 // arena is freed.

@@ -306,12 +306,18 @@ PyRun_InteractiveOneObjectEx(FILE *fp, PyObject *filename,
     PyObject *main_module = PyImport_AddModuleRef("__main__");
     if (main_module == NULL) {
         _PyArena_Free(arena);
+#ifdef REF_CNT_AST
+        Py_DECREF(mod);
+#endif
         return -1;
     }
     PyObject *main_dict = PyModule_GetDict(main_module);  // borrowed ref
 
     PyObject *res = run_mod(mod, filename, main_dict, main_dict, flags, arena, interactive_src, 1);
     Py_INCREF(interactive_src);
+#ifdef REF_CNT_AST
+    Py_DECREF(mod);
+#endif
     _PyArena_Free(arena);
     Py_DECREF(main_module);
     if (res == NULL) {
@@ -1258,6 +1264,9 @@ _PyRun_StringFlagsWithName(const char *str, PyObject* name, int start,
    if (mod != NULL) {
         ret = run_mod(mod, name, globals, locals, flags, arena, source, generate_new_source);
     }
+#ifdef REF_CNT_AST
+    Py_DECREF(mod);
+#endif
     Py_XDECREF(source);
     _PyArena_Free(arena);
     return ret;
@@ -1295,6 +1304,9 @@ pyrun_file(FILE *fp, PyObject *filename, int start, PyObject *globals,
     else {
         ret = NULL;
     }
+#ifdef REF_CNT_AST
+    Py_DECREF(mod);
+#endif
     _PyArena_Free(arena);
 
     return ret;
@@ -1523,13 +1535,22 @@ Py_CompileStringObject(const char *str, PyObject *filename, int start,
         int syntax_check_only = ((flags->cf_flags & PyCF_OPTIMIZED_AST) == PyCF_ONLY_AST); /* unoptiomized AST */
         if (_PyCompile_AstPreprocess(mod, filename, flags, optimize, arena, syntax_check_only) < 0) {
             _PyArena_Free(arena);
+#ifdef REF_CNT_AST
+            Py_DECREF(mod);
+#endif
             return NULL;
         }
         PyObject *result = PyAST_mod2obj(mod);
         _PyArena_Free(arena);
+#ifdef REF_CNT_AST
+        Py_DECREF(mod);
+#endif
         return result;
     }
     co = _PyAST_Compile(mod, filename, flags, optimize, arena);
+#ifdef REF_CNT_AST
+    Py_DECREF(mod);
+#endif
     _PyArena_Free(arena);
     return (PyObject *)co;
 }

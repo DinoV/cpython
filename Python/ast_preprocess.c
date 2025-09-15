@@ -427,10 +427,12 @@ stmt_seq_remove_item(asdl_stmt_seq *stmts, Py_ssize_t idx)
     if (idx >= asdl_seq_LEN(stmts)) {
         return 0;
     }
+    stmt_ty st = (stmt_ty)asdl_seq_GET(stmts, idx);
     for (Py_ssize_t i = idx; i < asdl_seq_LEN(stmts) - 1; i++) {
         stmt_ty st = (stmt_ty)asdl_seq_GET(stmts, i+1);
         asdl_seq_SET(stmts, i, st);
     }
+    //Py_DECREF(st);
     stmts->size--;
     return 1;
 }

@@ -1,5 +1,6 @@
 #include "Python.h"
 #include "pycore_pyarena.h"       // PyArena
+#include "pycore_ast.h"
 
 /* A simple arena block structure.
 
@@ -168,7 +169,38 @@ _PyArena_Free(PyArena *arena)
        is sys.getobjects(0), in which case there will be two references.
     assert(arena->a_objects->ob_refcnt == 1);
     */
-
+    #if 0
+    for(Py_ssize_t i = 0; i<PyList_GET_SIZE(arena->a_objects); i++) {
+        PyObject *obj = PyList_GET_ITEM(arena->a_objects, i);
+        if(PyObject_IsInstance(obj, &PyAst_mod_Type) || 
+           PyObject_IsInstance(obj, &PyAst_stmt_Type) ||
+            PyObject_IsInstance(obj, &PyAst_expr_Type)) {
+            if(obj->ob_refcnt == 1 ) {
+                Py_CLEAR(((PyListObject *)arena->a_objects)->ob_item[i]);
+            } else {
+               // Py_DECREF(((PyListObject *)arena->a_objects)->ob_item[i]);
+            }
+        }
+    }
+    for(Py_ssize_t i = 0; i<PyList_GET_SIZE(arena->a_objects); i++) {
+        PyObject *obj = PyList_GET_ITEM(arena->a_objects, i);
+        if (obj == NULL) {
+            continue;
+        }
+        if(PyObject_IsInstance(obj, &PyAst_mod_Type) || 
+           PyObject_IsInstance(obj, &PyAst_stmt_Type) ||
+            PyObject_IsInstance(obj, &PyAst_expr_Type)) {
+            if (obj->ob_refcnt != 1) {
+                if (PyObject_IsInstance(obj, &PyAst_expr_Type)) {
+                    printf("Free, %s ref count: %d %d\n", obj->ob_type->tp_name, obj->ob_refcnt, ((expr_ty)obj)->kind);
+                } else {
+                    printf("Free, %s ref count: %d\n", obj->ob_type->tp_name, obj->ob_refcnt);
+                }
+            }
+            //((PyListObject *)arena->a_objects)->ob_item[i] = NULL;
+        }
+    }
+        #endif
     Py_DECREF(arena->a_objects);
     PyMem_Free(arena);
 }
@@ -204,4 +236,19 @@ _PyArena_AddPyObject(PyArena *arena, PyObject *obj)
         Py_DECREF(obj);
     }
     return r;
+}
+
+PyObject *
+_PyArena_NewObj(PyArena *arena, PyTypeObject *type)
+{
+    PyObject *res = PyObject_New(PyObject, type);
+    //memset(((char*)res)+sizeof(PyObject), 0, type->tp_basicsize - sizeof(PyObject));
+    if (res != NULL) {
+        if (_PyArena_AddPyObject(arena, res) < 0) {
+            Py_DECREF(res);
+            return NULL;
+        }
+        //Py_INCREF(res);
+    }
+    return res;
 }
