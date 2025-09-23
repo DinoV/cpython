@@ -28,3 +28,15 @@ PyAPI_FUNC(PyObject*) PyImport_ImportModuleAttr(
 PyAPI_FUNC(PyObject*) PyImport_ImportModuleAttrString(
     const char *mod_name,
     const char *attr_name);
+
+// START META PATCH (expose C API to call a module init function for statically linked extensions)
+// Custom importers may use this API to initialize statically linked
+// extension modules directly from a spec and init function,
+// without needing to go through inittab
+PyAPI_FUNC(PyObject *)
+_Ci_PyImport_CreateBuiltinFromSpecAndInitfunc(
+    PyObject *spec,
+    PyObject* (*initfunc)(void)
+    );
+
+// END META PATCH
