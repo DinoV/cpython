@@ -1888,6 +1888,15 @@ ComplexExtendsException(PyExc_Exception, ImportError,
                         "Import can't find module, or can't find name in "
                         "module.");
 
+#ifdef ENABLE_LAZY_IMPORTS
+/*
+ *    ImportCycleError extends ImportError
+ */
+
+MiddlingExtendsException(PyExc_ImportError, ImportCycleError, ImportError,
+                         "Import produces a cycle.");
+#endif
+
 /*
  *    ModuleNotFoundError extends ImportError
  */
@@ -4321,6 +4330,9 @@ static struct static_exception static_exceptions[] = {
     {&_PyExc_IncompleteInputError, "_IncompleteInputError"}, // base: SyntaxError(Exception)
     ITEM(IndexError),  // base: LookupError(Exception)
     ITEM(KeyError),  // base: LookupError(Exception)
+#ifdef ENABLE_LAZY_IMPORTS
+    ITEM(ImportCycleError), // base: ImportError(Exception)
+#endif
     ITEM(ModuleNotFoundError), // base: ImportError(Exception)
     ITEM(NotImplementedError),  // base: RuntimeError(Exception)
     ITEM(PythonFinalizationError),  // base: RuntimeError(Exception)
@@ -4516,4 +4528,3 @@ _PyException_AddNote(PyObject *exc, PyObject *note)
     Py_XDECREF(r);
     return res;
 }
-

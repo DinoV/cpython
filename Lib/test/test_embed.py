@@ -593,6 +593,7 @@ class InitConfigTests(EmbeddingTestsMixin, unittest.TestCase):
         'dump_refs': False,
         'dump_refs_file': None,
         'malloc_stats': False,
+        'lazy_imports': 0,
 
         'filesystem_encoding': GET_DEFAULT_CONFIG,
         'filesystem_errors': GET_DEFAULT_CONFIG,
@@ -710,6 +711,7 @@ class InitConfigTests(EmbeddingTestsMixin, unittest.TestCase):
         ('Py_InspectFlag', 'inspect'),
         ('Py_InteractiveFlag', 'interactive'),
         ('Py_IsolatedFlag', 'isolated'),
+        ('Py_LazyImportsFlag', 'lazy_imports'),
         ('Py_NoSiteFlag', 'site_import', True),
         ('Py_NoUserSiteDirectory', 'user_site_directory', True),
         ('Py_OptimizeFlag', 'optimization_level'),

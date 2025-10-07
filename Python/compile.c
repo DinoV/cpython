@@ -1302,6 +1302,20 @@ _PyCompile_ScopeType(compiler *c)
     return c->u->u_scope_type;
 }
 
+#ifdef ENABLE_LAZY_IMPORTS
+int
+_PyCompile_NFBlocks(compiler *c)
+{
+    return c->u->u_nfblocks;
+}
+
+int
+_PyCompile_CFFlags(compiler *c)
+{
+    return c->c_flags.cf_flags;
+}
+#endif
+
 int
 _PyCompile_IsInInlinedComp(compiler *c)
 {

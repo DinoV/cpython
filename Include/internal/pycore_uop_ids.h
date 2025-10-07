@@ -101,6 +101,7 @@ extern "C" {
 #define _DO_CALL 364
 #define _DO_CALL_FUNCTION_EX 365
 #define _DO_CALL_KW 366
+#define _EAGER_IMPORT_NAME EAGER_IMPORT_NAME
 #define _END_FOR END_FOR
 #define _END_SEND END_SEND
 #define _ERROR_POP_N 367

@@ -47,6 +47,9 @@
 /* Define if --enable-ipv6 is specified */
 #undef ENABLE_IPV6
 
+/* Define if you want to enable lazy imports */
+#undef ENABLE_LAZY_IMPORTS
+
 /* Define if getpgrp() must be called as getpgrp(0). */
 #undef GETPGRP_HAVE_ARG
 
@@ -2084,4 +2087,3 @@
 #endif
 
 #endif /*Py_PYCONFIG_H*/
-

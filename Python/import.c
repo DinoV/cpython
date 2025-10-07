@@ -2,11 +2,21 @@
 
 #include "Python.h"
 #include "pycore_audit.h"         // _PySys_Audit()
+#ifdef ENABLE_LAZY_IMPORTS
+#include "pycore_call.h"          // _PyObject_VectorcallTstate()
+#endif
 #include "pycore_ceval.h"
+#ifdef ENABLE_LAZY_IMPORTS
+#include "pycore_dict.h"          // _PyDict_GetItemRefKeepLazy()
+#endif
 #include "pycore_hashtable.h"     // _Py_hashtable_new_full()
 #include "pycore_import.h"        // _PyImport_BootstrapImp()
 #include "pycore_initconfig.h"    // _PyStatus_OK()
 #include "pycore_interp.h"        // struct _import_runtime_state
+#ifdef ENABLE_LAZY_IMPORTS
+#include "pycore_lazyimport.h"    // _PyLazyImport_New()
+#include "pycore_long.h"          // _PyLong_GetZero()
+#endif
 #include "pycore_magic_number.h"  // PYC_MAGIC_NUMBER_TOKEN
 #include "pycore_moduleobject.h"  // _PyModule_GetDef()
 #include "pycore_namespace.h"     // _PyNamespace_Type
@@ -15,6 +25,9 @@
 #include "pycore_pyhash.h"        // _Py_KeyedHash()
 #include "pycore_pylifecycle.h"
 #include "pycore_pymem.h"         // _PyMem_DefaultRawFree()
+#ifdef ENABLE_LAZY_IMPORTS
+#include "pycore_setobject.h"     // _PySet_NextEntry()
+#endif
 #include "pycore_pystate.h"       // _PyInterpreterState_GET()
 #include "pycore_sysmodule.h"     // _PySys_ClearAttrString()
 #include "pycore_time.h"          // _PyTime_AsMicroseconds()
@@ -30,6 +43,11 @@
 #include <fcntl.h>
 #endif
 
+
+#ifdef ENABLE_LAZY_IMPORTS
+/* Forward references */
+static PyObject *import_add_module(PyThreadState *tstate, PyObject *name);
+#endif
 
 /*[clinic input]
 module _imp
@@ -288,9 +306,14 @@ done:
 static void remove_importlib_frames(PyThreadState *tstate);
 
 PyObject *
+#ifdef ENABLE_LAZY_IMPORTS
+_PyImport_GetModule(PyThreadState *tstate, PyObject *name)
+{
+#else
 PyImport_GetModule(PyObject *name)
 {
     PyThreadState *tstate = _PyThreadState_GET();
+#endif
     PyObject *mod;
 
     mod = import_get_module(tstate, name);
@@ -303,6 +326,16 @@ PyImport_GetModule(PyObject *name)
     }
     return mod;
 }
+
+#ifdef ENABLE_LAZY_IMPORTS
+PyObject *
+PyImport_GetModule(PyObject *name)
+{
+    PyThreadState *tstate = _PyThreadState_GET();
+    return _PyImport_GetModule(tstate, name);
+}
+#endif
+
 
 /* Get the module object corresponding to a module name.
    First check the modules dictionary if there's one there,
@@ -3793,6 +3826,1236 @@ import_find_and_load(PyThreadState *tstate, PyObject *abs_name)
 #undef accumulated
 }
 
+#ifdef ENABLE_LAZY_IMPORTS
+static int
+has_lazy_submodule(PyObject *module, PyObject *name)
+{
+    assert(module != NULL);
+    PyObject *lazy_submodules = PyObject_GetAttr(module, &_Py_ID(__lazy_submodules__));
+    if (lazy_submodules == NULL) {
+        PyErr_Clear();
+        return 0;
+    }
+    int res = PySet_Contains(lazy_submodules, name);
+    Py_DECREF(lazy_submodules);
+    if (res < 0) {
+        return -1;
+    }
+    return res;
+}
+
+static int
+add_lazy_submodule(PyObject *module, PyObject *name)
+{
+    assert(module != NULL);
+    PyObject *lazy_submodules = PyObject_GetAttr(module, &_Py_ID(__lazy_submodules__));
+    if (lazy_submodules == NULL) {
+        PyErr_Clear();
+        lazy_submodules = PySet_New(NULL);
+        if (lazy_submodules == NULL) {
+            return -1;
+        }
+        if (PyObject_SetAttr(module, &_Py_ID(__lazy_submodules__), lazy_submodules) < 0) {
+            Py_DECREF(lazy_submodules);
+            PyErr_Clear();
+            return 0;
+        }
+    }
+    int res = PySet_Add(lazy_submodules, name);
+    Py_DECREF(lazy_submodules);
+    if (res < 0) {
+        return -1;
+    }
+    return 0;
+}
+
+static int
+add_lazy_modules(PyThreadState *tstate, PyObject *builtins, PyObject *name, PyObject *fromlist)
+{
+    int ret = 1;
+    assert(tstate->interp->lazy_modules != NULL);
+    PyObject *lazy_modules = tstate->interp->lazy_modules;
+    Py_INCREF(name);
+    PyObject *parent = NULL;
+    PyObject *child = NULL;
+    PyObject *parent_module = NULL;
+    PyObject *parent_dict = NULL;
+    PyObject *lazy_submodules;
+
+    /* Check if the import has explicitly been marked as an eager import. */
+    if (tstate->interp->eager_imports != NULL) {
+        Py_ssize_t size = 0;
+        if (fromlist != NULL && fromlist != Py_None) {
+            assert(PyTuple_CheckExact(fromlist));
+            size = PyTuple_GET_SIZE(fromlist);
+            for (Py_ssize_t i = 0; i < size; ++i) {
+                PyObject* item = PyTuple_GET_ITEM(fromlist, i);
+                assert(PyUnicode_Check(item));
+                PyObject *from_name = PyUnicode_FromFormat("%U.%U", name, item);
+                if (from_name == NULL) {
+                    goto error;
+                }
+                int found = PySequence_Contains(tstate->interp->eager_imports, from_name);
+                Py_DECREF(from_name);
+                if (found < 0) {
+                    goto error;
+                }
+                /* Flagged as eager import. */
+                if (found) {
+                    ret = 0;
+                    goto end;
+                }
+            }
+        }
+        /* If there's no explicit fromlist, check the module's name. */
+        if (size == 0) {
+            int found = PySequence_Contains(tstate->interp->eager_imports, name);
+            if (found < 0) {
+                goto error;
+            }
+            /* Flagged as eager import. */
+            if (found) {
+                ret = 0;
+                goto end;
+            }
+        }
+    }
+
+    lazy_submodules = PyDict_GetItemWithError(lazy_modules, name);
+    if (lazy_submodules == NULL) {
+        if (PyErr_Occurred()) {
+            goto error;
+        }
+        lazy_submodules = PySet_New(NULL);
+        if (lazy_submodules == NULL) {
+            goto error;
+        }
+        if (PyDict_SetItem(lazy_modules, name, lazy_submodules) < 0) {
+            Py_DECREF(lazy_submodules);
+            goto error;
+        }
+        Py_DECREF(lazy_submodules);
+    }
+
+    /* Break the `import mod1.mod2.mod3.mod4` statement into individual modules.
+     * For each `modA.modB` in the import, register `modB` as a lazy submodule
+     * of `modA`. */
+    PyObject *filter = tstate->interp->excluding_modules;
+    while (true) {
+        Py_ssize_t dot = PyUnicode_FindChar(name, '.', 0, PyUnicode_GET_LENGTH(name), -1);
+        if (dot < 0) {
+            goto end;
+        }
+        parent = PyUnicode_Substring(name, 0, dot);
+        /* If `parent` is NULL then this has hit the end of the import, no more
+         * "parent.child" in the import name. The entire import will be resolved
+         * lazily. */
+        if (parent == NULL) {
+            goto error;
+        }
+        Py_XDECREF(child);
+        child = PyUnicode_Substring(name, dot + 1, PyUnicode_GET_LENGTH(name));
+        if (child == NULL) {
+            goto error;
+        }
+
+        /* Only check if the immediate parent module is excluded from Lazy
+         * Imports, load this import eagerly if it is. */
+        if (filter != NULL) {
+            int found = PySequence_Contains(filter, parent);
+            if (found < 0) {
+                goto error;
+            }
+            if (found) {
+                ret = 0; /* If the direct parent is excluded, load eagerly */
+                goto end;
+            }
+        }
+        filter = NULL;
+
+        /* Add `child` as a lazy submodule of `parent` in the global
+         * `lazy_modules`. */
+        lazy_submodules = PyDict_GetItemWithError(lazy_modules, parent);
+        if (lazy_submodules == NULL) {
+            if (PyErr_Occurred()) {
+                goto error;
+            }
+            lazy_submodules = PySet_New(NULL);
+            if (lazy_submodules == NULL) {
+                goto error;
+            }
+            if (PyDict_SetItem(lazy_modules, parent, lazy_submodules) < 0) {
+                Py_DECREF(lazy_submodules);
+                goto error;
+            }
+            Py_DECREF(lazy_submodules);
+        }
+        if (PySet_Add(lazy_submodules, child) < 0) {
+            goto error;
+        }
+
+        /* Add `child` as a lazy submodule to the `lazy_submodules` set on
+         * `parent`. */
+        Py_XDECREF(parent_module);
+        parent_module = _PyImport_GetModule(tstate, parent);
+        if (parent_module == NULL) {
+            if (PyErr_Occurred()) {
+                goto error;
+            }
+        } else {
+            Py_XDECREF(parent_dict);
+            parent_dict = PyObject_GetAttr(parent_module, &_Py_ID(__dict__));
+            if (parent_dict == NULL) {
+                goto error;
+            }
+            if (PyDict_CheckExact(parent_dict)) {
+                int res = has_lazy_submodule(parent_module, child);
+                if (res < 0) {
+                    goto error;
+                } else if (!res) {
+                    PyObject *lazy_module_attr = _PyLazyImport_New(builtins, parent, child);
+                    if (lazy_module_attr == NULL) {
+                        goto error;
+                    }
+                    if (PyDict_SetItem(parent_dict, child, lazy_module_attr) < 0) {
+                        Py_DECREF(lazy_module_attr);
+                        goto error;
+                    }
+                    Py_DECREF(lazy_module_attr);
+                    if (add_lazy_submodule(parent_module, child) < 0) {
+                        goto error;
+                    }
+                }
+            } else {
+                ret = 0; /* should be eager */
+            }
+        }
+
+        Py_DECREF(name);
+        name = parent;
+        parent = NULL;
+    }
+
+  error:
+    ret = -1;
+
+  end:
+    Py_XDECREF(parent_dict);
+    Py_XDECREF(parent_module);
+    Py_XDECREF(child);
+    Py_XDECREF(parent);
+    Py_DECREF(name);
+    return ret;
+}
+
+PyObject *
+_PyImport_ImportName(PyThreadState *tstate, PyObject *builtins, PyObject *globals, PyObject *locals,
+                     PyObject *name, PyObject *fromlist, PyObject *level)
+{
+    PyObject *import_func;
+    if (PyMapping_GetOptionalItem(builtins, &_Py_ID(__import__), &import_func) < 0) {
+        return NULL;
+    }
+    if (import_func == NULL) {
+        _PyErr_SetString(tstate, PyExc_ImportError, "__import__ not found");
+        return NULL;
+    }
+
+    if (locals == NULL) {
+        locals = Py_None;
+    }
+
+    /* Fast path for not overloaded __import__. */
+    if (_PyImport_IsDefaultImportFunc(tstate->interp, import_func)) {
+        Py_DECREF(import_func);
+        int ilevel = PyLong_AsInt(level);
+        if (ilevel == -1 && _PyErr_Occurred(tstate)) {
+            return NULL;
+        }
+        return PyImport_ImportModuleLevelObject(
+                        name,
+                        globals,
+                        locals,
+                        fromlist == NULL ? Py_None: fromlist,
+                        ilevel);
+    }
+
+    PyObject* args[5] = {name, globals, locals, fromlist == NULL ? Py_None : fromlist, level};
+    PyObject *res = _PyObject_VectorcallTstate(tstate, import_func, args, 5, NULL);
+    Py_DECREF(import_func);
+    return res;
+}
+
+PyObject *
+_PyImport_ImportFrom(PyThreadState *tstate, PyObject *v, PyObject *name)
+{
+    PyObject *x;
+    PyObject *fullmodname, *mod_name, *origin, *mod_name_or_unknown, *errmsg, *spec;
+
+    if (PyObject_GetOptionalAttr(v, name, &x) != 0) {
+        return x;
+    }
+    /* Issue #17636: in case this failed because of a circular relative
+       import, try to fallback on reading the module directly from
+       sys.modules. */
+    if (PyObject_GetOptionalAttr(v, &_Py_ID(__name__), &mod_name) < 0) {
+        return NULL;
+    }
+    if (mod_name == NULL || !PyUnicode_Check(mod_name)) {
+        Py_CLEAR(mod_name);
+        goto error;
+    }
+    fullmodname = PyUnicode_FromFormat("%U.%U", mod_name, name);
+    if (fullmodname == NULL) {
+        Py_DECREF(mod_name);
+        return NULL;
+    }
+    x = PyImport_GetModule(fullmodname);
+    Py_DECREF(fullmodname);
+    if (x == NULL && !_PyErr_Occurred(tstate)) {
+        goto error;
+    }
+    Py_DECREF(mod_name);
+    return x;
+
+ error:
+    if (mod_name == NULL) {
+        mod_name_or_unknown = PyUnicode_FromString("<unknown module name>");
+        if (mod_name_or_unknown == NULL) {
+            return NULL;
+        }
+    } else {
+        mod_name_or_unknown = mod_name;
+    }
+    // mod_name is no longer an owned reference
+    assert(mod_name_or_unknown);
+    assert(mod_name == NULL || mod_name == mod_name_or_unknown);
+
+    origin = NULL;
+    if (PyObject_GetOptionalAttr(v, &_Py_ID(__spec__), &spec) < 0) {
+        Py_DECREF(mod_name_or_unknown);
+        return NULL;
+    }
+    if (spec == NULL) {
+        errmsg = PyUnicode_FromFormat(
+            "cannot import name %R from %R (unknown location)",
+            name, mod_name_or_unknown
+        );
+        goto done_with_errmsg;
+    }
+    if (_PyModuleSpec_GetFileOrigin(spec, &origin) < 0) {
+        goto done;
+    }
+
+    int is_possibly_shadowing = _PyModule_IsPossiblyShadowing(origin);
+    if (is_possibly_shadowing < 0) {
+        goto done;
+    }
+    int is_possibly_shadowing_stdlib = 0;
+    if (is_possibly_shadowing) {
+        PyObject *stdlib_modules;
+        if (_PySys_GetOptionalAttrString("stdlib_module_names", &stdlib_modules) < 0) {
+            goto done;
+        }
+        if (stdlib_modules && PyAnySet_Check(stdlib_modules)) {
+            is_possibly_shadowing_stdlib = PySet_Contains(stdlib_modules, mod_name_or_unknown);
+            if (is_possibly_shadowing_stdlib < 0) {
+                Py_DECREF(stdlib_modules);
+                goto done;
+            }
+        }
+        Py_XDECREF(stdlib_modules);
+    }
+
+    if (origin == NULL && PyModule_Check(v)) {
+        // Fall back to __file__ for diagnostics if we don't have
+        // an origin that is a location
+        origin = PyModule_GetFilenameObject(v);
+        if (origin == NULL) {
+            if (!PyErr_ExceptionMatches(PyExc_SystemError)) {
+                goto done;
+            }
+            // PyModule_GetFilenameObject raised "module filename missing"
+            _PyErr_Clear(tstate);
+        }
+        assert(origin == NULL || PyUnicode_Check(origin));
+    }
+
+    if (is_possibly_shadowing_stdlib) {
+        assert(origin);
+        errmsg = PyUnicode_FromFormat(
+            "cannot import name %R from %R "
+            "(consider renaming %R since it has the same "
+            "name as the standard library module named %R "
+            "and prevents importing that standard library module)",
+            name, mod_name_or_unknown, origin, mod_name_or_unknown
+        );
+    }
+    else {
+        int rc = _PyModuleSpec_IsInitializing(spec);
+        if (rc < 0) {
+            goto done;
+        }
+        else if (rc > 0) {
+            if (is_possibly_shadowing) {
+                assert(origin);
+                // For non-stdlib modules, only mention the possibility of
+                // shadowing if the module is being initialized.
+                errmsg = PyUnicode_FromFormat(
+                    "cannot import name %R from %R "
+                    "(consider renaming %R if it has the same name "
+                    "as a library you intended to import)",
+                    name, mod_name_or_unknown, origin
+                );
+            }
+            else if (origin) {
+                errmsg = PyUnicode_FromFormat(
+                    "cannot import name %R from partially initialized module %R "
+                    "(most likely due to a circular import) (%S)",
+                    name, mod_name_or_unknown, origin
+                );
+            }
+            else {
+                errmsg = PyUnicode_FromFormat(
+                    "cannot import name %R from partially initialized module %R "
+                    "(most likely due to a circular import)",
+                    name, mod_name_or_unknown
+                );
+            }
+        }
+        else {
+            assert(rc == 0);
+            if (origin) {
+                errmsg = PyUnicode_FromFormat(
+                    "cannot import name %R from %R (%S)",
+                    name, mod_name_or_unknown, origin
+                );
+            }
+            else {
+                errmsg = PyUnicode_FromFormat(
+                    "cannot import name %R from %R (unknown location)",
+                    name, mod_name_or_unknown
+                );
+            }
+        }
+    }
+
+done_with_errmsg:
+    if (errmsg != NULL) {
+        /* NULL checks for mod_name and origin done by _PyErr_SetImportErrorWithNameFrom */
+        _PyErr_SetImportErrorWithNameFrom(errmsg, mod_name, origin, name);
+        Py_DECREF(errmsg);
+    }
+
+done:
+    Py_XDECREF(origin);
+    Py_XDECREF(spec);
+    Py_DECREF(mod_name_or_unknown);
+    return NULL;
+}
+
+PyObject *
+_PyImport_LazyImportName(PyThreadState *tstate, PyObject *builtins, PyObject *globals, PyObject *locals,
+                         PyObject *name, PyObject *fromlist, PyObject *level)
+{
+    PyObject *lazy_module = NULL;
+    PyObject *abs_name = NULL;
+
+    int ilevel = PyLong_AsInt(level);
+    if (ilevel == -1 && PyErr_Occurred()) {
+        goto error;
+    }
+    if (ilevel > 0) {
+        abs_name = resolve_name(tstate, name, globals, ilevel);
+        if (abs_name == NULL) {
+            goto error;
+        }
+    } else {  /* ilevel == 0 */
+        if (PyUnicode_GET_LENGTH(name) == 0) {
+            PyErr_SetString(PyExc_ValueError, "Empty module name");
+            goto error;
+        }
+        abs_name = name;
+        Py_INCREF(abs_name);
+    }
+
+    int lazy = add_lazy_modules(tstate, builtins, abs_name, fromlist);
+    if (lazy < 0) {
+        goto error;
+    }
+    if (lazy) {
+        lazy_module = _PyLazyImport_New(builtins, abs_name, fromlist);
+    } else {
+        lazy_module = _PyImport_ImportName(tstate, builtins, globals, locals, name, fromlist, level);
+    }
+
+  error:
+    Py_XDECREF(abs_name);
+    return lazy_module;
+}
+
+PyObject *
+_PyImport_LazyImportFrom(PyThreadState *tstate, PyObject *v, PyObject *name)
+{
+    assert(PyLazyImport_CheckExact(v));
+    assert(name && PyUnicode_Check(name));
+    PyObject *ret;
+    PyLazyImportObject *d = (PyLazyImportObject *)v;
+    if (d->lz_attr != NULL) {
+        if (PyUnicode_Check(d->lz_attr)) {
+            PyObject *from = PyUnicode_FromFormat("%U.%U", d->lz_from, d->lz_attr);
+            ret = _PyLazyImport_New(d->lz_builtins, from, name);
+            Py_DECREF(from);
+            return ret;
+        }
+    } else {
+        Py_ssize_t dot = PyUnicode_FindChar(d->lz_from, '.', 0, PyUnicode_GET_LENGTH(d->lz_from), 1);
+        if (dot >= 0) {
+            PyObject *from = PyUnicode_Substring(d->lz_from, 0, dot);
+            ret = _PyLazyImport_New(d->lz_builtins, from, name);
+            Py_DECREF(from);
+            return ret;
+        }
+    }
+    ret = _PyLazyImport_New(d->lz_builtins, d->lz_from, name);
+    return ret;
+}
+
+static long
+_lazy_state_add(PyThreadState *tstate, PyObject *state_dict, PyObject *lazy_import, long num)
+ {
+    long long_value = 0;
+    PyObject *exc_type, *exc_value, *exc_tb;
+    PyErr_Fetch(&exc_type, &exc_value, &exc_tb);
+
+    PyObject *value = PyDict_GetItem(state_dict, lazy_import);
+    if (value != NULL) {
+        long_value = PyLong_AsLong(value);
+        if (long_value == -1 && _PyErr_Occurred(tstate)) {
+            goto error;
+        }
+    }
+    long_value += num;
+    assert(long_value >= 0);
+    if (long_value == 0) {
+        if (value != NULL) {
+            if (PyDict_DelItem(state_dict, lazy_import) < 0) {
+                long_value = -1;
+                goto error;
+            }
+        }
+    } else {
+        PyObject *new_value = PyLong_FromLong(long_value);
+        if (new_value == NULL) {
+            long_value = -1;
+            goto error;
+        }
+        if (PyDict_SetItem(state_dict, lazy_import, new_value) < 0) {
+            Py_DECREF(new_value);
+            long_value = -1;
+            goto error;
+        }
+        Py_DECREF(new_value);
+    }
+
+  error:
+    PyErr_Restore(exc_type, exc_value, exc_tb);
+    if (long_value == -1 && !_PyErr_Occurred(tstate)) {
+        PyErr_SetString(PyExc_RuntimeError, "lazy state not added correctly");
+    }
+    return long_value;
+}
+
+PyObject *
+_PyImport_LoadLazyImportTstate(PyThreadState *tstate, PyObject *lazy_import, int full)
+{
+    PyObject *obj = NULL;
+    PyObject *fromlist = NULL;
+    assert(lazy_import != NULL);
+    assert(PyLazyImport_CheckExact(lazy_import));
+    PyObject *state_dict = _PyThreadState_GetDict(tstate);
+    assert(state_dict != NULL);
+
+    PyLazyImportObject *lz = (PyLazyImportObject *)lazy_import;
+
+    long lvalue = _lazy_state_add(tstate, state_dict, lazy_import, 1);
+    if (lvalue < 0) {
+        return NULL;
+    }
+    if (lvalue > 1) {
+        PyObject *name = _PyLazyImport_GetName(lazy_import);
+        PyObject *errmsg = PyUnicode_FromFormat("cannot import name %R "
+                                                "(most likely due to a circular import)",
+                                                name);
+        PyErr_SetImportErrorSubclass(PyExc_ImportCycleError, errmsg, lz->lz_from, NULL);
+        Py_XDECREF(errmsg);
+        Py_XDECREF(name);
+        goto error;
+    }
+
+    Py_ssize_t dot = -1;
+    if (!full && lz->lz_attr != NULL) {
+        full = 1;
+    }
+    if (!full) {
+        dot = PyUnicode_FindChar(lz->lz_from, '.', 0, PyUnicode_GET_LENGTH(lz->lz_from), 1);
+    }
+    if (dot < 0) {
+        full = 1;
+    }
+
+    if (lz->lz_attr != NULL) {
+        if (PyUnicode_Check(lz->lz_attr)) {
+            fromlist = PyTuple_New(1);
+            if (fromlist == NULL) {
+                goto error;
+            }
+            Py_INCREF(lz->lz_attr);
+            PyTuple_SET_ITEM(fromlist, 0, lz->lz_attr);
+        } else {
+            Py_INCREF(lz->lz_attr);
+            fromlist = lz->lz_attr;
+        }
+    }
+
+    PyObject *globals = _PyEval_GetGlobals(tstate);
+
+    if (full) {
+        obj = _PyImport_ImportName(tstate,
+                                   lz->lz_builtins,
+                                   globals,
+                                   globals,
+                                   lz->lz_from,
+                                   fromlist,
+                                   _PyLong_GetZero());
+    } else {
+        PyObject *name = PyUnicode_Substring(lz->lz_from, 0, dot);
+        if (name == NULL) {
+            goto error;
+        }
+        obj = _PyImport_ImportName(tstate,
+                                   lz->lz_builtins,
+                                   globals,
+                                   globals,
+                                   name,
+                                   fromlist,
+                                   _PyLong_GetZero());
+        Py_DECREF(name);
+    }
+
+    if (obj == NULL) {
+        goto error;
+    }
+
+    if (lz->lz_attr != NULL && PyUnicode_Check(lz->lz_attr)) {
+        PyObject *from = obj;
+        obj = _PyImport_ImportFrom(tstate, from, lz->lz_attr);
+        Py_DECREF(from);
+        if (obj == NULL) {
+            goto error;
+        }
+    }
+
+    if (PyLazyImport_CheckExact(obj)) {
+        PyObject *new_obj = _PyImport_LoadLazyImportTstate(tstate, obj, 0);
+        if (new_obj == NULL) {
+            goto error;
+        }
+        Py_DECREF(obj);
+        obj = new_obj;
+    }
+    assert(!PyLazyImport_CheckExact(obj));
+
+    goto ok;
+
+  error:
+    Py_XDECREF(obj);
+    obj = NULL;
+
+  ok:
+    if (_lazy_state_add(tstate, state_dict, lazy_import, -1) < 0) {
+        Py_XDECREF(obj);
+        obj = NULL;
+    }
+    Py_XDECREF(fromlist);
+    return obj;
+}
+
+PyObject *
+_PyImport_LoadLazyImport(PyObject *lazy_import, int full)
+{
+    PyThreadState *tstate = _PyThreadState_GET();
+    assert(tstate != NULL);
+    return _PyImport_LoadLazyImportTstate(tstate, lazy_import, full);
+}
+
+long _PyImport_LazyImportsCacheSeq = 0;
+PyObject *_PyImport_LazyImportsCacheSeqObj = NULL;
+
+PyObject *
+PyImport_SetLazyImports(PyObject *enabled, PyObject *excluding, PyObject *eager)
+{
+    PyObject *result = NULL;
+    PyInterpreterState *interp = _PyInterpreterState_GET();
+    assert(interp != NULL);
+    assert(interp->lazy_imports != -1);
+
+    result = PyTuple_Pack(
+        3,
+        interp->lazy_imports ? Py_True : Py_False,
+        interp->excluding_modules == NULL ? Py_None : interp->excluding_modules,
+        interp->eager_imports == NULL ? Py_None : interp->eager_imports
+    );
+    if (result == NULL) {
+        goto error;
+    }
+
+    int _enabled = PyObject_IsTrue(enabled);
+    if (_enabled < 0) {
+        goto error;
+    }
+
+    if (excluding != NULL) {
+        if (Py_IsNone(excluding)) {
+            Py_XDECREF(interp->excluding_modules);
+            interp->excluding_modules = NULL;
+        } else {
+            PyObject *empty = PyUnicode_New(0, 0);
+            if (empty == NULL) {
+                goto error;
+            }
+            if (PySequence_Contains(excluding, empty) == -1) {
+                Py_DECREF(empty);
+                goto error;
+            }
+            Py_DECREF(empty);
+            Py_XDECREF(interp->excluding_modules);
+            interp->excluding_modules = Py_NewRef(excluding);
+        }
+    }
+
+    if (eager != NULL) {
+        if (Py_IsNone(eager)) {
+            Py_XDECREF(interp->eager_imports);
+            interp->eager_imports = NULL;
+        } else {
+            PyObject *empty = PyUnicode_New(0, 0);
+            if (empty == NULL) {
+                goto error;
+            }
+            if (PySequence_Contains(eager, empty) == -1) {
+                Py_DECREF(empty);
+                goto error;
+            }
+            Py_DECREF(empty);
+            Py_XDECREF(interp->eager_imports);
+            interp->eager_imports = Py_NewRef(eager);
+        }
+    }
+
+    interp->lazy_imports = Py_IsNone(enabled) ? interp->config.lazy_imports : _enabled;
+
+    ++_PyImport_LazyImportsCacheSeq;
+    Py_XDECREF(_PyImport_LazyImportsCacheSeqObj);
+    _PyImport_LazyImportsCacheSeqObj = NULL;
+
+    return result;
+
+  error:
+    Py_XDECREF(result);
+    return NULL;
+}
+
+PyObject *
+_PyImport_SetLazyImportsInModule(PyObject *enabled)
+{
+    PyObject *result = NULL;
+    PyThreadState *tstate = _PyThreadState_GET();
+    assert(tstate != NULL);
+
+    result = PyTuple_Pack(
+        1,
+        tstate->interp->lazy_imports ? Py_True : Py_False);
+    if (result == NULL) {
+        goto error;
+    }
+
+    int _enabled = PyObject_IsTrue(enabled);
+    if (_enabled < 0) {
+        goto error;
+    }
+
+    tstate->interp->lazy_imports = _enabled;
+
+    return result;
+
+  error:
+    Py_XDECREF(result);
+    return NULL;
+}
+
+/*[clinic input]
+_imp.is_lazy_import
+
+    dict: object(subclass_of='&PyDict_Type')
+    name: unicode
+    /
+
+Check if `name` is a lazy import object in `dict`.
+
+Returns 1 if `name` in `dict` contains a lazy import object.
+Returns 0 if `name` in `dict` is not a lazy import object.
+Returns -1 if `name` doesn't exist in `dict`, or an error occurred.
+[clinic start generated code]*/
+
+static PyObject *
+_imp_is_lazy_import_impl(PyObject *module, PyObject *dict, PyObject *name)
+/*[clinic end generated code: output=bd1970ebdd10dc24 input=59203c03c8a8629c]*/
+{
+    if (PyDict_CheckExact(dict)) {
+        int res = PyDict_IsLazyImport(dict, name);
+        if (res == -1) {
+            PyErr_SetObject(PyExc_KeyError, name);
+            return NULL;
+        }
+        if (res == 1) {
+            Py_RETURN_TRUE;
+        }
+    }
+    Py_RETURN_FALSE;
+}
+
+/*[clinic input]
+_imp._set_lazy_imports
+
+    enabled: object = True
+    /
+    excluding: object = NULL
+    eager: object = NULL
+
+Programmatic API for enabling lazy imports at runtime.
+
+The optional argument `excluding` can be any container of strings; all imports
+within modules whose full name is present in the container will be eager.
+[clinic start generated code]*/
+
+static PyObject *
+_imp__set_lazy_imports_impl(PyObject *module, PyObject *enabled,
+                            PyObject *excluding, PyObject *eager)
+/*[clinic end generated code: output=77575489d11f5806 input=45d71c8b9ad23f16]*/
+{
+    return PyImport_SetLazyImports(enabled, excluding, eager);
+}
+
+/*[clinic input]
+_imp._set_lazy_imports_in_module
+
+    enabled: object = True
+    /
+
+Enables or disables.
+[clinic start generated code]*/
+
+static PyObject *
+_imp__set_lazy_imports_in_module_impl(PyObject *module, PyObject *enabled)
+/*[clinic end generated code: output=c47f86df09712f3c input=5bed18cbe4630679]*/
+{
+    return _PyImport_SetLazyImportsInModule(enabled);
+}
+
+static bool
+has_lazy_imports_enabled_cached(PyObject *lazy_imports_enabled)
+{
+    if (lazy_imports_enabled == NULL ||
+        !PyTuple_CheckExact(lazy_imports_enabled) ||
+        PyTuple_GET_SIZE(lazy_imports_enabled) != 2) {
+        return false;
+    }
+
+    PyObject *version_tag = PyTuple_GET_ITEM(lazy_imports_enabled, 1);
+    if (!PyLong_CheckExact(version_tag)) {
+        return false;
+    }
+
+    return PyLong_AsLong(version_tag) == _PyImport_LazyImportsCacheSeq;
+}
+
+static int
+is_lazy_imports_active(PyThreadState *tstate, _PyInterpreterFrame *frame)
+{
+    int lazy_imports = tstate->interp->lazy_imports;
+    assert(lazy_imports != -1);
+    if (!lazy_imports) {
+        return 0;
+    }
+
+    PyObject *filter = tstate->interp->excluding_modules;
+    if (filter == NULL) {
+        return 1;
+    }
+
+    if (frame->f_globals == NULL || !PyDict_CheckExact(frame->f_globals)) {
+        return 0;
+    }
+
+    PyObject *modname  = PyDict_GetItem(frame->f_globals, &_Py_ID(__name__));
+    if (modname == NULL || Py_IsNone(modname)) {
+        return 0;
+    }
+
+    PyObject *lazy_imports_enabled  = PyDict_GetItem(frame->f_globals, &_Py_ID(__lazy_imports_enabled__));
+    if (!has_lazy_imports_enabled_cached(lazy_imports_enabled)) {
+        int eager = PySequence_Contains(filter, modname);
+        if (eager == -1) {
+            _PyErr_Clear(tstate);
+            return 0;
+        }
+
+        lazy_imports = eager ? 0 : 1;
+        PyObject *cache = PyTuple_New(2);
+        if (cache != NULL) {
+            if (_PyImport_LazyImportsCacheSeqObj == NULL) {
+                _PyImport_LazyImportsCacheSeqObj = PyLong_FromLong(_PyImport_LazyImportsCacheSeq);
+                if (_PyImport_LazyImportsCacheSeqObj == NULL) {
+                    _PyErr_Clear(tstate);
+                }
+            }
+            if (_PyImport_LazyImportsCacheSeqObj != NULL) {
+                PyTuple_SET_ITEM(cache, 0, PyBool_FromLong(lazy_imports));
+                PyTuple_SET_ITEM(cache, 1, Py_NewRef(_PyImport_LazyImportsCacheSeqObj));
+                if (PyDict_SetItem(frame->f_globals, &_Py_ID(__lazy_imports_enabled__), cache) == -1) {
+                    _PyErr_Clear(tstate);
+                }
+            }
+            Py_DECREF(cache);
+        } else {
+            _PyErr_Clear(tstate);
+        }
+    } else {
+        lazy_imports = PyObject_IsTrue(PyTuple_GET_ITEM(lazy_imports_enabled, 0));
+        if (lazy_imports == -1) {
+            _PyErr_Clear(tstate);
+            return 0;
+        }
+    }
+
+    return lazy_imports;
+}
+
+int
+_PyImport_IsLazyImportsActive(PyThreadState *tstate)
+{
+    return is_lazy_imports_active(tstate, tstate->current_frame);
+}
+
+int
+PyImport_IsLazyImportsEnabled(void)
+{
+    PyThreadState *tstate = _PyThreadState_GET();
+    return tstate->interp->lazy_imports;
+}
+
+/*[clinic input]
+_imp.is_lazy_imports_enabled
+
+Return True is lazy imports is currently enabled.
+[clinic start generated code]*/
+
+static PyObject *
+_imp_is_lazy_imports_enabled_impl(PyObject *module)
+/*[clinic end generated code: output=d9c9631b599c4b9c input=ee99e18e6db8eb61]*/
+{
+    if (PyImport_IsLazyImportsEnabled()) {
+        Py_RETURN_TRUE;
+    }
+    Py_RETURN_FALSE;
+}
+#endif
+
+
+/*[clinic input]
+_imp._maybe_set_parent_attribute
+    parent_module: object
+    child: unicode
+    child_module: object
+    name: unicode
+    /
+Sets the module as an attribute on its parent, as a side effect.
+[clinic start generated code]*/
+
+static PyObject *
+_imp__maybe_set_parent_attribute_impl(PyObject *module,
+                                      PyObject *parent_module,
+                                      PyObject *child,
+                                      PyObject *child_module, PyObject *name)
+/*[clinic end generated code: output=2e72910095d0e43d input=cf011300051834d8]*/
+{
+#ifdef ENABLE_LAZY_IMPORTS
+    PyObject *attr = NULL;
+    PyObject *parent_dict = NULL;
+    PyObject *ret = NULL;
+
+    assert(parent_module != NULL);
+
+    parent_dict = PyObject_GetAttr(parent_module, &_Py_ID(__dict__));
+    if (parent_dict == NULL) {
+        goto error;
+    }
+    if (PyDict_CheckExact(parent_dict)) {
+        int res = has_lazy_submodule(parent_module, child);
+        if (res < 0) {
+            goto error;
+        } else if (res) {
+            int result = _PyDict_GetItemRefKeepLazy(parent_dict, child, &attr);
+            if (result < 0 || attr == NULL) {
+                if (PyErr_Occurred()) {
+                    goto error;
+                }
+            } else if (PyLazyImport_CheckExact(attr)) {
+                PyObject *attr_name = _PyLazyImport_GetName(attr);
+                if (PyUnicode_Compare(attr_name, name) == 0) {
+                    if (PyDict_SetItem(parent_dict, child, child_module) < 0) {
+                        Py_DECREF(attr_name);
+                        goto error;
+                    }
+                }
+                Py_DECREF(attr_name);
+            }
+        } else {
+            if (PyDict_SetItem(parent_dict, child, child_module) < 0) {
+                goto error;
+            }
+        }
+    } else {
+        if (PyObject_SetAttr(parent_module, child, child_module) < 0) {
+            goto error;
+        }
+    }
+
+    ret = Py_NewRef(Py_None);
+
+  error:
+    Py_XDECREF(attr);
+    Py_XDECREF(parent_dict);
+    return ret;
+#else
+    PyObject *ret = NULL;
+
+    if (PyObject_SetAttr(parent_module, child, child_module) < 0) {
+        return ret;
+    }
+
+    ret = Py_NewRef(Py_None);
+    return ret;
+#endif
+}
+
+/*[clinic input]
+_imp._set_lazy_attributes
+    child_module: object
+    name: unicode
+    /
+Sets attributes to lazy submodules on the module, as side effects.
+[clinic start generated code]*/
+
+static PyObject *
+_imp__set_lazy_attributes_impl(PyObject *module, PyObject *child_module,
+                               PyObject *name)
+/*[clinic end generated code: output=bd34f2e16f215c29 input=d959fbfa236f4d59]*/
+{
+#ifdef ENABLE_LAZY_IMPORTS
+    PyThreadState *tstate = _PyThreadState_GET();
+    PyObject *child_dict = NULL;
+    PyObject *lazy_module_attr = NULL;
+    PyObject *ret = NULL;
+
+    PyObject *lazy_modules = tstate->interp->lazy_modules;
+    if (lazy_modules != NULL) {
+        PyObject *lazy_submodules = PyDict_GetItemWithError(lazy_modules, name);
+        if (lazy_submodules == NULL) {
+            if (PyErr_Occurred()) {
+                goto error;
+            }
+        } else {
+            PyObject *attr_name;
+            Py_ssize_t pos = 0;
+            Py_hash_t hash;
+            while (_PySet_NextEntry(lazy_submodules, &pos, &attr_name, &hash)) {
+                int res = has_lazy_submodule(child_module, attr_name);
+                if (res < 0) {
+                    goto error;
+                } else if (!res) {
+                    if (child_dict == NULL) {
+                        child_dict = PyObject_GetAttr(child_module, &_Py_ID(__dict__));
+                        if (child_dict == NULL) {
+                            goto error;
+                        }
+                        if (!PyDict_CheckExact(child_dict)) {
+                            break;
+                        }
+                    }
+                    Py_XDECREF(lazy_module_attr);
+                    lazy_module_attr = _PyLazyImport_New(_PyEval_GetBuiltins(tstate), name, attr_name);
+                    if (lazy_module_attr == NULL) {
+                        goto error;
+                    }
+                    if (PyDict_SetItem(child_dict, attr_name, lazy_module_attr) < 0) {
+                        goto error;
+                    }
+                }
+            }
+            if (PyDict_DelItem(lazy_modules, name) < 0) {
+                goto error;
+            }
+        }
+    }
+    ret = Py_NewRef(Py_None);
+
+  error:
+    Py_XDECREF(child_dict);
+    Py_XDECREF(lazy_module_attr);
+    return ret;
+#else
+    PyObject *ret = Py_NewRef(Py_None);
+    return ret;
+#endif
+}
+
+#ifdef ENABLE_LAZY_IMPORTS
+/*[clinic input]
+_imp.hydrate_lazy_objects
+
+Hydrates lazy objects in all modules, from loaded modules.
+[clinic start generated code]*/
+
+static PyObject *
+_imp_hydrate_lazy_objects_impl(PyObject *module)
+/*[clinic end generated code: output=a8de66742eee3d97 input=3ff2a1f59a6cce35]*/
+{
+    long lazy = 0;
+    long hydrated = 0;
+    PyObject *ret = NULL;
+    PyObject *dst_dict = NULL;
+    PyObject *src_module = NULL;
+    PyObject *src_dict = NULL;
+    PyObject *modules = PyImport_GetModuleDict();
+    if (modules != NULL && PyDict_CheckExact(modules)) {
+        PyObject *module_name, *dst_module;
+        Py_ssize_t module_pos = 0;
+        while (PyDict_Next(modules, &module_pos, &module_name, &dst_module)) {
+            if (dst_module != Py_None) {
+                Py_XDECREF(dst_dict);
+                if (PyModule_Check(dst_module)) {
+                    dst_dict = PyModule_GetDict(dst_module);
+                    Py_XINCREF(dst_dict);
+                } else {
+                    dst_dict = PyObject_GetAttr(dst_module, &_Py_ID(__dict__));
+                }
+                if (dst_dict == NULL) {
+                    goto error;
+                }
+                if (!PyDict_Check(dst_dict)) {
+                    continue;
+                }
+                PyObject *key, *value;
+                Py_ssize_t pos = 0;
+                while (_PyDict_NextKeepLazy(dst_dict, &pos, &key, &value)) {
+                    if (PyLazyImport_CheckExact(value)) {
+                        PyLazyImportObject *d = (PyLazyImportObject *)value;
+                        src_module = PyImport_GetModule(d->lz_from);
+                        if (src_module == NULL) {
+                            if (PyErr_Occurred()) {
+                                goto error;
+                            }
+                        } else if (src_module != Py_None) {
+                            if (d->lz_attr) {
+                                Py_XDECREF(src_dict);
+                                if (PyModule_Check(src_module)) {
+                                    src_dict = PyModule_GetDict(src_module);
+                                    Py_XINCREF(src_dict);
+                                } else {
+                                    src_dict = PyObject_GetAttr(src_module, &_Py_ID(__dict__));
+                                }
+                                if (src_dict == NULL) {
+                                    goto error;
+                                }
+                                if (PyDict_Check(src_dict)) {
+                                    PyObject *attr;
+                                    _PyDict_GetItemRefKeepLazy(src_dict, d->lz_attr, &attr);
+                                    if (attr == NULL) {
+                                        if (PyErr_Occurred()) {
+                                            goto error;
+                                        }
+                                    } else if (!PyLazyImport_CheckExact(attr)) {
+                                        if (PyDict_SetItem(dst_dict, key, attr) == -1) {
+                                            goto error;
+                                        }
+                                        ++hydrated;
+                                        continue;
+                                    }
+                                }
+                            } else {
+                                Py_ssize_t dot = PyUnicode_FindChar(d->lz_from, '.', 0,
+                                                                    PyUnicode_GET_LENGTH(d->lz_from), 1);
+                                if (dot == -2) {
+                                    goto error;
+                                } else if (dot == -1) {
+                                    if (PyDict_SetItem(dst_dict, key, src_module) == -1) {
+                                        goto error;
+                                    }
+                                    ++hydrated;
+                                    continue;
+                                } else {
+                                    PyObject *front = PyUnicode_Substring(d->lz_from, 0, dot);
+                                    if (front == NULL) {
+                                        goto error;
+                                    }
+                                    PyObject *front_module = PyImport_GetModule(front);
+                                    Py_DECREF(front);
+                                    if (front_module == NULL) {
+                                        if (PyErr_Occurred()) {
+                                            goto error;
+                                        }
+                                    } else {
+                                        if (PyDict_SetItem(dst_dict, key, front_module) == -1) {
+                                            Py_DECREF(front_module);
+                                            goto error;
+                                        }
+                                        Py_DECREF(front_module);
+                                        ++hydrated;
+                                        continue;
+                                    }
+                                }
+                            }
+                        }
+                        ++lazy;
+                    }
+                }
+            }
+        }
+    }
+
+    PyObject *_hydrated = PyLong_FromLong(hydrated);
+    if (_hydrated == NULL) {
+        goto error;
+    }
+    PyObject *_lazy = PyLong_FromLong(lazy);
+    if (_lazy == NULL) {
+        Py_DECREF(_hydrated);
+        goto error;
+    }
+    ret = PyTuple_Pack(2, _hydrated, _lazy);
+    Py_DECREF(_hydrated);
+    Py_DECREF(_lazy);
+
+  error:
+    Py_XDECREF(dst_dict);
+    Py_XDECREF(src_module);
+    Py_XDECREF(src_dict);
+    return ret;
+}
+#endif
+
 PyObject *
 PyImport_ImportModuleLevelObject(PyObject *name, PyObject *globals,
                                  PyObject *locals, PyObject *fromlist,
@@ -4892,6 +6155,15 @@ static PyMethodDef imp_methods[] = {
     _IMP_EXEC_BUILTIN_METHODDEF
     _IMP__FIX_CO_FILENAME_METHODDEF
     _IMP_SOURCE_HASH_METHODDEF
+#ifdef ENABLE_LAZY_IMPORTS
+    _IMP_IS_LAZY_IMPORT_METHODDEF
+    _IMP__SET_LAZY_IMPORTS_METHODDEF
+    _IMP__SET_LAZY_IMPORTS_IN_MODULE_METHODDEF
+    _IMP_IS_LAZY_IMPORTS_ENABLED_METHODDEF
+    _IMP_HYDRATE_LAZY_OBJECTS_METHODDEF
+#endif
+    _IMP__MAYBE_SET_PARENT_ATTRIBUTE_METHODDEF
+    _IMP__SET_LAZY_ATTRIBUTES_METHODDEF
     {NULL, NULL}  /* sentinel */
 };
 

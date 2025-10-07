@@ -1444,6 +1444,15 @@
             break;
         }
 
+        case _EAGER_IMPORT_NAME: {
+            JitOptSymbol *res;
+            res = sym_new_not_null(ctx);
+            stack_pointer[-2] = res;
+            stack_pointer += -1;
+            assert(WITHIN_STACK_BOUNDS());
+            break;
+        }
+
         case _IMPORT_NAME: {
             JitOptSymbol *res;
             res = sym_new_not_null(ctx);

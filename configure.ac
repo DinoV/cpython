@@ -1713,6 +1713,10 @@ AC_SUBST([ABI_THREAD])
 ABIFLAGS=""
 ABI_THREAD=""
 
+#Enable Lazy Imports
+AC_DEFINE([ENABLE_LAZY_IMPORTS], [1],
+            [Define if you want to enable lazy imports])
+
 # Check for --disable-gil
 # --disable-gil
 AC_MSG_CHECKING([for --disable-gil])

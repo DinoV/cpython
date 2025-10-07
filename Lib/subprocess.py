@@ -332,6 +332,11 @@ def _args_from_interpreter_flags():
             args.append('-s')
         if sys.flags.safe_path:
             args.append('-P')
+        try:
+            if sys.flags.lazy_imports:
+                args.append('-L')
+        except Exception as e:
+            pass
 
     # -W options
     warnopts = sys.warnoptions[:]

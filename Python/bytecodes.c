@@ -15,9 +15,15 @@
 #include "pycore_code.h"
 #include "pycore_emscripten_signal.h"  // _Py_CHECK_EMSCRIPTEN_SIGNALS
 #include "pycore_function.h"
+#ifdef ENABLE_LAZY_IMPORTS
+#include "pycore_import.h"        // _PyImport_ImportName()
+#endif
 #include "pycore_instruments.h"
 #include "pycore_interpolation.h" // _PyInterpolation_Build()
 #include "pycore_intrinsics.h"
+#ifdef ENABLE_LAZY_IMPORTS
+#include "pycore_lazyimport.h"    // PyLazyImport_CheckExact()
+#endif
 #include "pycore_long.h"          // _PyLong_ExactDealloc(), _PyLong_GetZero()
 #include "pycore_moduleobject.h"  // PyModuleObject
 #include "pycore_object.h"        // _PyObject_GC_TRACK()
@@ -1794,6 +1800,9 @@ dummy_func(
             assert(index < DK_SIZE(keys));
             PyObject *res_o = FT_ATOMIC_LOAD_PTR_RELAXED(entries[index].me_value);
             DEOPT_IF(res_o == NULL);
+#ifdef ENABLE_LAZY_IMPORTS
+            DEOPT_IF(PyLazyImport_CheckExact(res_o));
+#endif
             #if Py_GIL_DISABLED
             int increfed = _Py_TryIncrefCompareStackRef(&entries[index].me_value, res_o, &res);
             DEOPT_IF(!increfed);
@@ -1813,6 +1822,9 @@ dummy_func(
             PyDictUnicodeEntry *entries = DK_UNICODE_ENTRIES(keys);
             PyObject *res_o = FT_ATOMIC_LOAD_PTR_RELAXED(entries[index].me_value);
             DEOPT_IF(res_o == NULL);
+#ifdef ENABLE_LAZY_IMPORTS
+            DEOPT_IF(PyLazyImport_CheckExact(res_o));
+#endif
             #if Py_GIL_DISABLED
             int increfed = _Py_TryIncrefCompareStackRef(&entries[index].me_value, res_o, &res);
             DEOPT_IF(!increfed);
@@ -2384,6 +2396,9 @@ dummy_func(
             PyDictUnicodeEntry *ep = DK_UNICODE_ENTRIES(keys) + index;
             PyObject *attr_o = FT_ATOMIC_LOAD_PTR_RELAXED(ep->me_value);
             DEOPT_IF(attr_o == NULL);
+#ifdef ENABLE_LAZY_IMPORTS
+            DEOPT_IF(PyLazyImport_CheckExact(attr_o));
+#endif
             #ifdef Py_GIL_DISABLED
             int increfed = _Py_TryIncrefCompareStackRef(&ep->me_value, attr_o, &attr);
             if (!increfed) {
@@ -2429,6 +2444,9 @@ dummy_func(
             if (attr_o == NULL) {
                 DEOPT_IF(true);
             }
+#ifdef ENABLE_LAZY_IMPORTS
+            DEOPT_IF(PyLazyImport_CheckExact(attr_o));
+#endif
             STAT_INC(LOAD_ATTR, hit);
 #ifdef Py_GIL_DISABLED
             int increfed = _Py_TryIncrefCompareStackRef(&ep->me_value, attr_o, &attr);
@@ -2868,11 +2886,41 @@ dummy_func(
             b = res ? PyStackRef_True : PyStackRef_False;
         }
 
-         inst(IMPORT_NAME, (level, fromlist -- res)) {
+        inst(EAGER_IMPORT_NAME, (level, fromlist -- res)) {
             PyObject *name = GETITEM(FRAME_CO_NAMES, oparg);
+#ifdef ENABLE_LAZY_IMPORTS
+            PyObject *res_o = _PyImport_ImportName(
+                    tstate, BUILTINS(), GLOBALS(), LOCALS(), name,
+                    PyStackRef_AsPyObjectBorrow(fromlist), PyStackRef_AsPyObjectBorrow(level));
+#else
             PyObject *res_o = _PyEval_ImportName(tstate, frame, name,
                               PyStackRef_AsPyObjectBorrow(fromlist),
                               PyStackRef_AsPyObjectBorrow(level));
+#endif
+            DECREF_INPUTS();
+            ERROR_IF(res_o == NULL);
+            res = PyStackRef_FromPyObjectSteal(res_o);
+        }
+
+        inst(IMPORT_NAME, (level, fromlist -- res)) {
+            PyObject *name = GETITEM(FRAME_CO_NAMES, oparg);
+#if defined(ENABLE_LAZY_IMPORTS) && !defined(Py_GIL_DISABLED)
+            PyObject *res_o;
+            bool active = _PyImport_IsLazyImportsActive(tstate);
+            if (active) {
+                res_o = _PyImport_LazyImportName(
+                    tstate, BUILTINS(), GLOBALS(), LOCALS(), name,
+                    PyStackRef_AsPyObjectBorrow(fromlist), PyStackRef_AsPyObjectBorrow(level));
+            } else {
+                res_o = _PyImport_ImportName(
+                    tstate, BUILTINS(), GLOBALS(), LOCALS(), name,
+                    PyStackRef_AsPyObjectBorrow(fromlist), PyStackRef_AsPyObjectBorrow(level));
+            }
+#else
+            PyObject *res_o = _PyEval_ImportName(tstate, frame, name,
+                              PyStackRef_AsPyObjectBorrow(fromlist),
+                              PyStackRef_AsPyObjectBorrow(level));
+#endif
             DECREF_INPUTS();
             ERROR_IF(res_o == NULL);
             res = PyStackRef_FromPyObjectSteal(res_o);
@@ -2880,7 +2928,17 @@ dummy_func(
 
         inst(IMPORT_FROM, (from -- from, res)) {
             PyObject *name = GETITEM(FRAME_CO_NAMES, oparg);
+#ifdef ENABLE_LAZY_IMPORTS
+            PyObject *from_o = PyStackRef_AsPyObjectBorrow(from);
+            PyObject *res_o;
+            if (PyLazyImport_CheckExact(from_o)) {
+                res_o = _PyImport_LazyImportFrom(tstate, from_o, name);
+            } else {
+                res_o = _PyImport_ImportFrom(tstate, from_o, name);
+            }
+#else
             PyObject *res_o = _PyEval_ImportFrom(tstate, PyStackRef_AsPyObjectBorrow(from), name);
+#endif
             ERROR_IF(res_o == NULL);
             res = PyStackRef_FromPyObjectSteal(res_o);
         }

@@ -110,6 +110,13 @@ extern void _PyDictKeys_DecRef(PyDictKeysObject *keys);
  * -1 when no entry found, -3 when compare raises error.
  */
 extern Py_ssize_t _Py_dict_lookup(PyDictObject *mp, PyObject *key, Py_hash_t hash, PyObject **value_addr);
+
+#ifdef ENABLE_LAZY_IMPORTS
+/* _Py_dict_lookup_keep_lazy() is the same as _Py_dict_lookup(), but keeps lazy objects unresolved */
+extern Py_ssize_t _Py_dict_lookup_keep_lazy(PyDictObject *mp, PyObject *key, Py_hash_t hash, PyObject **value_addr);
+extern int _PyDict_GetItemRefKeepLazy(PyObject *, PyObject *, PyObject **);
+#endif
+
 extern Py_ssize_t _Py_dict_lookup_threadsafe(PyDictObject *mp, PyObject *key, Py_hash_t hash, PyObject **value_addr);
 extern Py_ssize_t _Py_dict_lookup_threadsafe_stackref(PyDictObject *mp, PyObject *key, Py_hash_t hash, _PyStackRef *value_addr);
 
@@ -160,6 +167,9 @@ PyAPI_FUNC(void) _PyDict_EnsureSharedOnRead(PyDictObject *mp);
 #define DKIX_DUMMY (-2)  /* Used internally */
 #define DKIX_ERROR (-3)
 #define DKIX_KEY_CHANGED (-4) /* Used internally */
+#ifdef ENABLE_LAZY_IMPORTS
+#define DKIX_VALUE_ERROR (-5) /* Used internally */
+#endif
 
 typedef enum {
     DICT_KEYS_GENERAL = 0,
@@ -178,7 +188,14 @@ struct _dictkeysobject {
     uint8_t dk_log2_index_bytes;
 
     /* Kind of keys */
+#ifdef ENABLE_LAZY_IMPORTS
+    uint8_t dk_kind: 7;
+
+    /* Contains lazy imports. Assume there are lazy import objects unless otherwise specified. */
+    uint8_t dk_lazy_imports : 1;
+#else
     uint8_t dk_kind;
+#endif
 
 #ifdef Py_GIL_DISABLED
     /* Lock used to protect shared keys */

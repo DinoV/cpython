@@ -3390,6 +3390,9 @@ static PyStructSequence_Field flags_fields[] = {
     {"warn_default_encoding",   "-X warn_default_encoding"},
     {"safe_path", "-P"},
     {"int_max_str_digits",      "-X int_max_str_digits"},
+#ifdef ENABLE_LAZY_IMPORTS
+    {"lazy_imports",            "-L"},
+#endif
     {"gil",                     "-X gil"},
     {"thread_inherit_context",  "-X thread_inherit_context"},
     {"context_aware_warnings",    "-X context_aware_warnings"},
@@ -3402,7 +3405,9 @@ static PyStructSequence_Desc flags_desc = {
     "sys.flags",        /* name */
     flags__doc__,       /* doc */
     flags_fields,       /* fields */
-    18
+#ifdef ENABLE_LAZY_IMPORTS
+    19
+#endif
 };
 
 static void
@@ -3483,6 +3488,9 @@ set_flags_from_config(PyInterpreterState *interp, PyObject *flags)
     SetFlag(config->warn_default_encoding);
     SetFlagObj(PyBool_FromLong(config->safe_path));
     SetFlag(config->int_max_str_digits);
+#ifdef ENABLE_LAZY_IMPORTS
+    SetFlagObj(PyBool_FromLong(config->lazy_imports));
+#endif
 #ifdef Py_GIL_DISABLED
     if (config->enable_gil == _PyConfig_GIL_DEFAULT) {
         SetFlagObj(Py_NewRef(Py_None));
@@ -4125,6 +4133,14 @@ _PySys_Create(PyThreadState *tstate, PyObject **sysmod_p)
         goto error;
     }
 
+#ifdef ENABLE_LAZY_IMPORTS
+    PyObject *lazy_modules = PyDict_New();
+    if (lazy_modules == NULL) {
+        goto error;
+    }
+    interp->lazy_modules = lazy_modules;
+#endif
+
     PyObject *sysmod = _PyModule_CreateInitialized(&sysmodule, PYTHON_API_VERSION);
     if (sysmod == NULL) {
         return _PyStatus_ERR("failed to create a module object");
@@ -4147,6 +4163,12 @@ _PySys_Create(PyThreadState *tstate, PyObject **sysmod_p)
     if (PyDict_SetItemString(sysdict, "modules", modules) < 0) {
         goto error;
     }
+
+#ifdef ENABLE_LAZY_IMPORTS
+    if (PyDict_SetItemString(sysdict, "lazy_modules", interp->lazy_modules) < 0) {
+        goto error;
+    }
+#endif
 
     PyStatus status = _PySys_SetPreliminaryStderr(sysdict);
     if (_PyStatus_EXCEPTION(status)) {

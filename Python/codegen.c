@@ -72,6 +72,10 @@ typedef struct _PyCompiler compiler;
 #define OPTIMIZATION_LEVEL(C) _PyCompile_OptimizationLevel(C)
 #define IS_INTERACTIVE_TOP_LEVEL(C) _PyCompile_IsInteractiveTopLevel(C)
 #define SCOPE_TYPE(C) _PyCompile_ScopeType(C)
+#ifdef ENABLE_LAZY_IMPORTS
+#define NFBLOCKS(C) _PyCompile_NFBlocks(C)
+#define CFFLAGS(C) _PyCompile_CFFlags(C)
+#endif
 #define QUALNAME(C) _PyCompile_Qualname(C)
 #define METADATA(C) _PyCompile_Metadata(C)
 
@@ -395,6 +399,19 @@ codegen_addop_name(compiler *c, location loc,
 
 #define ADDOP_NAME(C, LOC, OP, O, TYPE) \
     RETURN_IF_ERROR(codegen_addop_name((C), (LOC), (OP), METADATA(C)->u_ ## TYPE, (O)))
+
+
+#ifdef ENABLE_LAZY_IMPORTS
+#define ADDOP_IMPORT(C, LOC, O, TYPE) { \
+    if ((SCOPE_TYPE(C) == COMPILE_SCOPE_MODULE) \
+        && (NFBLOCKS(C) == 0) \
+        && !(CFFLAGS(C) & PyCF_DISABLE_LAZY_IMPORTS)) { \
+        ADDOP_NAME((C), (LOC), IMPORT_NAME, (O), TYPE); \
+    } else { \
+        ADDOP_NAME((C), (LOC), EAGER_IMPORT_NAME, (O), TYPE); \
+    } \
+}
+#endif
 
 static int
 codegen_addop_j(instr_sequence *seq, location loc,
@@ -2851,7 +2868,11 @@ codegen_import(compiler *c, stmt_ty s)
 
         ADDOP_LOAD_CONST(c, loc, zero);
         ADDOP_LOAD_CONST(c, loc, Py_None);
+#ifdef ENABLE_LAZY_IMPORTS
+        ADDOP_IMPORT(c, loc, alias->name, names);
+#else
         ADDOP_NAME(c, loc, IMPORT_NAME, alias->name, names);
+#endif
 
         if (alias->asname) {
             r = codegen_import_as(c, loc, alias->name, alias->asname);
@@ -2898,11 +2919,19 @@ codegen_from_import(compiler *c, stmt_ty s)
     ADDOP_LOAD_CONST_NEW(c, LOC(s), names);
 
     if (s->v.ImportFrom.module) {
+#ifdef ENABLE_LAZY_IMPORTS
+        ADDOP_IMPORT(c, LOC(s), s->v.ImportFrom.module, names);
+#else
         ADDOP_NAME(c, LOC(s), IMPORT_NAME, s->v.ImportFrom.module, names);
+#endif
     }
     else {
         _Py_DECLARE_STR(empty, "");
+#ifdef ENABLE_LAZY_IMPORTS
+        ADDOP_IMPORT(c, LOC(s), &_Py_STR(empty), names);
+#else
         ADDOP_NAME(c, LOC(s), IMPORT_NAME, &_Py_STR(empty), names);
+#endif
     }
     for (Py_ssize_t i = 0; i < n; i++) {
         alias_ty alias = (alias_ty)asdl_seq_GET(s->v.ImportFrom.names, i);

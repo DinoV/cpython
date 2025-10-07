@@ -676,6 +676,13 @@ init_interpreter(PyInterpreterState *interp,
     interp->executor_deletion_list_head = NULL;
     interp->executor_deletion_list_remaining_capacity = 0;
     interp->trace_run_counter = JIT_CLEANUP_THRESHOLD;
+#ifdef ENABLE_LAZY_IMPORTS
+    interp->lazy_imports = -1;
+    interp->lazy_import_verbose_seen = NULL;
+    interp->excluding_modules = NULL;
+    interp->eager_imports = NULL;
+    interp->lazy_modules = NULL;
+#endif
     if (interp != &runtime->_main_interpreter) {
         /* Fix the self-referential, statically initialized fields. */
         interp->dtoa = (struct _dtoa_state)_dtoa_state_INIT(interp);
@@ -896,6 +903,12 @@ interpreter_clear(PyInterpreterState *interp, PyThreadState *tstate)
 
     Py_CLEAR(interp->sysdict_copy);
     Py_CLEAR(interp->builtins_copy);
+#ifdef ENABLE_LAZY_IMPORTS
+    Py_CLEAR(interp->lazy_import_verbose_seen);
+    Py_CLEAR(interp->excluding_modules);
+    Py_CLEAR(interp->eager_imports);
+    Py_CLEAR(interp->lazy_modules);
+#endif
     Py_CLEAR(interp->dict);
 #ifdef HAVE_FORK
     Py_CLEAR(interp->before_forkers);

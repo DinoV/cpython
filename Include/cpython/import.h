@@ -2,6 +2,16 @@
 #  error "this header file must not be included directly"
 #endif
 
+#ifdef ENABLE_LAZY_IMPORTS
+PyAPI_FUNC(PyObject *) _PyImport_GetModule(PyThreadState *tstate, PyObject *name);
+PyAPI_FUNC(PyObject *) PyImport_SetLazyImports(
+    PyObject *enabled, PyObject *excluding, PyObject *eager);
+PyAPI_FUNC(PyObject *) _PyImport_SetLazyImportsInModule(
+    PyObject *enabled);
+PyAPI_FUNC(int) _PyImport_IsLazyImportsActive(PyThreadState *tstate);
+PyAPI_FUNC(int) PyImport_IsLazyImportsEnabled(void);
+#endif
+
 struct _inittab {
     const char *name;           /* ASCII encoded string */
     PyObject* (*initfunc)(void);

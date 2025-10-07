@@ -1378,7 +1378,12 @@ PyObject_GetOptionalAttr(PyObject *v, PyObject *name, PyObject **result)
     if (*result != NULL) {
         return 1;
     }
+#ifdef ENABLE_LAZY_IMPORTS
+    if (!PyErr_ExceptionMatches(PyExc_AttributeError) &&
+        !(PyErr_ExceptionMatches(PyExc_ImportCycleError))) {
+#else
     if (!PyErr_ExceptionMatches(PyExc_AttributeError)) {
+#endif
         return -1;
     }
     PyErr_Clear();

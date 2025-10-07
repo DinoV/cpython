@@ -86,6 +86,9 @@ extern void _PyEval_Fini(void);
 
 
 extern PyObject* _PyEval_GetBuiltins(PyThreadState *tstate);
+#ifdef ENABLE_LAZY_IMPORTS
+extern PyObject* _PyEval_GetGlobals(PyThreadState *tstate);
+#endif
 
 // Trampoline API
 

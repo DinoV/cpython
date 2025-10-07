@@ -130,3 +130,7 @@ PyAPI_FUNC(void) PyErr_FormatUnraisable(const char *, ...);
 PyAPI_DATA(PyObject *) PyExc_PythonFinalizationError;
 
 #define Py_FatalError(message) _Py_FatalErrorFunc(__func__, (message))
+
+#ifdef ENABLE_LAZY_IMPORTS
+PyAPI_DATA(PyObject *) PyExc_ImportCycleError;
+#endif

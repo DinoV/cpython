@@ -63,6 +63,7 @@ class CAPITests(unittest.TestCase):
             ("int_max_str_digits", int, None),
             ("interactive", bool, None),
             ("isolated", bool, None),
+            ("lazy_imports", bool, None),
             ("malloc_stats", bool, None),
             ("module_search_paths", list[str], "path"),
             ("optimization_level", int, None),
@@ -173,6 +174,7 @@ class CAPITests(unittest.TestCase):
             ("warn_default_encoding", "warn_default_encoding", False),
             ("safe_path", "safe_path", False),
             ("int_max_str_digits", "int_max_str_digits", False),
+            ("lazy_imports", "lazy_imports", False),
             # "gil", "thread_inherit_context" and "context_aware_warnings" are tested below
         ):
             with self.subTest(flag=flag, name=name, negate=negate):

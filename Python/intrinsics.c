@@ -2,9 +2,15 @@
 #define _PY_INTERPRETER
 
 #include "Python.h"
+#ifdef ENABLE_LAZY_IMPORTS
+#include "pycore_dict.h"
+#endif
 #include "pycore_compile.h"       // _PyCompile_GetUnaryIntrinsicName
 #include "pycore_function.h"      // _Py_set_function_type_params()
 #include "pycore_genobject.h"     // _PyAsyncGenValueWrapperNew
+#ifdef ENABLE_LAZY_IMPORTS
+#include "pycore_import.h"        // _PyImport_LoadLazyImportTstate()
+#endif
 #include "pycore_interpframe.h"   // _PyFrame_GetLocals()
 #include "pycore_intrinsics.h"    // INTRINSIC_PRINT
 #include "pycore_pyerrors.h"      // _PyErr_SetString()
@@ -36,6 +42,104 @@ print_expr(PyThreadState* Py_UNUSED(ignored), PyObject *value)
     return res;
 }
 
+#ifdef ENABLE_LAZY_IMPORTS
+static int
+import_all_from(PyThreadState *tstate, PyObject *locals, PyObject *v)
+{
+    PyObject *all, *dict, *name, *value;
+    int skip_leading_underscores = 0;
+    int pos, err;
+
+    if (PyObject_GetOptionalAttr(v, &_Py_ID(__all__), &all) < 0) {
+        return -1; /* Unexpected error */
+    }
+
+    if (PyObject_GetOptionalAttr(v, &_Py_ID(__dict__), &dict) < 0) {
+        Py_XDECREF(all);
+        return -1; /* Unexpected error */
+    }
+
+    if (all == NULL) {
+        if (dict == NULL) {
+            _PyErr_SetString(tstate, PyExc_ImportError,
+                    "from-import-* object has no __dict__ and no __all__");
+            return -1;
+        }
+        all = PyMapping_Keys(dict);
+        if (all == NULL) {
+            Py_DECREF(dict);
+            return -1;
+        }
+        skip_leading_underscores = 1;
+    }
+
+    for (pos = 0, err = 0; ; pos++) {
+        name = PySequence_GetItem(all, pos);
+        if (name == NULL) {
+            if (!_PyErr_ExceptionMatches(tstate, PyExc_IndexError)) {
+                err = -1;
+            }
+            else {
+                _PyErr_Clear(tstate);
+            }
+            break;
+        }
+        if (!PyUnicode_Check(name)) {
+            PyObject *modname = PyObject_GetAttr(v, &_Py_ID(__name__));
+            if (modname == NULL) {
+                Py_DECREF(name);
+                err = -1;
+                break;
+            }
+            if (!PyUnicode_Check(modname)) {
+                _PyErr_Format(tstate, PyExc_TypeError,
+                              "module __name__ must be a string, not %.100s",
+                              Py_TYPE(modname)->tp_name);
+            }
+            else {
+                _PyErr_Format(tstate, PyExc_TypeError,
+                              "%s in %U.%s must be str, not %.100s",
+                              skip_leading_underscores ? "Key" : "Item",
+                              modname,
+                              skip_leading_underscores ? "__dict__" : "__all__",
+                              Py_TYPE(name)->tp_name);
+            }
+            Py_DECREF(modname);
+            Py_DECREF(name);
+            err = -1;
+            break;
+        }
+        if (skip_leading_underscores) {
+            if (PyUnicode_READ_CHAR(name, 0) == '_') {
+                Py_DECREF(name);
+                continue;
+            }
+        }
+        if (PyDict_CheckExact(locals) && dict != NULL && PyDict_CheckExact(dict)) {
+            _PyDict_GetItemRefKeepLazy(dict, name, &value);
+            if (value == NULL && !_PyErr_Occurred(tstate)) {
+                value = PyObject_GetAttr(v, name);
+            }
+        } else {
+            value = PyObject_GetAttr(v, name);
+        }
+        if (value == NULL) {
+            err = -1;
+        } else if (PyDict_CheckExact(locals)) {
+            err = PyDict_SetItem(locals, name, value);
+        } else {
+            err = PyObject_SetItem(locals, name, value);
+        }
+        Py_DECREF(name);
+        Py_XDECREF(value);
+        if (err < 0)
+            break;
+    }
+    Py_DECREF(all);
+    Py_XDECREF(dict);
+    return err;
+}
+#else
 static int
 import_all_from(PyThreadState *tstate, PyObject *locals, PyObject *v)
 {
@@ -119,10 +223,15 @@ import_all_from(PyThreadState *tstate, PyObject *locals, PyObject *v)
     Py_DECREF(all);
     return err;
 }
+#endif
 
 static PyObject *
 import_star(PyThreadState* tstate, PyObject *from)
 {
+#ifdef ENABLE_LAZY_IMPORTS
+    int err;
+#endif
+
     _PyInterpreterFrame *frame = tstate->current_frame;
 
     PyObject *locals = _PyFrame_GetLocals(frame);
@@ -131,7 +240,23 @@ import_star(PyThreadState* tstate, PyObject *from)
                             "no locals found during 'import *'");
         return NULL;
     }
+#ifdef ENABLE_LAZY_IMPORTS
+    if (PyLazyImport_CheckExact(from)) {
+        PyObject *mod = _PyImport_LoadLazyImportTstate(tstate, from, 1);
+        if (mod == NULL) {
+            if (!_PyErr_Occurred(tstate)) {
+                _PyErr_SetString(tstate, PyExc_SystemError, "Lazy Import cycle");
+            }
+            return NULL;
+        }
+        err = import_all_from(tstate, locals, mod);
+        Py_DECREF(mod);
+    } else {
+        err = import_all_from(tstate, locals, from);
+    }
+#else
     int err = import_all_from(tstate, locals, from);
+#endif
     Py_DECREF(locals);
     if (err < 0) {
         return NULL;

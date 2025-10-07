@@ -2736,7 +2736,11 @@ _PyEval_GetFrameLocals(void)
     return locals;
 }
 
+#ifdef ENABLE_LAZY_IMPORTS
+PyObject *
+#else
 static PyObject *
+#endif
 _PyEval_GetGlobals(PyThreadState *tstate)
 {
     _PyInterpreterFrame *current_frame = _PyThreadState_GetFrame(tstate);

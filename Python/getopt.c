@@ -37,7 +37,11 @@ static const wchar_t *opt_ptr = L"";
 
 /* Python command line short and long options */
 
+#ifdef ENABLE_LAZY_IMPORTS
+#define SHORT_OPTS L"bBc:dEhiIm:OPLqRsStuvVW:xX:?"
+#else
 #define SHORT_OPTS L"bBc:dEhiIm:OPqRsStuvVW:xX:?"
+#endif
 
 static const _PyOS_LongOption longopts[] = {
     /* name, has_arg, val (used in switch in initconfig.c) */

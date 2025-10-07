@@ -539,6 +539,7 @@ OBJECT_OBJS=	\
 		Objects/funcobject.o \
 		Objects/interpolationobject.o \
 		Objects/iterobject.o \
+		Objects/lazyimportobject.o \
 		Objects/listobject.o \
 		Objects/longobject.o \
 		Objects/dictobject.o \
@@ -1186,6 +1187,7 @@ PYTHON_HEADERS= \
 		$(srcdir)/Include/import.h \
 		$(srcdir)/Include/intrcheck.h \
 		$(srcdir)/Include/iterobject.h \
+		$(srcdir)/Include/lazyimportobject.h \
 		$(srcdir)/Include/listobject.h \
 		$(srcdir)/Include/lock.h \
 		$(srcdir)/Include/longobject.h \
@@ -1363,6 +1365,7 @@ PYTHON_HEADERS= \
 		$(srcdir)/Include/internal/pycore_interpframe_structs.h \
 		$(srcdir)/Include/internal/pycore_interpolation.h \
 		$(srcdir)/Include/internal/pycore_intrinsics.h \
+		$(srcdir)/Include/internal/pycore_lazyimport.h \
 		$(srcdir)/Include/internal/pycore_jit.h \
 		$(srcdir)/Include/internal/pycore_list.h \
 		$(srcdir)/Include/internal/pycore_llist.h \
@@ -2594,6 +2597,27 @@ TESTSUBDIRS=	idlelib/idle_test \
 		test/decimaltestdata \
 		test/dtracedata \
 		test/encoded_modules \
+		test/lazyimports \
+		test/lazyimports/circular_import \
+		test/lazyimports/cycle_with_load_global \
+		test/lazyimports/data \
+		test/lazyimports/data/excluding \
+		test/lazyimports/data/metasyntactic \
+		test/lazyimports/data/metasyntactic/foo \
+		test/lazyimports/data/metasyntactic/foo/ack \
+		test/lazyimports/data/metasyntactic/foo/bar \
+		test/lazyimports/data/metasyntactic/foo/bar/baz \
+		test/lazyimports/data/metasyntactic/foo/bar/baz/qux \
+		test/lazyimports/data/metasyntactic/foo/bar/thud \
+		test/lazyimports/data/metasyntactic/plugh \
+		test/lazyimports/data/metasyntactic/waldo \
+		test/lazyimports/data/metasyntactic/waldo/fred \
+		test/lazyimports/data/module_same_name_var_order1 \
+		test/lazyimports/data/module_same_name_var_order2 \
+		test/lazyimports/data/versioned \
+		test/lazyimports/deferred_resolve_failure \
+		test/lazyimports/deferred_resolve_failure/utilities \
+		test/lazyimports/dict_changes_when_loading \
 		test/leakers \
 		test/libregrtest \
 		test/mathdata \

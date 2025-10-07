@@ -972,6 +972,15 @@ struct _is {
     _PyThreadStateImpl _initial_thread;
     // _initial_thread should be the last field of PyInterpreterState.
     // See https://github.com/python/cpython/issues/127117.
+
+#ifdef ENABLE_LAZY_IMPORTS
+    // Lazy Imports
+    int lazy_imports;  /* whether lazy imports was enabled at runtime */
+    PyObject *lazy_import_verbose_seen;
+    PyObject *excluding_modules;
+    PyObject *eager_imports;
+    PyObject *lazy_modules;
+#endif
 };
 
 

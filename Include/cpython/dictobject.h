@@ -75,6 +75,16 @@ Py_DEPRECATED(3.14) PyAPI_FUNC(PyObject *) _PyDict_Pop(
     PyObject *key,
     PyObject *default_value);
 
+#ifdef ENABLE_LAZY_IMPORTS
+PyAPI_FUNC(int) _PyDict_NextKeepLazy(
+    PyObject *mp, Py_ssize_t *pos, PyObject **key, PyObject **value);
+PyAPI_FUNC(int) PyDict_NextWithError(
+    PyObject *mp, Py_ssize_t *pos, PyObject **key, PyObject **value);
+PyAPI_FUNC(Py_ssize_t) PyDict_ResolveLazyImports(PyObject *);
+PyAPI_FUNC(int) PyDict_IsLazyImport(PyObject *mp, PyObject *name);
+PyAPI_FUNC(int) _PyDict_GetItemRefKeepLazy(PyObject *mp, PyObject *key, PyObject **result);
+#endif
+
 /* Dictionary watchers */
 
 #define PY_FOREACH_DICT_EVENT(V) \

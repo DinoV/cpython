@@ -8236,6 +8236,11 @@ fi
 ABIFLAGS=""
 ABI_THREAD=""
 
+#Enable Lazy Imports
+
+printf "%s\n" "#define ENABLE_LAZY_IMPORTS 1" >>confdefs.h
+
+
 # Check for --disable-gil
 # --disable-gil
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for --disable-gil" >&5
@@ -35963,4 +35968,3 @@ if test "$ac_cv_header_stdatomic_h" != "yes"; then
   { printf "%s\n" "$as_me:${as_lineno-$LINENO}: Your compiler or platform does have a working C11 stdatomic.h. A future version of Python may require stdatomic.h." >&5
 printf "%s\n" "$as_me: Your compiler or platform does have a working C11 stdatomic.h. A future version of Python may require stdatomic.h." >&6;}
 fi
-

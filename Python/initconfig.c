@@ -129,6 +129,9 @@ static const PyConfigSpec PYCONFIG_SPEC[] = {
     SPEC(warnoptions, WSTR_LIST, PUBLIC, SYS_ATTR("warnoptions")),
     SPEC(write_bytecode, BOOL, PUBLIC, SYS_FLAG_SETTER(4, config_sys_flag_not)),
     SPEC(xoptions, WSTR_LIST, PUBLIC, SYS_ATTR("_xoptions")),
+#ifdef ENABLE_LAZY_IMPORTS
+    SPEC(lazy_imports, BOOL, PUBLIC, SYS_FLAG(18)),
+#endif
 
     // --- Read-only options -----------
 
@@ -283,6 +286,7 @@ Options (and corresponding environment variables):\n\
          when given twice, print more information about the build\n\
 -W arg : warning control; arg is action:message:category:module:lineno\n\
          also PYTHONWARNINGS=arg\n\
+-L     : enable lazy imports\n\
 -x     : skip first line of source, allowing use of non-Unix forms of #!cmd\n\
 -X opt : set implementation-specific option\n\
 --check-hash-based-pycs always|default|never:\n\
@@ -417,6 +421,7 @@ static const char usage_envvars[] =
 "PYTHONINSPECT   : inspect interactively after running script (-i)\n"
 "PYTHONINTMAXSTRDIGITS: limit the size of int<->str conversions;\n"
 "                  0 disables the limit (-X int_max_str_digits=N)\n"
+"PYTHONLAZYIMPORTSALL: enable lazy imports.\n"
 "PYTHONNODEBUGRANGES: don't include extra location information in code objects\n"
 "                  (-X no_debug_ranges)\n"
 "PYTHONNOUSERSITE: disable user site directory (-s)\n"
@@ -477,6 +482,9 @@ int Py_NoUserSiteDirectory = 0; /* for -s and site.py */
 int Py_UnbufferedStdioFlag = 0; /* Unbuffered binary std{in,out,err} */
 int Py_HashRandomizationFlag = 0; /* for -R and PYTHONHASHSEED */
 int Py_IsolatedFlag = 0; /* for -I, isolate from user's env */
+#ifdef ENABLE_LAZY_IMPORTS
+int Py_LazyImportsFlag = 0; /* for -L, lazy imports */
+#endif
 #ifdef MS_WINDOWS
 int Py_LegacyWindowsFSEncodingFlag = 0; /* Uses mbcs instead of utf-8 */
 int Py_LegacyWindowsStdioFlag = 0; /* Uses FileIO instead of WindowsConsoleIO */
@@ -538,6 +546,9 @@ _Py_COMP_DIAG_IGNORE_DEPR_DECLS
     SET_ITEM_INT(Py_UnbufferedStdioFlag);
     SET_ITEM_INT(Py_HashRandomizationFlag);
     SET_ITEM_INT(Py_IsolatedFlag);
+#ifdef ENABLE_LAZY_IMPORTS
+    SET_ITEM_INT(Py_LazyImportsFlag);
+#endif
 
 #ifdef MS_WINDOWS
     SET_ITEM_INT(Py_LegacyWindowsFSEncodingFlag);
@@ -934,6 +945,9 @@ config_check_consistency(const PyConfig *config)
     assert(config->_is_python_build >= 0);
     assert(config->safe_path >= 0);
     assert(config->int_max_str_digits >= 0);
+#ifdef ENABLE_LAZY_IMPORTS
+    assert(config->lazy_imports >= 0);
+#endif
     // cpu_count can be -1 if the user doesn't override it.
     assert(config->cpu_count != 0);
     // config->use_frozen_modules is initialized later
@@ -1007,6 +1021,9 @@ _PyConfig_InitCompatConfig(PyConfig *config)
     config->_config_init = (int)_PyConfig_INIT_COMPAT;
     config->import_time = -1;
     config->isolated = -1;
+#ifdef ENABLE_LAZY_IMPORTS
+    config->lazy_imports = -1;
+#endif
     config->use_environment = -1;
     config->dev_mode = -1;
     config->install_signal_handlers = 1;
@@ -1070,6 +1087,9 @@ config_init_defaults(PyConfig *config)
     _PyConfig_InitCompatConfig(config);
 
     config->isolated = 0;
+#ifdef ENABLE_LAZY_IMPORTS
+    config->lazy_imports = 0;
+#endif
     config->use_environment = 1;
     config->site_import = 1;
     config->bytes_warning = 0;
@@ -1117,6 +1137,9 @@ PyConfig_InitIsolatedConfig(PyConfig *config)
 
     config->_config_init = (int)_PyConfig_INIT_ISOLATED;
     config->isolated = 1;
+#ifdef ENABLE_LAZY_IMPORTS
+    config->lazy_imports = 0;
+#endif
     config->use_environment = 0;
     config->user_site_directory = 0;
     config->dev_mode = 0;
@@ -1673,6 +1696,9 @@ _Py_COMP_DIAG_IGNORE_DEPR_DECLS
         }
 
     COPY_FLAG(isolated, Py_IsolatedFlag);
+#ifdef ENABLE_LAZY_IMPORTS
+    COPY_FLAG(lazy_imports, Py_LazyImportsFlag);
+#endif
     COPY_NOT_FLAG(use_environment, Py_IgnoreEnvironmentFlag);
     COPY_FLAG(bytes_warning, Py_BytesWarningFlag);
     COPY_FLAG(inspect, Py_InspectFlag);
@@ -1713,6 +1739,9 @@ _Py_COMP_DIAG_IGNORE_DEPR_DECLS
         }
 
     COPY_FLAG(isolated, Py_IsolatedFlag);
+#ifdef ENABLE_LAZY_IMPORTS
+    COPY_FLAG(lazy_imports, Py_LazyImportsFlag);
+#endif
     COPY_NOT_FLAG(use_environment, Py_IgnoreEnvironmentFlag);
     COPY_FLAG(bytes_warning, Py_BytesWarningFlag);
     COPY_FLAG(inspect, Py_InspectFlag);
@@ -1844,6 +1873,9 @@ config_read_env_vars(PyConfig *config)
     _Py_get_env_flag(use_env, &config->verbose, "PYTHONVERBOSE");
     _Py_get_env_flag(use_env, &config->optimization_level, "PYTHONOPTIMIZE");
     _Py_get_env_flag(use_env, &config->inspect, "PYTHONINSPECT");
+#ifdef ENABLE_LAZY_IMPORTS
+    _Py_get_env_flag(use_env, &config->lazy_imports, "PYTHONLAZYIMPORTSALL");
+#endif
 
     int dont_write_bytecode = 0;
     _Py_get_env_flag(use_env, &dont_write_bytecode, "PYTHONDONTWRITEBYTECODE");
@@ -2994,6 +3026,12 @@ config_parse_cmdline(PyConfig *config, PyWideStringList *warnoptions,
             config->verbose++;
             break;
 
+#ifdef ENABLE_LAZY_IMPORTS
+        case 'L':
+            config->lazy_imports = 1;
+            break;
+#endif
+
         case 'x':
             config->skip_source_first_line = 1;
             break;
@@ -3640,6 +3678,9 @@ _Py_DumpPathConfig(PyThreadState *tstate)
     PySys_WriteStderr("  safe_path = %i\n", config->safe_path);
     PySys_WriteStderr("  import site = %i\n", config->site_import);
     PySys_WriteStderr("  is in build tree = %i\n", config->_is_python_build);
+#ifdef ENABLE_LAZY_IMPORTS
+    PySys_WriteStderr("  lazy imports = %i\n", config->lazy_imports);
+#endif
     DUMP_CONFIG("stdlib dir", stdlib_dir);
     DUMP_CONFIG("sys.path[0]", sys_path_0);
 #undef DUMP_CONFIG
