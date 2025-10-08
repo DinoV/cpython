@@ -1034,6 +1034,10 @@ def assign_opcodes(
     # This is an historical oddity.
     instmap["BINARY_OP_INPLACE_ADD_UNICODE"] = 3
 
+    # Reserve 126 for EXTENDED_OPCODE if it's defined.
+    if "EXTENDED_OPCODE" in instructions:
+        instmap["EXTENDED_OPCODE"] = 126
+
     instmap["INSTRUMENTED_LINE"] = 254
     instmap["ENTER_EXECUTOR"] = 255
 
