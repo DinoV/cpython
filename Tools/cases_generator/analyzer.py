@@ -1038,6 +1038,7 @@ def assign_opcodes(
     if "EXTENDED_OPCODE" in instructions:
         instmap["EXTENDED_OPCODE"] = 126
 
+    instmap["EAGER_IMPORT_NAME"] = 121
     instmap["INSTRUMENTED_LINE"] = 254
     instmap["ENTER_EXECUTOR"] = 255
 

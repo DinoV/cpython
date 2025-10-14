@@ -281,6 +281,7 @@ Known values:
     Python 3.14rc2 3626 (Fix missing exception handlers in logical expression)
     Python 3.14rc3 3627 (Fix miscompilation of some module-level annotations)
     [META] Python 3.14rc3+meta 3628 (Lazy Imports introduces new opcode and compiler changes around import statement compilation)
+    [META] Python 3.14+meta 3629 Lazy imports EAGER_IMPORT_NAME doesn't reshuffle opcode numbers
 
     Python 3.15 will start with 3650
 
@@ -293,7 +294,7 @@ PC/launcher.c must also be updated.
 
 */
 
-#define PYC_MAGIC_NUMBER 3628
+#define PYC_MAGIC_NUMBER 3629
 /* This is equivalent to converting PYC_MAGIC_NUMBER to 2 bytes
    (little-endian) and then appending b'\r\n'. */
 #define PYC_MAGIC_NUMBER_TOKEN \
