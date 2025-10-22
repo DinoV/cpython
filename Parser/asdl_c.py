@@ -568,7 +568,7 @@ class Obj2ModPrototypeVisitor(PickleVisitor):
             t = "asdl_int_seq"
         else:
             t = f"asdl_{name}_seq"
-        self.emit(f"static int obj2imm_{name}_seq(struct ast_state *state, PyObject* obj, {t}** out);", 0)
+        self.emit(f"static int obj2imm_{name}_seq(struct ast_state *state, PyObject* obj, const char *container, const char *field, {t}** out);", 0)
 
     def visitProduct(self, prod, name):
         self.emit_seq_proto(name)
@@ -635,48 +635,57 @@ class Obj2ModVisitor(PickleVisitor):
         else:
             t = f"asdl_{name}_seq"
 
-        self.emit(f"static int obj2imm_{name}_seq(struct ast_state *state, PyObject* obj, {t}** out)", 0)
+        self.emit(f"static int obj2imm_{name}_seq(struct ast_state *state, PyObject* obj, const char *container, const char *field, {t}** out)", 0)
         self.emit("{", 0)
+        self.emit(f"if (Py_TYPE(obj) == (PyTypeObject *)state->_{name}_seq_type) {{", 1) 
+        self.emit(f"*out = ({t}*)Py_NewRef(obj);", 2)
+        self.emit("return 0;", 2)
+        self.emit("}", 1)
+        self.emit("if (obj == NULL) {", 1)
+        self.emit("obj = PyList_New(0);", 2)
+        self.emit("if (obj == NULL) {", 2)
+        self.emit("return -1;", 3)
+        self.emit("}", 2)
+        self.emit("}", 1)
+
+        depth = 0
+        self.emit("Py_ssize_t len;", depth+1)
+        self.emit("Py_ssize_t i;", depth+1)
+        self.emit(f"{t}* res;", depth+1)
+        self.emit("if (!PyList_Check(obj)) {", depth+1)
+        self.emit("PyErr_Format(PyExc_TypeError, \"%s field \\\"%s\\\" must "
+                    "be a list, not a %.200s\", container, field, _PyType_Name(Py_TYPE(obj)));",
+                    depth+2, reflow=False)
+        self.emit("goto failed;", depth+2)
+        self.emit("}", depth+1)
+        self.emit("len = PyList_GET_SIZE(obj);", depth+1)
+        self.emit(f"res = PyObject_NewVar({t}, (PyTypeObject *)state->_{name}_seq_type, len);", depth+1)
+        #if simple:
+        #    self.emit("res = _Py_asdl_int_seq_new(len, arena);", depth+1)
+        #else:
+        #    self.emit(f"res = _Py_asdl_{type}_seq_new(len, arena);", depth+1)
+        self.emit("if (res == NULL) goto failed;", depth+1)
+        self.emit("for (i = 0; i < len; i++) {", depth+1)
+        self.emit("%s val;" % ctype, depth+2)
+        self.emit("PyObject *tmp2 = Py_NewRef(PyList_GET_ITEM(obj, i));", depth+2)
+        with self.recursive_call(name, depth+2):
+            self.emit("int err = obj2imm_%s(state, tmp2, &val);" %
+                        name, depth+2, reflow=False)
+        self.emit("Py_DECREF(tmp2);", depth+2)
+        self.emit("if (err != 0) goto failed;", depth+2)
+        self.emit("if (len != PyList_GET_SIZE(obj)) {", depth+2)
+        self.emit("PyErr_Format(PyExc_RuntimeError, \"%s field \\\"%s\\\" "
+                    "changed size during iteration\", container, field);",
+                    depth+3, reflow=False)
+        self.emit("goto failed;", depth+3)
+        self.emit("}", depth+2)
+        self.emit("asdl_seq_SET(res, i, val);", depth+2)
+        self.emit("}", depth+1)
+        self.emit("failed:", 0)
         self.emit("*out = NULL;", 1)
         self.emit("return -1;", 1)
         self.emit("}", 0)
         self.emit("", 0)
-        return
-        depth = 0
-        self.emit("Py_ssize_t len;", depth+1)
-        self.emit("Py_ssize_t i;", depth+1)
-        self.emit("if (!PyList_Check(obj)) {", depth+1)
-        #self.emit("PyErr_Format(PyExc_TypeError, \"%s field \\\"%s\\\" must "
-        #            "be a list, not a %%.200s\", _PyType_Name(Py_TYPE(tmp)));" %
-        #            (name, field.name),
-        #            depth+2, reflow=False)
-        self.emit("return NULL;", depth+2)
-        self.emit("}", depth+1)
-        self.emit("len = PyList_GET_SIZE(obj);", depth+1)
-        if self.isSimpleType(name):
-            self.emit(f"res = _Py_asdl_int_seq_new(len, arena);", depth+1)
-        else:
-            self.emit(f"res = _Py_asdl_{name}_seq_new(len, arena);", depth+1)
-        self.emit("if (res == NULL) return NULL;", depth+1)
-        self.emit("for (i = 0; i < len; i++) {", depth+1)
-        self.emit("%s val;" % ctype, depth+2)
-        self.emit("PyObject *tmp2 = Py_NewRef(PyList_GET_ITEM(tmp, i));", depth+2)
-        with self.recursive_call(name, depth+2):
-            self.emit("res = obj2imm_%s(state, tmp2, &val);" %
-                        field.type, depth+2, reflow=False)
-        self.emit("Py_DECREF(tmp2);", depth+2)
-        self.emit("if (res != 0) goto failed;", depth+2)
-        self.emit("if (len != PyList_GET_SIZE(tmp)) {", depth+2)
-        self.emit("PyErr_SetString(PyExc_RuntimeError, \"%s field \\\"%s\\\" "
-                    "changed size during iteration\");" %
-                    (name, field.name),
-                    depth+3, reflow=False)
-        self.emit("goto failed;", depth+3)
-        self.emit("}", depth+2)
-        self.emit("asdl_seq_SET(%s, i, val);" % field.name, depth+2)
-        self.emit("}", depth+1)
-        self.emit("return NULL;", 1)
-        self.emit("}", 0)
 
     def sumTrailer(self, name, add_label=False):
         self.emit("", 0)
@@ -794,11 +803,18 @@ class Obj2ModVisitor(PickleVisitor):
             self.emit("", 0)
             for f in t.fields:
                 self.visitField2(f, t.name, sum=sum, depth=2,)
-            args = [f.name for f in t.fields] + [a.name for a in sum.attributes]
+            #args = [f.name for f in t.fields] + [a.name for a in sum.attributes]
             
             #self.emit("*out = %s(%s);" % (ast_func_name(t.name), self.buildArgs(args)), 2)
             #self.emit("*out = NULL;", 2)
-            self.emit(f"if (*out == NULL) goto failed_{t.name};", 2)
+            self.emit(f"{ctype} res = ({ctype})_PyObject_New((PyTypeObject *)state->_{t.name}_type);", 2)
+            self.emit(f"if (res == NULL) goto failed_{t.name};", 2)
+            self.emit(f"res->kind = {t.name}_kind;", 2)
+            for a in sum.attributes:
+                self.emit(f"res->{a.name} = {a.name};", 2)
+            for f in t.fields:
+                self.emit(f"res->v.{t.name}.{f.name} = {f.name};", 2)
+            self.emit("*out = res;", 2)
             self.emit("return 0;", 2)
             self.emit(f"failed_{t.name}:", 2)
             self.visitFieldsCleanup(t.fields, 2)
@@ -999,15 +1015,7 @@ class Obj2ModVisitor(PickleVisitor):
         self.emit(line % field.name, depth)
         self.emit("return -1;", depth+1)
         self.emit("}", depth)
-        if field.seq:
-            self.emit("if (tmp == NULL) {", depth)
-            self.emit("tmp = PyList_New(0);", depth+1)
-            self.emit("if (tmp == NULL) {", depth+1)
-            self.emit(f"goto failed_{name};", depth+2)
-            self.emit("}", depth+1)
-            self.emit("}", depth)
-            self.emit("{", depth)
-        else:
+        if not field.seq:
             if not field.opt:
                 self.emit("if (tmp == NULL) {", depth)
                 message = "required field \\\"%s\\\" missing from %s" % (field.name, name)
@@ -1031,47 +1039,18 @@ class Obj2ModVisitor(PickleVisitor):
                     raise TypeError("could not determine the default value for %s" % field.name)
             self.emit("}", depth)
             self.emit("else {", depth)
+        else:
+            self.emit("{", depth)
 
         self.emit("int res;", depth+1)
-        if field.seq:
-            self.emit("Py_ssize_t len;", depth+1)
-            self.emit("Py_ssize_t i;", depth+1)
-            self.emit("if (!PyList_Check(tmp)) {", depth+1)
-            self.emit("PyErr_Format(PyExc_TypeError, \"%s field \\\"%s\\\" must "
-                      "be a list, not a %%.200s\", _PyType_Name(Py_TYPE(tmp)));" %
-                      (name, field.name),
-                      depth+2, reflow=False)
-            self.emit(f"goto failed_{name};", depth+2)
-            self.emit("}", depth+1)
-            self.emit("len = PyList_GET_SIZE(tmp);", depth+1)
-            # TODO Heap allocated sequences
-            if self.isSimpleType(field):
-                self.emit("%s = _Py_asdl_int_seq_new(len, NULL);" % field.name, depth+1)
+        with self.recursive_call(name, depth+1, label=f"failed_{name}"):
+            if field.seq:
+                self.emit(f'res = obj2imm_{field.type}_seq(state, tmp, "{name}", "{field.name}", &{field.name});',
+                            depth+1)
             else:
-                self.emit("%s = _Py_asdl_%s_seq_new(len, NULL);" % (field.name, field.type), depth+1)
-            self.emit(f"if ({field.name} == NULL) goto failed_{name};", depth+1)
-            self.emit("for (i = 0; i < len; i++) {", depth+1)
-            self.emit("%s val;" % ctype, depth+2)
-            self.emit("PyObject *tmp2 = Py_NewRef(PyList_GET_ITEM(tmp, i));", depth+2)
-            with self.recursive_call(name, depth+2, label=f"failed_{name}"):
-                self.emit("res = obj2imm_%s(state, tmp2, &val);" %
-                          field.type, depth+2, reflow=False)
-            self.emit("Py_DECREF(tmp2);", depth+2)
-            self.emit(f"if (res != 0) goto failed_{name};", depth+2)
-            self.emit("if (len != PyList_GET_SIZE(tmp)) {", depth+2)
-            self.emit("PyErr_SetString(PyExc_RuntimeError, \"%s field \\\"%s\\\" "
-                      "changed size during iteration\");" %
-                      (name, field.name),
-                      depth+3, reflow=False)
-            self.emit(f"goto failed_{name};", depth+3)
-            self.emit("}", depth+2)
-            self.emit("asdl_seq_SET(%s, i, val);" % field.name, depth+2)
-            self.emit("}", depth+1)
-        else:
-            with self.recursive_call(name, depth+1, label=f"failed_{name}"):
                 self.emit("res = obj2imm_%s(state, tmp, &%s);" %
                           (field.type, field.name), depth+1)
-            self.emit(f"if (res != 0) goto failed_{name};", depth+1)
+        self.emit(f"if (res != 0) goto failed_{name};", depth+1)
 
         self.emit("Py_CLEAR(tmp);", depth+1)
         self.emit("}", depth)
@@ -3035,7 +3014,7 @@ class NodesVisitor(EmitVisitor):
         self.emit(f"PyObject *value = PyTuple_GET_ITEM(args, {i});", depth)
         if asdl.Quantifier.SEQUENCE in field.quantifiers:
             t = f"(asdl_{field.type}_seq *)" if field.type != "cmpop" else "(asdl_int_seq *)"
-            self.emit(f"if (obj2imm_{field.type}_seq(state, value, &self{attrs}{field.name}) < 0) {{", depth)
+            self.emit(f'if (obj2imm_{field.type}_seq(state, value, "", "{field.name}", &self{attrs}{field.name}) < 0) {{', depth)
             self.emit("Py_DECREF(res);", depth+1)
             self.emit("return NULL;", depth+1)
             self.emit("}", depth)
