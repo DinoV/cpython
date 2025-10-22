@@ -2281,10 +2281,26 @@ static int add_ast_fields(struct ast_state *state)
         self.emit(f"t = PyType_FromSpecWithBases(&_{type_name}_type_spec, state->_{base_name}_type);", 1)
         self.emit(f"state->_{type_name}_type = t;", 1)
         self.emit(f"if (state->_{type_name}_type == NULL) return -1;", 1)
-        if fields:
-            self.emit(f"if (add_fields(state->_{type_name}_type, {fields}) < 0) return -1;", 1)
+        if fields is not None:
+            if fields:
+                fields_name = f"{type_name}_fields"
+                fields_cnt = len(fields)
+            else:
+                fields_name = "NULL"
+                fields_cnt = 0
+            self.emit(f"if (add_fields(state->_{type_name}_type, {fields_name}, {fields_cnt}) < 0) return -1;", 1)
         if attributes:
-            self.emit(f"if (add_attributes(state, state->_{type_name}_type, {attributes}) < 0) return -1;", 1)
+            if attributes:
+                attrs_name = f"{type_name}_attributes"
+                attrs_cnt = len(attributes)
+            else:
+                attrs_name = "NULL"
+                attrs_cnt = 0
+            self.emit(f"if (add_attributes(state, state->_{type_name}_type, {attrs_name}, {attrs_cnt}) < 0) return -1;", 1)
+        if fields:
+            self.emit_defaults2(type_name, fields, 1)
+        if attributes:
+            self.emit_defaults2(type_name, attributes, 1)
 
     def visitProduct(self, prod, name):
         if prod.fields:
@@ -2303,11 +2319,7 @@ static int add_ast_fields(struct ast_state *state)
         self.emit_defaults(name, prod.fields, 1)
         self.emit_defaults(name, prod.attributes, 1)
 
-        attributes = "NULL, 0"
-        if prod.attributes:
-            attributes = f"{name}_attributes, {len(prod.attributes)}"
-
-        self.create_type(name, name, fields=f"{fields}, {len(prod.fields)}", attributes=attributes)
+        self.create_type(name, name, fields=prod.fields, attributes=prod.attributes)
 
         self.create_type(name + "_seq", name + "_seq")
 
@@ -2323,11 +2335,8 @@ static int add_ast_fields(struct ast_state *state)
             self.emit("if (add_attributes(state, state->%s_type, NULL, 0) < 0) return -1;" % name, 1)
         self.emit_defaults(name, sum.attributes, 1)
         simple = is_simple(sum)
-        attributes = "NULL, 0"
-        if sum.attributes:
-            attributes = f"{name}_attributes, {len(sum.attributes)}"
-
-        self.create_type(name, name, attributes=attributes)
+        assert sum.attributes is not None
+        self.create_type(name, name, attributes=sum.attributes)
         if not simple:
             self.create_type(name + "_seq", name + "_seq")
         for t in sum.types:
@@ -2343,7 +2352,7 @@ static int add_ast_fields(struct ast_state *state)
         self.emit('%s);' % reflow_c_string(asdl_of(cons.name, cons), 2), 2, reflow=False)
         self.emit("if (!state->%s_type) return -1;" % cons.name, 1)
         self.emit_defaults(cons.name, cons.fields, 1)
-        self.create_type(cons.name, name, name, fields=f"{fields}, {len(cons.fields)}")
+        self.create_type(cons.name, name, name, fields=cons.fields)
         if simple:
             self.emit("state->%s_singleton = PyType_GenericNew((PyTypeObject *)"
                       "state->%s_type, NULL, NULL);" %
@@ -2361,6 +2370,12 @@ static int add_ast_fields(struct ast_state *state)
                             (name, field.name), depth)
                 self.emit("return -1;", depth+1)
 
+    def emit_defaults2(self, name, fields, depth):
+        for field in fields:
+            if field.opt:
+                self.emit('if (PyObject_SetAttr(state->_%s_type, state->%s, Py_None) == -1)' %
+                            (name, field.name), depth)
+                self.emit("return -1;", depth+1)
 
 class ASTModuleVisitor(PickleVisitor):
 
