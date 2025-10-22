@@ -479,6 +479,62 @@ class FunctionVisitor(PrototypeVisitor):
             emit("p->%s = %s;" % (argname, argname), 1)
 
 
+class FunctionVisitor2(PrototypeVisitor):
+    """Visitor to generate constructor functions for AST."""
+
+    def emit_function(self, name, ctype, args, attrs, union=True):
+        def emit(s, depth=0, reflow=True):
+            self.emit(s, depth, reflow)
+        argstr = ", ".join(["%s %s" % (atype, aname)
+                            for atype, aname, opt in args + attrs])
+        if argstr:
+            argstr = "struct ast_state* state, " + argstr
+        else:
+            argstr = "struct ast_state* state"
+        self.emit("%s" % ctype, 0)
+        emit("%s(%s)" % (ast_func_name(name) + "Heap", argstr))
+        emit("{")
+        emit("%s p;" % ctype, 1)
+        for argtype, argname, opt in args:
+            if not opt and argtype != "int":
+                emit("if (!%s) {" % argname, 1)
+                emit("PyErr_SetString(PyExc_ValueError,", 2)
+                msg = "field '%s' is required for %s" % (argname, name)
+                emit('                "%s");' % msg,
+                     2, reflow=False)
+                emit('return NULL;', 2)
+                emit('}', 1)
+
+        emit(f"p = ({ctype})_PyObject_New((PyTypeObject *)state->_{name}_type);", 1)
+        #emit("p = (%s)_PyArena_Malloc(arena, sizeof(*p));" % ctype, 1);
+        emit("if (!p)", 1)
+        emit("return NULL;", 2)
+        if union:
+            self.emit_body_union(name, args, attrs)
+        else:
+            self.emit_body_struct(name, args, attrs)
+        emit("return p;", 1)
+        emit("}")
+        emit("")
+
+    def emit_body_union(self, name, args, attrs):
+        def emit(s, depth=0, reflow=True):
+            self.emit(s, depth, reflow)
+        emit("p->kind = %s_kind;" % name, 1)
+        for argtype, argname, opt in args:
+            emit("p->v.%s.%s = %s;" % (name, argname, argname), 1)
+        for argtype, argname, opt in attrs:
+            emit("p->%s = %s;" % (argname, argname), 1)
+
+    def emit_body_struct(self, name, args, attrs):
+        def emit(s, depth=0, reflow=True):
+            self.emit(s, depth, reflow)
+        for argtype, argname, opt in args:
+            emit("p->%s = %s;" % (argname, argname), 1)
+        for argtype, argname, opt in attrs:
+            emit("p->%s = %s;" % (argname, argname), 1)
+
+
 class PickleVisitor(EmitVisitor):
 
     def visitModule(self, mod):
@@ -503,12 +559,16 @@ class PickleVisitor(EmitVisitor):
 
 class Obj2ModPrototypeVisitor(PickleVisitor):
     def visitModule(self, mod):
-        self.emit_seq_proto("int")
+        self.emit_seq_proto("int", simple=True)
         self.emit_seq_proto("identifier")
         super().visitModule(mod)
 
-    def emit_seq_proto(self, name):
-        self.emit(f"static PyObject *obj2imm_{name}_seq(struct ast_state *state, PyObject* obj);", 0)
+    def emit_seq_proto(self, name, simple=False):
+        if simple:
+            t = "asdl_int_seq"
+        else:
+            t = f"asdl_{name}_seq"
+        self.emit(f"static int obj2imm_{name}_seq(struct ast_state *state, PyObject* obj, {t}** out);", 0)
 
     def visitProduct(self, prod, name):
         self.emit_seq_proto(name)
@@ -516,11 +576,11 @@ class Obj2ModPrototypeVisitor(PickleVisitor):
         code = "static int obj2ast_%s(struct ast_state *state, PyObject* obj, %s* out, PyArena* arena);"
         self.emit(code % (name, get_c_type(name)), 0)
 
-        code = "static PyObject *obj2imm_%s(struct ast_state *state, PyObject* obj);"
-        self.emit(code % (name, ), 0)
+        code = "static int obj2imm_%s(struct ast_state *state, PyObject* obj, %s* out);"
+        self.emit(code % (name, get_c_type(name)), 0)
 
     def visitSum(self, sum, name):
-        self.emit_seq_proto(name)
+        self.emit_seq_proto(name, is_simple(sum))
 
         code = "static int obj2ast_%s(struct ast_state *state, PyObject* obj, %s* out, PyArena* arena);"
         self.emit(code % (name, get_c_type(name)), 0)
@@ -529,8 +589,8 @@ class Obj2ModPrototypeVisitor(PickleVisitor):
             code = "static int obj2imm_%s(struct ast_state *state, PyObject* obj, %s* out);"
             self.emit(code % (name, get_c_type(name)), 0)
         else:
-            code = "static PyObject *obj2imm_%s(struct ast_state *state, PyObject* obj);"
-            self.emit(code % (name, ), 0)
+            code = "static int obj2imm_%s(struct ast_state *state, PyObject* obj, %s* out);"
+            self.emit(code % (name, get_c_type(name)), 0)
 
 class Obj2ModVisitor(PickleVisitor):
 
@@ -540,7 +600,7 @@ class Obj2ModVisitor(PickleVisitor):
     }
 
     def visitModule(self, mod):
-        self.emit_seq("int")
+        self.emit_seq("int", simple=True)
         self.emit_seq("identifier")
         super().visitModule(mod)
 
@@ -568,11 +628,19 @@ class Obj2ModVisitor(PickleVisitor):
         self.emit("int isinstance;", 1)
         self.emit("", 0)
 
-    def emit_seq(self, name):
-        self.emit(f"static PyObject *obj2imm_{name}_seq(struct ast_state *state, PyObject* obj)", 0)
+    def emit_seq(self, name, simple=False):
+        ctype = get_c_type(name)
+        if simple:
+            t = "asdl_int_seq"
+        else:
+            t = f"asdl_{name}_seq"
+
+        self.emit(f"static int obj2imm_{name}_seq(struct ast_state *state, PyObject* obj, {t}** out)", 0)
         self.emit("{", 0)
-        self.emit("return NULL;", 0)
+        self.emit("*out = NULL;", 1)
+        self.emit("return -1;", 1)
         self.emit("}", 0)
+        self.emit("", 0)
         return
         depth = 0
         self.emit("Py_ssize_t len;", depth+1)
@@ -656,6 +724,9 @@ class Obj2ModVisitor(PickleVisitor):
     def buildArgs(self, fields):
         return ", ".join(fields + ["arena"])
 
+    def buildArgsHeap(self, fields):
+        return ", ".join(["state"] + fields)
+
     def complexSum(self, sum, name):
         self.funcHeader(name)
         self.emit("PyObject *tmp = NULL;", 1)
@@ -690,10 +761,11 @@ class Obj2ModVisitor(PickleVisitor):
         self.sumTrailer(name, True)
 
         ctype = get_c_type(name)
-        self.emit("PyObject *", 0)
-        self.emit("obj2imm_%s(struct ast_state *state, PyObject* obj)" % (name, ), 0)
+        self.emit("int", 0)
+        self.emit(f"obj2imm_{name}(struct ast_state *state, PyObject* obj, {ctype}* out)", 0)
         self.emit("{", 0)
-        self.emit("return Py_NewRef(obj);", 1)
+        self.emit(f"*out = ({ctype})Py_NewRef(obj);", 1)
+        self.emit("return 0;", 1)
         self.emit("}", 0)
         self.emit("", 0)
 
@@ -702,7 +774,7 @@ class Obj2ModVisitor(PickleVisitor):
         self.emit("%s %s;" % (ctype, a.name), 1)
 
     def visitSum(self, sum, name):
-        self.emit_seq(name)
+        self.emit_seq(name, is_simple(sum))
         if is_simple(sum):
             self.simpleSum(sum, name)
         else:
@@ -736,28 +808,39 @@ class Obj2ModVisitor(PickleVisitor):
         self.emit("", 0)
 
         ctype = get_c_type(name)
-        self.emit("PyObject *", 0)
-        self.emit("obj2imm_%s(struct ast_state *state, PyObject* obj)" % (name, ), 0)
+        self.emit("int", 0)
+        self.emit(f"obj2imm_%s(struct ast_state *state, PyObject* obj, {ctype}* out)" % (name, ), 0)
         self.emit("{", 0)
-        self.emit("return Py_NewRef(obj);", 1)
-        #self.emit("PyObject* tmp = NULL;", 1)
-        #for f in prod.fields:
-        #    self.visitFieldDeclaration(f, name, prod=prod, depth=1)
-        #for a in prod.attributes:
-        #    self.visitFieldDeclaration(a, name, prod=prod, depth=1)
-        #self.emit("", 0)
-        #for f in prod.fields:
-        #    self.visitField(f, name, prod=prod, depth=1)
-        #for a in prod.attributes:
-        #    self.visitField(a, name, prod=prod, depth=1)
-        #args = [f.name for f in prod.fields]
-        #args.extend([a.name for a in prod.attributes])
-        #self.emit("*out = %s(%s);" % (ast_func_name(name), self.buildArgs(args)), 1)
-        #self.emit("if (*out == NULL) goto failed;", 1)
-        #self.emit("return 0;", 1)
-        #self.emit("failed:", 0)
-        #self.emit("Py_XDECREF(tmp);", 1)
-        #self.emit("return -1;", 1)
+
+        for f in prod.fields:
+            self.visitFieldDeclaration(f, name, prod=prod, depth=1)
+        for a in prod.attributes:
+            self.visitFieldDeclaration(a, name, prod=prod, depth=1)
+        self.emit("", 0)
+        # TODO: Or fast patch check for non-overridden mutable
+        self.emit(f"if (Py_TYPE(obj) == (PyTypeObject *)state->_{name}_type) {{", 1)
+        self.emit(f"*out = ({ctype})Py_NewRef(obj);", 2)
+        self.emit("return *out != NULL ? 0 : -1;", 2)
+        self.emit("}", 1)
+        self.emit("", 0)
+
+        self.emit("PyObject* tmp = NULL;", 1)
+        for f in prod.fields:
+            self.visitField2(f, name, prod=prod, depth=1)
+        for a in prod.attributes:
+            self.visitField2(a, name, prod=prod, depth=1)
+        args = [f.name for f in prod.fields]
+        args.extend([a.name for a in prod.attributes])
+        self.emit("*out = %sHeap(%s);" % (ast_func_name(name), self.buildArgsHeap(args)), 1)
+        self.emit("if (*out == NULL) goto failed;", 1)
+        self.emit("return 0;", 1)
+        self.emit("failed:", 0)
+        self.emit("Py_XDECREF(tmp);", 1)
+        for f in prod.fields:
+            ctype = get_c_type(f.type)
+            if ctype not in NON_PYOBJECT_TYPES:
+                self.emit(f"Py_XDECREF({f.name});", 1)
+        self.emit("return -1;", 1)
         self.emit("}", 0)
         self.emit("", 0)
 
@@ -765,13 +848,16 @@ class Obj2ModVisitor(PickleVisitor):
         ctype = get_c_type(field.type)
         if field.seq:
             if self.isSimpleType(field):
-                self.emit("asdl_int_seq* %s;" % field.name, depth)
+                self.emit("asdl_int_seq* %s = NULL;" % field.name, depth)
             else:
                 _type = field.type
-                self.emit(f"asdl_{field.type}_seq* {field.name};", depth)
+                self.emit(f"asdl_{field.type}_seq* {field.name} = NULL;", depth)
         else:
             ctype = get_c_type(field.type)
-            self.emit("%s %s;" % (ctype, field.name), depth)
+            if ctype not in NON_PYOBJECT_TYPES:
+                self.emit("%s %s = NULL;" % (ctype, field.name), depth)
+            else:
+                self.emit("%s %s;" % (ctype, field.name), depth)
 
     def isNumeric(self, field):
         return get_c_type(field.type) in ("int", "bool")
@@ -855,6 +941,89 @@ class Obj2ModVisitor(PickleVisitor):
         else:
             with self.recursive_call(name, depth+1):
                 self.emit("res = obj2ast_%s(state, tmp, &%s, arena);" %
+                          (field.type, field.name), depth+1)
+            self.emit("if (res != 0) goto failed;", depth+1)
+
+        self.emit("Py_CLEAR(tmp);", depth+1)
+        self.emit("}", depth)
+
+    def visitField2(self, field, name, sum=None, prod=None, depth=0):
+        ctype = get_c_type(field.type)
+        line = "if (PyObject_GetOptionalAttr(obj, state->%s, &tmp) < 0) {"
+        self.emit(line % field.name, depth)
+        self.emit("return -1;", depth+1)
+        self.emit("}", depth)
+        if field.seq:
+            self.emit("if (tmp == NULL) {", depth)
+            self.emit("tmp = PyList_New(0);", depth+1)
+            self.emit("if (tmp == NULL) {", depth+1)
+            self.emit("goto failed;", depth+2)
+            self.emit("}", depth+1)
+            self.emit("}", depth)
+            self.emit("{", depth)
+        else:
+            if not field.opt:
+                self.emit("if (tmp == NULL) {", depth)
+                message = "required field \\\"%s\\\" missing from %s" % (field.name, name)
+                format = "PyErr_SetString(PyExc_TypeError, \"%s\");"
+                self.emit(format % message, depth+1, reflow=False)
+                self.emit("goto failed;", depth+1)
+            else:
+                self.emit("if (tmp == NULL || tmp == Py_None) {", depth)
+                self.emit("Py_CLEAR(tmp);", depth+1)
+                if self.isNumeric(field):
+                    if field.name in self.attribute_special_defaults:
+                        self.emit(
+                            "%s = %s;" % (field.name, self.attribute_special_defaults[field.name]),
+                            depth+1,
+                        )
+                    else:
+                        self.emit("%s = 0;" % field.name, depth+1)
+                elif not self.isSimpleType(field):
+                    self.emit("%s = NULL;" % field.name, depth+1)
+                else:
+                    raise TypeError("could not determine the default value for %s" % field.name)
+            self.emit("}", depth)
+            self.emit("else {", depth)
+
+        self.emit("int res;", depth+1)
+        if field.seq:
+            self.emit("Py_ssize_t len;", depth+1)
+            self.emit("Py_ssize_t i;", depth+1)
+            self.emit("if (!PyList_Check(tmp)) {", depth+1)
+            self.emit("PyErr_Format(PyExc_TypeError, \"%s field \\\"%s\\\" must "
+                      "be a list, not a %%.200s\", _PyType_Name(Py_TYPE(tmp)));" %
+                      (name, field.name),
+                      depth+2, reflow=False)
+            self.emit("goto failed;", depth+2)
+            self.emit("}", depth+1)
+            self.emit("len = PyList_GET_SIZE(tmp);", depth+1)
+            # TODO Heap allocated sequences
+            if self.isSimpleType(field):
+                self.emit("%s = _Py_asdl_int_seq_new(len, NULL);" % field.name, depth+1)
+            else:
+                self.emit("%s = _Py_asdl_%s_seq_new(len, NULL);" % (field.name, field.type), depth+1)
+            self.emit("if (%s == NULL) goto failed;" % field.name, depth+1)
+            self.emit("for (i = 0; i < len; i++) {", depth+1)
+            self.emit("%s val;" % ctype, depth+2)
+            self.emit("PyObject *tmp2 = Py_NewRef(PyList_GET_ITEM(tmp, i));", depth+2)
+            with self.recursive_call(name, depth+2):
+                self.emit("res = obj2imm_%s(state, tmp2, &val);" %
+                          field.type, depth+2, reflow=False)
+            self.emit("Py_DECREF(tmp2);", depth+2)
+            self.emit("if (res != 0) goto failed;", depth+2)
+            self.emit("if (len != PyList_GET_SIZE(tmp)) {", depth+2)
+            self.emit("PyErr_SetString(PyExc_RuntimeError, \"%s field \\\"%s\\\" "
+                      "changed size during iteration\");" %
+                      (name, field.name),
+                      depth+3, reflow=False)
+            self.emit("goto failed;", depth+3)
+            self.emit("}", depth+2)
+            self.emit("asdl_seq_SET(%s, i, val);" % field.name, depth+2)
+            self.emit("}", depth+1)
+        else:
+            with self.recursive_call(name, depth+1):
+                self.emit("res = obj2imm_%s(state, tmp, &%s);" %
                           (field.type, field.name), depth+1)
             self.emit("if (res != 0) goto failed;", depth+1)
 
@@ -2066,6 +2235,8 @@ static int add_ast_fields(struct ast_state *state)
         '''))
         for dfn in mod.dfns:
             self.visit(dfn)
+        self.create_type("int_seq", "int_seq")
+        self.create_type("identifier_seq", "identifier_seq")
         self.file.write(textwrap.dedent('''
                 if (!add_ast_annotations(state)) {
                     return -1;
@@ -2649,19 +2820,22 @@ class NodesDeclVisitor(EmitVisitor):
 
 class NodesVisitor(EmitVisitor):
     def visitModule(self, mod):
-        self.emit("static PyObject *obj2imm_constant(struct ast_state *Py_UNUSED(state), PyObject* obj)", 0)
+        self.emit("static int obj2imm_constant(struct ast_state *Py_UNUSED(state), PyObject* obj, PyObject **out)", 0)
         self.emit("{", 0)
-        self.emit("return Py_NewRef(obj);", 1)
+        self.emit("*out = Py_NewRef(obj);", 1)
+        self.emit("return 0;", 1)
         self.emit("}", 0)
 
-        self.emit("static PyObject *obj2imm_identifier(struct ast_state *Py_UNUSED(state), PyObject* obj)", 0)
+        self.emit("static int obj2imm_identifier(struct ast_state *Py_UNUSED(state), PyObject* obj, PyObject **out)", 0)
         self.emit("{", 0)
-        self.emit("return Py_NewRef(obj);", 1)
+        self.emit("*out = Py_NewRef(obj);", 1)
+        self.emit("return 0;", 1)
         self.emit("}", 0)
 
-        self.emit("static PyObject *obj2imm_string(struct ast_state *Py_UNUSED(state), PyObject* obj)", 0)
+        self.emit("static int obj2imm_string(struct ast_state *Py_UNUSED(state), PyObject* obj, PyObject **out)", 0)
         self.emit("{", 0)
-        self.emit("return Py_NewRef(obj);", 1)
+        self.emit("*out = Py_NewRef(obj);", 1)
+        self.emit("return 0;", 1)
         self.emit("}", 0)
 
         self.emit("static int obj2imm_int(struct ast_state *Py_UNUSED(state), PyObject* obj, int *i)", 0)
@@ -2800,7 +2974,9 @@ class NodesVisitor(EmitVisitor):
                 self.emit(f"PyObject *value = PyTuple_GET_ITEM(args, {i});", 2)
                 if asdl.Quantifier.SEQUENCE in field.quantifiers:
                     t = f"(asdl_{field.type}_seq *)" if field.type != "cmpop" else "(asdl_int_seq *)"
-                    self.emit(f"self{attrs}{field.name} = {t}obj2imm_{field.type}_seq(state, value);", 2)
+                    self.emit(f"if (obj2imm_{field.type}_seq(state, value, &self{attrs}{field.name}) < 0) {{", 2)
+                    self.emit("return NULL;", 3)
+                    self.emit("}", 2)
                 elif field.type in self.metadata.simple_sums or field.type == "int":
                     t = "int" if field.type == "int" else f"{field.type}_ty"
                     self.emit(f"{t} out;", 2)
@@ -2814,7 +2990,9 @@ class NodesVisitor(EmitVisitor):
                         cast = f"(struct _{field.type} *)"
                     else:
                         cast = ""
-                    self.emit(f"self{attrs}{field.name} = {cast}obj2imm_{field.type}(state, value);", 2)
+                    self.emit(f"if (obj2imm_{field.type}(state, value, &self{attrs}{field.name}) < 0) {{", 2)
+                    self.emit("return NULL;", 3)
+                    self.emit("}", 2)
                 self.emit("}", 1)
 
         for attribute in attributes:
@@ -2983,6 +3161,7 @@ def write_source(mod, metadata, f, internal_h_file):
         NodesVisitor(f),
         PyTypesVisitor(f),
         FunctionVisitor(f),
+        FunctionVisitor2(f),
         ObjVisitor(f),
         Obj2ModVisitor(f),
         ASTModuleVisitor(f),

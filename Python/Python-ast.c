@@ -5266,107 +5266,136 @@ add_ast_annotations(struct ast_state *state)
     return 1;
 }
 
-static PyObject *obj2imm_int_seq(struct ast_state *state, PyObject* obj);
-static PyObject *obj2imm_identifier_seq(struct ast_state *state, PyObject* obj);
-static PyObject *obj2imm_mod_seq(struct ast_state *state, PyObject* obj);
+static int obj2imm_int_seq(struct ast_state *state, PyObject* obj,
+                           asdl_int_seq** out);
+static int obj2imm_identifier_seq(struct ast_state *state, PyObject* obj,
+                                  asdl_identifier_seq** out);
+static int obj2imm_mod_seq(struct ast_state *state, PyObject* obj,
+                           asdl_mod_seq** out);
 static int obj2ast_mod(struct ast_state *state, PyObject* obj, mod_ty* out,
                        PyArena* arena);
-static PyObject *obj2imm_mod(struct ast_state *state, PyObject* obj);
-static PyObject *obj2imm_stmt_seq(struct ast_state *state, PyObject* obj);
+static int obj2imm_mod(struct ast_state *state, PyObject* obj, mod_ty* out);
+static int obj2imm_stmt_seq(struct ast_state *state, PyObject* obj,
+                            asdl_stmt_seq** out);
 static int obj2ast_stmt(struct ast_state *state, PyObject* obj, stmt_ty* out,
                         PyArena* arena);
-static PyObject *obj2imm_stmt(struct ast_state *state, PyObject* obj);
-static PyObject *obj2imm_expr_seq(struct ast_state *state, PyObject* obj);
+static int obj2imm_stmt(struct ast_state *state, PyObject* obj, stmt_ty* out);
+static int obj2imm_expr_seq(struct ast_state *state, PyObject* obj,
+                            asdl_expr_seq** out);
 static int obj2ast_expr(struct ast_state *state, PyObject* obj, expr_ty* out,
                         PyArena* arena);
-static PyObject *obj2imm_expr(struct ast_state *state, PyObject* obj);
-static PyObject *obj2imm_expr_context_seq(struct ast_state *state, PyObject*
-                                          obj);
+static int obj2imm_expr(struct ast_state *state, PyObject* obj, expr_ty* out);
+static int obj2imm_expr_context_seq(struct ast_state *state, PyObject* obj,
+                                    asdl_int_seq** out);
 static int obj2ast_expr_context(struct ast_state *state, PyObject* obj,
                                 expr_context_ty* out, PyArena* arena);
 static int obj2imm_expr_context(struct ast_state *state, PyObject* obj,
                                 expr_context_ty* out);
-static PyObject *obj2imm_boolop_seq(struct ast_state *state, PyObject* obj);
+static int obj2imm_boolop_seq(struct ast_state *state, PyObject* obj,
+                              asdl_int_seq** out);
 static int obj2ast_boolop(struct ast_state *state, PyObject* obj, boolop_ty*
                           out, PyArena* arena);
 static int obj2imm_boolop(struct ast_state *state, PyObject* obj, boolop_ty*
                           out);
-static PyObject *obj2imm_operator_seq(struct ast_state *state, PyObject* obj);
+static int obj2imm_operator_seq(struct ast_state *state, PyObject* obj,
+                                asdl_int_seq** out);
 static int obj2ast_operator(struct ast_state *state, PyObject* obj,
                             operator_ty* out, PyArena* arena);
 static int obj2imm_operator(struct ast_state *state, PyObject* obj,
                             operator_ty* out);
-static PyObject *obj2imm_unaryop_seq(struct ast_state *state, PyObject* obj);
+static int obj2imm_unaryop_seq(struct ast_state *state, PyObject* obj,
+                               asdl_int_seq** out);
 static int obj2ast_unaryop(struct ast_state *state, PyObject* obj, unaryop_ty*
                            out, PyArena* arena);
 static int obj2imm_unaryop(struct ast_state *state, PyObject* obj, unaryop_ty*
                            out);
-static PyObject *obj2imm_cmpop_seq(struct ast_state *state, PyObject* obj);
+static int obj2imm_cmpop_seq(struct ast_state *state, PyObject* obj,
+                             asdl_int_seq** out);
 static int obj2ast_cmpop(struct ast_state *state, PyObject* obj, cmpop_ty* out,
                          PyArena* arena);
 static int obj2imm_cmpop(struct ast_state *state, PyObject* obj, cmpop_ty* out);
-static PyObject *obj2imm_comprehension_seq(struct ast_state *state, PyObject*
-                                           obj);
+static int obj2imm_comprehension_seq(struct ast_state *state, PyObject* obj,
+                                     asdl_comprehension_seq** out);
 static int obj2ast_comprehension(struct ast_state *state, PyObject* obj,
                                  comprehension_ty* out, PyArena* arena);
-static PyObject *obj2imm_comprehension(struct ast_state *state, PyObject* obj);
-static PyObject *obj2imm_excepthandler_seq(struct ast_state *state, PyObject*
-                                           obj);
+static int obj2imm_comprehension(struct ast_state *state, PyObject* obj,
+                                 comprehension_ty* out);
+static int obj2imm_excepthandler_seq(struct ast_state *state, PyObject* obj,
+                                     asdl_excepthandler_seq** out);
 static int obj2ast_excepthandler(struct ast_state *state, PyObject* obj,
                                  excepthandler_ty* out, PyArena* arena);
-static PyObject *obj2imm_excepthandler(struct ast_state *state, PyObject* obj);
-static PyObject *obj2imm_arguments_seq(struct ast_state *state, PyObject* obj);
+static int obj2imm_excepthandler(struct ast_state *state, PyObject* obj,
+                                 excepthandler_ty* out);
+static int obj2imm_arguments_seq(struct ast_state *state, PyObject* obj,
+                                 asdl_arguments_seq** out);
 static int obj2ast_arguments(struct ast_state *state, PyObject* obj,
                              arguments_ty* out, PyArena* arena);
-static PyObject *obj2imm_arguments(struct ast_state *state, PyObject* obj);
-static PyObject *obj2imm_arg_seq(struct ast_state *state, PyObject* obj);
+static int obj2imm_arguments(struct ast_state *state, PyObject* obj,
+                             arguments_ty* out);
+static int obj2imm_arg_seq(struct ast_state *state, PyObject* obj,
+                           asdl_arg_seq** out);
 static int obj2ast_arg(struct ast_state *state, PyObject* obj, arg_ty* out,
                        PyArena* arena);
-static PyObject *obj2imm_arg(struct ast_state *state, PyObject* obj);
-static PyObject *obj2imm_keyword_seq(struct ast_state *state, PyObject* obj);
+static int obj2imm_arg(struct ast_state *state, PyObject* obj, arg_ty* out);
+static int obj2imm_keyword_seq(struct ast_state *state, PyObject* obj,
+                               asdl_keyword_seq** out);
 static int obj2ast_keyword(struct ast_state *state, PyObject* obj, keyword_ty*
                            out, PyArena* arena);
-static PyObject *obj2imm_keyword(struct ast_state *state, PyObject* obj);
-static PyObject *obj2imm_alias_seq(struct ast_state *state, PyObject* obj);
+static int obj2imm_keyword(struct ast_state *state, PyObject* obj, keyword_ty*
+                           out);
+static int obj2imm_alias_seq(struct ast_state *state, PyObject* obj,
+                             asdl_alias_seq** out);
 static int obj2ast_alias(struct ast_state *state, PyObject* obj, alias_ty* out,
                          PyArena* arena);
-static PyObject *obj2imm_alias(struct ast_state *state, PyObject* obj);
-static PyObject *obj2imm_withitem_seq(struct ast_state *state, PyObject* obj);
+static int obj2imm_alias(struct ast_state *state, PyObject* obj, alias_ty* out);
+static int obj2imm_withitem_seq(struct ast_state *state, PyObject* obj,
+                                asdl_withitem_seq** out);
 static int obj2ast_withitem(struct ast_state *state, PyObject* obj,
                             withitem_ty* out, PyArena* arena);
-static PyObject *obj2imm_withitem(struct ast_state *state, PyObject* obj);
-static PyObject *obj2imm_match_case_seq(struct ast_state *state, PyObject* obj);
+static int obj2imm_withitem(struct ast_state *state, PyObject* obj,
+                            withitem_ty* out);
+static int obj2imm_match_case_seq(struct ast_state *state, PyObject* obj,
+                                  asdl_match_case_seq** out);
 static int obj2ast_match_case(struct ast_state *state, PyObject* obj,
                               match_case_ty* out, PyArena* arena);
-static PyObject *obj2imm_match_case(struct ast_state *state, PyObject* obj);
-static PyObject *obj2imm_pattern_seq(struct ast_state *state, PyObject* obj);
+static int obj2imm_match_case(struct ast_state *state, PyObject* obj,
+                              match_case_ty* out);
+static int obj2imm_pattern_seq(struct ast_state *state, PyObject* obj,
+                               asdl_pattern_seq** out);
 static int obj2ast_pattern(struct ast_state *state, PyObject* obj, pattern_ty*
                            out, PyArena* arena);
-static PyObject *obj2imm_pattern(struct ast_state *state, PyObject* obj);
-static PyObject *obj2imm_type_ignore_seq(struct ast_state *state, PyObject*
-                                         obj);
+static int obj2imm_pattern(struct ast_state *state, PyObject* obj, pattern_ty*
+                           out);
+static int obj2imm_type_ignore_seq(struct ast_state *state, PyObject* obj,
+                                   asdl_type_ignore_seq** out);
 static int obj2ast_type_ignore(struct ast_state *state, PyObject* obj,
                                type_ignore_ty* out, PyArena* arena);
-static PyObject *obj2imm_type_ignore(struct ast_state *state, PyObject* obj);
-static PyObject *obj2imm_type_param_seq(struct ast_state *state, PyObject* obj);
+static int obj2imm_type_ignore(struct ast_state *state, PyObject* obj,
+                               type_ignore_ty* out);
+static int obj2imm_type_param_seq(struct ast_state *state, PyObject* obj,
+                                  asdl_type_param_seq** out);
 static int obj2ast_type_param(struct ast_state *state, PyObject* obj,
                               type_param_ty* out, PyArena* arena);
-static PyObject *obj2imm_type_param(struct ast_state *state, PyObject* obj);
+static int obj2imm_type_param(struct ast_state *state, PyObject* obj,
+                              type_param_ty* out);
 
-static PyObject *obj2imm_constant(struct ast_state *Py_UNUSED(state), PyObject*
-                                  obj)
+static int obj2imm_constant(struct ast_state *Py_UNUSED(state), PyObject* obj,
+                            PyObject **out)
 {
-    return Py_NewRef(obj);
+    *out = Py_NewRef(obj);
+    return 0;
 }
-static PyObject *obj2imm_identifier(struct ast_state *Py_UNUSED(state),
-                                    PyObject* obj)
+static int obj2imm_identifier(struct ast_state *Py_UNUSED(state), PyObject*
+                              obj, PyObject **out)
 {
-    return Py_NewRef(obj);
+    *out = Py_NewRef(obj);
+    return 0;
 }
-static PyObject *obj2imm_string(struct ast_state *Py_UNUSED(state), PyObject*
-                                obj)
+static int obj2imm_string(struct ast_state *Py_UNUSED(state), PyObject* obj,
+                          PyObject **out)
 {
-    return Py_NewRef(obj);
+    *out = Py_NewRef(obj);
+    return 0;
 }
 static int obj2imm_int(struct ast_state *Py_UNUSED(state), PyObject* obj, int
                        *i)
@@ -5538,12 +5567,16 @@ Module_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     if (0 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 0);
-        self->v.Module.body = (asdl_stmt_seq *)obj2imm_stmt_seq(state, value);
+        if (obj2imm_stmt_seq(state, value, &self->v.Module.body) < 0) {
+            return NULL;
+        }
     }
     if (1 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 1);
-        self->v.Module.type_ignores = (asdl_type_ignore_seq
-                                       *)obj2imm_type_ignore_seq(state, value);
+        if (obj2imm_type_ignore_seq(state, value, &self->v.Module.type_ignores)
+            < 0) {
+            return NULL;
+        }
     }
     return res;
 }
@@ -5618,8 +5651,9 @@ Interactive_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     if (0 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 0);
-        self->v.Interactive.body = (asdl_stmt_seq *)obj2imm_stmt_seq(state,
-                                    value);
+        if (obj2imm_stmt_seq(state, value, &self->v.Interactive.body) < 0) {
+            return NULL;
+        }
     }
     return res;
 }
@@ -5686,7 +5720,9 @@ Expression_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     if (0 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 0);
-        self->v.Expression.body = (struct _expr *)obj2imm_expr(state, value);
+        if (obj2imm_expr(state, value, &self->v.Expression.body) < 0) {
+            return NULL;
+        }
     }
     return res;
 }
@@ -5752,13 +5788,16 @@ FunctionType_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     if (0 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 0);
-        self->v.FunctionType.argtypes = (asdl_expr_seq
-                                         *)obj2imm_expr_seq(state, value);
+        if (obj2imm_expr_seq(state, value, &self->v.FunctionType.argtypes) < 0)
+            {
+            return NULL;
+        }
     }
     if (1 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 1);
-        self->v.FunctionType.returns = (struct _expr *)obj2imm_expr(state,
-                                        value);
+        if (obj2imm_expr(state, value, &self->v.FunctionType.returns) < 0) {
+            return NULL;
+        }
     }
     return res;
 }
@@ -5942,37 +5981,48 @@ FunctionDef_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     if (0 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 0);
-        self->v.FunctionDef.name = obj2imm_identifier(state, value);
+        if (obj2imm_identifier(state, value, &self->v.FunctionDef.name) < 0) {
+            return NULL;
+        }
     }
     if (1 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 1);
-        self->v.FunctionDef.args = (struct _arguments
-                                    *)obj2imm_arguments(state, value);
+        if (obj2imm_arguments(state, value, &self->v.FunctionDef.args) < 0) {
+            return NULL;
+        }
     }
     if (2 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 2);
-        self->v.FunctionDef.body = (asdl_stmt_seq *)obj2imm_stmt_seq(state,
-                                    value);
+        if (obj2imm_stmt_seq(state, value, &self->v.FunctionDef.body) < 0) {
+            return NULL;
+        }
     }
     if (3 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 3);
-        self->v.FunctionDef.decorator_list = (asdl_expr_seq
-                                              *)obj2imm_expr_seq(state, value);
+        if (obj2imm_expr_seq(state, value, &self->v.FunctionDef.decorator_list)
+            < 0) {
+            return NULL;
+        }
     }
     if (4 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 4);
-        self->v.FunctionDef.returns = (struct _expr *)obj2imm_expr(state,
-                                       value);
+        if (obj2imm_expr(state, value, &self->v.FunctionDef.returns) < 0) {
+            return NULL;
+        }
     }
     if (5 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 5);
-        self->v.FunctionDef.type_comment = obj2imm_string(state, value);
+        if (obj2imm_string(state, value, &self->v.FunctionDef.type_comment) <
+            0) {
+            return NULL;
+        }
     }
     if (6 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 6);
-        self->v.FunctionDef.type_params = (asdl_type_param_seq
-                                           *)obj2imm_type_param_seq(state,
-                                           value);
+        if (obj2imm_type_param_seq(state, value,
+            &self->v.FunctionDef.type_params) < 0) {
+            return NULL;
+        }
     }
     return res;
 }
@@ -6098,38 +6148,51 @@ AsyncFunctionDef_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     if (0 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 0);
-        self->v.AsyncFunctionDef.name = obj2imm_identifier(state, value);
+        if (obj2imm_identifier(state, value, &self->v.AsyncFunctionDef.name) <
+            0) {
+            return NULL;
+        }
     }
     if (1 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 1);
-        self->v.AsyncFunctionDef.args = (struct _arguments
-                                         *)obj2imm_arguments(state, value);
+        if (obj2imm_arguments(state, value, &self->v.AsyncFunctionDef.args) <
+            0) {
+            return NULL;
+        }
     }
     if (2 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 2);
-        self->v.AsyncFunctionDef.body = (asdl_stmt_seq
-                                         *)obj2imm_stmt_seq(state, value);
+        if (obj2imm_stmt_seq(state, value, &self->v.AsyncFunctionDef.body) < 0)
+            {
+            return NULL;
+        }
     }
     if (3 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 3);
-        self->v.AsyncFunctionDef.decorator_list = (asdl_expr_seq
-                                                   *)obj2imm_expr_seq(state,
-                                                   value);
+        if (obj2imm_expr_seq(state, value,
+            &self->v.AsyncFunctionDef.decorator_list) < 0) {
+            return NULL;
+        }
     }
     if (4 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 4);
-        self->v.AsyncFunctionDef.returns = (struct _expr *)obj2imm_expr(state,
-                                            value);
+        if (obj2imm_expr(state, value, &self->v.AsyncFunctionDef.returns) < 0) {
+            return NULL;
+        }
     }
     if (5 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 5);
-        self->v.AsyncFunctionDef.type_comment = obj2imm_string(state, value);
+        if (obj2imm_string(state, value,
+            &self->v.AsyncFunctionDef.type_comment) < 0) {
+            return NULL;
+        }
     }
     if (6 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 6);
-        self->v.AsyncFunctionDef.type_params = (asdl_type_param_seq
-                                                *)obj2imm_type_param_seq(state,
-                                                value);
+        if (obj2imm_type_param_seq(state, value,
+            &self->v.AsyncFunctionDef.type_params) < 0) {
+            return NULL;
+        }
     }
     return res;
 }
@@ -6255,31 +6318,41 @@ ClassDef_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     if (0 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 0);
-        self->v.ClassDef.name = obj2imm_identifier(state, value);
+        if (obj2imm_identifier(state, value, &self->v.ClassDef.name) < 0) {
+            return NULL;
+        }
     }
     if (1 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 1);
-        self->v.ClassDef.bases = (asdl_expr_seq *)obj2imm_expr_seq(state,
-                                  value);
+        if (obj2imm_expr_seq(state, value, &self->v.ClassDef.bases) < 0) {
+            return NULL;
+        }
     }
     if (2 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 2);
-        self->v.ClassDef.keywords = (asdl_keyword_seq
-                                     *)obj2imm_keyword_seq(state, value);
+        if (obj2imm_keyword_seq(state, value, &self->v.ClassDef.keywords) < 0) {
+            return NULL;
+        }
     }
     if (3 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 3);
-        self->v.ClassDef.body = (asdl_stmt_seq *)obj2imm_stmt_seq(state, value);
+        if (obj2imm_stmt_seq(state, value, &self->v.ClassDef.body) < 0) {
+            return NULL;
+        }
     }
     if (4 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 4);
-        self->v.ClassDef.decorator_list = (asdl_expr_seq
-                                           *)obj2imm_expr_seq(state, value);
+        if (obj2imm_expr_seq(state, value, &self->v.ClassDef.decorator_list) <
+            0) {
+            return NULL;
+        }
     }
     if (5 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 5);
-        self->v.ClassDef.type_params = (asdl_type_param_seq
-                                        *)obj2imm_type_param_seq(state, value);
+        if (obj2imm_type_param_seq(state, value, &self->v.ClassDef.type_params)
+            < 0) {
+            return NULL;
+        }
     }
     return res;
 }
@@ -6393,7 +6466,9 @@ Return_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     if (0 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 0);
-        self->v.Return.value = (struct _expr *)obj2imm_expr(state, value);
+        if (obj2imm_expr(state, value, &self->v.Return.value) < 0) {
+            return NULL;
+        }
     }
     return res;
 }
@@ -6459,8 +6534,9 @@ Delete_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     if (0 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 0);
-        self->v.Delete.targets = (asdl_expr_seq *)obj2imm_expr_seq(state,
-                                  value);
+        if (obj2imm_expr_seq(state, value, &self->v.Delete.targets) < 0) {
+            return NULL;
+        }
     }
     return res;
 }
@@ -6526,16 +6602,21 @@ Assign_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     if (0 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 0);
-        self->v.Assign.targets = (asdl_expr_seq *)obj2imm_expr_seq(state,
-                                  value);
+        if (obj2imm_expr_seq(state, value, &self->v.Assign.targets) < 0) {
+            return NULL;
+        }
     }
     if (1 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 1);
-        self->v.Assign.value = (struct _expr *)obj2imm_expr(state, value);
+        if (obj2imm_expr(state, value, &self->v.Assign.value) < 0) {
+            return NULL;
+        }
     }
     if (2 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 2);
-        self->v.Assign.type_comment = obj2imm_string(state, value);
+        if (obj2imm_string(state, value, &self->v.Assign.type_comment) < 0) {
+            return NULL;
+        }
     }
     return res;
 }
@@ -6619,16 +6700,22 @@ TypeAlias_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     if (0 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 0);
-        self->v.TypeAlias.name = (struct _expr *)obj2imm_expr(state, value);
+        if (obj2imm_expr(state, value, &self->v.TypeAlias.name) < 0) {
+            return NULL;
+        }
     }
     if (1 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 1);
-        self->v.TypeAlias.type_params = (asdl_type_param_seq
-                                         *)obj2imm_type_param_seq(state, value);
+        if (obj2imm_type_param_seq(state, value,
+            &self->v.TypeAlias.type_params) < 0) {
+            return NULL;
+        }
     }
     if (2 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 2);
-        self->v.TypeAlias.value = (struct _expr *)obj2imm_expr(state, value);
+        if (obj2imm_expr(state, value, &self->v.TypeAlias.value) < 0) {
+            return NULL;
+        }
     }
     return res;
 }
@@ -6713,7 +6800,9 @@ AugAssign_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     if (0 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 0);
-        self->v.AugAssign.target = (struct _expr *)obj2imm_expr(state, value);
+        if (obj2imm_expr(state, value, &self->v.AugAssign.target) < 0) {
+            return NULL;
+        }
     }
     if (1 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 1);
@@ -6726,7 +6815,9 @@ AugAssign_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     }
     if (2 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 2);
-        self->v.AugAssign.value = (struct _expr *)obj2imm_expr(state, value);
+        if (obj2imm_expr(state, value, &self->v.AugAssign.value) < 0) {
+            return NULL;
+        }
     }
     return res;
 }
@@ -6803,16 +6894,21 @@ AnnAssign_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     if (0 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 0);
-        self->v.AnnAssign.target = (struct _expr *)obj2imm_expr(state, value);
+        if (obj2imm_expr(state, value, &self->v.AnnAssign.target) < 0) {
+            return NULL;
+        }
     }
     if (1 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 1);
-        self->v.AnnAssign.annotation = (struct _expr *)obj2imm_expr(state,
-                                        value);
+        if (obj2imm_expr(state, value, &self->v.AnnAssign.annotation) < 0) {
+            return NULL;
+        }
     }
     if (2 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 2);
-        self->v.AnnAssign.value = (struct _expr *)obj2imm_expr(state, value);
+        if (obj2imm_expr(state, value, &self->v.AnnAssign.value) < 0) {
+            return NULL;
+        }
     }
     if (3 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 3);
@@ -6909,23 +7005,33 @@ For_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     if (0 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 0);
-        self->v.For.target = (struct _expr *)obj2imm_expr(state, value);
+        if (obj2imm_expr(state, value, &self->v.For.target) < 0) {
+            return NULL;
+        }
     }
     if (1 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 1);
-        self->v.For.iter = (struct _expr *)obj2imm_expr(state, value);
+        if (obj2imm_expr(state, value, &self->v.For.iter) < 0) {
+            return NULL;
+        }
     }
     if (2 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 2);
-        self->v.For.body = (asdl_stmt_seq *)obj2imm_stmt_seq(state, value);
+        if (obj2imm_stmt_seq(state, value, &self->v.For.body) < 0) {
+            return NULL;
+        }
     }
     if (3 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 3);
-        self->v.For.orelse = (asdl_stmt_seq *)obj2imm_stmt_seq(state, value);
+        if (obj2imm_stmt_seq(state, value, &self->v.For.orelse) < 0) {
+            return NULL;
+        }
     }
     if (4 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 4);
-        self->v.For.type_comment = obj2imm_string(state, value);
+        if (obj2imm_string(state, value, &self->v.For.type_comment) < 0) {
+            return NULL;
+        }
     }
     return res;
 }
@@ -7026,24 +7132,33 @@ AsyncFor_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     if (0 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 0);
-        self->v.AsyncFor.target = (struct _expr *)obj2imm_expr(state, value);
+        if (obj2imm_expr(state, value, &self->v.AsyncFor.target) < 0) {
+            return NULL;
+        }
     }
     if (1 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 1);
-        self->v.AsyncFor.iter = (struct _expr *)obj2imm_expr(state, value);
+        if (obj2imm_expr(state, value, &self->v.AsyncFor.iter) < 0) {
+            return NULL;
+        }
     }
     if (2 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 2);
-        self->v.AsyncFor.body = (asdl_stmt_seq *)obj2imm_stmt_seq(state, value);
+        if (obj2imm_stmt_seq(state, value, &self->v.AsyncFor.body) < 0) {
+            return NULL;
+        }
     }
     if (3 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 3);
-        self->v.AsyncFor.orelse = (asdl_stmt_seq *)obj2imm_stmt_seq(state,
-                                   value);
+        if (obj2imm_stmt_seq(state, value, &self->v.AsyncFor.orelse) < 0) {
+            return NULL;
+        }
     }
     if (4 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 4);
-        self->v.AsyncFor.type_comment = obj2imm_string(state, value);
+        if (obj2imm_string(state, value, &self->v.AsyncFor.type_comment) < 0) {
+            return NULL;
+        }
     }
     return res;
 }
@@ -7145,15 +7260,21 @@ While_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     if (0 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 0);
-        self->v.While.test = (struct _expr *)obj2imm_expr(state, value);
+        if (obj2imm_expr(state, value, &self->v.While.test) < 0) {
+            return NULL;
+        }
     }
     if (1 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 1);
-        self->v.While.body = (asdl_stmt_seq *)obj2imm_stmt_seq(state, value);
+        if (obj2imm_stmt_seq(state, value, &self->v.While.body) < 0) {
+            return NULL;
+        }
     }
     if (2 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 2);
-        self->v.While.orelse = (asdl_stmt_seq *)obj2imm_stmt_seq(state, value);
+        if (obj2imm_stmt_seq(state, value, &self->v.While.orelse) < 0) {
+            return NULL;
+        }
     }
     return res;
 }
@@ -7237,15 +7358,21 @@ If_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     if (0 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 0);
-        self->v.If.test = (struct _expr *)obj2imm_expr(state, value);
+        if (obj2imm_expr(state, value, &self->v.If.test) < 0) {
+            return NULL;
+        }
     }
     if (1 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 1);
-        self->v.If.body = (asdl_stmt_seq *)obj2imm_stmt_seq(state, value);
+        if (obj2imm_stmt_seq(state, value, &self->v.If.body) < 0) {
+            return NULL;
+        }
     }
     if (2 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 2);
-        self->v.If.orelse = (asdl_stmt_seq *)obj2imm_stmt_seq(state, value);
+        if (obj2imm_stmt_seq(state, value, &self->v.If.orelse) < 0) {
+            return NULL;
+        }
     }
     return res;
 }
@@ -7328,16 +7455,21 @@ With_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     if (0 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 0);
-        self->v.With.items = (asdl_withitem_seq *)obj2imm_withitem_seq(state,
-                              value);
+        if (obj2imm_withitem_seq(state, value, &self->v.With.items) < 0) {
+            return NULL;
+        }
     }
     if (1 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 1);
-        self->v.With.body = (asdl_stmt_seq *)obj2imm_stmt_seq(state, value);
+        if (obj2imm_stmt_seq(state, value, &self->v.With.body) < 0) {
+            return NULL;
+        }
     }
     if (2 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 2);
-        self->v.With.type_comment = obj2imm_string(state, value);
+        if (obj2imm_string(state, value, &self->v.With.type_comment) < 0) {
+            return NULL;
+        }
     }
     return res;
 }
@@ -7420,17 +7552,21 @@ AsyncWith_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     if (0 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 0);
-        self->v.AsyncWith.items = (asdl_withitem_seq
-                                   *)obj2imm_withitem_seq(state, value);
+        if (obj2imm_withitem_seq(state, value, &self->v.AsyncWith.items) < 0) {
+            return NULL;
+        }
     }
     if (1 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 1);
-        self->v.AsyncWith.body = (asdl_stmt_seq *)obj2imm_stmt_seq(state,
-                                  value);
+        if (obj2imm_stmt_seq(state, value, &self->v.AsyncWith.body) < 0) {
+            return NULL;
+        }
     }
     if (2 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 2);
-        self->v.AsyncWith.type_comment = obj2imm_string(state, value);
+        if (obj2imm_string(state, value, &self->v.AsyncWith.type_comment) < 0) {
+            return NULL;
+        }
     }
     return res;
 }
@@ -7516,12 +7652,15 @@ Match_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     if (0 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 0);
-        self->v.Match.subject = (struct _expr *)obj2imm_expr(state, value);
+        if (obj2imm_expr(state, value, &self->v.Match.subject) < 0) {
+            return NULL;
+        }
     }
     if (1 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 1);
-        self->v.Match.cases = (asdl_match_case_seq
-                               *)obj2imm_match_case_seq(state, value);
+        if (obj2imm_match_case_seq(state, value, &self->v.Match.cases) < 0) {
+            return NULL;
+        }
     }
     return res;
 }
@@ -7596,11 +7735,15 @@ Raise_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     if (0 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 0);
-        self->v.Raise.exc = (struct _expr *)obj2imm_expr(state, value);
+        if (obj2imm_expr(state, value, &self->v.Raise.exc) < 0) {
+            return NULL;
+        }
     }
     if (1 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 1);
-        self->v.Raise.cause = (struct _expr *)obj2imm_expr(state, value);
+        if (obj2imm_expr(state, value, &self->v.Raise.cause) < 0) {
+            return NULL;
+        }
     }
     return res;
 }
@@ -7675,20 +7818,28 @@ Try_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     if (0 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 0);
-        self->v.Try.body = (asdl_stmt_seq *)obj2imm_stmt_seq(state, value);
+        if (obj2imm_stmt_seq(state, value, &self->v.Try.body) < 0) {
+            return NULL;
+        }
     }
     if (1 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 1);
-        self->v.Try.handlers = (asdl_excepthandler_seq
-                                *)obj2imm_excepthandler_seq(state, value);
+        if (obj2imm_excepthandler_seq(state, value, &self->v.Try.handlers) < 0)
+            {
+            return NULL;
+        }
     }
     if (2 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 2);
-        self->v.Try.orelse = (asdl_stmt_seq *)obj2imm_stmt_seq(state, value);
+        if (obj2imm_stmt_seq(state, value, &self->v.Try.orelse) < 0) {
+            return NULL;
+        }
     }
     if (3 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 3);
-        self->v.Try.finalbody = (asdl_stmt_seq *)obj2imm_stmt_seq(state, value);
+        if (obj2imm_stmt_seq(state, value, &self->v.Try.finalbody) < 0) {
+            return NULL;
+        }
     }
     return res;
 }
@@ -7781,22 +7932,28 @@ TryStar_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     if (0 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 0);
-        self->v.TryStar.body = (asdl_stmt_seq *)obj2imm_stmt_seq(state, value);
+        if (obj2imm_stmt_seq(state, value, &self->v.TryStar.body) < 0) {
+            return NULL;
+        }
     }
     if (1 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 1);
-        self->v.TryStar.handlers = (asdl_excepthandler_seq
-                                    *)obj2imm_excepthandler_seq(state, value);
+        if (obj2imm_excepthandler_seq(state, value, &self->v.TryStar.handlers)
+            < 0) {
+            return NULL;
+        }
     }
     if (2 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 2);
-        self->v.TryStar.orelse = (asdl_stmt_seq *)obj2imm_stmt_seq(state,
-                                  value);
+        if (obj2imm_stmt_seq(state, value, &self->v.TryStar.orelse) < 0) {
+            return NULL;
+        }
     }
     if (3 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 3);
-        self->v.TryStar.finalbody = (asdl_stmt_seq *)obj2imm_stmt_seq(state,
-                                     value);
+        if (obj2imm_stmt_seq(state, value, &self->v.TryStar.finalbody) < 0) {
+            return NULL;
+        }
     }
     return res;
 }
@@ -7891,11 +8048,15 @@ Assert_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     if (0 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 0);
-        self->v.Assert.test = (struct _expr *)obj2imm_expr(state, value);
+        if (obj2imm_expr(state, value, &self->v.Assert.test) < 0) {
+            return NULL;
+        }
     }
     if (1 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 1);
-        self->v.Assert.msg = (struct _expr *)obj2imm_expr(state, value);
+        if (obj2imm_expr(state, value, &self->v.Assert.msg) < 0) {
+            return NULL;
+        }
     }
     return res;
 }
@@ -7970,8 +8131,9 @@ Import_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     if (0 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 0);
-        self->v.Import.names = (asdl_alias_seq *)obj2imm_alias_seq(state,
-                                value);
+        if (obj2imm_alias_seq(state, value, &self->v.Import.names) < 0) {
+            return NULL;
+        }
     }
     return res;
 }
@@ -8037,12 +8199,15 @@ ImportFrom_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     if (0 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 0);
-        self->v.ImportFrom.module = obj2imm_identifier(state, value);
+        if (obj2imm_identifier(state, value, &self->v.ImportFrom.module) < 0) {
+            return NULL;
+        }
     }
     if (1 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 1);
-        self->v.ImportFrom.names = (asdl_alias_seq *)obj2imm_alias_seq(state,
-                                    value);
+        if (obj2imm_alias_seq(state, value, &self->v.ImportFrom.names) < 0) {
+            return NULL;
+        }
     }
     if (2 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 2);
@@ -8130,8 +8295,9 @@ Global_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     if (0 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 0);
-        self->v.Global.names = (asdl_identifier_seq
-                                *)obj2imm_identifier_seq(state, value);
+        if (obj2imm_identifier_seq(state, value, &self->v.Global.names) < 0) {
+            return NULL;
+        }
     }
     return res;
 }
@@ -8197,8 +8363,9 @@ Nonlocal_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     if (0 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 0);
-        self->v.Nonlocal.names = (asdl_identifier_seq
-                                  *)obj2imm_identifier_seq(state, value);
+        if (obj2imm_identifier_seq(state, value, &self->v.Nonlocal.names) < 0) {
+            return NULL;
+        }
     }
     return res;
 }
@@ -8265,7 +8432,9 @@ Expr_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     if (0 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 0);
-        self->v.Expr.value = (struct _expr *)obj2imm_expr(state, value);
+        if (obj2imm_expr(state, value, &self->v.Expr.value) < 0) {
+            return NULL;
+        }
     }
     return res;
 }
@@ -8667,7 +8836,9 @@ BoolOp_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     }
     if (1 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 1);
-        self->v.BoolOp.values = (asdl_expr_seq *)obj2imm_expr_seq(state, value);
+        if (obj2imm_expr_seq(state, value, &self->v.BoolOp.values) < 0) {
+            return NULL;
+        }
     }
     return res;
 }
@@ -8735,11 +8906,15 @@ NamedExpr_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     if (0 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 0);
-        self->v.NamedExpr.target = (struct _expr *)obj2imm_expr(state, value);
+        if (obj2imm_expr(state, value, &self->v.NamedExpr.target) < 0) {
+            return NULL;
+        }
     }
     if (1 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 1);
-        self->v.NamedExpr.value = (struct _expr *)obj2imm_expr(state, value);
+        if (obj2imm_expr(state, value, &self->v.NamedExpr.value) < 0) {
+            return NULL;
+        }
     }
     return res;
 }
@@ -8814,7 +8989,9 @@ BinOp_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     if (0 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 0);
-        self->v.BinOp.left = (struct _expr *)obj2imm_expr(state, value);
+        if (obj2imm_expr(state, value, &self->v.BinOp.left) < 0) {
+            return NULL;
+        }
     }
     if (1 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 1);
@@ -8827,7 +9004,9 @@ BinOp_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     }
     if (2 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 2);
-        self->v.BinOp.right = (struct _expr *)obj2imm_expr(state, value);
+        if (obj2imm_expr(state, value, &self->v.BinOp.right) < 0) {
+            return NULL;
+        }
     }
     return res;
 }
@@ -8913,7 +9092,9 @@ UnaryOp_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     }
     if (1 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 1);
-        self->v.UnaryOp.operand = (struct _expr *)obj2imm_expr(state, value);
+        if (obj2imm_expr(state, value, &self->v.UnaryOp.operand) < 0) {
+            return NULL;
+        }
     }
     return res;
 }
@@ -8981,12 +9162,15 @@ Lambda_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     if (0 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 0);
-        self->v.Lambda.args = (struct _arguments *)obj2imm_arguments(state,
-                               value);
+        if (obj2imm_arguments(state, value, &self->v.Lambda.args) < 0) {
+            return NULL;
+        }
     }
     if (1 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 1);
-        self->v.Lambda.body = (struct _expr *)obj2imm_expr(state, value);
+        if (obj2imm_expr(state, value, &self->v.Lambda.body) < 0) {
+            return NULL;
+        }
     }
     return res;
 }
@@ -9061,15 +9245,21 @@ IfExp_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     if (0 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 0);
-        self->v.IfExp.test = (struct _expr *)obj2imm_expr(state, value);
+        if (obj2imm_expr(state, value, &self->v.IfExp.test) < 0) {
+            return NULL;
+        }
     }
     if (1 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 1);
-        self->v.IfExp.body = (struct _expr *)obj2imm_expr(state, value);
+        if (obj2imm_expr(state, value, &self->v.IfExp.body) < 0) {
+            return NULL;
+        }
     }
     if (2 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 2);
-        self->v.IfExp.orelse = (struct _expr *)obj2imm_expr(state, value);
+        if (obj2imm_expr(state, value, &self->v.IfExp.orelse) < 0) {
+            return NULL;
+        }
     }
     return res;
 }
@@ -9153,11 +9343,15 @@ Dict_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     if (0 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 0);
-        self->v.Dict.keys = (asdl_expr_seq *)obj2imm_expr_seq(state, value);
+        if (obj2imm_expr_seq(state, value, &self->v.Dict.keys) < 0) {
+            return NULL;
+        }
     }
     if (1 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 1);
-        self->v.Dict.values = (asdl_expr_seq *)obj2imm_expr_seq(state, value);
+        if (obj2imm_expr_seq(state, value, &self->v.Dict.values) < 0) {
+            return NULL;
+        }
     }
     return res;
 }
@@ -9231,7 +9425,9 @@ Set_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     if (0 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 0);
-        self->v.Set.elts = (asdl_expr_seq *)obj2imm_expr_seq(state, value);
+        if (obj2imm_expr_seq(state, value, &self->v.Set.elts) < 0) {
+            return NULL;
+        }
     }
     return res;
 }
@@ -9296,13 +9492,16 @@ ListComp_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     if (0 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 0);
-        self->v.ListComp.elt = (struct _expr *)obj2imm_expr(state, value);
+        if (obj2imm_expr(state, value, &self->v.ListComp.elt) < 0) {
+            return NULL;
+        }
     }
     if (1 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 1);
-        self->v.ListComp.generators = (asdl_comprehension_seq
-                                       *)obj2imm_comprehension_seq(state,
-                                       value);
+        if (obj2imm_comprehension_seq(state, value,
+            &self->v.ListComp.generators) < 0) {
+            return NULL;
+        }
     }
     return res;
 }
@@ -9378,12 +9577,16 @@ SetComp_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     if (0 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 0);
-        self->v.SetComp.elt = (struct _expr *)obj2imm_expr(state, value);
+        if (obj2imm_expr(state, value, &self->v.SetComp.elt) < 0) {
+            return NULL;
+        }
     }
     if (1 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 1);
-        self->v.SetComp.generators = (asdl_comprehension_seq
-                                      *)obj2imm_comprehension_seq(state, value);
+        if (obj2imm_comprehension_seq(state, value,
+            &self->v.SetComp.generators) < 0) {
+            return NULL;
+        }
     }
     return res;
 }
@@ -9459,17 +9662,22 @@ DictComp_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     if (0 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 0);
-        self->v.DictComp.key = (struct _expr *)obj2imm_expr(state, value);
+        if (obj2imm_expr(state, value, &self->v.DictComp.key) < 0) {
+            return NULL;
+        }
     }
     if (1 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 1);
-        self->v.DictComp.value = (struct _expr *)obj2imm_expr(state, value);
+        if (obj2imm_expr(state, value, &self->v.DictComp.value) < 0) {
+            return NULL;
+        }
     }
     if (2 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 2);
-        self->v.DictComp.generators = (asdl_comprehension_seq
-                                       *)obj2imm_comprehension_seq(state,
-                                       value);
+        if (obj2imm_comprehension_seq(state, value,
+            &self->v.DictComp.generators) < 0) {
+            return NULL;
+        }
     }
     return res;
 }
@@ -9554,13 +9762,16 @@ GeneratorExp_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     if (0 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 0);
-        self->v.GeneratorExp.elt = (struct _expr *)obj2imm_expr(state, value);
+        if (obj2imm_expr(state, value, &self->v.GeneratorExp.elt) < 0) {
+            return NULL;
+        }
     }
     if (1 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 1);
-        self->v.GeneratorExp.generators = (asdl_comprehension_seq
-                                           *)obj2imm_comprehension_seq(state,
-                                           value);
+        if (obj2imm_comprehension_seq(state, value,
+            &self->v.GeneratorExp.generators) < 0) {
+            return NULL;
+        }
     }
     return res;
 }
@@ -9636,7 +9847,9 @@ Await_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     if (0 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 0);
-        self->v.Await.value = (struct _expr *)obj2imm_expr(state, value);
+        if (obj2imm_expr(state, value, &self->v.Await.value) < 0) {
+            return NULL;
+        }
     }
     return res;
 }
@@ -9702,7 +9915,9 @@ Yield_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     if (0 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 0);
-        self->v.Yield.value = (struct _expr *)obj2imm_expr(state, value);
+        if (obj2imm_expr(state, value, &self->v.Yield.value) < 0) {
+            return NULL;
+        }
     }
     return res;
 }
@@ -9768,7 +9983,9 @@ YieldFrom_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     if (0 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 0);
-        self->v.YieldFrom.value = (struct _expr *)obj2imm_expr(state, value);
+        if (obj2imm_expr(state, value, &self->v.YieldFrom.value) < 0) {
+            return NULL;
+        }
     }
     return res;
 }
@@ -9834,16 +10051,21 @@ Compare_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     if (0 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 0);
-        self->v.Compare.left = (struct _expr *)obj2imm_expr(state, value);
+        if (obj2imm_expr(state, value, &self->v.Compare.left) < 0) {
+            return NULL;
+        }
     }
     if (1 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 1);
-        self->v.Compare.ops = (asdl_int_seq *)obj2imm_cmpop_seq(state, value);
+        if (obj2imm_cmpop_seq(state, value, &self->v.Compare.ops) < 0) {
+            return NULL;
+        }
     }
     if (2 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 2);
-        self->v.Compare.comparators = (asdl_expr_seq *)obj2imm_expr_seq(state,
-                                       value);
+        if (obj2imm_expr_seq(state, value, &self->v.Compare.comparators) < 0) {
+            return NULL;
+        }
     }
     return res;
 }
@@ -9926,16 +10148,21 @@ Call_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     if (0 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 0);
-        self->v.Call.func = (struct _expr *)obj2imm_expr(state, value);
+        if (obj2imm_expr(state, value, &self->v.Call.func) < 0) {
+            return NULL;
+        }
     }
     if (1 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 1);
-        self->v.Call.args = (asdl_expr_seq *)obj2imm_expr_seq(state, value);
+        if (obj2imm_expr_seq(state, value, &self->v.Call.args) < 0) {
+            return NULL;
+        }
     }
     if (2 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 2);
-        self->v.Call.keywords = (asdl_keyword_seq *)obj2imm_keyword_seq(state,
-                                 value);
+        if (obj2imm_keyword_seq(state, value, &self->v.Call.keywords) < 0) {
+            return NULL;
+        }
     }
     return res;
 }
@@ -10018,8 +10245,9 @@ FormattedValue_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     if (0 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 0);
-        self->v.FormattedValue.value = (struct _expr *)obj2imm_expr(state,
-                                        value);
+        if (obj2imm_expr(state, value, &self->v.FormattedValue.value) < 0) {
+            return NULL;
+        }
     }
     if (1 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 1);
@@ -10032,8 +10260,10 @@ FormattedValue_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     }
     if (2 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 2);
-        self->v.FormattedValue.format_spec = (struct _expr
-                                              *)obj2imm_expr(state, value);
+        if (obj2imm_expr(state, value, &self->v.FormattedValue.format_spec) <
+            0) {
+            return NULL;
+        }
     }
     return res;
 }
@@ -10113,12 +10343,15 @@ Interpolation_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     if (0 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 0);
-        self->v.Interpolation.value = (struct _expr *)obj2imm_expr(state,
-                                       value);
+        if (obj2imm_expr(state, value, &self->v.Interpolation.value) < 0) {
+            return NULL;
+        }
     }
     if (1 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 1);
-        self->v.Interpolation.str = obj2imm_constant(state, value);
+        if (obj2imm_constant(state, value, &self->v.Interpolation.str) < 0) {
+            return NULL;
+        }
     }
     if (2 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 2);
@@ -10131,8 +10364,10 @@ Interpolation_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     }
     if (3 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 3);
-        self->v.Interpolation.format_spec = (struct _expr *)obj2imm_expr(state,
-                                             value);
+        if (obj2imm_expr(state, value, &self->v.Interpolation.format_spec) < 0)
+            {
+            return NULL;
+        }
     }
     return res;
 }
@@ -10221,8 +10456,9 @@ JoinedStr_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     if (0 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 0);
-        self->v.JoinedStr.values = (asdl_expr_seq *)obj2imm_expr_seq(state,
-                                    value);
+        if (obj2imm_expr_seq(state, value, &self->v.JoinedStr.values) < 0) {
+            return NULL;
+        }
     }
     return res;
 }
@@ -10289,8 +10525,9 @@ TemplateStr_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     if (0 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 0);
-        self->v.TemplateStr.values = (asdl_expr_seq *)obj2imm_expr_seq(state,
-                                      value);
+        if (obj2imm_expr_seq(state, value, &self->v.TemplateStr.values) < 0) {
+            return NULL;
+        }
     }
     return res;
 }
@@ -10357,11 +10594,15 @@ Constant_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     if (0 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 0);
-        self->v.Constant.value = obj2imm_constant(state, value);
+        if (obj2imm_constant(state, value, &self->v.Constant.value) < 0) {
+            return NULL;
+        }
     }
     if (1 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 1);
-        self->v.Constant.kind = obj2imm_string(state, value);
+        if (obj2imm_string(state, value, &self->v.Constant.kind) < 0) {
+            return NULL;
+        }
     }
     return res;
 }
@@ -10436,11 +10677,15 @@ Attribute_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     if (0 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 0);
-        self->v.Attribute.value = (struct _expr *)obj2imm_expr(state, value);
+        if (obj2imm_expr(state, value, &self->v.Attribute.value) < 0) {
+            return NULL;
+        }
     }
     if (1 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 1);
-        self->v.Attribute.attr = obj2imm_identifier(state, value);
+        if (obj2imm_identifier(state, value, &self->v.Attribute.attr) < 0) {
+            return NULL;
+        }
     }
     if (2 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 2);
@@ -10527,11 +10772,15 @@ Subscript_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     if (0 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 0);
-        self->v.Subscript.value = (struct _expr *)obj2imm_expr(state, value);
+        if (obj2imm_expr(state, value, &self->v.Subscript.value) < 0) {
+            return NULL;
+        }
     }
     if (1 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 1);
-        self->v.Subscript.slice = (struct _expr *)obj2imm_expr(state, value);
+        if (obj2imm_expr(state, value, &self->v.Subscript.slice) < 0) {
+            return NULL;
+        }
     }
     if (2 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 2);
@@ -10618,7 +10867,9 @@ Starred_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     if (0 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 0);
-        self->v.Starred.value = (struct _expr *)obj2imm_expr(state, value);
+        if (obj2imm_expr(state, value, &self->v.Starred.value) < 0) {
+            return NULL;
+        }
     }
     if (1 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 1);
@@ -10695,7 +10946,9 @@ Name_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     if (0 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 0);
-        self->v.Name.id = obj2imm_identifier(state, value);
+        if (obj2imm_identifier(state, value, &self->v.Name.id) < 0) {
+            return NULL;
+        }
     }
     if (1 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 1);
@@ -10770,7 +11023,9 @@ List_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     if (0 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 0);
-        self->v.List.elts = (asdl_expr_seq *)obj2imm_expr_seq(state, value);
+        if (obj2imm_expr_seq(state, value, &self->v.List.elts) < 0) {
+            return NULL;
+        }
     }
     if (1 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 1);
@@ -10846,7 +11101,9 @@ Tuple_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     if (0 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 0);
-        self->v.Tuple.elts = (asdl_expr_seq *)obj2imm_expr_seq(state, value);
+        if (obj2imm_expr_seq(state, value, &self->v.Tuple.elts) < 0) {
+            return NULL;
+        }
     }
     if (1 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 1);
@@ -10923,15 +11180,21 @@ Slice_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     if (0 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 0);
-        self->v.Slice.lower = (struct _expr *)obj2imm_expr(state, value);
+        if (obj2imm_expr(state, value, &self->v.Slice.lower) < 0) {
+            return NULL;
+        }
     }
     if (1 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 1);
-        self->v.Slice.upper = (struct _expr *)obj2imm_expr(state, value);
+        if (obj2imm_expr(state, value, &self->v.Slice.upper) < 0) {
+            return NULL;
+        }
     }
     if (2 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 2);
-        self->v.Slice.step = (struct _expr *)obj2imm_expr(state, value);
+        if (obj2imm_expr(state, value, &self->v.Slice.step) < 0) {
+            return NULL;
+        }
     }
     return res;
 }
@@ -11251,15 +11514,21 @@ comprehension_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     if (0 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 0);
-        self->target = (struct _expr *)obj2imm_expr(state, value);
+        if (obj2imm_expr(state, value, &self->target) < 0) {
+            return NULL;
+        }
     }
     if (1 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 1);
-        self->iter = (struct _expr *)obj2imm_expr(state, value);
+        if (obj2imm_expr(state, value, &self->iter) < 0) {
+            return NULL;
+        }
     }
     if (2 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 2);
-        self->ifs = (asdl_expr_seq *)obj2imm_expr_seq(state, value);
+        if (obj2imm_expr_seq(state, value, &self->ifs) < 0) {
+            return NULL;
+        }
     }
     if (3 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 3);
@@ -11347,16 +11616,21 @@ ExceptHandler_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     if (0 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 0);
-        self->v.ExceptHandler.type = (struct _expr *)obj2imm_expr(state, value);
+        if (obj2imm_expr(state, value, &self->v.ExceptHandler.type) < 0) {
+            return NULL;
+        }
     }
     if (1 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 1);
-        self->v.ExceptHandler.name = obj2imm_identifier(state, value);
+        if (obj2imm_identifier(state, value, &self->v.ExceptHandler.name) < 0) {
+            return NULL;
+        }
     }
     if (2 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 2);
-        self->v.ExceptHandler.body = (asdl_stmt_seq *)obj2imm_stmt_seq(state,
-                                      value);
+        if (obj2imm_stmt_seq(state, value, &self->v.ExceptHandler.body) < 0) {
+            return NULL;
+        }
     }
     return res;
 }
@@ -11595,31 +11869,45 @@ arguments_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     if (0 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 0);
-        self->posonlyargs = (asdl_arg_seq *)obj2imm_arg_seq(state, value);
+        if (obj2imm_arg_seq(state, value, &self->posonlyargs) < 0) {
+            return NULL;
+        }
     }
     if (1 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 1);
-        self->args = (asdl_arg_seq *)obj2imm_arg_seq(state, value);
+        if (obj2imm_arg_seq(state, value, &self->args) < 0) {
+            return NULL;
+        }
     }
     if (2 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 2);
-        self->vararg = (struct _arg *)obj2imm_arg(state, value);
+        if (obj2imm_arg(state, value, &self->vararg) < 0) {
+            return NULL;
+        }
     }
     if (3 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 3);
-        self->kwonlyargs = (asdl_arg_seq *)obj2imm_arg_seq(state, value);
+        if (obj2imm_arg_seq(state, value, &self->kwonlyargs) < 0) {
+            return NULL;
+        }
     }
     if (4 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 4);
-        self->kw_defaults = (asdl_expr_seq *)obj2imm_expr_seq(state, value);
+        if (obj2imm_expr_seq(state, value, &self->kw_defaults) < 0) {
+            return NULL;
+        }
     }
     if (5 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 5);
-        self->kwarg = (struct _arg *)obj2imm_arg(state, value);
+        if (obj2imm_arg(state, value, &self->kwarg) < 0) {
+            return NULL;
+        }
     }
     if (6 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 6);
-        self->defaults = (asdl_expr_seq *)obj2imm_expr_seq(state, value);
+        if (obj2imm_expr_seq(state, value, &self->defaults) < 0) {
+            return NULL;
+        }
     }
     return res;
 }
@@ -11777,15 +12065,21 @@ arg_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     if (0 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 0);
-        self->arg = obj2imm_identifier(state, value);
+        if (obj2imm_identifier(state, value, &self->arg) < 0) {
+            return NULL;
+        }
     }
     if (1 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 1);
-        self->annotation = (struct _expr *)obj2imm_expr(state, value);
+        if (obj2imm_expr(state, value, &self->annotation) < 0) {
+            return NULL;
+        }
     }
     if (2 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 2);
-        self->type_comment = obj2imm_string(state, value);
+        if (obj2imm_string(state, value, &self->type_comment) < 0) {
+            return NULL;
+        }
     }
     return res;
 }
@@ -11915,11 +12209,15 @@ keyword_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     if (0 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 0);
-        self->arg = obj2imm_identifier(state, value);
+        if (obj2imm_identifier(state, value, &self->arg) < 0) {
+            return NULL;
+        }
     }
     if (1 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 1);
-        self->value = (struct _expr *)obj2imm_expr(state, value);
+        if (obj2imm_expr(state, value, &self->value) < 0) {
+            return NULL;
+        }
     }
     return res;
 }
@@ -12042,11 +12340,15 @@ alias_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     if (0 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 0);
-        self->name = obj2imm_identifier(state, value);
+        if (obj2imm_identifier(state, value, &self->name) < 0) {
+            return NULL;
+        }
     }
     if (1 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 1);
-        self->asname = obj2imm_identifier(state, value);
+        if (obj2imm_identifier(state, value, &self->asname) < 0) {
+            return NULL;
+        }
     }
     return res;
 }
@@ -12170,11 +12472,15 @@ withitem_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     if (0 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 0);
-        self->context_expr = (struct _expr *)obj2imm_expr(state, value);
+        if (obj2imm_expr(state, value, &self->context_expr) < 0) {
+            return NULL;
+        }
     }
     if (1 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 1);
-        self->optional_vars = (struct _expr *)obj2imm_expr(state, value);
+        if (obj2imm_expr(state, value, &self->optional_vars) < 0) {
+            return NULL;
+        }
     }
     return res;
 }
@@ -12298,15 +12604,21 @@ match_case_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     if (0 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 0);
-        self->pattern = (struct _pattern *)obj2imm_pattern(state, value);
+        if (obj2imm_pattern(state, value, &self->pattern) < 0) {
+            return NULL;
+        }
     }
     if (1 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 1);
-        self->guard = (struct _expr *)obj2imm_expr(state, value);
+        if (obj2imm_expr(state, value, &self->guard) < 0) {
+            return NULL;
+        }
     }
     if (2 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 2);
-        self->body = (asdl_stmt_seq *)obj2imm_stmt_seq(state, value);
+        if (obj2imm_stmt_seq(state, value, &self->body) < 0) {
+            return NULL;
+        }
     }
     return res;
 }
@@ -12384,7 +12696,9 @@ MatchValue_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     if (0 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 0);
-        self->v.MatchValue.value = (struct _expr *)obj2imm_expr(state, value);
+        if (obj2imm_expr(state, value, &self->v.MatchValue.value) < 0) {
+            return NULL;
+        }
     }
     return res;
 }
@@ -12450,7 +12764,9 @@ MatchSingleton_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     if (0 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 0);
-        self->v.MatchSingleton.value = obj2imm_constant(state, value);
+        if (obj2imm_constant(state, value, &self->v.MatchSingleton.value) < 0) {
+            return NULL;
+        }
     }
     return res;
 }
@@ -12516,8 +12832,10 @@ MatchSequence_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     if (0 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 0);
-        self->v.MatchSequence.patterns = (asdl_pattern_seq
-                                          *)obj2imm_pattern_seq(state, value);
+        if (obj2imm_pattern_seq(state, value, &self->v.MatchSequence.patterns)
+            < 0) {
+            return NULL;
+        }
     }
     return res;
 }
@@ -12584,17 +12902,22 @@ MatchMapping_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     if (0 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 0);
-        self->v.MatchMapping.keys = (asdl_expr_seq *)obj2imm_expr_seq(state,
-                                     value);
+        if (obj2imm_expr_seq(state, value, &self->v.MatchMapping.keys) < 0) {
+            return NULL;
+        }
     }
     if (1 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 1);
-        self->v.MatchMapping.patterns = (asdl_pattern_seq
-                                         *)obj2imm_pattern_seq(state, value);
+        if (obj2imm_pattern_seq(state, value, &self->v.MatchMapping.patterns) <
+            0) {
+            return NULL;
+        }
     }
     if (2 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 2);
-        self->v.MatchMapping.rest = obj2imm_identifier(state, value);
+        if (obj2imm_identifier(state, value, &self->v.MatchMapping.rest) < 0) {
+            return NULL;
+        }
     }
     return res;
 }
@@ -12680,22 +13003,30 @@ MatchClass_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     if (0 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 0);
-        self->v.MatchClass.cls = (struct _expr *)obj2imm_expr(state, value);
+        if (obj2imm_expr(state, value, &self->v.MatchClass.cls) < 0) {
+            return NULL;
+        }
     }
     if (1 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 1);
-        self->v.MatchClass.patterns = (asdl_pattern_seq
-                                       *)obj2imm_pattern_seq(state, value);
+        if (obj2imm_pattern_seq(state, value, &self->v.MatchClass.patterns) <
+            0) {
+            return NULL;
+        }
     }
     if (2 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 2);
-        self->v.MatchClass.kwd_attrs = (asdl_identifier_seq
-                                        *)obj2imm_identifier_seq(state, value);
+        if (obj2imm_identifier_seq(state, value, &self->v.MatchClass.kwd_attrs)
+            < 0) {
+            return NULL;
+        }
     }
     if (3 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 3);
-        self->v.MatchClass.kwd_patterns = (asdl_pattern_seq
-                                           *)obj2imm_pattern_seq(state, value);
+        if (obj2imm_pattern_seq(state, value, &self->v.MatchClass.kwd_patterns)
+            < 0) {
+            return NULL;
+        }
     }
     return res;
 }
@@ -12791,7 +13122,9 @@ MatchStar_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     if (0 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 0);
-        self->v.MatchStar.name = obj2imm_identifier(state, value);
+        if (obj2imm_identifier(state, value, &self->v.MatchStar.name) < 0) {
+            return NULL;
+        }
     }
     return res;
 }
@@ -12857,12 +13190,15 @@ MatchAs_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     if (0 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 0);
-        self->v.MatchAs.pattern = (struct _pattern *)obj2imm_pattern(state,
-                                   value);
+        if (obj2imm_pattern(state, value, &self->v.MatchAs.pattern) < 0) {
+            return NULL;
+        }
     }
     if (1 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 1);
-        self->v.MatchAs.name = obj2imm_identifier(state, value);
+        if (obj2imm_identifier(state, value, &self->v.MatchAs.name) < 0) {
+            return NULL;
+        }
     }
     return res;
 }
@@ -12937,8 +13273,9 @@ MatchOr_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     if (0 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 0);
-        self->v.MatchOr.patterns = (asdl_pattern_seq
-                                    *)obj2imm_pattern_seq(state, value);
+        if (obj2imm_pattern_seq(state, value, &self->v.MatchOr.patterns) < 0) {
+            return NULL;
+        }
     }
     return res;
 }
@@ -13134,7 +13471,9 @@ TypeIgnore_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     }
     if (1 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 1);
-        self->v.TypeIgnore.tag = obj2imm_string(state, value);
+        if (obj2imm_string(state, value, &self->v.TypeIgnore.tag) < 0) {
+            return NULL;
+        }
     }
     return res;
 }
@@ -13302,16 +13641,21 @@ TypeVar_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     if (0 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 0);
-        self->v.TypeVar.name = obj2imm_identifier(state, value);
+        if (obj2imm_identifier(state, value, &self->v.TypeVar.name) < 0) {
+            return NULL;
+        }
     }
     if (1 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 1);
-        self->v.TypeVar.bound = (struct _expr *)obj2imm_expr(state, value);
+        if (obj2imm_expr(state, value, &self->v.TypeVar.bound) < 0) {
+            return NULL;
+        }
     }
     if (2 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 2);
-        self->v.TypeVar.default_value = (struct _expr *)obj2imm_expr(state,
-                                         value);
+        if (obj2imm_expr(state, value, &self->v.TypeVar.default_value) < 0) {
+            return NULL;
+        }
     }
     return res;
 }
@@ -13396,12 +13740,15 @@ ParamSpec_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     if (0 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 0);
-        self->v.ParamSpec.name = obj2imm_identifier(state, value);
+        if (obj2imm_identifier(state, value, &self->v.ParamSpec.name) < 0) {
+            return NULL;
+        }
     }
     if (1 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 1);
-        self->v.ParamSpec.default_value = (struct _expr *)obj2imm_expr(state,
-                                           value);
+        if (obj2imm_expr(state, value, &self->v.ParamSpec.default_value) < 0) {
+            return NULL;
+        }
     }
     return res;
 }
@@ -13477,12 +13824,16 @@ TypeVarTuple_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     if (0 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 0);
-        self->v.TypeVarTuple.name = obj2imm_identifier(state, value);
+        if (obj2imm_identifier(state, value, &self->v.TypeVarTuple.name) < 0) {
+            return NULL;
+        }
     }
     if (1 < posargs) {
         PyObject *value = PyTuple_GET_ITEM(args, 1);
-        self->v.TypeVarTuple.default_value = (struct _expr
-                                              *)obj2imm_expr(state, value);
+        if (obj2imm_expr(state, value, &self->v.TypeVarTuple.default_value) <
+            0) {
+            return NULL;
+        }
     }
     return res;
 }
@@ -15952,6 +16303,12 @@ init_types(void *arg)
     if (state->_TypeVarTuple_type == NULL) return -1;
     if (add_fields(state->_TypeVarTuple_type, TypeVarTuple_fields, 2) < 0)
         return -1;
+    t = PyType_FromSpecWithBases(&_int_seq_type_spec, state->_AST_type);
+    state->_int_seq_type = t;
+    if (state->_int_seq_type == NULL) return -1;
+    t = PyType_FromSpecWithBases(&_identifier_seq_type_spec, state->_AST_type);
+    state->_identifier_seq_type = t;
+    if (state->_identifier_seq_type == NULL) return -1;
 
     if (!add_ast_annotations(state)) {
         return -1;
@@ -17810,6 +18167,1896 @@ _PyAST_TypeVarTuple(identifier name, expr_ty default_value, int lineno, int
         return NULL;
     }
     p = (type_param_ty)_PyArena_Malloc(arena, sizeof(*p));
+    if (!p)
+        return NULL;
+    p->kind = TypeVarTuple_kind;
+    p->v.TypeVarTuple.name = name;
+    p->v.TypeVarTuple.default_value = default_value;
+    p->lineno = lineno;
+    p->col_offset = col_offset;
+    p->end_lineno = end_lineno;
+    p->end_col_offset = end_col_offset;
+    return p;
+}
+
+
+mod_ty
+_PyAST_ModuleHeap(struct ast_state* state, asdl_stmt_seq * body,
+                  asdl_type_ignore_seq * type_ignores)
+{
+    mod_ty p;
+    p = (mod_ty)_PyObject_New((PyTypeObject *)state->_Module_type);
+    if (!p)
+        return NULL;
+    p->kind = Module_kind;
+    p->v.Module.body = body;
+    p->v.Module.type_ignores = type_ignores;
+    return p;
+}
+
+mod_ty
+_PyAST_InteractiveHeap(struct ast_state* state, asdl_stmt_seq * body)
+{
+    mod_ty p;
+    p = (mod_ty)_PyObject_New((PyTypeObject *)state->_Interactive_type);
+    if (!p)
+        return NULL;
+    p->kind = Interactive_kind;
+    p->v.Interactive.body = body;
+    return p;
+}
+
+mod_ty
+_PyAST_ExpressionHeap(struct ast_state* state, expr_ty body)
+{
+    mod_ty p;
+    if (!body) {
+        PyErr_SetString(PyExc_ValueError,
+                        "field 'body' is required for Expression");
+        return NULL;
+    }
+    p = (mod_ty)_PyObject_New((PyTypeObject *)state->_Expression_type);
+    if (!p)
+        return NULL;
+    p->kind = Expression_kind;
+    p->v.Expression.body = body;
+    return p;
+}
+
+mod_ty
+_PyAST_FunctionTypeHeap(struct ast_state* state, asdl_expr_seq * argtypes,
+                        expr_ty returns)
+{
+    mod_ty p;
+    if (!returns) {
+        PyErr_SetString(PyExc_ValueError,
+                        "field 'returns' is required for FunctionType");
+        return NULL;
+    }
+    p = (mod_ty)_PyObject_New((PyTypeObject *)state->_FunctionType_type);
+    if (!p)
+        return NULL;
+    p->kind = FunctionType_kind;
+    p->v.FunctionType.argtypes = argtypes;
+    p->v.FunctionType.returns = returns;
+    return p;
+}
+
+stmt_ty
+_PyAST_FunctionDefHeap(struct ast_state* state, identifier name, arguments_ty
+                       args, asdl_stmt_seq * body, asdl_expr_seq *
+                       decorator_list, expr_ty returns, string type_comment,
+                       asdl_type_param_seq * type_params, int lineno, int
+                       col_offset, int end_lineno, int end_col_offset)
+{
+    stmt_ty p;
+    if (!name) {
+        PyErr_SetString(PyExc_ValueError,
+                        "field 'name' is required for FunctionDef");
+        return NULL;
+    }
+    if (!args) {
+        PyErr_SetString(PyExc_ValueError,
+                        "field 'args' is required for FunctionDef");
+        return NULL;
+    }
+    p = (stmt_ty)_PyObject_New((PyTypeObject *)state->_FunctionDef_type);
+    if (!p)
+        return NULL;
+    p->kind = FunctionDef_kind;
+    p->v.FunctionDef.name = name;
+    p->v.FunctionDef.args = args;
+    p->v.FunctionDef.body = body;
+    p->v.FunctionDef.decorator_list = decorator_list;
+    p->v.FunctionDef.returns = returns;
+    p->v.FunctionDef.type_comment = type_comment;
+    p->v.FunctionDef.type_params = type_params;
+    p->lineno = lineno;
+    p->col_offset = col_offset;
+    p->end_lineno = end_lineno;
+    p->end_col_offset = end_col_offset;
+    return p;
+}
+
+stmt_ty
+_PyAST_AsyncFunctionDefHeap(struct ast_state* state, identifier name,
+                            arguments_ty args, asdl_stmt_seq * body,
+                            asdl_expr_seq * decorator_list, expr_ty returns,
+                            string type_comment, asdl_type_param_seq *
+                            type_params, int lineno, int col_offset, int
+                            end_lineno, int end_col_offset)
+{
+    stmt_ty p;
+    if (!name) {
+        PyErr_SetString(PyExc_ValueError,
+                        "field 'name' is required for AsyncFunctionDef");
+        return NULL;
+    }
+    if (!args) {
+        PyErr_SetString(PyExc_ValueError,
+                        "field 'args' is required for AsyncFunctionDef");
+        return NULL;
+    }
+    p = (stmt_ty)_PyObject_New((PyTypeObject *)state->_AsyncFunctionDef_type);
+    if (!p)
+        return NULL;
+    p->kind = AsyncFunctionDef_kind;
+    p->v.AsyncFunctionDef.name = name;
+    p->v.AsyncFunctionDef.args = args;
+    p->v.AsyncFunctionDef.body = body;
+    p->v.AsyncFunctionDef.decorator_list = decorator_list;
+    p->v.AsyncFunctionDef.returns = returns;
+    p->v.AsyncFunctionDef.type_comment = type_comment;
+    p->v.AsyncFunctionDef.type_params = type_params;
+    p->lineno = lineno;
+    p->col_offset = col_offset;
+    p->end_lineno = end_lineno;
+    p->end_col_offset = end_col_offset;
+    return p;
+}
+
+stmt_ty
+_PyAST_ClassDefHeap(struct ast_state* state, identifier name, asdl_expr_seq *
+                    bases, asdl_keyword_seq * keywords, asdl_stmt_seq * body,
+                    asdl_expr_seq * decorator_list, asdl_type_param_seq *
+                    type_params, int lineno, int col_offset, int end_lineno,
+                    int end_col_offset)
+{
+    stmt_ty p;
+    if (!name) {
+        PyErr_SetString(PyExc_ValueError,
+                        "field 'name' is required for ClassDef");
+        return NULL;
+    }
+    p = (stmt_ty)_PyObject_New((PyTypeObject *)state->_ClassDef_type);
+    if (!p)
+        return NULL;
+    p->kind = ClassDef_kind;
+    p->v.ClassDef.name = name;
+    p->v.ClassDef.bases = bases;
+    p->v.ClassDef.keywords = keywords;
+    p->v.ClassDef.body = body;
+    p->v.ClassDef.decorator_list = decorator_list;
+    p->v.ClassDef.type_params = type_params;
+    p->lineno = lineno;
+    p->col_offset = col_offset;
+    p->end_lineno = end_lineno;
+    p->end_col_offset = end_col_offset;
+    return p;
+}
+
+stmt_ty
+_PyAST_ReturnHeap(struct ast_state* state, expr_ty value, int lineno, int
+                  col_offset, int end_lineno, int end_col_offset)
+{
+    stmt_ty p;
+    p = (stmt_ty)_PyObject_New((PyTypeObject *)state->_Return_type);
+    if (!p)
+        return NULL;
+    p->kind = Return_kind;
+    p->v.Return.value = value;
+    p->lineno = lineno;
+    p->col_offset = col_offset;
+    p->end_lineno = end_lineno;
+    p->end_col_offset = end_col_offset;
+    return p;
+}
+
+stmt_ty
+_PyAST_DeleteHeap(struct ast_state* state, asdl_expr_seq * targets, int lineno,
+                  int col_offset, int end_lineno, int end_col_offset)
+{
+    stmt_ty p;
+    p = (stmt_ty)_PyObject_New((PyTypeObject *)state->_Delete_type);
+    if (!p)
+        return NULL;
+    p->kind = Delete_kind;
+    p->v.Delete.targets = targets;
+    p->lineno = lineno;
+    p->col_offset = col_offset;
+    p->end_lineno = end_lineno;
+    p->end_col_offset = end_col_offset;
+    return p;
+}
+
+stmt_ty
+_PyAST_AssignHeap(struct ast_state* state, asdl_expr_seq * targets, expr_ty
+                  value, string type_comment, int lineno, int col_offset, int
+                  end_lineno, int end_col_offset)
+{
+    stmt_ty p;
+    if (!value) {
+        PyErr_SetString(PyExc_ValueError,
+                        "field 'value' is required for Assign");
+        return NULL;
+    }
+    p = (stmt_ty)_PyObject_New((PyTypeObject *)state->_Assign_type);
+    if (!p)
+        return NULL;
+    p->kind = Assign_kind;
+    p->v.Assign.targets = targets;
+    p->v.Assign.value = value;
+    p->v.Assign.type_comment = type_comment;
+    p->lineno = lineno;
+    p->col_offset = col_offset;
+    p->end_lineno = end_lineno;
+    p->end_col_offset = end_col_offset;
+    return p;
+}
+
+stmt_ty
+_PyAST_TypeAliasHeap(struct ast_state* state, expr_ty name, asdl_type_param_seq
+                     * type_params, expr_ty value, int lineno, int col_offset,
+                     int end_lineno, int end_col_offset)
+{
+    stmt_ty p;
+    if (!name) {
+        PyErr_SetString(PyExc_ValueError,
+                        "field 'name' is required for TypeAlias");
+        return NULL;
+    }
+    if (!value) {
+        PyErr_SetString(PyExc_ValueError,
+                        "field 'value' is required for TypeAlias");
+        return NULL;
+    }
+    p = (stmt_ty)_PyObject_New((PyTypeObject *)state->_TypeAlias_type);
+    if (!p)
+        return NULL;
+    p->kind = TypeAlias_kind;
+    p->v.TypeAlias.name = name;
+    p->v.TypeAlias.type_params = type_params;
+    p->v.TypeAlias.value = value;
+    p->lineno = lineno;
+    p->col_offset = col_offset;
+    p->end_lineno = end_lineno;
+    p->end_col_offset = end_col_offset;
+    return p;
+}
+
+stmt_ty
+_PyAST_AugAssignHeap(struct ast_state* state, expr_ty target, operator_ty op,
+                     expr_ty value, int lineno, int col_offset, int end_lineno,
+                     int end_col_offset)
+{
+    stmt_ty p;
+    if (!target) {
+        PyErr_SetString(PyExc_ValueError,
+                        "field 'target' is required for AugAssign");
+        return NULL;
+    }
+    if (!op) {
+        PyErr_SetString(PyExc_ValueError,
+                        "field 'op' is required for AugAssign");
+        return NULL;
+    }
+    if (!value) {
+        PyErr_SetString(PyExc_ValueError,
+                        "field 'value' is required for AugAssign");
+        return NULL;
+    }
+    p = (stmt_ty)_PyObject_New((PyTypeObject *)state->_AugAssign_type);
+    if (!p)
+        return NULL;
+    p->kind = AugAssign_kind;
+    p->v.AugAssign.target = target;
+    p->v.AugAssign.op = op;
+    p->v.AugAssign.value = value;
+    p->lineno = lineno;
+    p->col_offset = col_offset;
+    p->end_lineno = end_lineno;
+    p->end_col_offset = end_col_offset;
+    return p;
+}
+
+stmt_ty
+_PyAST_AnnAssignHeap(struct ast_state* state, expr_ty target, expr_ty
+                     annotation, expr_ty value, int simple, int lineno, int
+                     col_offset, int end_lineno, int end_col_offset)
+{
+    stmt_ty p;
+    if (!target) {
+        PyErr_SetString(PyExc_ValueError,
+                        "field 'target' is required for AnnAssign");
+        return NULL;
+    }
+    if (!annotation) {
+        PyErr_SetString(PyExc_ValueError,
+                        "field 'annotation' is required for AnnAssign");
+        return NULL;
+    }
+    p = (stmt_ty)_PyObject_New((PyTypeObject *)state->_AnnAssign_type);
+    if (!p)
+        return NULL;
+    p->kind = AnnAssign_kind;
+    p->v.AnnAssign.target = target;
+    p->v.AnnAssign.annotation = annotation;
+    p->v.AnnAssign.value = value;
+    p->v.AnnAssign.simple = simple;
+    p->lineno = lineno;
+    p->col_offset = col_offset;
+    p->end_lineno = end_lineno;
+    p->end_col_offset = end_col_offset;
+    return p;
+}
+
+stmt_ty
+_PyAST_ForHeap(struct ast_state* state, expr_ty target, expr_ty iter,
+               asdl_stmt_seq * body, asdl_stmt_seq * orelse, string
+               type_comment, int lineno, int col_offset, int end_lineno, int
+               end_col_offset)
+{
+    stmt_ty p;
+    if (!target) {
+        PyErr_SetString(PyExc_ValueError,
+                        "field 'target' is required for For");
+        return NULL;
+    }
+    if (!iter) {
+        PyErr_SetString(PyExc_ValueError,
+                        "field 'iter' is required for For");
+        return NULL;
+    }
+    p = (stmt_ty)_PyObject_New((PyTypeObject *)state->_For_type);
+    if (!p)
+        return NULL;
+    p->kind = For_kind;
+    p->v.For.target = target;
+    p->v.For.iter = iter;
+    p->v.For.body = body;
+    p->v.For.orelse = orelse;
+    p->v.For.type_comment = type_comment;
+    p->lineno = lineno;
+    p->col_offset = col_offset;
+    p->end_lineno = end_lineno;
+    p->end_col_offset = end_col_offset;
+    return p;
+}
+
+stmt_ty
+_PyAST_AsyncForHeap(struct ast_state* state, expr_ty target, expr_ty iter,
+                    asdl_stmt_seq * body, asdl_stmt_seq * orelse, string
+                    type_comment, int lineno, int col_offset, int end_lineno,
+                    int end_col_offset)
+{
+    stmt_ty p;
+    if (!target) {
+        PyErr_SetString(PyExc_ValueError,
+                        "field 'target' is required for AsyncFor");
+        return NULL;
+    }
+    if (!iter) {
+        PyErr_SetString(PyExc_ValueError,
+                        "field 'iter' is required for AsyncFor");
+        return NULL;
+    }
+    p = (stmt_ty)_PyObject_New((PyTypeObject *)state->_AsyncFor_type);
+    if (!p)
+        return NULL;
+    p->kind = AsyncFor_kind;
+    p->v.AsyncFor.target = target;
+    p->v.AsyncFor.iter = iter;
+    p->v.AsyncFor.body = body;
+    p->v.AsyncFor.orelse = orelse;
+    p->v.AsyncFor.type_comment = type_comment;
+    p->lineno = lineno;
+    p->col_offset = col_offset;
+    p->end_lineno = end_lineno;
+    p->end_col_offset = end_col_offset;
+    return p;
+}
+
+stmt_ty
+_PyAST_WhileHeap(struct ast_state* state, expr_ty test, asdl_stmt_seq * body,
+                 asdl_stmt_seq * orelse, int lineno, int col_offset, int
+                 end_lineno, int end_col_offset)
+{
+    stmt_ty p;
+    if (!test) {
+        PyErr_SetString(PyExc_ValueError,
+                        "field 'test' is required for While");
+        return NULL;
+    }
+    p = (stmt_ty)_PyObject_New((PyTypeObject *)state->_While_type);
+    if (!p)
+        return NULL;
+    p->kind = While_kind;
+    p->v.While.test = test;
+    p->v.While.body = body;
+    p->v.While.orelse = orelse;
+    p->lineno = lineno;
+    p->col_offset = col_offset;
+    p->end_lineno = end_lineno;
+    p->end_col_offset = end_col_offset;
+    return p;
+}
+
+stmt_ty
+_PyAST_IfHeap(struct ast_state* state, expr_ty test, asdl_stmt_seq * body,
+              asdl_stmt_seq * orelse, int lineno, int col_offset, int
+              end_lineno, int end_col_offset)
+{
+    stmt_ty p;
+    if (!test) {
+        PyErr_SetString(PyExc_ValueError,
+                        "field 'test' is required for If");
+        return NULL;
+    }
+    p = (stmt_ty)_PyObject_New((PyTypeObject *)state->_If_type);
+    if (!p)
+        return NULL;
+    p->kind = If_kind;
+    p->v.If.test = test;
+    p->v.If.body = body;
+    p->v.If.orelse = orelse;
+    p->lineno = lineno;
+    p->col_offset = col_offset;
+    p->end_lineno = end_lineno;
+    p->end_col_offset = end_col_offset;
+    return p;
+}
+
+stmt_ty
+_PyAST_WithHeap(struct ast_state* state, asdl_withitem_seq * items,
+                asdl_stmt_seq * body, string type_comment, int lineno, int
+                col_offset, int end_lineno, int end_col_offset)
+{
+    stmt_ty p;
+    p = (stmt_ty)_PyObject_New((PyTypeObject *)state->_With_type);
+    if (!p)
+        return NULL;
+    p->kind = With_kind;
+    p->v.With.items = items;
+    p->v.With.body = body;
+    p->v.With.type_comment = type_comment;
+    p->lineno = lineno;
+    p->col_offset = col_offset;
+    p->end_lineno = end_lineno;
+    p->end_col_offset = end_col_offset;
+    return p;
+}
+
+stmt_ty
+_PyAST_AsyncWithHeap(struct ast_state* state, asdl_withitem_seq * items,
+                     asdl_stmt_seq * body, string type_comment, int lineno, int
+                     col_offset, int end_lineno, int end_col_offset)
+{
+    stmt_ty p;
+    p = (stmt_ty)_PyObject_New((PyTypeObject *)state->_AsyncWith_type);
+    if (!p)
+        return NULL;
+    p->kind = AsyncWith_kind;
+    p->v.AsyncWith.items = items;
+    p->v.AsyncWith.body = body;
+    p->v.AsyncWith.type_comment = type_comment;
+    p->lineno = lineno;
+    p->col_offset = col_offset;
+    p->end_lineno = end_lineno;
+    p->end_col_offset = end_col_offset;
+    return p;
+}
+
+stmt_ty
+_PyAST_MatchHeap(struct ast_state* state, expr_ty subject, asdl_match_case_seq
+                 * cases, int lineno, int col_offset, int end_lineno, int
+                 end_col_offset)
+{
+    stmt_ty p;
+    if (!subject) {
+        PyErr_SetString(PyExc_ValueError,
+                        "field 'subject' is required for Match");
+        return NULL;
+    }
+    p = (stmt_ty)_PyObject_New((PyTypeObject *)state->_Match_type);
+    if (!p)
+        return NULL;
+    p->kind = Match_kind;
+    p->v.Match.subject = subject;
+    p->v.Match.cases = cases;
+    p->lineno = lineno;
+    p->col_offset = col_offset;
+    p->end_lineno = end_lineno;
+    p->end_col_offset = end_col_offset;
+    return p;
+}
+
+stmt_ty
+_PyAST_RaiseHeap(struct ast_state* state, expr_ty exc, expr_ty cause, int
+                 lineno, int col_offset, int end_lineno, int end_col_offset)
+{
+    stmt_ty p;
+    p = (stmt_ty)_PyObject_New((PyTypeObject *)state->_Raise_type);
+    if (!p)
+        return NULL;
+    p->kind = Raise_kind;
+    p->v.Raise.exc = exc;
+    p->v.Raise.cause = cause;
+    p->lineno = lineno;
+    p->col_offset = col_offset;
+    p->end_lineno = end_lineno;
+    p->end_col_offset = end_col_offset;
+    return p;
+}
+
+stmt_ty
+_PyAST_TryHeap(struct ast_state* state, asdl_stmt_seq * body,
+               asdl_excepthandler_seq * handlers, asdl_stmt_seq * orelse,
+               asdl_stmt_seq * finalbody, int lineno, int col_offset, int
+               end_lineno, int end_col_offset)
+{
+    stmt_ty p;
+    p = (stmt_ty)_PyObject_New((PyTypeObject *)state->_Try_type);
+    if (!p)
+        return NULL;
+    p->kind = Try_kind;
+    p->v.Try.body = body;
+    p->v.Try.handlers = handlers;
+    p->v.Try.orelse = orelse;
+    p->v.Try.finalbody = finalbody;
+    p->lineno = lineno;
+    p->col_offset = col_offset;
+    p->end_lineno = end_lineno;
+    p->end_col_offset = end_col_offset;
+    return p;
+}
+
+stmt_ty
+_PyAST_TryStarHeap(struct ast_state* state, asdl_stmt_seq * body,
+                   asdl_excepthandler_seq * handlers, asdl_stmt_seq * orelse,
+                   asdl_stmt_seq * finalbody, int lineno, int col_offset, int
+                   end_lineno, int end_col_offset)
+{
+    stmt_ty p;
+    p = (stmt_ty)_PyObject_New((PyTypeObject *)state->_TryStar_type);
+    if (!p)
+        return NULL;
+    p->kind = TryStar_kind;
+    p->v.TryStar.body = body;
+    p->v.TryStar.handlers = handlers;
+    p->v.TryStar.orelse = orelse;
+    p->v.TryStar.finalbody = finalbody;
+    p->lineno = lineno;
+    p->col_offset = col_offset;
+    p->end_lineno = end_lineno;
+    p->end_col_offset = end_col_offset;
+    return p;
+}
+
+stmt_ty
+_PyAST_AssertHeap(struct ast_state* state, expr_ty test, expr_ty msg, int
+                  lineno, int col_offset, int end_lineno, int end_col_offset)
+{
+    stmt_ty p;
+    if (!test) {
+        PyErr_SetString(PyExc_ValueError,
+                        "field 'test' is required for Assert");
+        return NULL;
+    }
+    p = (stmt_ty)_PyObject_New((PyTypeObject *)state->_Assert_type);
+    if (!p)
+        return NULL;
+    p->kind = Assert_kind;
+    p->v.Assert.test = test;
+    p->v.Assert.msg = msg;
+    p->lineno = lineno;
+    p->col_offset = col_offset;
+    p->end_lineno = end_lineno;
+    p->end_col_offset = end_col_offset;
+    return p;
+}
+
+stmt_ty
+_PyAST_ImportHeap(struct ast_state* state, asdl_alias_seq * names, int lineno,
+                  int col_offset, int end_lineno, int end_col_offset)
+{
+    stmt_ty p;
+    p = (stmt_ty)_PyObject_New((PyTypeObject *)state->_Import_type);
+    if (!p)
+        return NULL;
+    p->kind = Import_kind;
+    p->v.Import.names = names;
+    p->lineno = lineno;
+    p->col_offset = col_offset;
+    p->end_lineno = end_lineno;
+    p->end_col_offset = end_col_offset;
+    return p;
+}
+
+stmt_ty
+_PyAST_ImportFromHeap(struct ast_state* state, identifier module,
+                      asdl_alias_seq * names, int level, int lineno, int
+                      col_offset, int end_lineno, int end_col_offset)
+{
+    stmt_ty p;
+    p = (stmt_ty)_PyObject_New((PyTypeObject *)state->_ImportFrom_type);
+    if (!p)
+        return NULL;
+    p->kind = ImportFrom_kind;
+    p->v.ImportFrom.module = module;
+    p->v.ImportFrom.names = names;
+    p->v.ImportFrom.level = level;
+    p->lineno = lineno;
+    p->col_offset = col_offset;
+    p->end_lineno = end_lineno;
+    p->end_col_offset = end_col_offset;
+    return p;
+}
+
+stmt_ty
+_PyAST_GlobalHeap(struct ast_state* state, asdl_identifier_seq * names, int
+                  lineno, int col_offset, int end_lineno, int end_col_offset)
+{
+    stmt_ty p;
+    p = (stmt_ty)_PyObject_New((PyTypeObject *)state->_Global_type);
+    if (!p)
+        return NULL;
+    p->kind = Global_kind;
+    p->v.Global.names = names;
+    p->lineno = lineno;
+    p->col_offset = col_offset;
+    p->end_lineno = end_lineno;
+    p->end_col_offset = end_col_offset;
+    return p;
+}
+
+stmt_ty
+_PyAST_NonlocalHeap(struct ast_state* state, asdl_identifier_seq * names, int
+                    lineno, int col_offset, int end_lineno, int end_col_offset)
+{
+    stmt_ty p;
+    p = (stmt_ty)_PyObject_New((PyTypeObject *)state->_Nonlocal_type);
+    if (!p)
+        return NULL;
+    p->kind = Nonlocal_kind;
+    p->v.Nonlocal.names = names;
+    p->lineno = lineno;
+    p->col_offset = col_offset;
+    p->end_lineno = end_lineno;
+    p->end_col_offset = end_col_offset;
+    return p;
+}
+
+stmt_ty
+_PyAST_ExprHeap(struct ast_state* state, expr_ty value, int lineno, int
+                col_offset, int end_lineno, int end_col_offset)
+{
+    stmt_ty p;
+    if (!value) {
+        PyErr_SetString(PyExc_ValueError,
+                        "field 'value' is required for Expr");
+        return NULL;
+    }
+    p = (stmt_ty)_PyObject_New((PyTypeObject *)state->_Expr_type);
+    if (!p)
+        return NULL;
+    p->kind = Expr_kind;
+    p->v.Expr.value = value;
+    p->lineno = lineno;
+    p->col_offset = col_offset;
+    p->end_lineno = end_lineno;
+    p->end_col_offset = end_col_offset;
+    return p;
+}
+
+stmt_ty
+_PyAST_PassHeap(struct ast_state* state, int lineno, int col_offset, int
+                end_lineno, int end_col_offset)
+{
+    stmt_ty p;
+    p = (stmt_ty)_PyObject_New((PyTypeObject *)state->_Pass_type);
+    if (!p)
+        return NULL;
+    p->kind = Pass_kind;
+    p->lineno = lineno;
+    p->col_offset = col_offset;
+    p->end_lineno = end_lineno;
+    p->end_col_offset = end_col_offset;
+    return p;
+}
+
+stmt_ty
+_PyAST_BreakHeap(struct ast_state* state, int lineno, int col_offset, int
+                 end_lineno, int end_col_offset)
+{
+    stmt_ty p;
+    p = (stmt_ty)_PyObject_New((PyTypeObject *)state->_Break_type);
+    if (!p)
+        return NULL;
+    p->kind = Break_kind;
+    p->lineno = lineno;
+    p->col_offset = col_offset;
+    p->end_lineno = end_lineno;
+    p->end_col_offset = end_col_offset;
+    return p;
+}
+
+stmt_ty
+_PyAST_ContinueHeap(struct ast_state* state, int lineno, int col_offset, int
+                    end_lineno, int end_col_offset)
+{
+    stmt_ty p;
+    p = (stmt_ty)_PyObject_New((PyTypeObject *)state->_Continue_type);
+    if (!p)
+        return NULL;
+    p->kind = Continue_kind;
+    p->lineno = lineno;
+    p->col_offset = col_offset;
+    p->end_lineno = end_lineno;
+    p->end_col_offset = end_col_offset;
+    return p;
+}
+
+expr_ty
+_PyAST_BoolOpHeap(struct ast_state* state, boolop_ty op, asdl_expr_seq *
+                  values, int lineno, int col_offset, int end_lineno, int
+                  end_col_offset)
+{
+    expr_ty p;
+    if (!op) {
+        PyErr_SetString(PyExc_ValueError,
+                        "field 'op' is required for BoolOp");
+        return NULL;
+    }
+    p = (expr_ty)_PyObject_New((PyTypeObject *)state->_BoolOp_type);
+    if (!p)
+        return NULL;
+    p->kind = BoolOp_kind;
+    p->v.BoolOp.op = op;
+    p->v.BoolOp.values = values;
+    p->lineno = lineno;
+    p->col_offset = col_offset;
+    p->end_lineno = end_lineno;
+    p->end_col_offset = end_col_offset;
+    return p;
+}
+
+expr_ty
+_PyAST_NamedExprHeap(struct ast_state* state, expr_ty target, expr_ty value,
+                     int lineno, int col_offset, int end_lineno, int
+                     end_col_offset)
+{
+    expr_ty p;
+    if (!target) {
+        PyErr_SetString(PyExc_ValueError,
+                        "field 'target' is required for NamedExpr");
+        return NULL;
+    }
+    if (!value) {
+        PyErr_SetString(PyExc_ValueError,
+                        "field 'value' is required for NamedExpr");
+        return NULL;
+    }
+    p = (expr_ty)_PyObject_New((PyTypeObject *)state->_NamedExpr_type);
+    if (!p)
+        return NULL;
+    p->kind = NamedExpr_kind;
+    p->v.NamedExpr.target = target;
+    p->v.NamedExpr.value = value;
+    p->lineno = lineno;
+    p->col_offset = col_offset;
+    p->end_lineno = end_lineno;
+    p->end_col_offset = end_col_offset;
+    return p;
+}
+
+expr_ty
+_PyAST_BinOpHeap(struct ast_state* state, expr_ty left, operator_ty op, expr_ty
+                 right, int lineno, int col_offset, int end_lineno, int
+                 end_col_offset)
+{
+    expr_ty p;
+    if (!left) {
+        PyErr_SetString(PyExc_ValueError,
+                        "field 'left' is required for BinOp");
+        return NULL;
+    }
+    if (!op) {
+        PyErr_SetString(PyExc_ValueError,
+                        "field 'op' is required for BinOp");
+        return NULL;
+    }
+    if (!right) {
+        PyErr_SetString(PyExc_ValueError,
+                        "field 'right' is required for BinOp");
+        return NULL;
+    }
+    p = (expr_ty)_PyObject_New((PyTypeObject *)state->_BinOp_type);
+    if (!p)
+        return NULL;
+    p->kind = BinOp_kind;
+    p->v.BinOp.left = left;
+    p->v.BinOp.op = op;
+    p->v.BinOp.right = right;
+    p->lineno = lineno;
+    p->col_offset = col_offset;
+    p->end_lineno = end_lineno;
+    p->end_col_offset = end_col_offset;
+    return p;
+}
+
+expr_ty
+_PyAST_UnaryOpHeap(struct ast_state* state, unaryop_ty op, expr_ty operand, int
+                   lineno, int col_offset, int end_lineno, int end_col_offset)
+{
+    expr_ty p;
+    if (!op) {
+        PyErr_SetString(PyExc_ValueError,
+                        "field 'op' is required for UnaryOp");
+        return NULL;
+    }
+    if (!operand) {
+        PyErr_SetString(PyExc_ValueError,
+                        "field 'operand' is required for UnaryOp");
+        return NULL;
+    }
+    p = (expr_ty)_PyObject_New((PyTypeObject *)state->_UnaryOp_type);
+    if (!p)
+        return NULL;
+    p->kind = UnaryOp_kind;
+    p->v.UnaryOp.op = op;
+    p->v.UnaryOp.operand = operand;
+    p->lineno = lineno;
+    p->col_offset = col_offset;
+    p->end_lineno = end_lineno;
+    p->end_col_offset = end_col_offset;
+    return p;
+}
+
+expr_ty
+_PyAST_LambdaHeap(struct ast_state* state, arguments_ty args, expr_ty body, int
+                  lineno, int col_offset, int end_lineno, int end_col_offset)
+{
+    expr_ty p;
+    if (!args) {
+        PyErr_SetString(PyExc_ValueError,
+                        "field 'args' is required for Lambda");
+        return NULL;
+    }
+    if (!body) {
+        PyErr_SetString(PyExc_ValueError,
+                        "field 'body' is required for Lambda");
+        return NULL;
+    }
+    p = (expr_ty)_PyObject_New((PyTypeObject *)state->_Lambda_type);
+    if (!p)
+        return NULL;
+    p->kind = Lambda_kind;
+    p->v.Lambda.args = args;
+    p->v.Lambda.body = body;
+    p->lineno = lineno;
+    p->col_offset = col_offset;
+    p->end_lineno = end_lineno;
+    p->end_col_offset = end_col_offset;
+    return p;
+}
+
+expr_ty
+_PyAST_IfExpHeap(struct ast_state* state, expr_ty test, expr_ty body, expr_ty
+                 orelse, int lineno, int col_offset, int end_lineno, int
+                 end_col_offset)
+{
+    expr_ty p;
+    if (!test) {
+        PyErr_SetString(PyExc_ValueError,
+                        "field 'test' is required for IfExp");
+        return NULL;
+    }
+    if (!body) {
+        PyErr_SetString(PyExc_ValueError,
+                        "field 'body' is required for IfExp");
+        return NULL;
+    }
+    if (!orelse) {
+        PyErr_SetString(PyExc_ValueError,
+                        "field 'orelse' is required for IfExp");
+        return NULL;
+    }
+    p = (expr_ty)_PyObject_New((PyTypeObject *)state->_IfExp_type);
+    if (!p)
+        return NULL;
+    p->kind = IfExp_kind;
+    p->v.IfExp.test = test;
+    p->v.IfExp.body = body;
+    p->v.IfExp.orelse = orelse;
+    p->lineno = lineno;
+    p->col_offset = col_offset;
+    p->end_lineno = end_lineno;
+    p->end_col_offset = end_col_offset;
+    return p;
+}
+
+expr_ty
+_PyAST_DictHeap(struct ast_state* state, asdl_expr_seq * keys, asdl_expr_seq *
+                values, int lineno, int col_offset, int end_lineno, int
+                end_col_offset)
+{
+    expr_ty p;
+    p = (expr_ty)_PyObject_New((PyTypeObject *)state->_Dict_type);
+    if (!p)
+        return NULL;
+    p->kind = Dict_kind;
+    p->v.Dict.keys = keys;
+    p->v.Dict.values = values;
+    p->lineno = lineno;
+    p->col_offset = col_offset;
+    p->end_lineno = end_lineno;
+    p->end_col_offset = end_col_offset;
+    return p;
+}
+
+expr_ty
+_PyAST_SetHeap(struct ast_state* state, asdl_expr_seq * elts, int lineno, int
+               col_offset, int end_lineno, int end_col_offset)
+{
+    expr_ty p;
+    p = (expr_ty)_PyObject_New((PyTypeObject *)state->_Set_type);
+    if (!p)
+        return NULL;
+    p->kind = Set_kind;
+    p->v.Set.elts = elts;
+    p->lineno = lineno;
+    p->col_offset = col_offset;
+    p->end_lineno = end_lineno;
+    p->end_col_offset = end_col_offset;
+    return p;
+}
+
+expr_ty
+_PyAST_ListCompHeap(struct ast_state* state, expr_ty elt,
+                    asdl_comprehension_seq * generators, int lineno, int
+                    col_offset, int end_lineno, int end_col_offset)
+{
+    expr_ty p;
+    if (!elt) {
+        PyErr_SetString(PyExc_ValueError,
+                        "field 'elt' is required for ListComp");
+        return NULL;
+    }
+    p = (expr_ty)_PyObject_New((PyTypeObject *)state->_ListComp_type);
+    if (!p)
+        return NULL;
+    p->kind = ListComp_kind;
+    p->v.ListComp.elt = elt;
+    p->v.ListComp.generators = generators;
+    p->lineno = lineno;
+    p->col_offset = col_offset;
+    p->end_lineno = end_lineno;
+    p->end_col_offset = end_col_offset;
+    return p;
+}
+
+expr_ty
+_PyAST_SetCompHeap(struct ast_state* state, expr_ty elt, asdl_comprehension_seq
+                   * generators, int lineno, int col_offset, int end_lineno,
+                   int end_col_offset)
+{
+    expr_ty p;
+    if (!elt) {
+        PyErr_SetString(PyExc_ValueError,
+                        "field 'elt' is required for SetComp");
+        return NULL;
+    }
+    p = (expr_ty)_PyObject_New((PyTypeObject *)state->_SetComp_type);
+    if (!p)
+        return NULL;
+    p->kind = SetComp_kind;
+    p->v.SetComp.elt = elt;
+    p->v.SetComp.generators = generators;
+    p->lineno = lineno;
+    p->col_offset = col_offset;
+    p->end_lineno = end_lineno;
+    p->end_col_offset = end_col_offset;
+    return p;
+}
+
+expr_ty
+_PyAST_DictCompHeap(struct ast_state* state, expr_ty key, expr_ty value,
+                    asdl_comprehension_seq * generators, int lineno, int
+                    col_offset, int end_lineno, int end_col_offset)
+{
+    expr_ty p;
+    if (!key) {
+        PyErr_SetString(PyExc_ValueError,
+                        "field 'key' is required for DictComp");
+        return NULL;
+    }
+    if (!value) {
+        PyErr_SetString(PyExc_ValueError,
+                        "field 'value' is required for DictComp");
+        return NULL;
+    }
+    p = (expr_ty)_PyObject_New((PyTypeObject *)state->_DictComp_type);
+    if (!p)
+        return NULL;
+    p->kind = DictComp_kind;
+    p->v.DictComp.key = key;
+    p->v.DictComp.value = value;
+    p->v.DictComp.generators = generators;
+    p->lineno = lineno;
+    p->col_offset = col_offset;
+    p->end_lineno = end_lineno;
+    p->end_col_offset = end_col_offset;
+    return p;
+}
+
+expr_ty
+_PyAST_GeneratorExpHeap(struct ast_state* state, expr_ty elt,
+                        asdl_comprehension_seq * generators, int lineno, int
+                        col_offset, int end_lineno, int end_col_offset)
+{
+    expr_ty p;
+    if (!elt) {
+        PyErr_SetString(PyExc_ValueError,
+                        "field 'elt' is required for GeneratorExp");
+        return NULL;
+    }
+    p = (expr_ty)_PyObject_New((PyTypeObject *)state->_GeneratorExp_type);
+    if (!p)
+        return NULL;
+    p->kind = GeneratorExp_kind;
+    p->v.GeneratorExp.elt = elt;
+    p->v.GeneratorExp.generators = generators;
+    p->lineno = lineno;
+    p->col_offset = col_offset;
+    p->end_lineno = end_lineno;
+    p->end_col_offset = end_col_offset;
+    return p;
+}
+
+expr_ty
+_PyAST_AwaitHeap(struct ast_state* state, expr_ty value, int lineno, int
+                 col_offset, int end_lineno, int end_col_offset)
+{
+    expr_ty p;
+    if (!value) {
+        PyErr_SetString(PyExc_ValueError,
+                        "field 'value' is required for Await");
+        return NULL;
+    }
+    p = (expr_ty)_PyObject_New((PyTypeObject *)state->_Await_type);
+    if (!p)
+        return NULL;
+    p->kind = Await_kind;
+    p->v.Await.value = value;
+    p->lineno = lineno;
+    p->col_offset = col_offset;
+    p->end_lineno = end_lineno;
+    p->end_col_offset = end_col_offset;
+    return p;
+}
+
+expr_ty
+_PyAST_YieldHeap(struct ast_state* state, expr_ty value, int lineno, int
+                 col_offset, int end_lineno, int end_col_offset)
+{
+    expr_ty p;
+    p = (expr_ty)_PyObject_New((PyTypeObject *)state->_Yield_type);
+    if (!p)
+        return NULL;
+    p->kind = Yield_kind;
+    p->v.Yield.value = value;
+    p->lineno = lineno;
+    p->col_offset = col_offset;
+    p->end_lineno = end_lineno;
+    p->end_col_offset = end_col_offset;
+    return p;
+}
+
+expr_ty
+_PyAST_YieldFromHeap(struct ast_state* state, expr_ty value, int lineno, int
+                     col_offset, int end_lineno, int end_col_offset)
+{
+    expr_ty p;
+    if (!value) {
+        PyErr_SetString(PyExc_ValueError,
+                        "field 'value' is required for YieldFrom");
+        return NULL;
+    }
+    p = (expr_ty)_PyObject_New((PyTypeObject *)state->_YieldFrom_type);
+    if (!p)
+        return NULL;
+    p->kind = YieldFrom_kind;
+    p->v.YieldFrom.value = value;
+    p->lineno = lineno;
+    p->col_offset = col_offset;
+    p->end_lineno = end_lineno;
+    p->end_col_offset = end_col_offset;
+    return p;
+}
+
+expr_ty
+_PyAST_CompareHeap(struct ast_state* state, expr_ty left, asdl_int_seq * ops,
+                   asdl_expr_seq * comparators, int lineno, int col_offset, int
+                   end_lineno, int end_col_offset)
+{
+    expr_ty p;
+    if (!left) {
+        PyErr_SetString(PyExc_ValueError,
+                        "field 'left' is required for Compare");
+        return NULL;
+    }
+    p = (expr_ty)_PyObject_New((PyTypeObject *)state->_Compare_type);
+    if (!p)
+        return NULL;
+    p->kind = Compare_kind;
+    p->v.Compare.left = left;
+    p->v.Compare.ops = ops;
+    p->v.Compare.comparators = comparators;
+    p->lineno = lineno;
+    p->col_offset = col_offset;
+    p->end_lineno = end_lineno;
+    p->end_col_offset = end_col_offset;
+    return p;
+}
+
+expr_ty
+_PyAST_CallHeap(struct ast_state* state, expr_ty func, asdl_expr_seq * args,
+                asdl_keyword_seq * keywords, int lineno, int col_offset, int
+                end_lineno, int end_col_offset)
+{
+    expr_ty p;
+    if (!func) {
+        PyErr_SetString(PyExc_ValueError,
+                        "field 'func' is required for Call");
+        return NULL;
+    }
+    p = (expr_ty)_PyObject_New((PyTypeObject *)state->_Call_type);
+    if (!p)
+        return NULL;
+    p->kind = Call_kind;
+    p->v.Call.func = func;
+    p->v.Call.args = args;
+    p->v.Call.keywords = keywords;
+    p->lineno = lineno;
+    p->col_offset = col_offset;
+    p->end_lineno = end_lineno;
+    p->end_col_offset = end_col_offset;
+    return p;
+}
+
+expr_ty
+_PyAST_FormattedValueHeap(struct ast_state* state, expr_ty value, int
+                          conversion, expr_ty format_spec, int lineno, int
+                          col_offset, int end_lineno, int end_col_offset)
+{
+    expr_ty p;
+    if (!value) {
+        PyErr_SetString(PyExc_ValueError,
+                        "field 'value' is required for FormattedValue");
+        return NULL;
+    }
+    p = (expr_ty)_PyObject_New((PyTypeObject *)state->_FormattedValue_type);
+    if (!p)
+        return NULL;
+    p->kind = FormattedValue_kind;
+    p->v.FormattedValue.value = value;
+    p->v.FormattedValue.conversion = conversion;
+    p->v.FormattedValue.format_spec = format_spec;
+    p->lineno = lineno;
+    p->col_offset = col_offset;
+    p->end_lineno = end_lineno;
+    p->end_col_offset = end_col_offset;
+    return p;
+}
+
+expr_ty
+_PyAST_InterpolationHeap(struct ast_state* state, expr_ty value, constant str,
+                         int conversion, expr_ty format_spec, int lineno, int
+                         col_offset, int end_lineno, int end_col_offset)
+{
+    expr_ty p;
+    if (!value) {
+        PyErr_SetString(PyExc_ValueError,
+                        "field 'value' is required for Interpolation");
+        return NULL;
+    }
+    if (!str) {
+        PyErr_SetString(PyExc_ValueError,
+                        "field 'str' is required for Interpolation");
+        return NULL;
+    }
+    p = (expr_ty)_PyObject_New((PyTypeObject *)state->_Interpolation_type);
+    if (!p)
+        return NULL;
+    p->kind = Interpolation_kind;
+    p->v.Interpolation.value = value;
+    p->v.Interpolation.str = str;
+    p->v.Interpolation.conversion = conversion;
+    p->v.Interpolation.format_spec = format_spec;
+    p->lineno = lineno;
+    p->col_offset = col_offset;
+    p->end_lineno = end_lineno;
+    p->end_col_offset = end_col_offset;
+    return p;
+}
+
+expr_ty
+_PyAST_JoinedStrHeap(struct ast_state* state, asdl_expr_seq * values, int
+                     lineno, int col_offset, int end_lineno, int end_col_offset)
+{
+    expr_ty p;
+    p = (expr_ty)_PyObject_New((PyTypeObject *)state->_JoinedStr_type);
+    if (!p)
+        return NULL;
+    p->kind = JoinedStr_kind;
+    p->v.JoinedStr.values = values;
+    p->lineno = lineno;
+    p->col_offset = col_offset;
+    p->end_lineno = end_lineno;
+    p->end_col_offset = end_col_offset;
+    return p;
+}
+
+expr_ty
+_PyAST_TemplateStrHeap(struct ast_state* state, asdl_expr_seq * values, int
+                       lineno, int col_offset, int end_lineno, int
+                       end_col_offset)
+{
+    expr_ty p;
+    p = (expr_ty)_PyObject_New((PyTypeObject *)state->_TemplateStr_type);
+    if (!p)
+        return NULL;
+    p->kind = TemplateStr_kind;
+    p->v.TemplateStr.values = values;
+    p->lineno = lineno;
+    p->col_offset = col_offset;
+    p->end_lineno = end_lineno;
+    p->end_col_offset = end_col_offset;
+    return p;
+}
+
+expr_ty
+_PyAST_ConstantHeap(struct ast_state* state, constant value, string kind, int
+                    lineno, int col_offset, int end_lineno, int end_col_offset)
+{
+    expr_ty p;
+    if (!value) {
+        PyErr_SetString(PyExc_ValueError,
+                        "field 'value' is required for Constant");
+        return NULL;
+    }
+    p = (expr_ty)_PyObject_New((PyTypeObject *)state->_Constant_type);
+    if (!p)
+        return NULL;
+    p->kind = Constant_kind;
+    p->v.Constant.value = value;
+    p->v.Constant.kind = kind;
+    p->lineno = lineno;
+    p->col_offset = col_offset;
+    p->end_lineno = end_lineno;
+    p->end_col_offset = end_col_offset;
+    return p;
+}
+
+expr_ty
+_PyAST_AttributeHeap(struct ast_state* state, expr_ty value, identifier attr,
+                     expr_context_ty ctx, int lineno, int col_offset, int
+                     end_lineno, int end_col_offset)
+{
+    expr_ty p;
+    if (!value) {
+        PyErr_SetString(PyExc_ValueError,
+                        "field 'value' is required for Attribute");
+        return NULL;
+    }
+    if (!attr) {
+        PyErr_SetString(PyExc_ValueError,
+                        "field 'attr' is required for Attribute");
+        return NULL;
+    }
+    if (!ctx) {
+        PyErr_SetString(PyExc_ValueError,
+                        "field 'ctx' is required for Attribute");
+        return NULL;
+    }
+    p = (expr_ty)_PyObject_New((PyTypeObject *)state->_Attribute_type);
+    if (!p)
+        return NULL;
+    p->kind = Attribute_kind;
+    p->v.Attribute.value = value;
+    p->v.Attribute.attr = attr;
+    p->v.Attribute.ctx = ctx;
+    p->lineno = lineno;
+    p->col_offset = col_offset;
+    p->end_lineno = end_lineno;
+    p->end_col_offset = end_col_offset;
+    return p;
+}
+
+expr_ty
+_PyAST_SubscriptHeap(struct ast_state* state, expr_ty value, expr_ty slice,
+                     expr_context_ty ctx, int lineno, int col_offset, int
+                     end_lineno, int end_col_offset)
+{
+    expr_ty p;
+    if (!value) {
+        PyErr_SetString(PyExc_ValueError,
+                        "field 'value' is required for Subscript");
+        return NULL;
+    }
+    if (!slice) {
+        PyErr_SetString(PyExc_ValueError,
+                        "field 'slice' is required for Subscript");
+        return NULL;
+    }
+    if (!ctx) {
+        PyErr_SetString(PyExc_ValueError,
+                        "field 'ctx' is required for Subscript");
+        return NULL;
+    }
+    p = (expr_ty)_PyObject_New((PyTypeObject *)state->_Subscript_type);
+    if (!p)
+        return NULL;
+    p->kind = Subscript_kind;
+    p->v.Subscript.value = value;
+    p->v.Subscript.slice = slice;
+    p->v.Subscript.ctx = ctx;
+    p->lineno = lineno;
+    p->col_offset = col_offset;
+    p->end_lineno = end_lineno;
+    p->end_col_offset = end_col_offset;
+    return p;
+}
+
+expr_ty
+_PyAST_StarredHeap(struct ast_state* state, expr_ty value, expr_context_ty ctx,
+                   int lineno, int col_offset, int end_lineno, int
+                   end_col_offset)
+{
+    expr_ty p;
+    if (!value) {
+        PyErr_SetString(PyExc_ValueError,
+                        "field 'value' is required for Starred");
+        return NULL;
+    }
+    if (!ctx) {
+        PyErr_SetString(PyExc_ValueError,
+                        "field 'ctx' is required for Starred");
+        return NULL;
+    }
+    p = (expr_ty)_PyObject_New((PyTypeObject *)state->_Starred_type);
+    if (!p)
+        return NULL;
+    p->kind = Starred_kind;
+    p->v.Starred.value = value;
+    p->v.Starred.ctx = ctx;
+    p->lineno = lineno;
+    p->col_offset = col_offset;
+    p->end_lineno = end_lineno;
+    p->end_col_offset = end_col_offset;
+    return p;
+}
+
+expr_ty
+_PyAST_NameHeap(struct ast_state* state, identifier id, expr_context_ty ctx,
+                int lineno, int col_offset, int end_lineno, int end_col_offset)
+{
+    expr_ty p;
+    if (!id) {
+        PyErr_SetString(PyExc_ValueError,
+                        "field 'id' is required for Name");
+        return NULL;
+    }
+    if (!ctx) {
+        PyErr_SetString(PyExc_ValueError,
+                        "field 'ctx' is required for Name");
+        return NULL;
+    }
+    p = (expr_ty)_PyObject_New((PyTypeObject *)state->_Name_type);
+    if (!p)
+        return NULL;
+    p->kind = Name_kind;
+    p->v.Name.id = id;
+    p->v.Name.ctx = ctx;
+    p->lineno = lineno;
+    p->col_offset = col_offset;
+    p->end_lineno = end_lineno;
+    p->end_col_offset = end_col_offset;
+    return p;
+}
+
+expr_ty
+_PyAST_ListHeap(struct ast_state* state, asdl_expr_seq * elts, expr_context_ty
+                ctx, int lineno, int col_offset, int end_lineno, int
+                end_col_offset)
+{
+    expr_ty p;
+    if (!ctx) {
+        PyErr_SetString(PyExc_ValueError,
+                        "field 'ctx' is required for List");
+        return NULL;
+    }
+    p = (expr_ty)_PyObject_New((PyTypeObject *)state->_List_type);
+    if (!p)
+        return NULL;
+    p->kind = List_kind;
+    p->v.List.elts = elts;
+    p->v.List.ctx = ctx;
+    p->lineno = lineno;
+    p->col_offset = col_offset;
+    p->end_lineno = end_lineno;
+    p->end_col_offset = end_col_offset;
+    return p;
+}
+
+expr_ty
+_PyAST_TupleHeap(struct ast_state* state, asdl_expr_seq * elts, expr_context_ty
+                 ctx, int lineno, int col_offset, int end_lineno, int
+                 end_col_offset)
+{
+    expr_ty p;
+    if (!ctx) {
+        PyErr_SetString(PyExc_ValueError,
+                        "field 'ctx' is required for Tuple");
+        return NULL;
+    }
+    p = (expr_ty)_PyObject_New((PyTypeObject *)state->_Tuple_type);
+    if (!p)
+        return NULL;
+    p->kind = Tuple_kind;
+    p->v.Tuple.elts = elts;
+    p->v.Tuple.ctx = ctx;
+    p->lineno = lineno;
+    p->col_offset = col_offset;
+    p->end_lineno = end_lineno;
+    p->end_col_offset = end_col_offset;
+    return p;
+}
+
+expr_ty
+_PyAST_SliceHeap(struct ast_state* state, expr_ty lower, expr_ty upper, expr_ty
+                 step, int lineno, int col_offset, int end_lineno, int
+                 end_col_offset)
+{
+    expr_ty p;
+    p = (expr_ty)_PyObject_New((PyTypeObject *)state->_Slice_type);
+    if (!p)
+        return NULL;
+    p->kind = Slice_kind;
+    p->v.Slice.lower = lower;
+    p->v.Slice.upper = upper;
+    p->v.Slice.step = step;
+    p->lineno = lineno;
+    p->col_offset = col_offset;
+    p->end_lineno = end_lineno;
+    p->end_col_offset = end_col_offset;
+    return p;
+}
+
+comprehension_ty
+_PyAST_comprehensionHeap(struct ast_state* state, expr_ty target, expr_ty iter,
+                         asdl_expr_seq * ifs, int is_async)
+{
+    comprehension_ty p;
+    if (!target) {
+        PyErr_SetString(PyExc_ValueError,
+                        "field 'target' is required for comprehension");
+        return NULL;
+    }
+    if (!iter) {
+        PyErr_SetString(PyExc_ValueError,
+                        "field 'iter' is required for comprehension");
+        return NULL;
+    }
+    p = (comprehension_ty)_PyObject_New((PyTypeObject
+         *)state->_comprehension_type);
+    if (!p)
+        return NULL;
+    p->target = target;
+    p->iter = iter;
+    p->ifs = ifs;
+    p->is_async = is_async;
+    return p;
+}
+
+excepthandler_ty
+_PyAST_ExceptHandlerHeap(struct ast_state* state, expr_ty type, identifier
+                         name, asdl_stmt_seq * body, int lineno, int
+                         col_offset, int end_lineno, int end_col_offset)
+{
+    excepthandler_ty p;
+    p = (excepthandler_ty)_PyObject_New((PyTypeObject
+         *)state->_ExceptHandler_type);
+    if (!p)
+        return NULL;
+    p->kind = ExceptHandler_kind;
+    p->v.ExceptHandler.type = type;
+    p->v.ExceptHandler.name = name;
+    p->v.ExceptHandler.body = body;
+    p->lineno = lineno;
+    p->col_offset = col_offset;
+    p->end_lineno = end_lineno;
+    p->end_col_offset = end_col_offset;
+    return p;
+}
+
+arguments_ty
+_PyAST_argumentsHeap(struct ast_state* state, asdl_arg_seq * posonlyargs,
+                     asdl_arg_seq * args, arg_ty vararg, asdl_arg_seq *
+                     kwonlyargs, asdl_expr_seq * kw_defaults, arg_ty kwarg,
+                     asdl_expr_seq * defaults)
+{
+    arguments_ty p;
+    p = (arguments_ty)_PyObject_New((PyTypeObject *)state->_arguments_type);
+    if (!p)
+        return NULL;
+    p->posonlyargs = posonlyargs;
+    p->args = args;
+    p->vararg = vararg;
+    p->kwonlyargs = kwonlyargs;
+    p->kw_defaults = kw_defaults;
+    p->kwarg = kwarg;
+    p->defaults = defaults;
+    return p;
+}
+
+arg_ty
+_PyAST_argHeap(struct ast_state* state, identifier arg, expr_ty annotation,
+               string type_comment, int lineno, int col_offset, int end_lineno,
+               int end_col_offset)
+{
+    arg_ty p;
+    if (!arg) {
+        PyErr_SetString(PyExc_ValueError,
+                        "field 'arg' is required for arg");
+        return NULL;
+    }
+    p = (arg_ty)_PyObject_New((PyTypeObject *)state->_arg_type);
+    if (!p)
+        return NULL;
+    p->arg = arg;
+    p->annotation = annotation;
+    p->type_comment = type_comment;
+    p->lineno = lineno;
+    p->col_offset = col_offset;
+    p->end_lineno = end_lineno;
+    p->end_col_offset = end_col_offset;
+    return p;
+}
+
+keyword_ty
+_PyAST_keywordHeap(struct ast_state* state, identifier arg, expr_ty value, int
+                   lineno, int col_offset, int end_lineno, int end_col_offset)
+{
+    keyword_ty p;
+    if (!value) {
+        PyErr_SetString(PyExc_ValueError,
+                        "field 'value' is required for keyword");
+        return NULL;
+    }
+    p = (keyword_ty)_PyObject_New((PyTypeObject *)state->_keyword_type);
+    if (!p)
+        return NULL;
+    p->arg = arg;
+    p->value = value;
+    p->lineno = lineno;
+    p->col_offset = col_offset;
+    p->end_lineno = end_lineno;
+    p->end_col_offset = end_col_offset;
+    return p;
+}
+
+alias_ty
+_PyAST_aliasHeap(struct ast_state* state, identifier name, identifier asname,
+                 int lineno, int col_offset, int end_lineno, int end_col_offset)
+{
+    alias_ty p;
+    if (!name) {
+        PyErr_SetString(PyExc_ValueError,
+                        "field 'name' is required for alias");
+        return NULL;
+    }
+    p = (alias_ty)_PyObject_New((PyTypeObject *)state->_alias_type);
+    if (!p)
+        return NULL;
+    p->name = name;
+    p->asname = asname;
+    p->lineno = lineno;
+    p->col_offset = col_offset;
+    p->end_lineno = end_lineno;
+    p->end_col_offset = end_col_offset;
+    return p;
+}
+
+withitem_ty
+_PyAST_withitemHeap(struct ast_state* state, expr_ty context_expr, expr_ty
+                    optional_vars)
+{
+    withitem_ty p;
+    if (!context_expr) {
+        PyErr_SetString(PyExc_ValueError,
+                        "field 'context_expr' is required for withitem");
+        return NULL;
+    }
+    p = (withitem_ty)_PyObject_New((PyTypeObject *)state->_withitem_type);
+    if (!p)
+        return NULL;
+    p->context_expr = context_expr;
+    p->optional_vars = optional_vars;
+    return p;
+}
+
+match_case_ty
+_PyAST_match_caseHeap(struct ast_state* state, pattern_ty pattern, expr_ty
+                      guard, asdl_stmt_seq * body)
+{
+    match_case_ty p;
+    if (!pattern) {
+        PyErr_SetString(PyExc_ValueError,
+                        "field 'pattern' is required for match_case");
+        return NULL;
+    }
+    p = (match_case_ty)_PyObject_New((PyTypeObject *)state->_match_case_type);
+    if (!p)
+        return NULL;
+    p->pattern = pattern;
+    p->guard = guard;
+    p->body = body;
+    return p;
+}
+
+pattern_ty
+_PyAST_MatchValueHeap(struct ast_state* state, expr_ty value, int lineno, int
+                      col_offset, int end_lineno, int end_col_offset)
+{
+    pattern_ty p;
+    if (!value) {
+        PyErr_SetString(PyExc_ValueError,
+                        "field 'value' is required for MatchValue");
+        return NULL;
+    }
+    p = (pattern_ty)_PyObject_New((PyTypeObject *)state->_MatchValue_type);
+    if (!p)
+        return NULL;
+    p->kind = MatchValue_kind;
+    p->v.MatchValue.value = value;
+    p->lineno = lineno;
+    p->col_offset = col_offset;
+    p->end_lineno = end_lineno;
+    p->end_col_offset = end_col_offset;
+    return p;
+}
+
+pattern_ty
+_PyAST_MatchSingletonHeap(struct ast_state* state, constant value, int lineno,
+                          int col_offset, int end_lineno, int end_col_offset)
+{
+    pattern_ty p;
+    if (!value) {
+        PyErr_SetString(PyExc_ValueError,
+                        "field 'value' is required for MatchSingleton");
+        return NULL;
+    }
+    p = (pattern_ty)_PyObject_New((PyTypeObject *)state->_MatchSingleton_type);
+    if (!p)
+        return NULL;
+    p->kind = MatchSingleton_kind;
+    p->v.MatchSingleton.value = value;
+    p->lineno = lineno;
+    p->col_offset = col_offset;
+    p->end_lineno = end_lineno;
+    p->end_col_offset = end_col_offset;
+    return p;
+}
+
+pattern_ty
+_PyAST_MatchSequenceHeap(struct ast_state* state, asdl_pattern_seq * patterns,
+                         int lineno, int col_offset, int end_lineno, int
+                         end_col_offset)
+{
+    pattern_ty p;
+    p = (pattern_ty)_PyObject_New((PyTypeObject *)state->_MatchSequence_type);
+    if (!p)
+        return NULL;
+    p->kind = MatchSequence_kind;
+    p->v.MatchSequence.patterns = patterns;
+    p->lineno = lineno;
+    p->col_offset = col_offset;
+    p->end_lineno = end_lineno;
+    p->end_col_offset = end_col_offset;
+    return p;
+}
+
+pattern_ty
+_PyAST_MatchMappingHeap(struct ast_state* state, asdl_expr_seq * keys,
+                        asdl_pattern_seq * patterns, identifier rest, int
+                        lineno, int col_offset, int end_lineno, int
+                        end_col_offset)
+{
+    pattern_ty p;
+    p = (pattern_ty)_PyObject_New((PyTypeObject *)state->_MatchMapping_type);
+    if (!p)
+        return NULL;
+    p->kind = MatchMapping_kind;
+    p->v.MatchMapping.keys = keys;
+    p->v.MatchMapping.patterns = patterns;
+    p->v.MatchMapping.rest = rest;
+    p->lineno = lineno;
+    p->col_offset = col_offset;
+    p->end_lineno = end_lineno;
+    p->end_col_offset = end_col_offset;
+    return p;
+}
+
+pattern_ty
+_PyAST_MatchClassHeap(struct ast_state* state, expr_ty cls, asdl_pattern_seq *
+                      patterns, asdl_identifier_seq * kwd_attrs,
+                      asdl_pattern_seq * kwd_patterns, int lineno, int
+                      col_offset, int end_lineno, int end_col_offset)
+{
+    pattern_ty p;
+    if (!cls) {
+        PyErr_SetString(PyExc_ValueError,
+                        "field 'cls' is required for MatchClass");
+        return NULL;
+    }
+    p = (pattern_ty)_PyObject_New((PyTypeObject *)state->_MatchClass_type);
+    if (!p)
+        return NULL;
+    p->kind = MatchClass_kind;
+    p->v.MatchClass.cls = cls;
+    p->v.MatchClass.patterns = patterns;
+    p->v.MatchClass.kwd_attrs = kwd_attrs;
+    p->v.MatchClass.kwd_patterns = kwd_patterns;
+    p->lineno = lineno;
+    p->col_offset = col_offset;
+    p->end_lineno = end_lineno;
+    p->end_col_offset = end_col_offset;
+    return p;
+}
+
+pattern_ty
+_PyAST_MatchStarHeap(struct ast_state* state, identifier name, int lineno, int
+                     col_offset, int end_lineno, int end_col_offset)
+{
+    pattern_ty p;
+    p = (pattern_ty)_PyObject_New((PyTypeObject *)state->_MatchStar_type);
+    if (!p)
+        return NULL;
+    p->kind = MatchStar_kind;
+    p->v.MatchStar.name = name;
+    p->lineno = lineno;
+    p->col_offset = col_offset;
+    p->end_lineno = end_lineno;
+    p->end_col_offset = end_col_offset;
+    return p;
+}
+
+pattern_ty
+_PyAST_MatchAsHeap(struct ast_state* state, pattern_ty pattern, identifier
+                   name, int lineno, int col_offset, int end_lineno, int
+                   end_col_offset)
+{
+    pattern_ty p;
+    p = (pattern_ty)_PyObject_New((PyTypeObject *)state->_MatchAs_type);
+    if (!p)
+        return NULL;
+    p->kind = MatchAs_kind;
+    p->v.MatchAs.pattern = pattern;
+    p->v.MatchAs.name = name;
+    p->lineno = lineno;
+    p->col_offset = col_offset;
+    p->end_lineno = end_lineno;
+    p->end_col_offset = end_col_offset;
+    return p;
+}
+
+pattern_ty
+_PyAST_MatchOrHeap(struct ast_state* state, asdl_pattern_seq * patterns, int
+                   lineno, int col_offset, int end_lineno, int end_col_offset)
+{
+    pattern_ty p;
+    p = (pattern_ty)_PyObject_New((PyTypeObject *)state->_MatchOr_type);
+    if (!p)
+        return NULL;
+    p->kind = MatchOr_kind;
+    p->v.MatchOr.patterns = patterns;
+    p->lineno = lineno;
+    p->col_offset = col_offset;
+    p->end_lineno = end_lineno;
+    p->end_col_offset = end_col_offset;
+    return p;
+}
+
+type_ignore_ty
+_PyAST_TypeIgnoreHeap(struct ast_state* state, int lineno, string tag)
+{
+    type_ignore_ty p;
+    if (!tag) {
+        PyErr_SetString(PyExc_ValueError,
+                        "field 'tag' is required for TypeIgnore");
+        return NULL;
+    }
+    p = (type_ignore_ty)_PyObject_New((PyTypeObject *)state->_TypeIgnore_type);
+    if (!p)
+        return NULL;
+    p->kind = TypeIgnore_kind;
+    p->v.TypeIgnore.lineno = lineno;
+    p->v.TypeIgnore.tag = tag;
+    return p;
+}
+
+type_param_ty
+_PyAST_TypeVarHeap(struct ast_state* state, identifier name, expr_ty bound,
+                   expr_ty default_value, int lineno, int col_offset, int
+                   end_lineno, int end_col_offset)
+{
+    type_param_ty p;
+    if (!name) {
+        PyErr_SetString(PyExc_ValueError,
+                        "field 'name' is required for TypeVar");
+        return NULL;
+    }
+    p = (type_param_ty)_PyObject_New((PyTypeObject *)state->_TypeVar_type);
+    if (!p)
+        return NULL;
+    p->kind = TypeVar_kind;
+    p->v.TypeVar.name = name;
+    p->v.TypeVar.bound = bound;
+    p->v.TypeVar.default_value = default_value;
+    p->lineno = lineno;
+    p->col_offset = col_offset;
+    p->end_lineno = end_lineno;
+    p->end_col_offset = end_col_offset;
+    return p;
+}
+
+type_param_ty
+_PyAST_ParamSpecHeap(struct ast_state* state, identifier name, expr_ty
+                     default_value, int lineno, int col_offset, int end_lineno,
+                     int end_col_offset)
+{
+    type_param_ty p;
+    if (!name) {
+        PyErr_SetString(PyExc_ValueError,
+                        "field 'name' is required for ParamSpec");
+        return NULL;
+    }
+    p = (type_param_ty)_PyObject_New((PyTypeObject *)state->_ParamSpec_type);
+    if (!p)
+        return NULL;
+    p->kind = ParamSpec_kind;
+    p->v.ParamSpec.name = name;
+    p->v.ParamSpec.default_value = default_value;
+    p->lineno = lineno;
+    p->col_offset = col_offset;
+    p->end_lineno = end_lineno;
+    p->end_col_offset = end_col_offset;
+    return p;
+}
+
+type_param_ty
+_PyAST_TypeVarTupleHeap(struct ast_state* state, identifier name, expr_ty
+                        default_value, int lineno, int col_offset, int
+                        end_lineno, int end_col_offset)
+{
+    type_param_ty p;
+    if (!name) {
+        PyErr_SetString(PyExc_ValueError,
+                        "field 'name' is required for TypeVarTuple");
+        return NULL;
+    }
+    p = (type_param_ty)_PyObject_New((PyTypeObject *)state->_TypeVarTuple_type);
     if (!p)
         return NULL;
     p->kind = TypeVarTuple_kind;
@@ -19814,18 +22061,27 @@ failed:
 }
 
 
-static PyObject *obj2imm_int_seq(struct ast_state *state, PyObject* obj)
+static int obj2imm_int_seq(struct ast_state *state, PyObject* obj,
+                           asdl_int_seq** out)
 {
-return NULL;
+    *out = NULL;
+    return -1;
 }
-static PyObject *obj2imm_identifier_seq(struct ast_state *state, PyObject* obj)
+
+static int obj2imm_identifier_seq(struct ast_state *state, PyObject* obj,
+                                  asdl_identifier_seq** out)
 {
-return NULL;
+    *out = NULL;
+    return -1;
 }
-static PyObject *obj2imm_mod_seq(struct ast_state *state, PyObject* obj)
+
+static int obj2imm_mod_seq(struct ast_state *state, PyObject* obj,
+                           asdl_mod_seq** out)
 {
-return NULL;
+    *out = NULL;
+    return -1;
 }
+
 int
 obj2ast_mod(struct ast_state *state, PyObject* obj, mod_ty* out, PyArena* arena)
 {
@@ -19844,8 +22100,8 @@ obj2ast_mod(struct ast_state *state, PyObject* obj, mod_ty* out, PyArena* arena)
         return -1;
     }
     if (isinstance) {
-        asdl_stmt_seq* body;
-        asdl_type_ignore_seq* type_ignores;
+        asdl_stmt_seq* body = NULL;
+        asdl_type_ignore_seq* type_ignores = NULL;
 
         if (PyObject_GetOptionalAttr(obj, state->body, &tmp) < 0) {
             return -1;
@@ -19933,7 +22189,7 @@ obj2ast_mod(struct ast_state *state, PyObject* obj, mod_ty* out, PyArena* arena)
         return -1;
     }
     if (isinstance) {
-        asdl_stmt_seq* body;
+        asdl_stmt_seq* body = NULL;
 
         if (PyObject_GetOptionalAttr(obj, state->body, &tmp) < 0) {
             return -1;
@@ -19983,7 +22239,7 @@ obj2ast_mod(struct ast_state *state, PyObject* obj, mod_ty* out, PyArena* arena)
         return -1;
     }
     if (isinstance) {
-        expr_ty body;
+        expr_ty body = NULL;
 
         if (PyObject_GetOptionalAttr(obj, state->body, &tmp) < 0) {
             return -1;
@@ -20012,8 +22268,8 @@ obj2ast_mod(struct ast_state *state, PyObject* obj, mod_ty* out, PyArena* arena)
         return -1;
     }
     if (isinstance) {
-        asdl_expr_seq* argtypes;
-        expr_ty returns;
+        asdl_expr_seq* argtypes = NULL;
+        expr_ty returns = NULL;
 
         if (PyObject_GetOptionalAttr(obj, state->argtypes, &tmp) < 0) {
             return -1;
@@ -20081,16 +22337,20 @@ obj2ast_mod(struct ast_state *state, PyObject* obj, mod_ty* out, PyArena* arena)
     return -1;
 }
 
-PyObject *
-obj2imm_mod(struct ast_state *state, PyObject* obj)
+int
+obj2imm_mod(struct ast_state *state, PyObject* obj, mod_ty* out)
 {
-    return Py_NewRef(obj);
+    *out = (mod_ty)Py_NewRef(obj);
+    return 0;
 }
 
-static PyObject *obj2imm_stmt_seq(struct ast_state *state, PyObject* obj)
+static int obj2imm_stmt_seq(struct ast_state *state, PyObject* obj,
+                            asdl_stmt_seq** out)
 {
-return NULL;
+    *out = NULL;
+    return -1;
 }
+
 int
 obj2ast_stmt(struct ast_state *state, PyObject* obj, stmt_ty* out, PyArena*
              arena)
@@ -20182,13 +22442,13 @@ obj2ast_stmt(struct ast_state *state, PyObject* obj, stmt_ty* out, PyArena*
         return -1;
     }
     if (isinstance) {
-        identifier name;
-        arguments_ty args;
-        asdl_stmt_seq* body;
-        asdl_expr_seq* decorator_list;
-        expr_ty returns;
+        identifier name = NULL;
+        arguments_ty args = NULL;
+        asdl_stmt_seq* body = NULL;
+        asdl_expr_seq* decorator_list = NULL;
+        expr_ty returns = NULL;
         string type_comment;
-        asdl_type_param_seq* type_params;
+        asdl_type_param_seq* type_params = NULL;
 
         if (PyObject_GetOptionalAttr(obj, state->name, &tmp) < 0) {
             return -1;
@@ -20385,13 +22645,13 @@ obj2ast_stmt(struct ast_state *state, PyObject* obj, stmt_ty* out, PyArena*
         return -1;
     }
     if (isinstance) {
-        identifier name;
-        arguments_ty args;
-        asdl_stmt_seq* body;
-        asdl_expr_seq* decorator_list;
-        expr_ty returns;
+        identifier name = NULL;
+        arguments_ty args = NULL;
+        asdl_stmt_seq* body = NULL;
+        asdl_expr_seq* decorator_list = NULL;
+        expr_ty returns = NULL;
         string type_comment;
-        asdl_type_param_seq* type_params;
+        asdl_type_param_seq* type_params = NULL;
 
         if (PyObject_GetOptionalAttr(obj, state->name, &tmp) < 0) {
             return -1;
@@ -20588,12 +22848,12 @@ obj2ast_stmt(struct ast_state *state, PyObject* obj, stmt_ty* out, PyArena*
         return -1;
     }
     if (isinstance) {
-        identifier name;
-        asdl_expr_seq* bases;
-        asdl_keyword_seq* keywords;
-        asdl_stmt_seq* body;
-        asdl_expr_seq* decorator_list;
-        asdl_type_param_seq* type_params;
+        identifier name = NULL;
+        asdl_expr_seq* bases = NULL;
+        asdl_keyword_seq* keywords = NULL;
+        asdl_stmt_seq* body = NULL;
+        asdl_expr_seq* decorator_list = NULL;
+        asdl_type_param_seq* type_params = NULL;
 
         if (PyObject_GetOptionalAttr(obj, state->name, &tmp) < 0) {
             return -1;
@@ -20814,7 +23074,7 @@ obj2ast_stmt(struct ast_state *state, PyObject* obj, stmt_ty* out, PyArena*
         return -1;
     }
     if (isinstance) {
-        expr_ty value;
+        expr_ty value = NULL;
 
         if (PyObject_GetOptionalAttr(obj, state->value, &tmp) < 0) {
             return -1;
@@ -20844,7 +23104,7 @@ obj2ast_stmt(struct ast_state *state, PyObject* obj, stmt_ty* out, PyArena*
         return -1;
     }
     if (isinstance) {
-        asdl_expr_seq* targets;
+        asdl_expr_seq* targets = NULL;
 
         if (PyObject_GetOptionalAttr(obj, state->targets, &tmp) < 0) {
             return -1;
@@ -20895,8 +23155,8 @@ obj2ast_stmt(struct ast_state *state, PyObject* obj, stmt_ty* out, PyArena*
         return -1;
     }
     if (isinstance) {
-        asdl_expr_seq* targets;
-        expr_ty value;
+        asdl_expr_seq* targets = NULL;
+        expr_ty value = NULL;
         string type_comment;
 
         if (PyObject_GetOptionalAttr(obj, state->targets, &tmp) < 0) {
@@ -20982,9 +23242,9 @@ obj2ast_stmt(struct ast_state *state, PyObject* obj, stmt_ty* out, PyArena*
         return -1;
     }
     if (isinstance) {
-        expr_ty name;
-        asdl_type_param_seq* type_params;
-        expr_ty value;
+        expr_ty name = NULL;
+        asdl_type_param_seq* type_params = NULL;
+        expr_ty value = NULL;
 
         if (PyObject_GetOptionalAttr(obj, state->name, &tmp) < 0) {
             return -1;
@@ -21069,9 +23329,9 @@ obj2ast_stmt(struct ast_state *state, PyObject* obj, stmt_ty* out, PyArena*
         return -1;
     }
     if (isinstance) {
-        expr_ty target;
+        expr_ty target = NULL;
         operator_ty op;
-        expr_ty value;
+        expr_ty value = NULL;
 
         if (PyObject_GetOptionalAttr(obj, state->target, &tmp) < 0) {
             return -1;
@@ -21135,9 +23395,9 @@ obj2ast_stmt(struct ast_state *state, PyObject* obj, stmt_ty* out, PyArena*
         return -1;
     }
     if (isinstance) {
-        expr_ty target;
-        expr_ty annotation;
-        expr_ty value;
+        expr_ty target = NULL;
+        expr_ty annotation = NULL;
+        expr_ty value = NULL;
         int simple;
 
         if (PyObject_GetOptionalAttr(obj, state->target, &tmp) < 0) {
@@ -21219,10 +23479,10 @@ obj2ast_stmt(struct ast_state *state, PyObject* obj, stmt_ty* out, PyArena*
         return -1;
     }
     if (isinstance) {
-        expr_ty target;
-        expr_ty iter;
-        asdl_stmt_seq* body;
-        asdl_stmt_seq* orelse;
+        expr_ty target = NULL;
+        expr_ty iter = NULL;
+        asdl_stmt_seq* body = NULL;
+        asdl_stmt_seq* orelse = NULL;
         string type_comment;
 
         if (PyObject_GetOptionalAttr(obj, state->target, &tmp) < 0) {
@@ -21363,10 +23623,10 @@ obj2ast_stmt(struct ast_state *state, PyObject* obj, stmt_ty* out, PyArena*
         return -1;
     }
     if (isinstance) {
-        expr_ty target;
-        expr_ty iter;
-        asdl_stmt_seq* body;
-        asdl_stmt_seq* orelse;
+        expr_ty target = NULL;
+        expr_ty iter = NULL;
+        asdl_stmt_seq* body = NULL;
+        asdl_stmt_seq* orelse = NULL;
         string type_comment;
 
         if (PyObject_GetOptionalAttr(obj, state->target, &tmp) < 0) {
@@ -21508,9 +23768,9 @@ obj2ast_stmt(struct ast_state *state, PyObject* obj, stmt_ty* out, PyArena*
         return -1;
     }
     if (isinstance) {
-        expr_ty test;
-        asdl_stmt_seq* body;
-        asdl_stmt_seq* orelse;
+        expr_ty test = NULL;
+        asdl_stmt_seq* body = NULL;
+        asdl_stmt_seq* orelse = NULL;
 
         if (PyObject_GetOptionalAttr(obj, state->test, &tmp) < 0) {
             return -1;
@@ -21616,9 +23876,9 @@ obj2ast_stmt(struct ast_state *state, PyObject* obj, stmt_ty* out, PyArena*
         return -1;
     }
     if (isinstance) {
-        expr_ty test;
-        asdl_stmt_seq* body;
-        asdl_stmt_seq* orelse;
+        expr_ty test = NULL;
+        asdl_stmt_seq* body = NULL;
+        asdl_stmt_seq* orelse = NULL;
 
         if (PyObject_GetOptionalAttr(obj, state->test, &tmp) < 0) {
             return -1;
@@ -21724,8 +23984,8 @@ obj2ast_stmt(struct ast_state *state, PyObject* obj, stmt_ty* out, PyArena*
         return -1;
     }
     if (isinstance) {
-        asdl_withitem_seq* items;
-        asdl_stmt_seq* body;
+        asdl_withitem_seq* items = NULL;
+        asdl_stmt_seq* body = NULL;
         string type_comment;
 
         if (PyObject_GetOptionalAttr(obj, state->items, &tmp) < 0) {
@@ -21832,8 +24092,8 @@ obj2ast_stmt(struct ast_state *state, PyObject* obj, stmt_ty* out, PyArena*
         return -1;
     }
     if (isinstance) {
-        asdl_withitem_seq* items;
-        asdl_stmt_seq* body;
+        asdl_withitem_seq* items = NULL;
+        asdl_stmt_seq* body = NULL;
         string type_comment;
 
         if (PyObject_GetOptionalAttr(obj, state->items, &tmp) < 0) {
@@ -21940,8 +24200,8 @@ obj2ast_stmt(struct ast_state *state, PyObject* obj, stmt_ty* out, PyArena*
         return -1;
     }
     if (isinstance) {
-        expr_ty subject;
-        asdl_match_case_seq* cases;
+        expr_ty subject = NULL;
+        asdl_match_case_seq* cases = NULL;
 
         if (PyObject_GetOptionalAttr(obj, state->subject, &tmp) < 0) {
             return -1;
@@ -22009,8 +24269,8 @@ obj2ast_stmt(struct ast_state *state, PyObject* obj, stmt_ty* out, PyArena*
         return -1;
     }
     if (isinstance) {
-        expr_ty exc;
-        expr_ty cause;
+        expr_ty exc = NULL;
+        expr_ty cause = NULL;
 
         if (PyObject_GetOptionalAttr(obj, state->exc, &tmp) < 0) {
             return -1;
@@ -22057,10 +24317,10 @@ obj2ast_stmt(struct ast_state *state, PyObject* obj, stmt_ty* out, PyArena*
         return -1;
     }
     if (isinstance) {
-        asdl_stmt_seq* body;
-        asdl_excepthandler_seq* handlers;
-        asdl_stmt_seq* orelse;
-        asdl_stmt_seq* finalbody;
+        asdl_stmt_seq* body = NULL;
+        asdl_excepthandler_seq* handlers = NULL;
+        asdl_stmt_seq* orelse = NULL;
+        asdl_stmt_seq* finalbody = NULL;
 
         if (PyObject_GetOptionalAttr(obj, state->body, &tmp) < 0) {
             return -1;
@@ -22225,10 +24485,10 @@ obj2ast_stmt(struct ast_state *state, PyObject* obj, stmt_ty* out, PyArena*
         return -1;
     }
     if (isinstance) {
-        asdl_stmt_seq* body;
-        asdl_excepthandler_seq* handlers;
-        asdl_stmt_seq* orelse;
-        asdl_stmt_seq* finalbody;
+        asdl_stmt_seq* body = NULL;
+        asdl_excepthandler_seq* handlers = NULL;
+        asdl_stmt_seq* orelse = NULL;
+        asdl_stmt_seq* finalbody = NULL;
 
         if (PyObject_GetOptionalAttr(obj, state->body, &tmp) < 0) {
             return -1;
@@ -22393,8 +24653,8 @@ obj2ast_stmt(struct ast_state *state, PyObject* obj, stmt_ty* out, PyArena*
         return -1;
     }
     if (isinstance) {
-        expr_ty test;
-        expr_ty msg;
+        expr_ty test = NULL;
+        expr_ty msg = NULL;
 
         if (PyObject_GetOptionalAttr(obj, state->test, &tmp) < 0) {
             return -1;
@@ -22441,7 +24701,7 @@ obj2ast_stmt(struct ast_state *state, PyObject* obj, stmt_ty* out, PyArena*
         return -1;
     }
     if (isinstance) {
-        asdl_alias_seq* names;
+        asdl_alias_seq* names = NULL;
 
         if (PyObject_GetOptionalAttr(obj, state->names, &tmp) < 0) {
             return -1;
@@ -22492,8 +24752,8 @@ obj2ast_stmt(struct ast_state *state, PyObject* obj, stmt_ty* out, PyArena*
         return -1;
     }
     if (isinstance) {
-        identifier module;
-        asdl_alias_seq* names;
+        identifier module = NULL;
+        asdl_alias_seq* names = NULL;
         int level;
 
         if (PyObject_GetOptionalAttr(obj, state->module, &tmp) < 0) {
@@ -22579,7 +24839,7 @@ obj2ast_stmt(struct ast_state *state, PyObject* obj, stmt_ty* out, PyArena*
         return -1;
     }
     if (isinstance) {
-        asdl_identifier_seq* names;
+        asdl_identifier_seq* names = NULL;
 
         if (PyObject_GetOptionalAttr(obj, state->names, &tmp) < 0) {
             return -1;
@@ -22630,7 +24890,7 @@ obj2ast_stmt(struct ast_state *state, PyObject* obj, stmt_ty* out, PyArena*
         return -1;
     }
     if (isinstance) {
-        asdl_identifier_seq* names;
+        asdl_identifier_seq* names = NULL;
 
         if (PyObject_GetOptionalAttr(obj, state->names, &tmp) < 0) {
             return -1;
@@ -22681,7 +24941,7 @@ obj2ast_stmt(struct ast_state *state, PyObject* obj, stmt_ty* out, PyArena*
         return -1;
     }
     if (isinstance) {
-        expr_ty value;
+        expr_ty value = NULL;
 
         if (PyObject_GetOptionalAttr(obj, state->value, &tmp) < 0) {
             return -1;
@@ -22748,16 +25008,20 @@ obj2ast_stmt(struct ast_state *state, PyObject* obj, stmt_ty* out, PyArena*
     return -1;
 }
 
-PyObject *
-obj2imm_stmt(struct ast_state *state, PyObject* obj)
+int
+obj2imm_stmt(struct ast_state *state, PyObject* obj, stmt_ty* out)
 {
-    return Py_NewRef(obj);
+    *out = (stmt_ty)Py_NewRef(obj);
+    return 0;
 }
 
-static PyObject *obj2imm_expr_seq(struct ast_state *state, PyObject* obj)
+static int obj2imm_expr_seq(struct ast_state *state, PyObject* obj,
+                            asdl_expr_seq** out)
 {
-return NULL;
+    *out = NULL;
+    return -1;
 }
+
 int
 obj2ast_expr(struct ast_state *state, PyObject* obj, expr_ty* out, PyArena*
              arena)
@@ -22850,7 +25114,7 @@ obj2ast_expr(struct ast_state *state, PyObject* obj, expr_ty* out, PyArena*
     }
     if (isinstance) {
         boolop_ty op;
-        asdl_expr_seq* values;
+        asdl_expr_seq* values = NULL;
 
         if (PyObject_GetOptionalAttr(obj, state->op, &tmp) < 0) {
             return -1;
@@ -22918,8 +25182,8 @@ obj2ast_expr(struct ast_state *state, PyObject* obj, expr_ty* out, PyArena*
         return -1;
     }
     if (isinstance) {
-        expr_ty target;
-        expr_ty value;
+        expr_ty target = NULL;
+        expr_ty value = NULL;
 
         if (PyObject_GetOptionalAttr(obj, state->target, &tmp) < 0) {
             return -1;
@@ -22966,9 +25230,9 @@ obj2ast_expr(struct ast_state *state, PyObject* obj, expr_ty* out, PyArena*
         return -1;
     }
     if (isinstance) {
-        expr_ty left;
+        expr_ty left = NULL;
         operator_ty op;
-        expr_ty right;
+        expr_ty right = NULL;
 
         if (PyObject_GetOptionalAttr(obj, state->left, &tmp) < 0) {
             return -1;
@@ -23033,7 +25297,7 @@ obj2ast_expr(struct ast_state *state, PyObject* obj, expr_ty* out, PyArena*
     }
     if (isinstance) {
         unaryop_ty op;
-        expr_ty operand;
+        expr_ty operand = NULL;
 
         if (PyObject_GetOptionalAttr(obj, state->op, &tmp) < 0) {
             return -1;
@@ -23080,8 +25344,8 @@ obj2ast_expr(struct ast_state *state, PyObject* obj, expr_ty* out, PyArena*
         return -1;
     }
     if (isinstance) {
-        arguments_ty args;
-        expr_ty body;
+        arguments_ty args = NULL;
+        expr_ty body = NULL;
 
         if (PyObject_GetOptionalAttr(obj, state->args, &tmp) < 0) {
             return -1;
@@ -23128,9 +25392,9 @@ obj2ast_expr(struct ast_state *state, PyObject* obj, expr_ty* out, PyArena*
         return -1;
     }
     if (isinstance) {
-        expr_ty test;
-        expr_ty body;
-        expr_ty orelse;
+        expr_ty test = NULL;
+        expr_ty body = NULL;
+        expr_ty orelse = NULL;
 
         if (PyObject_GetOptionalAttr(obj, state->test, &tmp) < 0) {
             return -1;
@@ -23194,8 +25458,8 @@ obj2ast_expr(struct ast_state *state, PyObject* obj, expr_ty* out, PyArena*
         return -1;
     }
     if (isinstance) {
-        asdl_expr_seq* keys;
-        asdl_expr_seq* values;
+        asdl_expr_seq* keys = NULL;
+        asdl_expr_seq* values = NULL;
 
         if (PyObject_GetOptionalAttr(obj, state->keys, &tmp) < 0) {
             return -1;
@@ -23284,7 +25548,7 @@ obj2ast_expr(struct ast_state *state, PyObject* obj, expr_ty* out, PyArena*
         return -1;
     }
     if (isinstance) {
-        asdl_expr_seq* elts;
+        asdl_expr_seq* elts = NULL;
 
         if (PyObject_GetOptionalAttr(obj, state->elts, &tmp) < 0) {
             return -1;
@@ -23335,8 +25599,8 @@ obj2ast_expr(struct ast_state *state, PyObject* obj, expr_ty* out, PyArena*
         return -1;
     }
     if (isinstance) {
-        expr_ty elt;
-        asdl_comprehension_seq* generators;
+        expr_ty elt = NULL;
+        asdl_comprehension_seq* generators = NULL;
 
         if (PyObject_GetOptionalAttr(obj, state->elt, &tmp) < 0) {
             return -1;
@@ -23404,8 +25668,8 @@ obj2ast_expr(struct ast_state *state, PyObject* obj, expr_ty* out, PyArena*
         return -1;
     }
     if (isinstance) {
-        expr_ty elt;
-        asdl_comprehension_seq* generators;
+        expr_ty elt = NULL;
+        asdl_comprehension_seq* generators = NULL;
 
         if (PyObject_GetOptionalAttr(obj, state->elt, &tmp) < 0) {
             return -1;
@@ -23473,9 +25737,9 @@ obj2ast_expr(struct ast_state *state, PyObject* obj, expr_ty* out, PyArena*
         return -1;
     }
     if (isinstance) {
-        expr_ty key;
-        expr_ty value;
-        asdl_comprehension_seq* generators;
+        expr_ty key = NULL;
+        expr_ty value = NULL;
+        asdl_comprehension_seq* generators = NULL;
 
         if (PyObject_GetOptionalAttr(obj, state->key, &tmp) < 0) {
             return -1;
@@ -23560,8 +25824,8 @@ obj2ast_expr(struct ast_state *state, PyObject* obj, expr_ty* out, PyArena*
         return -1;
     }
     if (isinstance) {
-        expr_ty elt;
-        asdl_comprehension_seq* generators;
+        expr_ty elt = NULL;
+        asdl_comprehension_seq* generators = NULL;
 
         if (PyObject_GetOptionalAttr(obj, state->elt, &tmp) < 0) {
             return -1;
@@ -23629,7 +25893,7 @@ obj2ast_expr(struct ast_state *state, PyObject* obj, expr_ty* out, PyArena*
         return -1;
     }
     if (isinstance) {
-        expr_ty value;
+        expr_ty value = NULL;
 
         if (PyObject_GetOptionalAttr(obj, state->value, &tmp) < 0) {
             return -1;
@@ -23659,7 +25923,7 @@ obj2ast_expr(struct ast_state *state, PyObject* obj, expr_ty* out, PyArena*
         return -1;
     }
     if (isinstance) {
-        expr_ty value;
+        expr_ty value = NULL;
 
         if (PyObject_GetOptionalAttr(obj, state->value, &tmp) < 0) {
             return -1;
@@ -23689,7 +25953,7 @@ obj2ast_expr(struct ast_state *state, PyObject* obj, expr_ty* out, PyArena*
         return -1;
     }
     if (isinstance) {
-        expr_ty value;
+        expr_ty value = NULL;
 
         if (PyObject_GetOptionalAttr(obj, state->value, &tmp) < 0) {
             return -1;
@@ -23719,9 +25983,9 @@ obj2ast_expr(struct ast_state *state, PyObject* obj, expr_ty* out, PyArena*
         return -1;
     }
     if (isinstance) {
-        expr_ty left;
-        asdl_int_seq* ops;
-        asdl_expr_seq* comparators;
+        expr_ty left = NULL;
+        asdl_int_seq* ops = NULL;
+        asdl_expr_seq* comparators = NULL;
 
         if (PyObject_GetOptionalAttr(obj, state->left, &tmp) < 0) {
             return -1;
@@ -23827,9 +26091,9 @@ obj2ast_expr(struct ast_state *state, PyObject* obj, expr_ty* out, PyArena*
         return -1;
     }
     if (isinstance) {
-        expr_ty func;
-        asdl_expr_seq* args;
-        asdl_keyword_seq* keywords;
+        expr_ty func = NULL;
+        asdl_expr_seq* args = NULL;
+        asdl_keyword_seq* keywords = NULL;
 
         if (PyObject_GetOptionalAttr(obj, state->func, &tmp) < 0) {
             return -1;
@@ -23935,9 +26199,9 @@ obj2ast_expr(struct ast_state *state, PyObject* obj, expr_ty* out, PyArena*
         return -1;
     }
     if (isinstance) {
-        expr_ty value;
+        expr_ty value = NULL;
         int conversion;
-        expr_ty format_spec;
+        expr_ty format_spec = NULL;
 
         if (PyObject_GetOptionalAttr(obj, state->value, &tmp) < 0) {
             return -1;
@@ -24002,10 +26266,10 @@ obj2ast_expr(struct ast_state *state, PyObject* obj, expr_ty* out, PyArena*
         return -1;
     }
     if (isinstance) {
-        expr_ty value;
-        constant str;
+        expr_ty value = NULL;
+        constant str = NULL;
         int conversion;
-        expr_ty format_spec;
+        expr_ty format_spec = NULL;
 
         if (PyObject_GetOptionalAttr(obj, state->value, &tmp) < 0) {
             return -1;
@@ -24087,7 +26351,7 @@ obj2ast_expr(struct ast_state *state, PyObject* obj, expr_ty* out, PyArena*
         return -1;
     }
     if (isinstance) {
-        asdl_expr_seq* values;
+        asdl_expr_seq* values = NULL;
 
         if (PyObject_GetOptionalAttr(obj, state->values, &tmp) < 0) {
             return -1;
@@ -24138,7 +26402,7 @@ obj2ast_expr(struct ast_state *state, PyObject* obj, expr_ty* out, PyArena*
         return -1;
     }
     if (isinstance) {
-        asdl_expr_seq* values;
+        asdl_expr_seq* values = NULL;
 
         if (PyObject_GetOptionalAttr(obj, state->values, &tmp) < 0) {
             return -1;
@@ -24189,7 +26453,7 @@ obj2ast_expr(struct ast_state *state, PyObject* obj, expr_ty* out, PyArena*
         return -1;
     }
     if (isinstance) {
-        constant value;
+        constant value = NULL;
         string kind;
 
         if (PyObject_GetOptionalAttr(obj, state->value, &tmp) < 0) {
@@ -24237,8 +26501,8 @@ obj2ast_expr(struct ast_state *state, PyObject* obj, expr_ty* out, PyArena*
         return -1;
     }
     if (isinstance) {
-        expr_ty value;
-        identifier attr;
+        expr_ty value = NULL;
+        identifier attr = NULL;
         expr_context_ty ctx;
 
         if (PyObject_GetOptionalAttr(obj, state->value, &tmp) < 0) {
@@ -24303,8 +26567,8 @@ obj2ast_expr(struct ast_state *state, PyObject* obj, expr_ty* out, PyArena*
         return -1;
     }
     if (isinstance) {
-        expr_ty value;
-        expr_ty slice;
+        expr_ty value = NULL;
+        expr_ty slice = NULL;
         expr_context_ty ctx;
 
         if (PyObject_GetOptionalAttr(obj, state->value, &tmp) < 0) {
@@ -24369,7 +26633,7 @@ obj2ast_expr(struct ast_state *state, PyObject* obj, expr_ty* out, PyArena*
         return -1;
     }
     if (isinstance) {
-        expr_ty value;
+        expr_ty value = NULL;
         expr_context_ty ctx;
 
         if (PyObject_GetOptionalAttr(obj, state->value, &tmp) < 0) {
@@ -24417,7 +26681,7 @@ obj2ast_expr(struct ast_state *state, PyObject* obj, expr_ty* out, PyArena*
         return -1;
     }
     if (isinstance) {
-        identifier id;
+        identifier id = NULL;
         expr_context_ty ctx;
 
         if (PyObject_GetOptionalAttr(obj, state->id, &tmp) < 0) {
@@ -24465,7 +26729,7 @@ obj2ast_expr(struct ast_state *state, PyObject* obj, expr_ty* out, PyArena*
         return -1;
     }
     if (isinstance) {
-        asdl_expr_seq* elts;
+        asdl_expr_seq* elts = NULL;
         expr_context_ty ctx;
 
         if (PyObject_GetOptionalAttr(obj, state->elts, &tmp) < 0) {
@@ -24534,7 +26798,7 @@ obj2ast_expr(struct ast_state *state, PyObject* obj, expr_ty* out, PyArena*
         return -1;
     }
     if (isinstance) {
-        asdl_expr_seq* elts;
+        asdl_expr_seq* elts = NULL;
         expr_context_ty ctx;
 
         if (PyObject_GetOptionalAttr(obj, state->elts, &tmp) < 0) {
@@ -24603,9 +26867,9 @@ obj2ast_expr(struct ast_state *state, PyObject* obj, expr_ty* out, PyArena*
         return -1;
     }
     if (isinstance) {
-        expr_ty lower;
-        expr_ty upper;
-        expr_ty step;
+        expr_ty lower = NULL;
+        expr_ty upper = NULL;
+        expr_ty step = NULL;
 
         if (PyObject_GetOptionalAttr(obj, state->lower, &tmp) < 0) {
             return -1;
@@ -24670,17 +26934,20 @@ obj2ast_expr(struct ast_state *state, PyObject* obj, expr_ty* out, PyArena*
     return -1;
 }
 
-PyObject *
-obj2imm_expr(struct ast_state *state, PyObject* obj)
+int
+obj2imm_expr(struct ast_state *state, PyObject* obj, expr_ty* out)
 {
-    return Py_NewRef(obj);
+    *out = (expr_ty)Py_NewRef(obj);
+    return 0;
 }
 
-static PyObject *obj2imm_expr_context_seq(struct ast_state *state, PyObject*
-                                          obj)
+static int obj2imm_expr_context_seq(struct ast_state *state, PyObject* obj,
+                                    asdl_int_seq** out)
 {
-return NULL;
+    *out = NULL;
+    return -1;
 }
+
 int
 obj2ast_expr_context(struct ast_state *state, PyObject* obj, expr_context_ty*
                      out, PyArena* arena)
@@ -24751,10 +27018,13 @@ obj2imm_expr_context(struct ast_state *state, PyObject* obj, expr_context_ty*
     return -1;
 }
 
-static PyObject *obj2imm_boolop_seq(struct ast_state *state, PyObject* obj)
+static int obj2imm_boolop_seq(struct ast_state *state, PyObject* obj,
+                              asdl_int_seq** out)
 {
-return NULL;
+    *out = NULL;
+    return -1;
 }
+
 int
 obj2ast_boolop(struct ast_state *state, PyObject* obj, boolop_ty* out, PyArena*
                arena)
@@ -24808,10 +27078,13 @@ obj2imm_boolop(struct ast_state *state, PyObject* obj, boolop_ty* out)
     return -1;
 }
 
-static PyObject *obj2imm_operator_seq(struct ast_state *state, PyObject* obj)
+static int obj2imm_operator_seq(struct ast_state *state, PyObject* obj,
+                                asdl_int_seq** out)
 {
-return NULL;
+    *out = NULL;
+    return -1;
 }
+
 int
 obj2ast_operator(struct ast_state *state, PyObject* obj, operator_ty* out,
                  PyArena* arena)
@@ -24932,7 +27205,7 @@ obj2imm_operator(struct ast_state *state, PyObject* obj, operator_ty* out)
 {
     int isinstance;
 
-    isinstance = PyObject_IsInstance(obj, state->Add_type);
+    isinstance = PyObject_IsInstance(obj, state->_Add_type);
     if (isinstance == -1) {
         return -1;
     }
@@ -24940,7 +27213,7 @@ obj2imm_operator(struct ast_state *state, PyObject* obj, operator_ty* out)
         *out = Add;
         return 0;
     }
-    isinstance = PyObject_IsInstance(obj, state->Sub_type);
+    isinstance = PyObject_IsInstance(obj, state->_Sub_type);
     if (isinstance == -1) {
         return -1;
     }
@@ -24948,7 +27221,7 @@ obj2imm_operator(struct ast_state *state, PyObject* obj, operator_ty* out)
         *out = Sub;
         return 0;
     }
-    isinstance = PyObject_IsInstance(obj, state->Mult_type);
+    isinstance = PyObject_IsInstance(obj, state->_Mult_type);
     if (isinstance == -1) {
         return -1;
     }
@@ -24956,7 +27229,7 @@ obj2imm_operator(struct ast_state *state, PyObject* obj, operator_ty* out)
         *out = Mult;
         return 0;
     }
-    isinstance = PyObject_IsInstance(obj, state->MatMult_type);
+    isinstance = PyObject_IsInstance(obj, state->_MatMult_type);
     if (isinstance == -1) {
         return -1;
     }
@@ -24964,7 +27237,7 @@ obj2imm_operator(struct ast_state *state, PyObject* obj, operator_ty* out)
         *out = MatMult;
         return 0;
     }
-    isinstance = PyObject_IsInstance(obj, state->Div_type);
+    isinstance = PyObject_IsInstance(obj, state->_Div_type);
     if (isinstance == -1) {
         return -1;
     }
@@ -24972,7 +27245,7 @@ obj2imm_operator(struct ast_state *state, PyObject* obj, operator_ty* out)
         *out = Div;
         return 0;
     }
-    isinstance = PyObject_IsInstance(obj, state->Mod_type);
+    isinstance = PyObject_IsInstance(obj, state->_Mod_type);
     if (isinstance == -1) {
         return -1;
     }
@@ -24980,7 +27253,7 @@ obj2imm_operator(struct ast_state *state, PyObject* obj, operator_ty* out)
         *out = Mod;
         return 0;
     }
-    isinstance = PyObject_IsInstance(obj, state->Pow_type);
+    isinstance = PyObject_IsInstance(obj, state->_Pow_type);
     if (isinstance == -1) {
         return -1;
     }
@@ -24988,7 +27261,7 @@ obj2imm_operator(struct ast_state *state, PyObject* obj, operator_ty* out)
         *out = Pow;
         return 0;
     }
-    isinstance = PyObject_IsInstance(obj, state->LShift_type);
+    isinstance = PyObject_IsInstance(obj, state->_LShift_type);
     if (isinstance == -1) {
         return -1;
     }
@@ -24996,7 +27269,7 @@ obj2imm_operator(struct ast_state *state, PyObject* obj, operator_ty* out)
         *out = LShift;
         return 0;
     }
-    isinstance = PyObject_IsInstance(obj, state->RShift_type);
+    isinstance = PyObject_IsInstance(obj, state->_RShift_type);
     if (isinstance == -1) {
         return -1;
     }
@@ -25004,7 +27277,7 @@ obj2imm_operator(struct ast_state *state, PyObject* obj, operator_ty* out)
         *out = RShift;
         return 0;
     }
-    isinstance = PyObject_IsInstance(obj, state->BitOr_type);
+    isinstance = PyObject_IsInstance(obj, state->_BitOr_type);
     if (isinstance == -1) {
         return -1;
     }
@@ -25012,7 +27285,7 @@ obj2imm_operator(struct ast_state *state, PyObject* obj, operator_ty* out)
         *out = BitOr;
         return 0;
     }
-    isinstance = PyObject_IsInstance(obj, state->BitXor_type);
+    isinstance = PyObject_IsInstance(obj, state->_BitXor_type);
     if (isinstance == -1) {
         return -1;
     }
@@ -25020,7 +27293,7 @@ obj2imm_operator(struct ast_state *state, PyObject* obj, operator_ty* out)
         *out = BitXor;
         return 0;
     }
-    isinstance = PyObject_IsInstance(obj, state->BitAnd_type);
+    isinstance = PyObject_IsInstance(obj, state->_BitAnd_type);
     if (isinstance == -1) {
         return -1;
     }
@@ -25028,7 +27301,7 @@ obj2imm_operator(struct ast_state *state, PyObject* obj, operator_ty* out)
         *out = BitAnd;
         return 0;
     }
-    isinstance = PyObject_IsInstance(obj, state->FloorDiv_type);
+    isinstance = PyObject_IsInstance(obj, state->_FloorDiv_type);
     if (isinstance == -1) {
         return -1;
     }
@@ -25041,10 +27314,13 @@ obj2imm_operator(struct ast_state *state, PyObject* obj, operator_ty* out)
     return -1;
 }
 
-static PyObject *obj2imm_unaryop_seq(struct ast_state *state, PyObject* obj)
+static int obj2imm_unaryop_seq(struct ast_state *state, PyObject* obj,
+                               asdl_int_seq** out)
 {
-return NULL;
+    *out = NULL;
+    return -1;
 }
+
 int
 obj2ast_unaryop(struct ast_state *state, PyObject* obj, unaryop_ty* out,
                 PyArena* arena)
@@ -25093,7 +27369,7 @@ obj2imm_unaryop(struct ast_state *state, PyObject* obj, unaryop_ty* out)
 {
     int isinstance;
 
-    isinstance = PyObject_IsInstance(obj, state->Invert_type);
+    isinstance = PyObject_IsInstance(obj, state->_Invert_type);
     if (isinstance == -1) {
         return -1;
     }
@@ -25101,7 +27377,7 @@ obj2imm_unaryop(struct ast_state *state, PyObject* obj, unaryop_ty* out)
         *out = Invert;
         return 0;
     }
-    isinstance = PyObject_IsInstance(obj, state->Not_type);
+    isinstance = PyObject_IsInstance(obj, state->_Not_type);
     if (isinstance == -1) {
         return -1;
     }
@@ -25109,7 +27385,7 @@ obj2imm_unaryop(struct ast_state *state, PyObject* obj, unaryop_ty* out)
         *out = Not;
         return 0;
     }
-    isinstance = PyObject_IsInstance(obj, state->UAdd_type);
+    isinstance = PyObject_IsInstance(obj, state->_UAdd_type);
     if (isinstance == -1) {
         return -1;
     }
@@ -25117,7 +27393,7 @@ obj2imm_unaryop(struct ast_state *state, PyObject* obj, unaryop_ty* out)
         *out = UAdd;
         return 0;
     }
-    isinstance = PyObject_IsInstance(obj, state->USub_type);
+    isinstance = PyObject_IsInstance(obj, state->_USub_type);
     if (isinstance == -1) {
         return -1;
     }
@@ -25130,10 +27406,13 @@ obj2imm_unaryop(struct ast_state *state, PyObject* obj, unaryop_ty* out)
     return -1;
 }
 
-static PyObject *obj2imm_cmpop_seq(struct ast_state *state, PyObject* obj)
+static int obj2imm_cmpop_seq(struct ast_state *state, PyObject* obj,
+                             asdl_int_seq** out)
 {
-return NULL;
+    *out = NULL;
+    return -1;
 }
+
 int
 obj2ast_cmpop(struct ast_state *state, PyObject* obj, cmpop_ty* out, PyArena*
               arena)
@@ -25230,7 +27509,7 @@ obj2imm_cmpop(struct ast_state *state, PyObject* obj, cmpop_ty* out)
 {
     int isinstance;
 
-    isinstance = PyObject_IsInstance(obj, state->Eq_type);
+    isinstance = PyObject_IsInstance(obj, state->_Eq_type);
     if (isinstance == -1) {
         return -1;
     }
@@ -25238,7 +27517,7 @@ obj2imm_cmpop(struct ast_state *state, PyObject* obj, cmpop_ty* out)
         *out = Eq;
         return 0;
     }
-    isinstance = PyObject_IsInstance(obj, state->NotEq_type);
+    isinstance = PyObject_IsInstance(obj, state->_NotEq_type);
     if (isinstance == -1) {
         return -1;
     }
@@ -25246,7 +27525,7 @@ obj2imm_cmpop(struct ast_state *state, PyObject* obj, cmpop_ty* out)
         *out = NotEq;
         return 0;
     }
-    isinstance = PyObject_IsInstance(obj, state->Lt_type);
+    isinstance = PyObject_IsInstance(obj, state->_Lt_type);
     if (isinstance == -1) {
         return -1;
     }
@@ -25254,7 +27533,7 @@ obj2imm_cmpop(struct ast_state *state, PyObject* obj, cmpop_ty* out)
         *out = Lt;
         return 0;
     }
-    isinstance = PyObject_IsInstance(obj, state->LtE_type);
+    isinstance = PyObject_IsInstance(obj, state->_LtE_type);
     if (isinstance == -1) {
         return -1;
     }
@@ -25262,7 +27541,7 @@ obj2imm_cmpop(struct ast_state *state, PyObject* obj, cmpop_ty* out)
         *out = LtE;
         return 0;
     }
-    isinstance = PyObject_IsInstance(obj, state->Gt_type);
+    isinstance = PyObject_IsInstance(obj, state->_Gt_type);
     if (isinstance == -1) {
         return -1;
     }
@@ -25270,7 +27549,7 @@ obj2imm_cmpop(struct ast_state *state, PyObject* obj, cmpop_ty* out)
         *out = Gt;
         return 0;
     }
-    isinstance = PyObject_IsInstance(obj, state->GtE_type);
+    isinstance = PyObject_IsInstance(obj, state->_GtE_type);
     if (isinstance == -1) {
         return -1;
     }
@@ -25278,7 +27557,7 @@ obj2imm_cmpop(struct ast_state *state, PyObject* obj, cmpop_ty* out)
         *out = GtE;
         return 0;
     }
-    isinstance = PyObject_IsInstance(obj, state->Is_type);
+    isinstance = PyObject_IsInstance(obj, state->_Is_type);
     if (isinstance == -1) {
         return -1;
     }
@@ -25286,7 +27565,7 @@ obj2imm_cmpop(struct ast_state *state, PyObject* obj, cmpop_ty* out)
         *out = Is;
         return 0;
     }
-    isinstance = PyObject_IsInstance(obj, state->IsNot_type);
+    isinstance = PyObject_IsInstance(obj, state->_IsNot_type);
     if (isinstance == -1) {
         return -1;
     }
@@ -25294,7 +27573,7 @@ obj2imm_cmpop(struct ast_state *state, PyObject* obj, cmpop_ty* out)
         *out = IsNot;
         return 0;
     }
-    isinstance = PyObject_IsInstance(obj, state->In_type);
+    isinstance = PyObject_IsInstance(obj, state->_In_type);
     if (isinstance == -1) {
         return -1;
     }
@@ -25302,7 +27581,7 @@ obj2imm_cmpop(struct ast_state *state, PyObject* obj, cmpop_ty* out)
         *out = In;
         return 0;
     }
-    isinstance = PyObject_IsInstance(obj, state->NotIn_type);
+    isinstance = PyObject_IsInstance(obj, state->_NotIn_type);
     if (isinstance == -1) {
         return -1;
     }
@@ -25315,19 +27594,21 @@ obj2imm_cmpop(struct ast_state *state, PyObject* obj, cmpop_ty* out)
     return -1;
 }
 
-static PyObject *obj2imm_comprehension_seq(struct ast_state *state, PyObject*
-                                           obj)
+static int obj2imm_comprehension_seq(struct ast_state *state, PyObject* obj,
+                                     asdl_comprehension_seq** out)
 {
-return NULL;
+    *out = NULL;
+    return -1;
 }
+
 int
 obj2ast_comprehension(struct ast_state *state, PyObject* obj, comprehension_ty*
                       out, PyArena* arena)
 {
     PyObject* tmp = NULL;
-    expr_ty target;
-    expr_ty iter;
-    asdl_expr_seq* ifs;
+    expr_ty target = NULL;
+    expr_ty iter = NULL;
+    asdl_expr_seq* ifs = NULL;
     int is_async;
 
     if (PyObject_GetOptionalAttr(obj, state->target, &tmp) < 0) {
@@ -25427,17 +27708,128 @@ failed:
     return -1;
 }
 
-PyObject *
-obj2imm_comprehension(struct ast_state *state, PyObject* obj)
+int
+obj2imm_comprehension(struct ast_state *state, PyObject* obj, comprehension_ty*
+                      out)
 {
-    return Py_NewRef(obj);
+    expr_ty target = NULL;
+    expr_ty iter = NULL;
+    asdl_expr_seq* ifs = NULL;
+    int is_async;
+
+    if (Py_TYPE(obj) == (PyTypeObject *)state->_comprehension_type) {
+        *out = (comprehension_ty)Py_NewRef(obj);
+        return *out != NULL ? 0 : -1;
+    }
+
+    PyObject* tmp = NULL;
+    if (PyObject_GetOptionalAttr(obj, state->target, &tmp) < 0) {
+        return -1;
+    }
+    if (tmp == NULL) {
+        PyErr_SetString(PyExc_TypeError, "required field \"target\" missing from comprehension");
+        goto failed;
+    }
+    else {
+        int res;
+        if (_Py_EnterRecursiveCall(" while traversing 'comprehension' node")) {
+            goto failed;
+        }
+        res = obj2imm_expr(state, tmp, &target);
+        _Py_LeaveRecursiveCall();
+        if (res != 0) goto failed;
+        Py_CLEAR(tmp);
+    }
+    if (PyObject_GetOptionalAttr(obj, state->iter, &tmp) < 0) {
+        return -1;
+    }
+    if (tmp == NULL) {
+        PyErr_SetString(PyExc_TypeError, "required field \"iter\" missing from comprehension");
+        goto failed;
+    }
+    else {
+        int res;
+        if (_Py_EnterRecursiveCall(" while traversing 'comprehension' node")) {
+            goto failed;
+        }
+        res = obj2imm_expr(state, tmp, &iter);
+        _Py_LeaveRecursiveCall();
+        if (res != 0) goto failed;
+        Py_CLEAR(tmp);
+    }
+    if (PyObject_GetOptionalAttr(obj, state->ifs, &tmp) < 0) {
+        return -1;
+    }
+    if (tmp == NULL) {
+        tmp = PyList_New(0);
+        if (tmp == NULL) {
+            goto failed;
+        }
+    }
+    {
+        int res;
+        Py_ssize_t len;
+        Py_ssize_t i;
+        if (!PyList_Check(tmp)) {
+            PyErr_Format(PyExc_TypeError, "comprehension field \"ifs\" must be a list, not a %.200s", _PyType_Name(Py_TYPE(tmp)));
+            goto failed;
+        }
+        len = PyList_GET_SIZE(tmp);
+        ifs = _Py_asdl_expr_seq_new(len, NULL);
+        if (ifs == NULL) goto failed;
+        for (i = 0; i < len; i++) {
+            expr_ty val;
+            PyObject *tmp2 = Py_NewRef(PyList_GET_ITEM(tmp, i));
+            if (_Py_EnterRecursiveCall(" while traversing 'comprehension' node")) {
+                goto failed;
+            }
+            res = obj2imm_expr(state, tmp2, &val);
+            _Py_LeaveRecursiveCall();
+            Py_DECREF(tmp2);
+            if (res != 0) goto failed;
+            if (len != PyList_GET_SIZE(tmp)) {
+                PyErr_SetString(PyExc_RuntimeError, "comprehension field \"ifs\" changed size during iteration");
+                goto failed;
+            }
+            asdl_seq_SET(ifs, i, val);
+        }
+        Py_CLEAR(tmp);
+    }
+    if (PyObject_GetOptionalAttr(obj, state->is_async, &tmp) < 0) {
+        return -1;
+    }
+    if (tmp == NULL) {
+        PyErr_SetString(PyExc_TypeError, "required field \"is_async\" missing from comprehension");
+        goto failed;
+    }
+    else {
+        int res;
+        if (_Py_EnterRecursiveCall(" while traversing 'comprehension' node")) {
+            goto failed;
+        }
+        res = obj2imm_int(state, tmp, &is_async);
+        _Py_LeaveRecursiveCall();
+        if (res != 0) goto failed;
+        Py_CLEAR(tmp);
+    }
+    *out = _PyAST_comprehensionHeap(state, target, iter, ifs, is_async);
+    if (*out == NULL) goto failed;
+    return 0;
+failed:
+    Py_XDECREF(tmp);
+    Py_XDECREF(target);
+    Py_XDECREF(iter);
+    Py_XDECREF(ifs);
+    return -1;
 }
 
-static PyObject *obj2imm_excepthandler_seq(struct ast_state *state, PyObject*
-                                           obj)
+static int obj2imm_excepthandler_seq(struct ast_state *state, PyObject* obj,
+                                     asdl_excepthandler_seq** out)
 {
-return NULL;
+    *out = NULL;
+    return -1;
 }
+
 int
 obj2ast_excepthandler(struct ast_state *state, PyObject* obj, excepthandler_ty*
                       out, PyArena* arena)
@@ -25529,9 +27921,9 @@ obj2ast_excepthandler(struct ast_state *state, PyObject* obj, excepthandler_ty*
         return -1;
     }
     if (isinstance) {
-        expr_ty type;
-        identifier name;
-        asdl_stmt_seq* body;
+        expr_ty type = NULL;
+        identifier name = NULL;
+        asdl_stmt_seq* body = NULL;
 
         if (PyObject_GetOptionalAttr(obj, state->type, &tmp) < 0) {
             return -1;
@@ -25617,28 +28009,33 @@ obj2ast_excepthandler(struct ast_state *state, PyObject* obj, excepthandler_ty*
     return -1;
 }
 
-PyObject *
-obj2imm_excepthandler(struct ast_state *state, PyObject* obj)
+int
+obj2imm_excepthandler(struct ast_state *state, PyObject* obj, excepthandler_ty*
+                      out)
 {
-    return Py_NewRef(obj);
+    *out = (excepthandler_ty)Py_NewRef(obj);
+    return 0;
 }
 
-static PyObject *obj2imm_arguments_seq(struct ast_state *state, PyObject* obj)
+static int obj2imm_arguments_seq(struct ast_state *state, PyObject* obj,
+                                 asdl_arguments_seq** out)
 {
-return NULL;
+    *out = NULL;
+    return -1;
 }
+
 int
 obj2ast_arguments(struct ast_state *state, PyObject* obj, arguments_ty* out,
                   PyArena* arena)
 {
     PyObject* tmp = NULL;
-    asdl_arg_seq* posonlyargs;
-    asdl_arg_seq* args;
-    arg_ty vararg;
-    asdl_arg_seq* kwonlyargs;
-    asdl_expr_seq* kw_defaults;
-    arg_ty kwarg;
-    asdl_expr_seq* defaults;
+    asdl_arg_seq* posonlyargs = NULL;
+    asdl_arg_seq* args = NULL;
+    arg_ty vararg = NULL;
+    asdl_arg_seq* kwonlyargs = NULL;
+    asdl_expr_seq* kw_defaults = NULL;
+    arg_ty kwarg = NULL;
+    asdl_expr_seq* defaults = NULL;
 
     if (PyObject_GetOptionalAttr(obj, state->posonlyargs, &tmp) < 0) {
         return -1;
@@ -25873,22 +28270,276 @@ failed:
     return -1;
 }
 
-PyObject *
-obj2imm_arguments(struct ast_state *state, PyObject* obj)
+int
+obj2imm_arguments(struct ast_state *state, PyObject* obj, arguments_ty* out)
 {
-    return Py_NewRef(obj);
+    asdl_arg_seq* posonlyargs = NULL;
+    asdl_arg_seq* args = NULL;
+    arg_ty vararg = NULL;
+    asdl_arg_seq* kwonlyargs = NULL;
+    asdl_expr_seq* kw_defaults = NULL;
+    arg_ty kwarg = NULL;
+    asdl_expr_seq* defaults = NULL;
+
+    if (Py_TYPE(obj) == (PyTypeObject *)state->_arguments_type) {
+        *out = (arguments_ty)Py_NewRef(obj);
+        return *out != NULL ? 0 : -1;
+    }
+
+    PyObject* tmp = NULL;
+    if (PyObject_GetOptionalAttr(obj, state->posonlyargs, &tmp) < 0) {
+        return -1;
+    }
+    if (tmp == NULL) {
+        tmp = PyList_New(0);
+        if (tmp == NULL) {
+            goto failed;
+        }
+    }
+    {
+        int res;
+        Py_ssize_t len;
+        Py_ssize_t i;
+        if (!PyList_Check(tmp)) {
+            PyErr_Format(PyExc_TypeError, "arguments field \"posonlyargs\" must be a list, not a %.200s", _PyType_Name(Py_TYPE(tmp)));
+            goto failed;
+        }
+        len = PyList_GET_SIZE(tmp);
+        posonlyargs = _Py_asdl_arg_seq_new(len, NULL);
+        if (posonlyargs == NULL) goto failed;
+        for (i = 0; i < len; i++) {
+            arg_ty val;
+            PyObject *tmp2 = Py_NewRef(PyList_GET_ITEM(tmp, i));
+            if (_Py_EnterRecursiveCall(" while traversing 'arguments' node")) {
+                goto failed;
+            }
+            res = obj2imm_arg(state, tmp2, &val);
+            _Py_LeaveRecursiveCall();
+            Py_DECREF(tmp2);
+            if (res != 0) goto failed;
+            if (len != PyList_GET_SIZE(tmp)) {
+                PyErr_SetString(PyExc_RuntimeError, "arguments field \"posonlyargs\" changed size during iteration");
+                goto failed;
+            }
+            asdl_seq_SET(posonlyargs, i, val);
+        }
+        Py_CLEAR(tmp);
+    }
+    if (PyObject_GetOptionalAttr(obj, state->args, &tmp) < 0) {
+        return -1;
+    }
+    if (tmp == NULL) {
+        tmp = PyList_New(0);
+        if (tmp == NULL) {
+            goto failed;
+        }
+    }
+    {
+        int res;
+        Py_ssize_t len;
+        Py_ssize_t i;
+        if (!PyList_Check(tmp)) {
+            PyErr_Format(PyExc_TypeError, "arguments field \"args\" must be a list, not a %.200s", _PyType_Name(Py_TYPE(tmp)));
+            goto failed;
+        }
+        len = PyList_GET_SIZE(tmp);
+        args = _Py_asdl_arg_seq_new(len, NULL);
+        if (args == NULL) goto failed;
+        for (i = 0; i < len; i++) {
+            arg_ty val;
+            PyObject *tmp2 = Py_NewRef(PyList_GET_ITEM(tmp, i));
+            if (_Py_EnterRecursiveCall(" while traversing 'arguments' node")) {
+                goto failed;
+            }
+            res = obj2imm_arg(state, tmp2, &val);
+            _Py_LeaveRecursiveCall();
+            Py_DECREF(tmp2);
+            if (res != 0) goto failed;
+            if (len != PyList_GET_SIZE(tmp)) {
+                PyErr_SetString(PyExc_RuntimeError, "arguments field \"args\" changed size during iteration");
+                goto failed;
+            }
+            asdl_seq_SET(args, i, val);
+        }
+        Py_CLEAR(tmp);
+    }
+    if (PyObject_GetOptionalAttr(obj, state->vararg, &tmp) < 0) {
+        return -1;
+    }
+    if (tmp == NULL || tmp == Py_None) {
+        Py_CLEAR(tmp);
+        vararg = NULL;
+    }
+    else {
+        int res;
+        if (_Py_EnterRecursiveCall(" while traversing 'arguments' node")) {
+            goto failed;
+        }
+        res = obj2imm_arg(state, tmp, &vararg);
+        _Py_LeaveRecursiveCall();
+        if (res != 0) goto failed;
+        Py_CLEAR(tmp);
+    }
+    if (PyObject_GetOptionalAttr(obj, state->kwonlyargs, &tmp) < 0) {
+        return -1;
+    }
+    if (tmp == NULL) {
+        tmp = PyList_New(0);
+        if (tmp == NULL) {
+            goto failed;
+        }
+    }
+    {
+        int res;
+        Py_ssize_t len;
+        Py_ssize_t i;
+        if (!PyList_Check(tmp)) {
+            PyErr_Format(PyExc_TypeError, "arguments field \"kwonlyargs\" must be a list, not a %.200s", _PyType_Name(Py_TYPE(tmp)));
+            goto failed;
+        }
+        len = PyList_GET_SIZE(tmp);
+        kwonlyargs = _Py_asdl_arg_seq_new(len, NULL);
+        if (kwonlyargs == NULL) goto failed;
+        for (i = 0; i < len; i++) {
+            arg_ty val;
+            PyObject *tmp2 = Py_NewRef(PyList_GET_ITEM(tmp, i));
+            if (_Py_EnterRecursiveCall(" while traversing 'arguments' node")) {
+                goto failed;
+            }
+            res = obj2imm_arg(state, tmp2, &val);
+            _Py_LeaveRecursiveCall();
+            Py_DECREF(tmp2);
+            if (res != 0) goto failed;
+            if (len != PyList_GET_SIZE(tmp)) {
+                PyErr_SetString(PyExc_RuntimeError, "arguments field \"kwonlyargs\" changed size during iteration");
+                goto failed;
+            }
+            asdl_seq_SET(kwonlyargs, i, val);
+        }
+        Py_CLEAR(tmp);
+    }
+    if (PyObject_GetOptionalAttr(obj, state->kw_defaults, &tmp) < 0) {
+        return -1;
+    }
+    if (tmp == NULL) {
+        tmp = PyList_New(0);
+        if (tmp == NULL) {
+            goto failed;
+        }
+    }
+    {
+        int res;
+        Py_ssize_t len;
+        Py_ssize_t i;
+        if (!PyList_Check(tmp)) {
+            PyErr_Format(PyExc_TypeError, "arguments field \"kw_defaults\" must be a list, not a %.200s", _PyType_Name(Py_TYPE(tmp)));
+            goto failed;
+        }
+        len = PyList_GET_SIZE(tmp);
+        kw_defaults = _Py_asdl_expr_seq_new(len, NULL);
+        if (kw_defaults == NULL) goto failed;
+        for (i = 0; i < len; i++) {
+            expr_ty val;
+            PyObject *tmp2 = Py_NewRef(PyList_GET_ITEM(tmp, i));
+            if (_Py_EnterRecursiveCall(" while traversing 'arguments' node")) {
+                goto failed;
+            }
+            res = obj2imm_expr(state, tmp2, &val);
+            _Py_LeaveRecursiveCall();
+            Py_DECREF(tmp2);
+            if (res != 0) goto failed;
+            if (len != PyList_GET_SIZE(tmp)) {
+                PyErr_SetString(PyExc_RuntimeError, "arguments field \"kw_defaults\" changed size during iteration");
+                goto failed;
+            }
+            asdl_seq_SET(kw_defaults, i, val);
+        }
+        Py_CLEAR(tmp);
+    }
+    if (PyObject_GetOptionalAttr(obj, state->kwarg, &tmp) < 0) {
+        return -1;
+    }
+    if (tmp == NULL || tmp == Py_None) {
+        Py_CLEAR(tmp);
+        kwarg = NULL;
+    }
+    else {
+        int res;
+        if (_Py_EnterRecursiveCall(" while traversing 'arguments' node")) {
+            goto failed;
+        }
+        res = obj2imm_arg(state, tmp, &kwarg);
+        _Py_LeaveRecursiveCall();
+        if (res != 0) goto failed;
+        Py_CLEAR(tmp);
+    }
+    if (PyObject_GetOptionalAttr(obj, state->defaults, &tmp) < 0) {
+        return -1;
+    }
+    if (tmp == NULL) {
+        tmp = PyList_New(0);
+        if (tmp == NULL) {
+            goto failed;
+        }
+    }
+    {
+        int res;
+        Py_ssize_t len;
+        Py_ssize_t i;
+        if (!PyList_Check(tmp)) {
+            PyErr_Format(PyExc_TypeError, "arguments field \"defaults\" must be a list, not a %.200s", _PyType_Name(Py_TYPE(tmp)));
+            goto failed;
+        }
+        len = PyList_GET_SIZE(tmp);
+        defaults = _Py_asdl_expr_seq_new(len, NULL);
+        if (defaults == NULL) goto failed;
+        for (i = 0; i < len; i++) {
+            expr_ty val;
+            PyObject *tmp2 = Py_NewRef(PyList_GET_ITEM(tmp, i));
+            if (_Py_EnterRecursiveCall(" while traversing 'arguments' node")) {
+                goto failed;
+            }
+            res = obj2imm_expr(state, tmp2, &val);
+            _Py_LeaveRecursiveCall();
+            Py_DECREF(tmp2);
+            if (res != 0) goto failed;
+            if (len != PyList_GET_SIZE(tmp)) {
+                PyErr_SetString(PyExc_RuntimeError, "arguments field \"defaults\" changed size during iteration");
+                goto failed;
+            }
+            asdl_seq_SET(defaults, i, val);
+        }
+        Py_CLEAR(tmp);
+    }
+    *out = _PyAST_argumentsHeap(state, posonlyargs, args, vararg, kwonlyargs,
+                                kw_defaults, kwarg, defaults);
+    if (*out == NULL) goto failed;
+    return 0;
+failed:
+    Py_XDECREF(tmp);
+    Py_XDECREF(posonlyargs);
+    Py_XDECREF(args);
+    Py_XDECREF(vararg);
+    Py_XDECREF(kwonlyargs);
+    Py_XDECREF(kw_defaults);
+    Py_XDECREF(kwarg);
+    Py_XDECREF(defaults);
+    return -1;
 }
 
-static PyObject *obj2imm_arg_seq(struct ast_state *state, PyObject* obj)
+static int obj2imm_arg_seq(struct ast_state *state, PyObject* obj,
+                           asdl_arg_seq** out)
 {
-return NULL;
+    *out = NULL;
+    return -1;
 }
+
 int
 obj2ast_arg(struct ast_state *state, PyObject* obj, arg_ty* out, PyArena* arena)
 {
     PyObject* tmp = NULL;
-    identifier arg;
-    expr_ty annotation;
+    identifier arg = NULL;
+    expr_ty annotation = NULL;
     string type_comment;
     int lineno;
     int col_offset;
@@ -26023,23 +28674,167 @@ failed:
     return -1;
 }
 
-PyObject *
-obj2imm_arg(struct ast_state *state, PyObject* obj)
+int
+obj2imm_arg(struct ast_state *state, PyObject* obj, arg_ty* out)
 {
-    return Py_NewRef(obj);
+    identifier arg = NULL;
+    expr_ty annotation = NULL;
+    string type_comment;
+    int lineno;
+    int col_offset;
+    int end_lineno;
+    int end_col_offset;
+
+    if (Py_TYPE(obj) == (PyTypeObject *)state->_arg_type) {
+        *out = (arg_ty)Py_NewRef(obj);
+        return *out != NULL ? 0 : -1;
+    }
+
+    PyObject* tmp = NULL;
+    if (PyObject_GetOptionalAttr(obj, state->arg, &tmp) < 0) {
+        return -1;
+    }
+    if (tmp == NULL) {
+        PyErr_SetString(PyExc_TypeError, "required field \"arg\" missing from arg");
+        goto failed;
+    }
+    else {
+        int res;
+        if (_Py_EnterRecursiveCall(" while traversing 'arg' node")) {
+            goto failed;
+        }
+        res = obj2imm_identifier(state, tmp, &arg);
+        _Py_LeaveRecursiveCall();
+        if (res != 0) goto failed;
+        Py_CLEAR(tmp);
+    }
+    if (PyObject_GetOptionalAttr(obj, state->annotation, &tmp) < 0) {
+        return -1;
+    }
+    if (tmp == NULL || tmp == Py_None) {
+        Py_CLEAR(tmp);
+        annotation = NULL;
+    }
+    else {
+        int res;
+        if (_Py_EnterRecursiveCall(" while traversing 'arg' node")) {
+            goto failed;
+        }
+        res = obj2imm_expr(state, tmp, &annotation);
+        _Py_LeaveRecursiveCall();
+        if (res != 0) goto failed;
+        Py_CLEAR(tmp);
+    }
+    if (PyObject_GetOptionalAttr(obj, state->type_comment, &tmp) < 0) {
+        return -1;
+    }
+    if (tmp == NULL || tmp == Py_None) {
+        Py_CLEAR(tmp);
+        type_comment = NULL;
+    }
+    else {
+        int res;
+        if (_Py_EnterRecursiveCall(" while traversing 'arg' node")) {
+            goto failed;
+        }
+        res = obj2imm_string(state, tmp, &type_comment);
+        _Py_LeaveRecursiveCall();
+        if (res != 0) goto failed;
+        Py_CLEAR(tmp);
+    }
+    if (PyObject_GetOptionalAttr(obj, state->lineno, &tmp) < 0) {
+        return -1;
+    }
+    if (tmp == NULL) {
+        PyErr_SetString(PyExc_TypeError, "required field \"lineno\" missing from arg");
+        goto failed;
+    }
+    else {
+        int res;
+        if (_Py_EnterRecursiveCall(" while traversing 'arg' node")) {
+            goto failed;
+        }
+        res = obj2imm_int(state, tmp, &lineno);
+        _Py_LeaveRecursiveCall();
+        if (res != 0) goto failed;
+        Py_CLEAR(tmp);
+    }
+    if (PyObject_GetOptionalAttr(obj, state->col_offset, &tmp) < 0) {
+        return -1;
+    }
+    if (tmp == NULL) {
+        PyErr_SetString(PyExc_TypeError, "required field \"col_offset\" missing from arg");
+        goto failed;
+    }
+    else {
+        int res;
+        if (_Py_EnterRecursiveCall(" while traversing 'arg' node")) {
+            goto failed;
+        }
+        res = obj2imm_int(state, tmp, &col_offset);
+        _Py_LeaveRecursiveCall();
+        if (res != 0) goto failed;
+        Py_CLEAR(tmp);
+    }
+    if (PyObject_GetOptionalAttr(obj, state->end_lineno, &tmp) < 0) {
+        return -1;
+    }
+    if (tmp == NULL || tmp == Py_None) {
+        Py_CLEAR(tmp);
+        end_lineno = lineno;
+    }
+    else {
+        int res;
+        if (_Py_EnterRecursiveCall(" while traversing 'arg' node")) {
+            goto failed;
+        }
+        res = obj2imm_int(state, tmp, &end_lineno);
+        _Py_LeaveRecursiveCall();
+        if (res != 0) goto failed;
+        Py_CLEAR(tmp);
+    }
+    if (PyObject_GetOptionalAttr(obj, state->end_col_offset, &tmp) < 0) {
+        return -1;
+    }
+    if (tmp == NULL || tmp == Py_None) {
+        Py_CLEAR(tmp);
+        end_col_offset = col_offset;
+    }
+    else {
+        int res;
+        if (_Py_EnterRecursiveCall(" while traversing 'arg' node")) {
+            goto failed;
+        }
+        res = obj2imm_int(state, tmp, &end_col_offset);
+        _Py_LeaveRecursiveCall();
+        if (res != 0) goto failed;
+        Py_CLEAR(tmp);
+    }
+    *out = _PyAST_argHeap(state, arg, annotation, type_comment, lineno,
+                          col_offset, end_lineno, end_col_offset);
+    if (*out == NULL) goto failed;
+    return 0;
+failed:
+    Py_XDECREF(tmp);
+    Py_XDECREF(arg);
+    Py_XDECREF(annotation);
+    return -1;
 }
 
-static PyObject *obj2imm_keyword_seq(struct ast_state *state, PyObject* obj)
+static int obj2imm_keyword_seq(struct ast_state *state, PyObject* obj,
+                               asdl_keyword_seq** out)
 {
-return NULL;
+    *out = NULL;
+    return -1;
 }
+
 int
 obj2ast_keyword(struct ast_state *state, PyObject* obj, keyword_ty* out,
                 PyArena* arena)
 {
     PyObject* tmp = NULL;
-    identifier arg;
-    expr_ty value;
+    identifier arg = NULL;
+    expr_ty value = NULL;
     int lineno;
     int col_offset;
     int end_lineno;
@@ -26156,23 +28951,149 @@ failed:
     return -1;
 }
 
-PyObject *
-obj2imm_keyword(struct ast_state *state, PyObject* obj)
+int
+obj2imm_keyword(struct ast_state *state, PyObject* obj, keyword_ty* out)
 {
-    return Py_NewRef(obj);
+    identifier arg = NULL;
+    expr_ty value = NULL;
+    int lineno;
+    int col_offset;
+    int end_lineno;
+    int end_col_offset;
+
+    if (Py_TYPE(obj) == (PyTypeObject *)state->_keyword_type) {
+        *out = (keyword_ty)Py_NewRef(obj);
+        return *out != NULL ? 0 : -1;
+    }
+
+    PyObject* tmp = NULL;
+    if (PyObject_GetOptionalAttr(obj, state->arg, &tmp) < 0) {
+        return -1;
+    }
+    if (tmp == NULL || tmp == Py_None) {
+        Py_CLEAR(tmp);
+        arg = NULL;
+    }
+    else {
+        int res;
+        if (_Py_EnterRecursiveCall(" while traversing 'keyword' node")) {
+            goto failed;
+        }
+        res = obj2imm_identifier(state, tmp, &arg);
+        _Py_LeaveRecursiveCall();
+        if (res != 0) goto failed;
+        Py_CLEAR(tmp);
+    }
+    if (PyObject_GetOptionalAttr(obj, state->value, &tmp) < 0) {
+        return -1;
+    }
+    if (tmp == NULL) {
+        PyErr_SetString(PyExc_TypeError, "required field \"value\" missing from keyword");
+        goto failed;
+    }
+    else {
+        int res;
+        if (_Py_EnterRecursiveCall(" while traversing 'keyword' node")) {
+            goto failed;
+        }
+        res = obj2imm_expr(state, tmp, &value);
+        _Py_LeaveRecursiveCall();
+        if (res != 0) goto failed;
+        Py_CLEAR(tmp);
+    }
+    if (PyObject_GetOptionalAttr(obj, state->lineno, &tmp) < 0) {
+        return -1;
+    }
+    if (tmp == NULL) {
+        PyErr_SetString(PyExc_TypeError, "required field \"lineno\" missing from keyword");
+        goto failed;
+    }
+    else {
+        int res;
+        if (_Py_EnterRecursiveCall(" while traversing 'keyword' node")) {
+            goto failed;
+        }
+        res = obj2imm_int(state, tmp, &lineno);
+        _Py_LeaveRecursiveCall();
+        if (res != 0) goto failed;
+        Py_CLEAR(tmp);
+    }
+    if (PyObject_GetOptionalAttr(obj, state->col_offset, &tmp) < 0) {
+        return -1;
+    }
+    if (tmp == NULL) {
+        PyErr_SetString(PyExc_TypeError, "required field \"col_offset\" missing from keyword");
+        goto failed;
+    }
+    else {
+        int res;
+        if (_Py_EnterRecursiveCall(" while traversing 'keyword' node")) {
+            goto failed;
+        }
+        res = obj2imm_int(state, tmp, &col_offset);
+        _Py_LeaveRecursiveCall();
+        if (res != 0) goto failed;
+        Py_CLEAR(tmp);
+    }
+    if (PyObject_GetOptionalAttr(obj, state->end_lineno, &tmp) < 0) {
+        return -1;
+    }
+    if (tmp == NULL || tmp == Py_None) {
+        Py_CLEAR(tmp);
+        end_lineno = lineno;
+    }
+    else {
+        int res;
+        if (_Py_EnterRecursiveCall(" while traversing 'keyword' node")) {
+            goto failed;
+        }
+        res = obj2imm_int(state, tmp, &end_lineno);
+        _Py_LeaveRecursiveCall();
+        if (res != 0) goto failed;
+        Py_CLEAR(tmp);
+    }
+    if (PyObject_GetOptionalAttr(obj, state->end_col_offset, &tmp) < 0) {
+        return -1;
+    }
+    if (tmp == NULL || tmp == Py_None) {
+        Py_CLEAR(tmp);
+        end_col_offset = col_offset;
+    }
+    else {
+        int res;
+        if (_Py_EnterRecursiveCall(" while traversing 'keyword' node")) {
+            goto failed;
+        }
+        res = obj2imm_int(state, tmp, &end_col_offset);
+        _Py_LeaveRecursiveCall();
+        if (res != 0) goto failed;
+        Py_CLEAR(tmp);
+    }
+    *out = _PyAST_keywordHeap(state, arg, value, lineno, col_offset,
+                              end_lineno, end_col_offset);
+    if (*out == NULL) goto failed;
+    return 0;
+failed:
+    Py_XDECREF(tmp);
+    Py_XDECREF(arg);
+    Py_XDECREF(value);
+    return -1;
 }
 
-static PyObject *obj2imm_alias_seq(struct ast_state *state, PyObject* obj)
+static int obj2imm_alias_seq(struct ast_state *state, PyObject* obj,
+                             asdl_alias_seq** out)
 {
-return NULL;
+    *out = NULL;
+    return -1;
 }
+
 int
 obj2ast_alias(struct ast_state *state, PyObject* obj, alias_ty* out, PyArena*
               arena)
 {
     PyObject* tmp = NULL;
-    identifier name;
-    identifier asname;
+    identifier name = NULL;
+    identifier asname = NULL;
     int lineno;
     int col_offset;
     int end_lineno;
@@ -26289,23 +29210,149 @@ failed:
     return -1;
 }
 
-PyObject *
-obj2imm_alias(struct ast_state *state, PyObject* obj)
+int
+obj2imm_alias(struct ast_state *state, PyObject* obj, alias_ty* out)
 {
-    return Py_NewRef(obj);
+    identifier name = NULL;
+    identifier asname = NULL;
+    int lineno;
+    int col_offset;
+    int end_lineno;
+    int end_col_offset;
+
+    if (Py_TYPE(obj) == (PyTypeObject *)state->_alias_type) {
+        *out = (alias_ty)Py_NewRef(obj);
+        return *out != NULL ? 0 : -1;
+    }
+
+    PyObject* tmp = NULL;
+    if (PyObject_GetOptionalAttr(obj, state->name, &tmp) < 0) {
+        return -1;
+    }
+    if (tmp == NULL) {
+        PyErr_SetString(PyExc_TypeError, "required field \"name\" missing from alias");
+        goto failed;
+    }
+    else {
+        int res;
+        if (_Py_EnterRecursiveCall(" while traversing 'alias' node")) {
+            goto failed;
+        }
+        res = obj2imm_identifier(state, tmp, &name);
+        _Py_LeaveRecursiveCall();
+        if (res != 0) goto failed;
+        Py_CLEAR(tmp);
+    }
+    if (PyObject_GetOptionalAttr(obj, state->asname, &tmp) < 0) {
+        return -1;
+    }
+    if (tmp == NULL || tmp == Py_None) {
+        Py_CLEAR(tmp);
+        asname = NULL;
+    }
+    else {
+        int res;
+        if (_Py_EnterRecursiveCall(" while traversing 'alias' node")) {
+            goto failed;
+        }
+        res = obj2imm_identifier(state, tmp, &asname);
+        _Py_LeaveRecursiveCall();
+        if (res != 0) goto failed;
+        Py_CLEAR(tmp);
+    }
+    if (PyObject_GetOptionalAttr(obj, state->lineno, &tmp) < 0) {
+        return -1;
+    }
+    if (tmp == NULL) {
+        PyErr_SetString(PyExc_TypeError, "required field \"lineno\" missing from alias");
+        goto failed;
+    }
+    else {
+        int res;
+        if (_Py_EnterRecursiveCall(" while traversing 'alias' node")) {
+            goto failed;
+        }
+        res = obj2imm_int(state, tmp, &lineno);
+        _Py_LeaveRecursiveCall();
+        if (res != 0) goto failed;
+        Py_CLEAR(tmp);
+    }
+    if (PyObject_GetOptionalAttr(obj, state->col_offset, &tmp) < 0) {
+        return -1;
+    }
+    if (tmp == NULL) {
+        PyErr_SetString(PyExc_TypeError, "required field \"col_offset\" missing from alias");
+        goto failed;
+    }
+    else {
+        int res;
+        if (_Py_EnterRecursiveCall(" while traversing 'alias' node")) {
+            goto failed;
+        }
+        res = obj2imm_int(state, tmp, &col_offset);
+        _Py_LeaveRecursiveCall();
+        if (res != 0) goto failed;
+        Py_CLEAR(tmp);
+    }
+    if (PyObject_GetOptionalAttr(obj, state->end_lineno, &tmp) < 0) {
+        return -1;
+    }
+    if (tmp == NULL || tmp == Py_None) {
+        Py_CLEAR(tmp);
+        end_lineno = lineno;
+    }
+    else {
+        int res;
+        if (_Py_EnterRecursiveCall(" while traversing 'alias' node")) {
+            goto failed;
+        }
+        res = obj2imm_int(state, tmp, &end_lineno);
+        _Py_LeaveRecursiveCall();
+        if (res != 0) goto failed;
+        Py_CLEAR(tmp);
+    }
+    if (PyObject_GetOptionalAttr(obj, state->end_col_offset, &tmp) < 0) {
+        return -1;
+    }
+    if (tmp == NULL || tmp == Py_None) {
+        Py_CLEAR(tmp);
+        end_col_offset = col_offset;
+    }
+    else {
+        int res;
+        if (_Py_EnterRecursiveCall(" while traversing 'alias' node")) {
+            goto failed;
+        }
+        res = obj2imm_int(state, tmp, &end_col_offset);
+        _Py_LeaveRecursiveCall();
+        if (res != 0) goto failed;
+        Py_CLEAR(tmp);
+    }
+    *out = _PyAST_aliasHeap(state, name, asname, lineno, col_offset,
+                            end_lineno, end_col_offset);
+    if (*out == NULL) goto failed;
+    return 0;
+failed:
+    Py_XDECREF(tmp);
+    Py_XDECREF(name);
+    Py_XDECREF(asname);
+    return -1;
 }
 
-static PyObject *obj2imm_withitem_seq(struct ast_state *state, PyObject* obj)
+static int obj2imm_withitem_seq(struct ast_state *state, PyObject* obj,
+                                asdl_withitem_seq** out)
 {
-return NULL;
+    *out = NULL;
+    return -1;
 }
+
 int
 obj2ast_withitem(struct ast_state *state, PyObject* obj, withitem_ty* out,
                  PyArena* arena)
 {
     PyObject* tmp = NULL;
-    expr_ty context_expr;
-    expr_ty optional_vars;
+    expr_ty context_expr = NULL;
+    expr_ty optional_vars = NULL;
 
     if (PyObject_GetOptionalAttr(obj, state->context_expr, &tmp) < 0) {
         return -1;
@@ -26349,24 +29396,77 @@ failed:
     return -1;
 }
 
-PyObject *
-obj2imm_withitem(struct ast_state *state, PyObject* obj)
+int
+obj2imm_withitem(struct ast_state *state, PyObject* obj, withitem_ty* out)
 {
-    return Py_NewRef(obj);
+    expr_ty context_expr = NULL;
+    expr_ty optional_vars = NULL;
+
+    if (Py_TYPE(obj) == (PyTypeObject *)state->_withitem_type) {
+        *out = (withitem_ty)Py_NewRef(obj);
+        return *out != NULL ? 0 : -1;
+    }
+
+    PyObject* tmp = NULL;
+    if (PyObject_GetOptionalAttr(obj, state->context_expr, &tmp) < 0) {
+        return -1;
+    }
+    if (tmp == NULL) {
+        PyErr_SetString(PyExc_TypeError, "required field \"context_expr\" missing from withitem");
+        goto failed;
+    }
+    else {
+        int res;
+        if (_Py_EnterRecursiveCall(" while traversing 'withitem' node")) {
+            goto failed;
+        }
+        res = obj2imm_expr(state, tmp, &context_expr);
+        _Py_LeaveRecursiveCall();
+        if (res != 0) goto failed;
+        Py_CLEAR(tmp);
+    }
+    if (PyObject_GetOptionalAttr(obj, state->optional_vars, &tmp) < 0) {
+        return -1;
+    }
+    if (tmp == NULL || tmp == Py_None) {
+        Py_CLEAR(tmp);
+        optional_vars = NULL;
+    }
+    else {
+        int res;
+        if (_Py_EnterRecursiveCall(" while traversing 'withitem' node")) {
+            goto failed;
+        }
+        res = obj2imm_expr(state, tmp, &optional_vars);
+        _Py_LeaveRecursiveCall();
+        if (res != 0) goto failed;
+        Py_CLEAR(tmp);
+    }
+    *out = _PyAST_withitemHeap(state, context_expr, optional_vars);
+    if (*out == NULL) goto failed;
+    return 0;
+failed:
+    Py_XDECREF(tmp);
+    Py_XDECREF(context_expr);
+    Py_XDECREF(optional_vars);
+    return -1;
 }
 
-static PyObject *obj2imm_match_case_seq(struct ast_state *state, PyObject* obj)
+static int obj2imm_match_case_seq(struct ast_state *state, PyObject* obj,
+                                  asdl_match_case_seq** out)
 {
-return NULL;
+    *out = NULL;
+    return -1;
 }
+
 int
 obj2ast_match_case(struct ast_state *state, PyObject* obj, match_case_ty* out,
                    PyArena* arena)
 {
     PyObject* tmp = NULL;
-    pattern_ty pattern;
-    expr_ty guard;
-    asdl_stmt_seq* body;
+    pattern_ty pattern = NULL;
+    expr_ty guard = NULL;
+    asdl_stmt_seq* body = NULL;
 
     if (PyObject_GetOptionalAttr(obj, state->pattern, &tmp) < 0) {
         return -1;
@@ -26448,16 +29548,109 @@ failed:
     return -1;
 }
 
-PyObject *
-obj2imm_match_case(struct ast_state *state, PyObject* obj)
+int
+obj2imm_match_case(struct ast_state *state, PyObject* obj, match_case_ty* out)
 {
-    return Py_NewRef(obj);
+    pattern_ty pattern = NULL;
+    expr_ty guard = NULL;
+    asdl_stmt_seq* body = NULL;
+
+    if (Py_TYPE(obj) == (PyTypeObject *)state->_match_case_type) {
+        *out = (match_case_ty)Py_NewRef(obj);
+        return *out != NULL ? 0 : -1;
+    }
+
+    PyObject* tmp = NULL;
+    if (PyObject_GetOptionalAttr(obj, state->pattern, &tmp) < 0) {
+        return -1;
+    }
+    if (tmp == NULL) {
+        PyErr_SetString(PyExc_TypeError, "required field \"pattern\" missing from match_case");
+        goto failed;
+    }
+    else {
+        int res;
+        if (_Py_EnterRecursiveCall(" while traversing 'match_case' node")) {
+            goto failed;
+        }
+        res = obj2imm_pattern(state, tmp, &pattern);
+        _Py_LeaveRecursiveCall();
+        if (res != 0) goto failed;
+        Py_CLEAR(tmp);
+    }
+    if (PyObject_GetOptionalAttr(obj, state->guard, &tmp) < 0) {
+        return -1;
+    }
+    if (tmp == NULL || tmp == Py_None) {
+        Py_CLEAR(tmp);
+        guard = NULL;
+    }
+    else {
+        int res;
+        if (_Py_EnterRecursiveCall(" while traversing 'match_case' node")) {
+            goto failed;
+        }
+        res = obj2imm_expr(state, tmp, &guard);
+        _Py_LeaveRecursiveCall();
+        if (res != 0) goto failed;
+        Py_CLEAR(tmp);
+    }
+    if (PyObject_GetOptionalAttr(obj, state->body, &tmp) < 0) {
+        return -1;
+    }
+    if (tmp == NULL) {
+        tmp = PyList_New(0);
+        if (tmp == NULL) {
+            goto failed;
+        }
+    }
+    {
+        int res;
+        Py_ssize_t len;
+        Py_ssize_t i;
+        if (!PyList_Check(tmp)) {
+            PyErr_Format(PyExc_TypeError, "match_case field \"body\" must be a list, not a %.200s", _PyType_Name(Py_TYPE(tmp)));
+            goto failed;
+        }
+        len = PyList_GET_SIZE(tmp);
+        body = _Py_asdl_stmt_seq_new(len, NULL);
+        if (body == NULL) goto failed;
+        for (i = 0; i < len; i++) {
+            stmt_ty val;
+            PyObject *tmp2 = Py_NewRef(PyList_GET_ITEM(tmp, i));
+            if (_Py_EnterRecursiveCall(" while traversing 'match_case' node")) {
+                goto failed;
+            }
+            res = obj2imm_stmt(state, tmp2, &val);
+            _Py_LeaveRecursiveCall();
+            Py_DECREF(tmp2);
+            if (res != 0) goto failed;
+            if (len != PyList_GET_SIZE(tmp)) {
+                PyErr_SetString(PyExc_RuntimeError, "match_case field \"body\" changed size during iteration");
+                goto failed;
+            }
+            asdl_seq_SET(body, i, val);
+        }
+        Py_CLEAR(tmp);
+    }
+    *out = _PyAST_match_caseHeap(state, pattern, guard, body);
+    if (*out == NULL) goto failed;
+    return 0;
+failed:
+    Py_XDECREF(tmp);
+    Py_XDECREF(pattern);
+    Py_XDECREF(guard);
+    Py_XDECREF(body);
+    return -1;
 }
 
-static PyObject *obj2imm_pattern_seq(struct ast_state *state, PyObject* obj)
+static int obj2imm_pattern_seq(struct ast_state *state, PyObject* obj,
+                               asdl_pattern_seq** out)
 {
-return NULL;
+    *out = NULL;
+    return -1;
 }
+
 int
 obj2ast_pattern(struct ast_state *state, PyObject* obj, pattern_ty* out,
                 PyArena* arena)
@@ -26549,7 +29742,7 @@ obj2ast_pattern(struct ast_state *state, PyObject* obj, pattern_ty* out,
         return -1;
     }
     if (isinstance) {
-        expr_ty value;
+        expr_ty value = NULL;
 
         if (PyObject_GetOptionalAttr(obj, state->value, &tmp) < 0) {
             return -1;
@@ -26579,7 +29772,7 @@ obj2ast_pattern(struct ast_state *state, PyObject* obj, pattern_ty* out,
         return -1;
     }
     if (isinstance) {
-        constant value;
+        constant value = NULL;
 
         if (PyObject_GetOptionalAttr(obj, state->value, &tmp) < 0) {
             return -1;
@@ -26609,7 +29802,7 @@ obj2ast_pattern(struct ast_state *state, PyObject* obj, pattern_ty* out,
         return -1;
     }
     if (isinstance) {
-        asdl_pattern_seq* patterns;
+        asdl_pattern_seq* patterns = NULL;
 
         if (PyObject_GetOptionalAttr(obj, state->patterns, &tmp) < 0) {
             return -1;
@@ -26660,9 +29853,9 @@ obj2ast_pattern(struct ast_state *state, PyObject* obj, pattern_ty* out,
         return -1;
     }
     if (isinstance) {
-        asdl_expr_seq* keys;
-        asdl_pattern_seq* patterns;
-        identifier rest;
+        asdl_expr_seq* keys = NULL;
+        asdl_pattern_seq* patterns = NULL;
+        identifier rest = NULL;
 
         if (PyObject_GetOptionalAttr(obj, state->keys, &tmp) < 0) {
             return -1;
@@ -26768,10 +29961,10 @@ obj2ast_pattern(struct ast_state *state, PyObject* obj, pattern_ty* out,
         return -1;
     }
     if (isinstance) {
-        expr_ty cls;
-        asdl_pattern_seq* patterns;
-        asdl_identifier_seq* kwd_attrs;
-        asdl_pattern_seq* kwd_patterns;
+        expr_ty cls = NULL;
+        asdl_pattern_seq* patterns = NULL;
+        asdl_identifier_seq* kwd_attrs = NULL;
+        asdl_pattern_seq* kwd_patterns = NULL;
 
         if (PyObject_GetOptionalAttr(obj, state->cls, &tmp) < 0) {
             return -1;
@@ -26916,7 +30109,7 @@ obj2ast_pattern(struct ast_state *state, PyObject* obj, pattern_ty* out,
         return -1;
     }
     if (isinstance) {
-        identifier name;
+        identifier name = NULL;
 
         if (PyObject_GetOptionalAttr(obj, state->name, &tmp) < 0) {
             return -1;
@@ -26946,8 +30139,8 @@ obj2ast_pattern(struct ast_state *state, PyObject* obj, pattern_ty* out,
         return -1;
     }
     if (isinstance) {
-        pattern_ty pattern;
-        identifier name;
+        pattern_ty pattern = NULL;
+        identifier name = NULL;
 
         if (PyObject_GetOptionalAttr(obj, state->pattern, &tmp) < 0) {
             return -1;
@@ -26994,7 +30187,7 @@ obj2ast_pattern(struct ast_state *state, PyObject* obj, pattern_ty* out,
         return -1;
     }
     if (isinstance) {
-        asdl_pattern_seq* patterns;
+        asdl_pattern_seq* patterns = NULL;
 
         if (PyObject_GetOptionalAttr(obj, state->patterns, &tmp) < 0) {
             return -1;
@@ -27046,16 +30239,20 @@ obj2ast_pattern(struct ast_state *state, PyObject* obj, pattern_ty* out,
     return -1;
 }
 
-PyObject *
-obj2imm_pattern(struct ast_state *state, PyObject* obj)
+int
+obj2imm_pattern(struct ast_state *state, PyObject* obj, pattern_ty* out)
 {
-    return Py_NewRef(obj);
+    *out = (pattern_ty)Py_NewRef(obj);
+    return 0;
 }
 
-static PyObject *obj2imm_type_ignore_seq(struct ast_state *state, PyObject* obj)
+static int obj2imm_type_ignore_seq(struct ast_state *state, PyObject* obj,
+                                   asdl_type_ignore_seq** out)
 {
-return NULL;
+    *out = NULL;
+    return -1;
 }
+
 int
 obj2ast_type_ignore(struct ast_state *state, PyObject* obj, type_ignore_ty*
                     out, PyArena* arena)
@@ -27123,16 +30320,20 @@ obj2ast_type_ignore(struct ast_state *state, PyObject* obj, type_ignore_ty*
     return -1;
 }
 
-PyObject *
-obj2imm_type_ignore(struct ast_state *state, PyObject* obj)
+int
+obj2imm_type_ignore(struct ast_state *state, PyObject* obj, type_ignore_ty* out)
 {
-    return Py_NewRef(obj);
+    *out = (type_ignore_ty)Py_NewRef(obj);
+    return 0;
 }
 
-static PyObject *obj2imm_type_param_seq(struct ast_state *state, PyObject* obj)
+static int obj2imm_type_param_seq(struct ast_state *state, PyObject* obj,
+                                  asdl_type_param_seq** out)
 {
-return NULL;
+    *out = NULL;
+    return -1;
 }
+
 int
 obj2ast_type_param(struct ast_state *state, PyObject* obj, type_param_ty* out,
                    PyArena* arena)
@@ -27224,9 +30425,9 @@ obj2ast_type_param(struct ast_state *state, PyObject* obj, type_param_ty* out,
         return -1;
     }
     if (isinstance) {
-        identifier name;
-        expr_ty bound;
-        expr_ty default_value;
+        identifier name = NULL;
+        expr_ty bound = NULL;
+        expr_ty default_value = NULL;
 
         if (PyObject_GetOptionalAttr(obj, state->name, &tmp) < 0) {
             return -1;
@@ -27290,8 +30491,8 @@ obj2ast_type_param(struct ast_state *state, PyObject* obj, type_param_ty* out,
         return -1;
     }
     if (isinstance) {
-        identifier name;
-        expr_ty default_value;
+        identifier name = NULL;
+        expr_ty default_value = NULL;
 
         if (PyObject_GetOptionalAttr(obj, state->name, &tmp) < 0) {
             return -1;
@@ -27338,8 +30539,8 @@ obj2ast_type_param(struct ast_state *state, PyObject* obj, type_param_ty* out,
         return -1;
     }
     if (isinstance) {
-        identifier name;
-        expr_ty default_value;
+        identifier name = NULL;
+        expr_ty default_value = NULL;
 
         if (PyObject_GetOptionalAttr(obj, state->name, &tmp) < 0) {
             return -1;
@@ -27387,10 +30588,11 @@ obj2ast_type_param(struct ast_state *state, PyObject* obj, type_param_ty* out,
     return -1;
 }
 
-PyObject *
-obj2imm_type_param(struct ast_state *state, PyObject* obj)
+int
+obj2imm_type_param(struct ast_state *state, PyObject* obj, type_param_ty* out)
 {
-    return Py_NewRef(obj);
+    *out = (type_param_ty)Py_NewRef(obj);
+    return 0;
 }
 
 
