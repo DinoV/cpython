@@ -5565,18 +5565,26 @@ Module_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     struct ast_state *state = get_ast_state();
     struct _mod *self = (struct _mod*)res;
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
-    if (0 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 0);
-        if (obj2imm_stmt_seq(state, value, &self->v.Module.body) < 0) {
-            return NULL;
+    switch (posargs) {
+        case 2: {
+            PyObject *value = PyTuple_GET_ITEM(args, 1);
+            if (obj2imm_type_ignore_seq(state, value,
+                &self->v.Module.type_ignores) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
-    }
-    if (1 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 1);
-        if (obj2imm_type_ignore_seq(state, value, &self->v.Module.type_ignores)
-            < 0) {
-            return NULL;
+        // fallthrough
+        case 1: {
+            PyObject *value = PyTuple_GET_ITEM(args, 0);
+            if (obj2imm_stmt_seq(state, value, &self->v.Module.body) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
+        // fallthrough
+        default:
+            break;
     }
     return res;
 }
@@ -5649,11 +5657,17 @@ Interactive_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     struct ast_state *state = get_ast_state();
     struct _mod *self = (struct _mod*)res;
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
-    if (0 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 0);
-        if (obj2imm_stmt_seq(state, value, &self->v.Interactive.body) < 0) {
-            return NULL;
+    switch (posargs) {
+        case 1: {
+            PyObject *value = PyTuple_GET_ITEM(args, 0);
+            if (obj2imm_stmt_seq(state, value, &self->v.Interactive.body) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
+        // fallthrough
+        default:
+            break;
     }
     return res;
 }
@@ -5718,11 +5732,17 @@ Expression_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     struct ast_state *state = get_ast_state();
     struct _mod *self = (struct _mod*)res;
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
-    if (0 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 0);
-        if (obj2imm_expr(state, value, &self->v.Expression.body) < 0) {
-            return NULL;
+    switch (posargs) {
+        case 1: {
+            PyObject *value = PyTuple_GET_ITEM(args, 0);
+            if (obj2imm_expr(state, value, &self->v.Expression.body) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
+        // fallthrough
+        default:
+            break;
     }
     return res;
 }
@@ -5786,18 +5806,26 @@ FunctionType_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     struct ast_state *state = get_ast_state();
     struct _mod *self = (struct _mod*)res;
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
-    if (0 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 0);
-        if (obj2imm_expr_seq(state, value, &self->v.FunctionType.argtypes) < 0)
-            {
-            return NULL;
+    switch (posargs) {
+        case 2: {
+            PyObject *value = PyTuple_GET_ITEM(args, 1);
+            if (obj2imm_expr(state, value, &self->v.FunctionType.returns) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
-    }
-    if (1 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 1);
-        if (obj2imm_expr(state, value, &self->v.FunctionType.returns) < 0) {
-            return NULL;
+        // fallthrough
+        case 1: {
+            PyObject *value = PyTuple_GET_ITEM(args, 0);
+            if (obj2imm_expr_seq(state, value, &self->v.FunctionType.argtypes)
+                < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
+        // fallthrough
+        default:
+            break;
     }
     return res;
 }
@@ -5979,50 +6007,70 @@ FunctionDef_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     struct ast_state *state = get_ast_state();
     struct _stmt *self = (struct _stmt*)res;
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
-    if (0 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 0);
-        if (obj2imm_identifier(state, value, &self->v.FunctionDef.name) < 0) {
-            return NULL;
+    switch (posargs) {
+        case 7: {
+            PyObject *value = PyTuple_GET_ITEM(args, 6);
+            if (obj2imm_type_param_seq(state, value,
+                &self->v.FunctionDef.type_params) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
-    }
-    if (1 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 1);
-        if (obj2imm_arguments(state, value, &self->v.FunctionDef.args) < 0) {
-            return NULL;
+        // fallthrough
+        case 6: {
+            PyObject *value = PyTuple_GET_ITEM(args, 5);
+            if (obj2imm_string(state, value, &self->v.FunctionDef.type_comment)
+                < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
-    }
-    if (2 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 2);
-        if (obj2imm_stmt_seq(state, value, &self->v.FunctionDef.body) < 0) {
-            return NULL;
+        // fallthrough
+        case 5: {
+            PyObject *value = PyTuple_GET_ITEM(args, 4);
+            if (obj2imm_expr(state, value, &self->v.FunctionDef.returns) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
-    }
-    if (3 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 3);
-        if (obj2imm_expr_seq(state, value, &self->v.FunctionDef.decorator_list)
-            < 0) {
-            return NULL;
+        // fallthrough
+        case 4: {
+            PyObject *value = PyTuple_GET_ITEM(args, 3);
+            if (obj2imm_expr_seq(state, value,
+                &self->v.FunctionDef.decorator_list) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
-    }
-    if (4 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 4);
-        if (obj2imm_expr(state, value, &self->v.FunctionDef.returns) < 0) {
-            return NULL;
+        // fallthrough
+        case 3: {
+            PyObject *value = PyTuple_GET_ITEM(args, 2);
+            if (obj2imm_stmt_seq(state, value, &self->v.FunctionDef.body) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
-    }
-    if (5 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 5);
-        if (obj2imm_string(state, value, &self->v.FunctionDef.type_comment) <
-            0) {
-            return NULL;
+        // fallthrough
+        case 2: {
+            PyObject *value = PyTuple_GET_ITEM(args, 1);
+            if (obj2imm_arguments(state, value, &self->v.FunctionDef.args) < 0)
+                {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
-    }
-    if (6 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 6);
-        if (obj2imm_type_param_seq(state, value,
-            &self->v.FunctionDef.type_params) < 0) {
-            return NULL;
+        // fallthrough
+        case 1: {
+            PyObject *value = PyTuple_GET_ITEM(args, 0);
+            if (obj2imm_identifier(state, value, &self->v.FunctionDef.name) <
+                0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
+        // fallthrough
+        default:
+            break;
     }
     return res;
 }
@@ -6146,53 +6194,72 @@ AsyncFunctionDef_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     struct ast_state *state = get_ast_state();
     struct _stmt *self = (struct _stmt*)res;
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
-    if (0 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 0);
-        if (obj2imm_identifier(state, value, &self->v.AsyncFunctionDef.name) <
-            0) {
-            return NULL;
+    switch (posargs) {
+        case 7: {
+            PyObject *value = PyTuple_GET_ITEM(args, 6);
+            if (obj2imm_type_param_seq(state, value,
+                &self->v.AsyncFunctionDef.type_params) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
-    }
-    if (1 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 1);
-        if (obj2imm_arguments(state, value, &self->v.AsyncFunctionDef.args) <
-            0) {
-            return NULL;
+        // fallthrough
+        case 6: {
+            PyObject *value = PyTuple_GET_ITEM(args, 5);
+            if (obj2imm_string(state, value,
+                &self->v.AsyncFunctionDef.type_comment) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
-    }
-    if (2 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 2);
-        if (obj2imm_stmt_seq(state, value, &self->v.AsyncFunctionDef.body) < 0)
-            {
-            return NULL;
+        // fallthrough
+        case 5: {
+            PyObject *value = PyTuple_GET_ITEM(args, 4);
+            if (obj2imm_expr(state, value, &self->v.AsyncFunctionDef.returns) <
+                0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
-    }
-    if (3 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 3);
-        if (obj2imm_expr_seq(state, value,
-            &self->v.AsyncFunctionDef.decorator_list) < 0) {
-            return NULL;
+        // fallthrough
+        case 4: {
+            PyObject *value = PyTuple_GET_ITEM(args, 3);
+            if (obj2imm_expr_seq(state, value,
+                &self->v.AsyncFunctionDef.decorator_list) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
-    }
-    if (4 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 4);
-        if (obj2imm_expr(state, value, &self->v.AsyncFunctionDef.returns) < 0) {
-            return NULL;
+        // fallthrough
+        case 3: {
+            PyObject *value = PyTuple_GET_ITEM(args, 2);
+            if (obj2imm_stmt_seq(state, value, &self->v.AsyncFunctionDef.body)
+                < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
-    }
-    if (5 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 5);
-        if (obj2imm_string(state, value,
-            &self->v.AsyncFunctionDef.type_comment) < 0) {
-            return NULL;
+        // fallthrough
+        case 2: {
+            PyObject *value = PyTuple_GET_ITEM(args, 1);
+            if (obj2imm_arguments(state, value, &self->v.AsyncFunctionDef.args)
+                < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
-    }
-    if (6 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 6);
-        if (obj2imm_type_param_seq(state, value,
-            &self->v.AsyncFunctionDef.type_params) < 0) {
-            return NULL;
+        // fallthrough
+        case 1: {
+            PyObject *value = PyTuple_GET_ITEM(args, 0);
+            if (obj2imm_identifier(state, value,
+                &self->v.AsyncFunctionDef.name) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
+        // fallthrough
+        default:
+            break;
     }
     return res;
 }
@@ -6316,43 +6383,60 @@ ClassDef_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     struct ast_state *state = get_ast_state();
     struct _stmt *self = (struct _stmt*)res;
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
-    if (0 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 0);
-        if (obj2imm_identifier(state, value, &self->v.ClassDef.name) < 0) {
-            return NULL;
+    switch (posargs) {
+        case 6: {
+            PyObject *value = PyTuple_GET_ITEM(args, 5);
+            if (obj2imm_type_param_seq(state, value,
+                &self->v.ClassDef.type_params) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
-    }
-    if (1 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 1);
-        if (obj2imm_expr_seq(state, value, &self->v.ClassDef.bases) < 0) {
-            return NULL;
+        // fallthrough
+        case 5: {
+            PyObject *value = PyTuple_GET_ITEM(args, 4);
+            if (obj2imm_expr_seq(state, value,
+                &self->v.ClassDef.decorator_list) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
-    }
-    if (2 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 2);
-        if (obj2imm_keyword_seq(state, value, &self->v.ClassDef.keywords) < 0) {
-            return NULL;
+        // fallthrough
+        case 4: {
+            PyObject *value = PyTuple_GET_ITEM(args, 3);
+            if (obj2imm_stmt_seq(state, value, &self->v.ClassDef.body) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
-    }
-    if (3 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 3);
-        if (obj2imm_stmt_seq(state, value, &self->v.ClassDef.body) < 0) {
-            return NULL;
+        // fallthrough
+        case 3: {
+            PyObject *value = PyTuple_GET_ITEM(args, 2);
+            if (obj2imm_keyword_seq(state, value, &self->v.ClassDef.keywords) <
+                0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
-    }
-    if (4 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 4);
-        if (obj2imm_expr_seq(state, value, &self->v.ClassDef.decorator_list) <
-            0) {
-            return NULL;
+        // fallthrough
+        case 2: {
+            PyObject *value = PyTuple_GET_ITEM(args, 1);
+            if (obj2imm_expr_seq(state, value, &self->v.ClassDef.bases) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
-    }
-    if (5 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 5);
-        if (obj2imm_type_param_seq(state, value, &self->v.ClassDef.type_params)
-            < 0) {
-            return NULL;
+        // fallthrough
+        case 1: {
+            PyObject *value = PyTuple_GET_ITEM(args, 0);
+            if (obj2imm_identifier(state, value, &self->v.ClassDef.name) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
+        // fallthrough
+        default:
+            break;
     }
     return res;
 }
@@ -6464,11 +6548,17 @@ Return_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     struct ast_state *state = get_ast_state();
     struct _stmt *self = (struct _stmt*)res;
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
-    if (0 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 0);
-        if (obj2imm_expr(state, value, &self->v.Return.value) < 0) {
-            return NULL;
+    switch (posargs) {
+        case 1: {
+            PyObject *value = PyTuple_GET_ITEM(args, 0);
+            if (obj2imm_expr(state, value, &self->v.Return.value) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
+        // fallthrough
+        default:
+            break;
     }
     return res;
 }
@@ -6532,11 +6622,17 @@ Delete_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     struct ast_state *state = get_ast_state();
     struct _stmt *self = (struct _stmt*)res;
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
-    if (0 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 0);
-        if (obj2imm_expr_seq(state, value, &self->v.Delete.targets) < 0) {
-            return NULL;
+    switch (posargs) {
+        case 1: {
+            PyObject *value = PyTuple_GET_ITEM(args, 0);
+            if (obj2imm_expr_seq(state, value, &self->v.Delete.targets) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
+        // fallthrough
+        default:
+            break;
     }
     return res;
 }
@@ -6600,23 +6696,34 @@ Assign_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     struct ast_state *state = get_ast_state();
     struct _stmt *self = (struct _stmt*)res;
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
-    if (0 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 0);
-        if (obj2imm_expr_seq(state, value, &self->v.Assign.targets) < 0) {
-            return NULL;
+    switch (posargs) {
+        case 3: {
+            PyObject *value = PyTuple_GET_ITEM(args, 2);
+            if (obj2imm_string(state, value, &self->v.Assign.type_comment) < 0)
+                {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
-    }
-    if (1 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 1);
-        if (obj2imm_expr(state, value, &self->v.Assign.value) < 0) {
-            return NULL;
+        // fallthrough
+        case 2: {
+            PyObject *value = PyTuple_GET_ITEM(args, 1);
+            if (obj2imm_expr(state, value, &self->v.Assign.value) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
-    }
-    if (2 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 2);
-        if (obj2imm_string(state, value, &self->v.Assign.type_comment) < 0) {
-            return NULL;
+        // fallthrough
+        case 1: {
+            PyObject *value = PyTuple_GET_ITEM(args, 0);
+            if (obj2imm_expr_seq(state, value, &self->v.Assign.targets) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
+        // fallthrough
+        default:
+            break;
     }
     return res;
 }
@@ -6698,24 +6805,34 @@ TypeAlias_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     struct ast_state *state = get_ast_state();
     struct _stmt *self = (struct _stmt*)res;
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
-    if (0 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 0);
-        if (obj2imm_expr(state, value, &self->v.TypeAlias.name) < 0) {
-            return NULL;
+    switch (posargs) {
+        case 3: {
+            PyObject *value = PyTuple_GET_ITEM(args, 2);
+            if (obj2imm_expr(state, value, &self->v.TypeAlias.value) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
-    }
-    if (1 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 1);
-        if (obj2imm_type_param_seq(state, value,
-            &self->v.TypeAlias.type_params) < 0) {
-            return NULL;
+        // fallthrough
+        case 2: {
+            PyObject *value = PyTuple_GET_ITEM(args, 1);
+            if (obj2imm_type_param_seq(state, value,
+                &self->v.TypeAlias.type_params) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
-    }
-    if (2 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 2);
-        if (obj2imm_expr(state, value, &self->v.TypeAlias.value) < 0) {
-            return NULL;
+        // fallthrough
+        case 1: {
+            PyObject *value = PyTuple_GET_ITEM(args, 0);
+            if (obj2imm_expr(state, value, &self->v.TypeAlias.name) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
+        // fallthrough
+        default:
+            break;
     }
     return res;
 }
@@ -6798,26 +6915,35 @@ AugAssign_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     struct ast_state *state = get_ast_state();
     struct _stmt *self = (struct _stmt*)res;
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
-    if (0 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 0);
-        if (obj2imm_expr(state, value, &self->v.AugAssign.target) < 0) {
-            return NULL;
+    switch (posargs) {
+        case 3: {
+            PyObject *value = PyTuple_GET_ITEM(args, 2);
+            if (obj2imm_expr(state, value, &self->v.AugAssign.value) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
-    }
-    if (1 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 1);
-        operator_ty out;
-        if (obj2imm_operator(state, value, &out) < 0) {
-            Py_DECREF(res);
-            return NULL;
+        // fallthrough
+        case 2: {
+            PyObject *value = PyTuple_GET_ITEM(args, 1);
+            operator_ty out;
+            if (obj2imm_operator(state, value, &out) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
+            self->v.AugAssign.op = out;
         }
-        self->v.AugAssign.op = out;
-    }
-    if (2 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 2);
-        if (obj2imm_expr(state, value, &self->v.AugAssign.value) < 0) {
-            return NULL;
+        // fallthrough
+        case 1: {
+            PyObject *value = PyTuple_GET_ITEM(args, 0);
+            if (obj2imm_expr(state, value, &self->v.AugAssign.target) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
+        // fallthrough
+        default:
+            break;
     }
     return res;
 }
@@ -6892,32 +7018,43 @@ AnnAssign_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     struct ast_state *state = get_ast_state();
     struct _stmt *self = (struct _stmt*)res;
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
-    if (0 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 0);
-        if (obj2imm_expr(state, value, &self->v.AnnAssign.target) < 0) {
-            return NULL;
+    switch (posargs) {
+        case 4: {
+            PyObject *value = PyTuple_GET_ITEM(args, 3);
+            int out;
+            if (obj2imm_int(state, value, &out) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
+            self->v.AnnAssign.simple = out;
         }
-    }
-    if (1 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 1);
-        if (obj2imm_expr(state, value, &self->v.AnnAssign.annotation) < 0) {
-            return NULL;
+        // fallthrough
+        case 3: {
+            PyObject *value = PyTuple_GET_ITEM(args, 2);
+            if (obj2imm_expr(state, value, &self->v.AnnAssign.value) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
-    }
-    if (2 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 2);
-        if (obj2imm_expr(state, value, &self->v.AnnAssign.value) < 0) {
-            return NULL;
+        // fallthrough
+        case 2: {
+            PyObject *value = PyTuple_GET_ITEM(args, 1);
+            if (obj2imm_expr(state, value, &self->v.AnnAssign.annotation) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
-    }
-    if (3 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 3);
-        int out;
-        if (obj2imm_int(state, value, &out) < 0) {
-            Py_DECREF(res);
-            return NULL;
+        // fallthrough
+        case 1: {
+            PyObject *value = PyTuple_GET_ITEM(args, 0);
+            if (obj2imm_expr(state, value, &self->v.AnnAssign.target) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
-        self->v.AnnAssign.simple = out;
+        // fallthrough
+        default:
+            break;
     }
     return res;
 }
@@ -7003,35 +7140,49 @@ For_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     struct ast_state *state = get_ast_state();
     struct _stmt *self = (struct _stmt*)res;
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
-    if (0 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 0);
-        if (obj2imm_expr(state, value, &self->v.For.target) < 0) {
-            return NULL;
+    switch (posargs) {
+        case 5: {
+            PyObject *value = PyTuple_GET_ITEM(args, 4);
+            if (obj2imm_string(state, value, &self->v.For.type_comment) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
-    }
-    if (1 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 1);
-        if (obj2imm_expr(state, value, &self->v.For.iter) < 0) {
-            return NULL;
+        // fallthrough
+        case 4: {
+            PyObject *value = PyTuple_GET_ITEM(args, 3);
+            if (obj2imm_stmt_seq(state, value, &self->v.For.orelse) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
-    }
-    if (2 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 2);
-        if (obj2imm_stmt_seq(state, value, &self->v.For.body) < 0) {
-            return NULL;
+        // fallthrough
+        case 3: {
+            PyObject *value = PyTuple_GET_ITEM(args, 2);
+            if (obj2imm_stmt_seq(state, value, &self->v.For.body) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
-    }
-    if (3 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 3);
-        if (obj2imm_stmt_seq(state, value, &self->v.For.orelse) < 0) {
-            return NULL;
+        // fallthrough
+        case 2: {
+            PyObject *value = PyTuple_GET_ITEM(args, 1);
+            if (obj2imm_expr(state, value, &self->v.For.iter) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
-    }
-    if (4 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 4);
-        if (obj2imm_string(state, value, &self->v.For.type_comment) < 0) {
-            return NULL;
+        // fallthrough
+        case 1: {
+            PyObject *value = PyTuple_GET_ITEM(args, 0);
+            if (obj2imm_expr(state, value, &self->v.For.target) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
+        // fallthrough
+        default:
+            break;
     }
     return res;
 }
@@ -7130,35 +7281,50 @@ AsyncFor_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     struct ast_state *state = get_ast_state();
     struct _stmt *self = (struct _stmt*)res;
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
-    if (0 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 0);
-        if (obj2imm_expr(state, value, &self->v.AsyncFor.target) < 0) {
-            return NULL;
+    switch (posargs) {
+        case 5: {
+            PyObject *value = PyTuple_GET_ITEM(args, 4);
+            if (obj2imm_string(state, value, &self->v.AsyncFor.type_comment) <
+                0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
-    }
-    if (1 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 1);
-        if (obj2imm_expr(state, value, &self->v.AsyncFor.iter) < 0) {
-            return NULL;
+        // fallthrough
+        case 4: {
+            PyObject *value = PyTuple_GET_ITEM(args, 3);
+            if (obj2imm_stmt_seq(state, value, &self->v.AsyncFor.orelse) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
-    }
-    if (2 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 2);
-        if (obj2imm_stmt_seq(state, value, &self->v.AsyncFor.body) < 0) {
-            return NULL;
+        // fallthrough
+        case 3: {
+            PyObject *value = PyTuple_GET_ITEM(args, 2);
+            if (obj2imm_stmt_seq(state, value, &self->v.AsyncFor.body) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
-    }
-    if (3 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 3);
-        if (obj2imm_stmt_seq(state, value, &self->v.AsyncFor.orelse) < 0) {
-            return NULL;
+        // fallthrough
+        case 2: {
+            PyObject *value = PyTuple_GET_ITEM(args, 1);
+            if (obj2imm_expr(state, value, &self->v.AsyncFor.iter) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
-    }
-    if (4 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 4);
-        if (obj2imm_string(state, value, &self->v.AsyncFor.type_comment) < 0) {
-            return NULL;
+        // fallthrough
+        case 1: {
+            PyObject *value = PyTuple_GET_ITEM(args, 0);
+            if (obj2imm_expr(state, value, &self->v.AsyncFor.target) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
+        // fallthrough
+        default:
+            break;
     }
     return res;
 }
@@ -7258,23 +7424,33 @@ While_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     struct ast_state *state = get_ast_state();
     struct _stmt *self = (struct _stmt*)res;
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
-    if (0 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 0);
-        if (obj2imm_expr(state, value, &self->v.While.test) < 0) {
-            return NULL;
+    switch (posargs) {
+        case 3: {
+            PyObject *value = PyTuple_GET_ITEM(args, 2);
+            if (obj2imm_stmt_seq(state, value, &self->v.While.orelse) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
-    }
-    if (1 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 1);
-        if (obj2imm_stmt_seq(state, value, &self->v.While.body) < 0) {
-            return NULL;
+        // fallthrough
+        case 2: {
+            PyObject *value = PyTuple_GET_ITEM(args, 1);
+            if (obj2imm_stmt_seq(state, value, &self->v.While.body) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
-    }
-    if (2 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 2);
-        if (obj2imm_stmt_seq(state, value, &self->v.While.orelse) < 0) {
-            return NULL;
+        // fallthrough
+        case 1: {
+            PyObject *value = PyTuple_GET_ITEM(args, 0);
+            if (obj2imm_expr(state, value, &self->v.While.test) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
+        // fallthrough
+        default:
+            break;
     }
     return res;
 }
@@ -7356,23 +7532,33 @@ If_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     struct ast_state *state = get_ast_state();
     struct _stmt *self = (struct _stmt*)res;
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
-    if (0 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 0);
-        if (obj2imm_expr(state, value, &self->v.If.test) < 0) {
-            return NULL;
+    switch (posargs) {
+        case 3: {
+            PyObject *value = PyTuple_GET_ITEM(args, 2);
+            if (obj2imm_stmt_seq(state, value, &self->v.If.orelse) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
-    }
-    if (1 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 1);
-        if (obj2imm_stmt_seq(state, value, &self->v.If.body) < 0) {
-            return NULL;
+        // fallthrough
+        case 2: {
+            PyObject *value = PyTuple_GET_ITEM(args, 1);
+            if (obj2imm_stmt_seq(state, value, &self->v.If.body) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
-    }
-    if (2 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 2);
-        if (obj2imm_stmt_seq(state, value, &self->v.If.orelse) < 0) {
-            return NULL;
+        // fallthrough
+        case 1: {
+            PyObject *value = PyTuple_GET_ITEM(args, 0);
+            if (obj2imm_expr(state, value, &self->v.If.test) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
+        // fallthrough
+        default:
+            break;
     }
     return res;
 }
@@ -7453,23 +7639,33 @@ With_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     struct ast_state *state = get_ast_state();
     struct _stmt *self = (struct _stmt*)res;
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
-    if (0 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 0);
-        if (obj2imm_withitem_seq(state, value, &self->v.With.items) < 0) {
-            return NULL;
+    switch (posargs) {
+        case 3: {
+            PyObject *value = PyTuple_GET_ITEM(args, 2);
+            if (obj2imm_string(state, value, &self->v.With.type_comment) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
-    }
-    if (1 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 1);
-        if (obj2imm_stmt_seq(state, value, &self->v.With.body) < 0) {
-            return NULL;
+        // fallthrough
+        case 2: {
+            PyObject *value = PyTuple_GET_ITEM(args, 1);
+            if (obj2imm_stmt_seq(state, value, &self->v.With.body) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
-    }
-    if (2 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 2);
-        if (obj2imm_string(state, value, &self->v.With.type_comment) < 0) {
-            return NULL;
+        // fallthrough
+        case 1: {
+            PyObject *value = PyTuple_GET_ITEM(args, 0);
+            if (obj2imm_withitem_seq(state, value, &self->v.With.items) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
+        // fallthrough
+        default:
+            break;
     }
     return res;
 }
@@ -7550,23 +7746,35 @@ AsyncWith_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     struct ast_state *state = get_ast_state();
     struct _stmt *self = (struct _stmt*)res;
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
-    if (0 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 0);
-        if (obj2imm_withitem_seq(state, value, &self->v.AsyncWith.items) < 0) {
-            return NULL;
+    switch (posargs) {
+        case 3: {
+            PyObject *value = PyTuple_GET_ITEM(args, 2);
+            if (obj2imm_string(state, value, &self->v.AsyncWith.type_comment) <
+                0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
-    }
-    if (1 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 1);
-        if (obj2imm_stmt_seq(state, value, &self->v.AsyncWith.body) < 0) {
-            return NULL;
+        // fallthrough
+        case 2: {
+            PyObject *value = PyTuple_GET_ITEM(args, 1);
+            if (obj2imm_stmt_seq(state, value, &self->v.AsyncWith.body) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
-    }
-    if (2 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 2);
-        if (obj2imm_string(state, value, &self->v.AsyncWith.type_comment) < 0) {
-            return NULL;
+        // fallthrough
+        case 1: {
+            PyObject *value = PyTuple_GET_ITEM(args, 0);
+            if (obj2imm_withitem_seq(state, value, &self->v.AsyncWith.items) <
+                0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
+        // fallthrough
+        default:
+            break;
     }
     return res;
 }
@@ -7650,17 +7858,26 @@ Match_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     struct ast_state *state = get_ast_state();
     struct _stmt *self = (struct _stmt*)res;
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
-    if (0 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 0);
-        if (obj2imm_expr(state, value, &self->v.Match.subject) < 0) {
-            return NULL;
+    switch (posargs) {
+        case 2: {
+            PyObject *value = PyTuple_GET_ITEM(args, 1);
+            if (obj2imm_match_case_seq(state, value, &self->v.Match.cases) < 0)
+                {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
-    }
-    if (1 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 1);
-        if (obj2imm_match_case_seq(state, value, &self->v.Match.cases) < 0) {
-            return NULL;
+        // fallthrough
+        case 1: {
+            PyObject *value = PyTuple_GET_ITEM(args, 0);
+            if (obj2imm_expr(state, value, &self->v.Match.subject) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
+        // fallthrough
+        default:
+            break;
     }
     return res;
 }
@@ -7733,17 +7950,25 @@ Raise_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     struct ast_state *state = get_ast_state();
     struct _stmt *self = (struct _stmt*)res;
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
-    if (0 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 0);
-        if (obj2imm_expr(state, value, &self->v.Raise.exc) < 0) {
-            return NULL;
+    switch (posargs) {
+        case 2: {
+            PyObject *value = PyTuple_GET_ITEM(args, 1);
+            if (obj2imm_expr(state, value, &self->v.Raise.cause) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
-    }
-    if (1 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 1);
-        if (obj2imm_expr(state, value, &self->v.Raise.cause) < 0) {
-            return NULL;
+        // fallthrough
+        case 1: {
+            PyObject *value = PyTuple_GET_ITEM(args, 0);
+            if (obj2imm_expr(state, value, &self->v.Raise.exc) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
+        // fallthrough
+        default:
+            break;
     }
     return res;
 }
@@ -7816,30 +8041,42 @@ Try_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     struct ast_state *state = get_ast_state();
     struct _stmt *self = (struct _stmt*)res;
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
-    if (0 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 0);
-        if (obj2imm_stmt_seq(state, value, &self->v.Try.body) < 0) {
-            return NULL;
+    switch (posargs) {
+        case 4: {
+            PyObject *value = PyTuple_GET_ITEM(args, 3);
+            if (obj2imm_stmt_seq(state, value, &self->v.Try.finalbody) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
-    }
-    if (1 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 1);
-        if (obj2imm_excepthandler_seq(state, value, &self->v.Try.handlers) < 0)
-            {
-            return NULL;
+        // fallthrough
+        case 3: {
+            PyObject *value = PyTuple_GET_ITEM(args, 2);
+            if (obj2imm_stmt_seq(state, value, &self->v.Try.orelse) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
-    }
-    if (2 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 2);
-        if (obj2imm_stmt_seq(state, value, &self->v.Try.orelse) < 0) {
-            return NULL;
+        // fallthrough
+        case 2: {
+            PyObject *value = PyTuple_GET_ITEM(args, 1);
+            if (obj2imm_excepthandler_seq(state, value, &self->v.Try.handlers)
+                < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
-    }
-    if (3 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 3);
-        if (obj2imm_stmt_seq(state, value, &self->v.Try.finalbody) < 0) {
-            return NULL;
+        // fallthrough
+        case 1: {
+            PyObject *value = PyTuple_GET_ITEM(args, 0);
+            if (obj2imm_stmt_seq(state, value, &self->v.Try.body) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
+        // fallthrough
+        default:
+            break;
     }
     return res;
 }
@@ -7930,30 +8167,43 @@ TryStar_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     struct ast_state *state = get_ast_state();
     struct _stmt *self = (struct _stmt*)res;
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
-    if (0 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 0);
-        if (obj2imm_stmt_seq(state, value, &self->v.TryStar.body) < 0) {
-            return NULL;
+    switch (posargs) {
+        case 4: {
+            PyObject *value = PyTuple_GET_ITEM(args, 3);
+            if (obj2imm_stmt_seq(state, value, &self->v.TryStar.finalbody) < 0)
+                {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
-    }
-    if (1 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 1);
-        if (obj2imm_excepthandler_seq(state, value, &self->v.TryStar.handlers)
-            < 0) {
-            return NULL;
+        // fallthrough
+        case 3: {
+            PyObject *value = PyTuple_GET_ITEM(args, 2);
+            if (obj2imm_stmt_seq(state, value, &self->v.TryStar.orelse) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
-    }
-    if (2 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 2);
-        if (obj2imm_stmt_seq(state, value, &self->v.TryStar.orelse) < 0) {
-            return NULL;
+        // fallthrough
+        case 2: {
+            PyObject *value = PyTuple_GET_ITEM(args, 1);
+            if (obj2imm_excepthandler_seq(state, value,
+                &self->v.TryStar.handlers) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
-    }
-    if (3 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 3);
-        if (obj2imm_stmt_seq(state, value, &self->v.TryStar.finalbody) < 0) {
-            return NULL;
+        // fallthrough
+        case 1: {
+            PyObject *value = PyTuple_GET_ITEM(args, 0);
+            if (obj2imm_stmt_seq(state, value, &self->v.TryStar.body) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
+        // fallthrough
+        default:
+            break;
     }
     return res;
 }
@@ -8046,17 +8296,25 @@ Assert_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     struct ast_state *state = get_ast_state();
     struct _stmt *self = (struct _stmt*)res;
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
-    if (0 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 0);
-        if (obj2imm_expr(state, value, &self->v.Assert.test) < 0) {
-            return NULL;
+    switch (posargs) {
+        case 2: {
+            PyObject *value = PyTuple_GET_ITEM(args, 1);
+            if (obj2imm_expr(state, value, &self->v.Assert.msg) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
-    }
-    if (1 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 1);
-        if (obj2imm_expr(state, value, &self->v.Assert.msg) < 0) {
-            return NULL;
+        // fallthrough
+        case 1: {
+            PyObject *value = PyTuple_GET_ITEM(args, 0);
+            if (obj2imm_expr(state, value, &self->v.Assert.test) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
+        // fallthrough
+        default:
+            break;
     }
     return res;
 }
@@ -8129,11 +8387,17 @@ Import_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     struct ast_state *state = get_ast_state();
     struct _stmt *self = (struct _stmt*)res;
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
-    if (0 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 0);
-        if (obj2imm_alias_seq(state, value, &self->v.Import.names) < 0) {
-            return NULL;
+    switch (posargs) {
+        case 1: {
+            PyObject *value = PyTuple_GET_ITEM(args, 0);
+            if (obj2imm_alias_seq(state, value, &self->v.Import.names) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
+        // fallthrough
+        default:
+            break;
     }
     return res;
 }
@@ -8197,26 +8461,37 @@ ImportFrom_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     struct ast_state *state = get_ast_state();
     struct _stmt *self = (struct _stmt*)res;
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
-    if (0 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 0);
-        if (obj2imm_identifier(state, value, &self->v.ImportFrom.module) < 0) {
-            return NULL;
+    switch (posargs) {
+        case 3: {
+            PyObject *value = PyTuple_GET_ITEM(args, 2);
+            int out;
+            if (obj2imm_int(state, value, &out) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
+            self->v.ImportFrom.level = out;
         }
-    }
-    if (1 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 1);
-        if (obj2imm_alias_seq(state, value, &self->v.ImportFrom.names) < 0) {
-            return NULL;
+        // fallthrough
+        case 2: {
+            PyObject *value = PyTuple_GET_ITEM(args, 1);
+            if (obj2imm_alias_seq(state, value, &self->v.ImportFrom.names) < 0)
+                {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
-    }
-    if (2 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 2);
-        int out;
-        if (obj2imm_int(state, value, &out) < 0) {
-            Py_DECREF(res);
-            return NULL;
+        // fallthrough
+        case 1: {
+            PyObject *value = PyTuple_GET_ITEM(args, 0);
+            if (obj2imm_identifier(state, value, &self->v.ImportFrom.module) <
+                0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
-        self->v.ImportFrom.level = out;
+        // fallthrough
+        default:
+            break;
     }
     return res;
 }
@@ -8293,11 +8568,18 @@ Global_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     struct ast_state *state = get_ast_state();
     struct _stmt *self = (struct _stmt*)res;
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
-    if (0 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 0);
-        if (obj2imm_identifier_seq(state, value, &self->v.Global.names) < 0) {
-            return NULL;
+    switch (posargs) {
+        case 1: {
+            PyObject *value = PyTuple_GET_ITEM(args, 0);
+            if (obj2imm_identifier_seq(state, value, &self->v.Global.names) <
+                0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
+        // fallthrough
+        default:
+            break;
     }
     return res;
 }
@@ -8361,11 +8643,18 @@ Nonlocal_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     struct ast_state *state = get_ast_state();
     struct _stmt *self = (struct _stmt*)res;
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
-    if (0 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 0);
-        if (obj2imm_identifier_seq(state, value, &self->v.Nonlocal.names) < 0) {
-            return NULL;
+    switch (posargs) {
+        case 1: {
+            PyObject *value = PyTuple_GET_ITEM(args, 0);
+            if (obj2imm_identifier_seq(state, value, &self->v.Nonlocal.names) <
+                0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
+        // fallthrough
+        default:
+            break;
     }
     return res;
 }
@@ -8430,11 +8719,17 @@ Expr_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     struct ast_state *state = get_ast_state();
     struct _stmt *self = (struct _stmt*)res;
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
-    if (0 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 0);
-        if (obj2imm_expr(state, value, &self->v.Expr.value) < 0) {
-            return NULL;
+    switch (posargs) {
+        case 1: {
+            PyObject *value = PyTuple_GET_ITEM(args, 0);
+            if (obj2imm_expr(state, value, &self->v.Expr.value) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
+        // fallthrough
+        default:
+            break;
     }
     return res;
 }
@@ -8825,20 +9120,27 @@ BoolOp_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     struct ast_state *state = get_ast_state();
     struct _expr *self = (struct _expr*)res;
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
-    if (0 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 0);
-        boolop_ty out;
-        if (obj2imm_boolop(state, value, &out) < 0) {
-            Py_DECREF(res);
-            return NULL;
+    switch (posargs) {
+        case 2: {
+            PyObject *value = PyTuple_GET_ITEM(args, 1);
+            if (obj2imm_expr_seq(state, value, &self->v.BoolOp.values) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
-        self->v.BoolOp.op = out;
-    }
-    if (1 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 1);
-        if (obj2imm_expr_seq(state, value, &self->v.BoolOp.values) < 0) {
-            return NULL;
+        // fallthrough
+        case 1: {
+            PyObject *value = PyTuple_GET_ITEM(args, 0);
+            boolop_ty out;
+            if (obj2imm_boolop(state, value, &out) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
+            self->v.BoolOp.op = out;
         }
+        // fallthrough
+        default:
+            break;
     }
     return res;
 }
@@ -8904,17 +9206,25 @@ NamedExpr_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     struct ast_state *state = get_ast_state();
     struct _expr *self = (struct _expr*)res;
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
-    if (0 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 0);
-        if (obj2imm_expr(state, value, &self->v.NamedExpr.target) < 0) {
-            return NULL;
+    switch (posargs) {
+        case 2: {
+            PyObject *value = PyTuple_GET_ITEM(args, 1);
+            if (obj2imm_expr(state, value, &self->v.NamedExpr.value) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
-    }
-    if (1 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 1);
-        if (obj2imm_expr(state, value, &self->v.NamedExpr.value) < 0) {
-            return NULL;
+        // fallthrough
+        case 1: {
+            PyObject *value = PyTuple_GET_ITEM(args, 0);
+            if (obj2imm_expr(state, value, &self->v.NamedExpr.target) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
+        // fallthrough
+        default:
+            break;
     }
     return res;
 }
@@ -8987,26 +9297,35 @@ BinOp_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     struct ast_state *state = get_ast_state();
     struct _expr *self = (struct _expr*)res;
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
-    if (0 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 0);
-        if (obj2imm_expr(state, value, &self->v.BinOp.left) < 0) {
-            return NULL;
+    switch (posargs) {
+        case 3: {
+            PyObject *value = PyTuple_GET_ITEM(args, 2);
+            if (obj2imm_expr(state, value, &self->v.BinOp.right) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
-    }
-    if (1 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 1);
-        operator_ty out;
-        if (obj2imm_operator(state, value, &out) < 0) {
-            Py_DECREF(res);
-            return NULL;
+        // fallthrough
+        case 2: {
+            PyObject *value = PyTuple_GET_ITEM(args, 1);
+            operator_ty out;
+            if (obj2imm_operator(state, value, &out) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
+            self->v.BinOp.op = out;
         }
-        self->v.BinOp.op = out;
-    }
-    if (2 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 2);
-        if (obj2imm_expr(state, value, &self->v.BinOp.right) < 0) {
-            return NULL;
+        // fallthrough
+        case 1: {
+            PyObject *value = PyTuple_GET_ITEM(args, 0);
+            if (obj2imm_expr(state, value, &self->v.BinOp.left) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
+        // fallthrough
+        default:
+            break;
     }
     return res;
 }
@@ -9081,20 +9400,27 @@ UnaryOp_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     struct ast_state *state = get_ast_state();
     struct _expr *self = (struct _expr*)res;
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
-    if (0 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 0);
-        unaryop_ty out;
-        if (obj2imm_unaryop(state, value, &out) < 0) {
-            Py_DECREF(res);
-            return NULL;
+    switch (posargs) {
+        case 2: {
+            PyObject *value = PyTuple_GET_ITEM(args, 1);
+            if (obj2imm_expr(state, value, &self->v.UnaryOp.operand) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
-        self->v.UnaryOp.op = out;
-    }
-    if (1 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 1);
-        if (obj2imm_expr(state, value, &self->v.UnaryOp.operand) < 0) {
-            return NULL;
+        // fallthrough
+        case 1: {
+            PyObject *value = PyTuple_GET_ITEM(args, 0);
+            unaryop_ty out;
+            if (obj2imm_unaryop(state, value, &out) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
+            self->v.UnaryOp.op = out;
         }
+        // fallthrough
+        default:
+            break;
     }
     return res;
 }
@@ -9160,17 +9486,25 @@ Lambda_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     struct ast_state *state = get_ast_state();
     struct _expr *self = (struct _expr*)res;
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
-    if (0 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 0);
-        if (obj2imm_arguments(state, value, &self->v.Lambda.args) < 0) {
-            return NULL;
+    switch (posargs) {
+        case 2: {
+            PyObject *value = PyTuple_GET_ITEM(args, 1);
+            if (obj2imm_expr(state, value, &self->v.Lambda.body) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
-    }
-    if (1 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 1);
-        if (obj2imm_expr(state, value, &self->v.Lambda.body) < 0) {
-            return NULL;
+        // fallthrough
+        case 1: {
+            PyObject *value = PyTuple_GET_ITEM(args, 0);
+            if (obj2imm_arguments(state, value, &self->v.Lambda.args) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
+        // fallthrough
+        default:
+            break;
     }
     return res;
 }
@@ -9243,23 +9577,33 @@ IfExp_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     struct ast_state *state = get_ast_state();
     struct _expr *self = (struct _expr*)res;
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
-    if (0 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 0);
-        if (obj2imm_expr(state, value, &self->v.IfExp.test) < 0) {
-            return NULL;
+    switch (posargs) {
+        case 3: {
+            PyObject *value = PyTuple_GET_ITEM(args, 2);
+            if (obj2imm_expr(state, value, &self->v.IfExp.orelse) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
-    }
-    if (1 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 1);
-        if (obj2imm_expr(state, value, &self->v.IfExp.body) < 0) {
-            return NULL;
+        // fallthrough
+        case 2: {
+            PyObject *value = PyTuple_GET_ITEM(args, 1);
+            if (obj2imm_expr(state, value, &self->v.IfExp.body) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
-    }
-    if (2 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 2);
-        if (obj2imm_expr(state, value, &self->v.IfExp.orelse) < 0) {
-            return NULL;
+        // fallthrough
+        case 1: {
+            PyObject *value = PyTuple_GET_ITEM(args, 0);
+            if (obj2imm_expr(state, value, &self->v.IfExp.test) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
+        // fallthrough
+        default:
+            break;
     }
     return res;
 }
@@ -9341,17 +9685,25 @@ Dict_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     struct ast_state *state = get_ast_state();
     struct _expr *self = (struct _expr*)res;
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
-    if (0 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 0);
-        if (obj2imm_expr_seq(state, value, &self->v.Dict.keys) < 0) {
-            return NULL;
+    switch (posargs) {
+        case 2: {
+            PyObject *value = PyTuple_GET_ITEM(args, 1);
+            if (obj2imm_expr_seq(state, value, &self->v.Dict.values) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
-    }
-    if (1 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 1);
-        if (obj2imm_expr_seq(state, value, &self->v.Dict.values) < 0) {
-            return NULL;
+        // fallthrough
+        case 1: {
+            PyObject *value = PyTuple_GET_ITEM(args, 0);
+            if (obj2imm_expr_seq(state, value, &self->v.Dict.keys) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
+        // fallthrough
+        default:
+            break;
     }
     return res;
 }
@@ -9423,11 +9775,17 @@ Set_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     struct ast_state *state = get_ast_state();
     struct _expr *self = (struct _expr*)res;
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
-    if (0 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 0);
-        if (obj2imm_expr_seq(state, value, &self->v.Set.elts) < 0) {
-            return NULL;
+    switch (posargs) {
+        case 1: {
+            PyObject *value = PyTuple_GET_ITEM(args, 0);
+            if (obj2imm_expr_seq(state, value, &self->v.Set.elts) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
+        // fallthrough
+        default:
+            break;
     }
     return res;
 }
@@ -9490,18 +9848,26 @@ ListComp_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     struct ast_state *state = get_ast_state();
     struct _expr *self = (struct _expr*)res;
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
-    if (0 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 0);
-        if (obj2imm_expr(state, value, &self->v.ListComp.elt) < 0) {
-            return NULL;
+    switch (posargs) {
+        case 2: {
+            PyObject *value = PyTuple_GET_ITEM(args, 1);
+            if (obj2imm_comprehension_seq(state, value,
+                &self->v.ListComp.generators) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
-    }
-    if (1 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 1);
-        if (obj2imm_comprehension_seq(state, value,
-            &self->v.ListComp.generators) < 0) {
-            return NULL;
+        // fallthrough
+        case 1: {
+            PyObject *value = PyTuple_GET_ITEM(args, 0);
+            if (obj2imm_expr(state, value, &self->v.ListComp.elt) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
+        // fallthrough
+        default:
+            break;
     }
     return res;
 }
@@ -9575,18 +9941,26 @@ SetComp_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     struct ast_state *state = get_ast_state();
     struct _expr *self = (struct _expr*)res;
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
-    if (0 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 0);
-        if (obj2imm_expr(state, value, &self->v.SetComp.elt) < 0) {
-            return NULL;
+    switch (posargs) {
+        case 2: {
+            PyObject *value = PyTuple_GET_ITEM(args, 1);
+            if (obj2imm_comprehension_seq(state, value,
+                &self->v.SetComp.generators) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
-    }
-    if (1 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 1);
-        if (obj2imm_comprehension_seq(state, value,
-            &self->v.SetComp.generators) < 0) {
-            return NULL;
+        // fallthrough
+        case 1: {
+            PyObject *value = PyTuple_GET_ITEM(args, 0);
+            if (obj2imm_expr(state, value, &self->v.SetComp.elt) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
+        // fallthrough
+        default:
+            break;
     }
     return res;
 }
@@ -9660,24 +10034,34 @@ DictComp_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     struct ast_state *state = get_ast_state();
     struct _expr *self = (struct _expr*)res;
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
-    if (0 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 0);
-        if (obj2imm_expr(state, value, &self->v.DictComp.key) < 0) {
-            return NULL;
+    switch (posargs) {
+        case 3: {
+            PyObject *value = PyTuple_GET_ITEM(args, 2);
+            if (obj2imm_comprehension_seq(state, value,
+                &self->v.DictComp.generators) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
-    }
-    if (1 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 1);
-        if (obj2imm_expr(state, value, &self->v.DictComp.value) < 0) {
-            return NULL;
+        // fallthrough
+        case 2: {
+            PyObject *value = PyTuple_GET_ITEM(args, 1);
+            if (obj2imm_expr(state, value, &self->v.DictComp.value) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
-    }
-    if (2 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 2);
-        if (obj2imm_comprehension_seq(state, value,
-            &self->v.DictComp.generators) < 0) {
-            return NULL;
+        // fallthrough
+        case 1: {
+            PyObject *value = PyTuple_GET_ITEM(args, 0);
+            if (obj2imm_expr(state, value, &self->v.DictComp.key) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
+        // fallthrough
+        default:
+            break;
     }
     return res;
 }
@@ -9760,18 +10144,26 @@ GeneratorExp_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     struct ast_state *state = get_ast_state();
     struct _expr *self = (struct _expr*)res;
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
-    if (0 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 0);
-        if (obj2imm_expr(state, value, &self->v.GeneratorExp.elt) < 0) {
-            return NULL;
+    switch (posargs) {
+        case 2: {
+            PyObject *value = PyTuple_GET_ITEM(args, 1);
+            if (obj2imm_comprehension_seq(state, value,
+                &self->v.GeneratorExp.generators) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
-    }
-    if (1 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 1);
-        if (obj2imm_comprehension_seq(state, value,
-            &self->v.GeneratorExp.generators) < 0) {
-            return NULL;
+        // fallthrough
+        case 1: {
+            PyObject *value = PyTuple_GET_ITEM(args, 0);
+            if (obj2imm_expr(state, value, &self->v.GeneratorExp.elt) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
+        // fallthrough
+        default:
+            break;
     }
     return res;
 }
@@ -9845,11 +10237,17 @@ Await_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     struct ast_state *state = get_ast_state();
     struct _expr *self = (struct _expr*)res;
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
-    if (0 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 0);
-        if (obj2imm_expr(state, value, &self->v.Await.value) < 0) {
-            return NULL;
+    switch (posargs) {
+        case 1: {
+            PyObject *value = PyTuple_GET_ITEM(args, 0);
+            if (obj2imm_expr(state, value, &self->v.Await.value) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
+        // fallthrough
+        default:
+            break;
     }
     return res;
 }
@@ -9913,11 +10311,17 @@ Yield_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     struct ast_state *state = get_ast_state();
     struct _expr *self = (struct _expr*)res;
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
-    if (0 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 0);
-        if (obj2imm_expr(state, value, &self->v.Yield.value) < 0) {
-            return NULL;
+    switch (posargs) {
+        case 1: {
+            PyObject *value = PyTuple_GET_ITEM(args, 0);
+            if (obj2imm_expr(state, value, &self->v.Yield.value) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
+        // fallthrough
+        default:
+            break;
     }
     return res;
 }
@@ -9981,11 +10385,17 @@ YieldFrom_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     struct ast_state *state = get_ast_state();
     struct _expr *self = (struct _expr*)res;
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
-    if (0 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 0);
-        if (obj2imm_expr(state, value, &self->v.YieldFrom.value) < 0) {
-            return NULL;
+    switch (posargs) {
+        case 1: {
+            PyObject *value = PyTuple_GET_ITEM(args, 0);
+            if (obj2imm_expr(state, value, &self->v.YieldFrom.value) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
+        // fallthrough
+        default:
+            break;
     }
     return res;
 }
@@ -10049,23 +10459,34 @@ Compare_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     struct ast_state *state = get_ast_state();
     struct _expr *self = (struct _expr*)res;
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
-    if (0 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 0);
-        if (obj2imm_expr(state, value, &self->v.Compare.left) < 0) {
-            return NULL;
+    switch (posargs) {
+        case 3: {
+            PyObject *value = PyTuple_GET_ITEM(args, 2);
+            if (obj2imm_expr_seq(state, value, &self->v.Compare.comparators) <
+                0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
-    }
-    if (1 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 1);
-        if (obj2imm_cmpop_seq(state, value, &self->v.Compare.ops) < 0) {
-            return NULL;
+        // fallthrough
+        case 2: {
+            PyObject *value = PyTuple_GET_ITEM(args, 1);
+            if (obj2imm_cmpop_seq(state, value, &self->v.Compare.ops) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
-    }
-    if (2 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 2);
-        if (obj2imm_expr_seq(state, value, &self->v.Compare.comparators) < 0) {
-            return NULL;
+        // fallthrough
+        case 1: {
+            PyObject *value = PyTuple_GET_ITEM(args, 0);
+            if (obj2imm_expr(state, value, &self->v.Compare.left) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
+        // fallthrough
+        default:
+            break;
     }
     return res;
 }
@@ -10146,23 +10567,33 @@ Call_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     struct ast_state *state = get_ast_state();
     struct _expr *self = (struct _expr*)res;
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
-    if (0 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 0);
-        if (obj2imm_expr(state, value, &self->v.Call.func) < 0) {
-            return NULL;
+    switch (posargs) {
+        case 3: {
+            PyObject *value = PyTuple_GET_ITEM(args, 2);
+            if (obj2imm_keyword_seq(state, value, &self->v.Call.keywords) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
-    }
-    if (1 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 1);
-        if (obj2imm_expr_seq(state, value, &self->v.Call.args) < 0) {
-            return NULL;
+        // fallthrough
+        case 2: {
+            PyObject *value = PyTuple_GET_ITEM(args, 1);
+            if (obj2imm_expr_seq(state, value, &self->v.Call.args) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
-    }
-    if (2 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 2);
-        if (obj2imm_keyword_seq(state, value, &self->v.Call.keywords) < 0) {
-            return NULL;
+        // fallthrough
+        case 1: {
+            PyObject *value = PyTuple_GET_ITEM(args, 0);
+            if (obj2imm_expr(state, value, &self->v.Call.func) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
+        // fallthrough
+        default:
+            break;
     }
     return res;
 }
@@ -10243,27 +10674,36 @@ FormattedValue_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     struct ast_state *state = get_ast_state();
     struct _expr *self = (struct _expr*)res;
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
-    if (0 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 0);
-        if (obj2imm_expr(state, value, &self->v.FormattedValue.value) < 0) {
-            return NULL;
+    switch (posargs) {
+        case 3: {
+            PyObject *value = PyTuple_GET_ITEM(args, 2);
+            if (obj2imm_expr(state, value, &self->v.FormattedValue.format_spec)
+                < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
-    }
-    if (1 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 1);
-        int out;
-        if (obj2imm_int(state, value, &out) < 0) {
-            Py_DECREF(res);
-            return NULL;
+        // fallthrough
+        case 2: {
+            PyObject *value = PyTuple_GET_ITEM(args, 1);
+            int out;
+            if (obj2imm_int(state, value, &out) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
+            self->v.FormattedValue.conversion = out;
         }
-        self->v.FormattedValue.conversion = out;
-    }
-    if (2 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 2);
-        if (obj2imm_expr(state, value, &self->v.FormattedValue.format_spec) <
-            0) {
-            return NULL;
+        // fallthrough
+        case 1: {
+            PyObject *value = PyTuple_GET_ITEM(args, 0);
+            if (obj2imm_expr(state, value, &self->v.FormattedValue.value) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
+        // fallthrough
+        default:
+            break;
     }
     return res;
 }
@@ -10341,33 +10781,45 @@ Interpolation_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     struct ast_state *state = get_ast_state();
     struct _expr *self = (struct _expr*)res;
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
-    if (0 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 0);
-        if (obj2imm_expr(state, value, &self->v.Interpolation.value) < 0) {
-            return NULL;
+    switch (posargs) {
+        case 4: {
+            PyObject *value = PyTuple_GET_ITEM(args, 3);
+            if (obj2imm_expr(state, value, &self->v.Interpolation.format_spec)
+                < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
-    }
-    if (1 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 1);
-        if (obj2imm_constant(state, value, &self->v.Interpolation.str) < 0) {
-            return NULL;
+        // fallthrough
+        case 3: {
+            PyObject *value = PyTuple_GET_ITEM(args, 2);
+            int out;
+            if (obj2imm_int(state, value, &out) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
+            self->v.Interpolation.conversion = out;
         }
-    }
-    if (2 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 2);
-        int out;
-        if (obj2imm_int(state, value, &out) < 0) {
-            Py_DECREF(res);
-            return NULL;
+        // fallthrough
+        case 2: {
+            PyObject *value = PyTuple_GET_ITEM(args, 1);
+            if (obj2imm_constant(state, value, &self->v.Interpolation.str) < 0)
+                {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
-        self->v.Interpolation.conversion = out;
-    }
-    if (3 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 3);
-        if (obj2imm_expr(state, value, &self->v.Interpolation.format_spec) < 0)
-            {
-            return NULL;
+        // fallthrough
+        case 1: {
+            PyObject *value = PyTuple_GET_ITEM(args, 0);
+            if (obj2imm_expr(state, value, &self->v.Interpolation.value) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
+        // fallthrough
+        default:
+            break;
     }
     return res;
 }
@@ -10454,11 +10906,17 @@ JoinedStr_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     struct ast_state *state = get_ast_state();
     struct _expr *self = (struct _expr*)res;
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
-    if (0 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 0);
-        if (obj2imm_expr_seq(state, value, &self->v.JoinedStr.values) < 0) {
-            return NULL;
+    switch (posargs) {
+        case 1: {
+            PyObject *value = PyTuple_GET_ITEM(args, 0);
+            if (obj2imm_expr_seq(state, value, &self->v.JoinedStr.values) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
+        // fallthrough
+        default:
+            break;
     }
     return res;
 }
@@ -10523,11 +10981,18 @@ TemplateStr_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     struct ast_state *state = get_ast_state();
     struct _expr *self = (struct _expr*)res;
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
-    if (0 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 0);
-        if (obj2imm_expr_seq(state, value, &self->v.TemplateStr.values) < 0) {
-            return NULL;
+    switch (posargs) {
+        case 1: {
+            PyObject *value = PyTuple_GET_ITEM(args, 0);
+            if (obj2imm_expr_seq(state, value, &self->v.TemplateStr.values) <
+                0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
+        // fallthrough
+        default:
+            break;
     }
     return res;
 }
@@ -10592,17 +11057,25 @@ Constant_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     struct ast_state *state = get_ast_state();
     struct _expr *self = (struct _expr*)res;
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
-    if (0 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 0);
-        if (obj2imm_constant(state, value, &self->v.Constant.value) < 0) {
-            return NULL;
+    switch (posargs) {
+        case 2: {
+            PyObject *value = PyTuple_GET_ITEM(args, 1);
+            if (obj2imm_string(state, value, &self->v.Constant.kind) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
-    }
-    if (1 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 1);
-        if (obj2imm_string(state, value, &self->v.Constant.kind) < 0) {
-            return NULL;
+        // fallthrough
+        case 1: {
+            PyObject *value = PyTuple_GET_ITEM(args, 0);
+            if (obj2imm_constant(state, value, &self->v.Constant.value) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
+        // fallthrough
+        default:
+            break;
     }
     return res;
 }
@@ -10675,26 +11148,35 @@ Attribute_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     struct ast_state *state = get_ast_state();
     struct _expr *self = (struct _expr*)res;
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
-    if (0 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 0);
-        if (obj2imm_expr(state, value, &self->v.Attribute.value) < 0) {
-            return NULL;
+    switch (posargs) {
+        case 3: {
+            PyObject *value = PyTuple_GET_ITEM(args, 2);
+            expr_context_ty out;
+            if (obj2imm_expr_context(state, value, &out) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
+            self->v.Attribute.ctx = out;
         }
-    }
-    if (1 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 1);
-        if (obj2imm_identifier(state, value, &self->v.Attribute.attr) < 0) {
-            return NULL;
+        // fallthrough
+        case 2: {
+            PyObject *value = PyTuple_GET_ITEM(args, 1);
+            if (obj2imm_identifier(state, value, &self->v.Attribute.attr) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
-    }
-    if (2 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 2);
-        expr_context_ty out;
-        if (obj2imm_expr_context(state, value, &out) < 0) {
-            Py_DECREF(res);
-            return NULL;
+        // fallthrough
+        case 1: {
+            PyObject *value = PyTuple_GET_ITEM(args, 0);
+            if (obj2imm_expr(state, value, &self->v.Attribute.value) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
-        self->v.Attribute.ctx = out;
+        // fallthrough
+        default:
+            break;
     }
     return res;
 }
@@ -10770,26 +11252,35 @@ Subscript_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     struct ast_state *state = get_ast_state();
     struct _expr *self = (struct _expr*)res;
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
-    if (0 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 0);
-        if (obj2imm_expr(state, value, &self->v.Subscript.value) < 0) {
-            return NULL;
+    switch (posargs) {
+        case 3: {
+            PyObject *value = PyTuple_GET_ITEM(args, 2);
+            expr_context_ty out;
+            if (obj2imm_expr_context(state, value, &out) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
+            self->v.Subscript.ctx = out;
         }
-    }
-    if (1 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 1);
-        if (obj2imm_expr(state, value, &self->v.Subscript.slice) < 0) {
-            return NULL;
+        // fallthrough
+        case 2: {
+            PyObject *value = PyTuple_GET_ITEM(args, 1);
+            if (obj2imm_expr(state, value, &self->v.Subscript.slice) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
-    }
-    if (2 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 2);
-        expr_context_ty out;
-        if (obj2imm_expr_context(state, value, &out) < 0) {
-            Py_DECREF(res);
-            return NULL;
+        // fallthrough
+        case 1: {
+            PyObject *value = PyTuple_GET_ITEM(args, 0);
+            if (obj2imm_expr(state, value, &self->v.Subscript.value) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
-        self->v.Subscript.ctx = out;
+        // fallthrough
+        default:
+            break;
     }
     return res;
 }
@@ -10865,20 +11356,27 @@ Starred_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     struct ast_state *state = get_ast_state();
     struct _expr *self = (struct _expr*)res;
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
-    if (0 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 0);
-        if (obj2imm_expr(state, value, &self->v.Starred.value) < 0) {
-            return NULL;
+    switch (posargs) {
+        case 2: {
+            PyObject *value = PyTuple_GET_ITEM(args, 1);
+            expr_context_ty out;
+            if (obj2imm_expr_context(state, value, &out) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
+            self->v.Starred.ctx = out;
         }
-    }
-    if (1 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 1);
-        expr_context_ty out;
-        if (obj2imm_expr_context(state, value, &out) < 0) {
-            Py_DECREF(res);
-            return NULL;
+        // fallthrough
+        case 1: {
+            PyObject *value = PyTuple_GET_ITEM(args, 0);
+            if (obj2imm_expr(state, value, &self->v.Starred.value) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
-        self->v.Starred.ctx = out;
+        // fallthrough
+        default:
+            break;
     }
     return res;
 }
@@ -10944,20 +11442,27 @@ Name_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     struct ast_state *state = get_ast_state();
     struct _expr *self = (struct _expr*)res;
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
-    if (0 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 0);
-        if (obj2imm_identifier(state, value, &self->v.Name.id) < 0) {
-            return NULL;
+    switch (posargs) {
+        case 2: {
+            PyObject *value = PyTuple_GET_ITEM(args, 1);
+            expr_context_ty out;
+            if (obj2imm_expr_context(state, value, &out) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
+            self->v.Name.ctx = out;
         }
-    }
-    if (1 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 1);
-        expr_context_ty out;
-        if (obj2imm_expr_context(state, value, &out) < 0) {
-            Py_DECREF(res);
-            return NULL;
+        // fallthrough
+        case 1: {
+            PyObject *value = PyTuple_GET_ITEM(args, 0);
+            if (obj2imm_identifier(state, value, &self->v.Name.id) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
-        self->v.Name.ctx = out;
+        // fallthrough
+        default:
+            break;
     }
     return res;
 }
@@ -11021,20 +11526,27 @@ List_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     struct ast_state *state = get_ast_state();
     struct _expr *self = (struct _expr*)res;
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
-    if (0 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 0);
-        if (obj2imm_expr_seq(state, value, &self->v.List.elts) < 0) {
-            return NULL;
+    switch (posargs) {
+        case 2: {
+            PyObject *value = PyTuple_GET_ITEM(args, 1);
+            expr_context_ty out;
+            if (obj2imm_expr_context(state, value, &out) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
+            self->v.List.ctx = out;
         }
-    }
-    if (1 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 1);
-        expr_context_ty out;
-        if (obj2imm_expr_context(state, value, &out) < 0) {
-            Py_DECREF(res);
-            return NULL;
+        // fallthrough
+        case 1: {
+            PyObject *value = PyTuple_GET_ITEM(args, 0);
+            if (obj2imm_expr_seq(state, value, &self->v.List.elts) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
-        self->v.List.ctx = out;
+        // fallthrough
+        default:
+            break;
     }
     return res;
 }
@@ -11099,20 +11611,27 @@ Tuple_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     struct ast_state *state = get_ast_state();
     struct _expr *self = (struct _expr*)res;
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
-    if (0 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 0);
-        if (obj2imm_expr_seq(state, value, &self->v.Tuple.elts) < 0) {
-            return NULL;
+    switch (posargs) {
+        case 2: {
+            PyObject *value = PyTuple_GET_ITEM(args, 1);
+            expr_context_ty out;
+            if (obj2imm_expr_context(state, value, &out) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
+            self->v.Tuple.ctx = out;
         }
-    }
-    if (1 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 1);
-        expr_context_ty out;
-        if (obj2imm_expr_context(state, value, &out) < 0) {
-            Py_DECREF(res);
-            return NULL;
+        // fallthrough
+        case 1: {
+            PyObject *value = PyTuple_GET_ITEM(args, 0);
+            if (obj2imm_expr_seq(state, value, &self->v.Tuple.elts) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
-        self->v.Tuple.ctx = out;
+        // fallthrough
+        default:
+            break;
     }
     return res;
 }
@@ -11178,23 +11697,33 @@ Slice_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     struct ast_state *state = get_ast_state();
     struct _expr *self = (struct _expr*)res;
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
-    if (0 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 0);
-        if (obj2imm_expr(state, value, &self->v.Slice.lower) < 0) {
-            return NULL;
+    switch (posargs) {
+        case 3: {
+            PyObject *value = PyTuple_GET_ITEM(args, 2);
+            if (obj2imm_expr(state, value, &self->v.Slice.step) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
-    }
-    if (1 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 1);
-        if (obj2imm_expr(state, value, &self->v.Slice.upper) < 0) {
-            return NULL;
+        // fallthrough
+        case 2: {
+            PyObject *value = PyTuple_GET_ITEM(args, 1);
+            if (obj2imm_expr(state, value, &self->v.Slice.upper) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
-    }
-    if (2 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 2);
-        if (obj2imm_expr(state, value, &self->v.Slice.step) < 0) {
-            return NULL;
+        // fallthrough
+        case 1: {
+            PyObject *value = PyTuple_GET_ITEM(args, 0);
+            if (obj2imm_expr(state, value, &self->v.Slice.lower) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
+        // fallthrough
+        default:
+            break;
     }
     return res;
 }
@@ -11512,32 +12041,43 @@ comprehension_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     struct ast_state *state = get_ast_state();
     struct _comprehension *self = (struct _comprehension*)res;
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
-    if (0 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 0);
-        if (obj2imm_expr(state, value, &self->target) < 0) {
-            return NULL;
+    switch (posargs) {
+        case 4: {
+            PyObject *value = PyTuple_GET_ITEM(args, 3);
+            int out;
+            if (obj2imm_int(state, value, &out) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
+            self->is_async = out;
         }
-    }
-    if (1 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 1);
-        if (obj2imm_expr(state, value, &self->iter) < 0) {
-            return NULL;
+        // fallthrough
+        case 3: {
+            PyObject *value = PyTuple_GET_ITEM(args, 2);
+            if (obj2imm_expr_seq(state, value, &self->ifs) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
-    }
-    if (2 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 2);
-        if (obj2imm_expr_seq(state, value, &self->ifs) < 0) {
-            return NULL;
+        // fallthrough
+        case 2: {
+            PyObject *value = PyTuple_GET_ITEM(args, 1);
+            if (obj2imm_expr(state, value, &self->iter) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
-    }
-    if (3 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 3);
-        int out;
-        if (obj2imm_int(state, value, &out) < 0) {
-            Py_DECREF(res);
-            return NULL;
+        // fallthrough
+        case 1: {
+            PyObject *value = PyTuple_GET_ITEM(args, 0);
+            if (obj2imm_expr(state, value, &self->target) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
-        self->is_async = out;
+        // fallthrough
+        default:
+            break;
     }
     return res;
 }
@@ -11614,23 +12154,35 @@ ExceptHandler_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     struct ast_state *state = get_ast_state();
     struct _excepthandler *self = (struct _excepthandler*)res;
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
-    if (0 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 0);
-        if (obj2imm_expr(state, value, &self->v.ExceptHandler.type) < 0) {
-            return NULL;
+    switch (posargs) {
+        case 3: {
+            PyObject *value = PyTuple_GET_ITEM(args, 2);
+            if (obj2imm_stmt_seq(state, value, &self->v.ExceptHandler.body) <
+                0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
-    }
-    if (1 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 1);
-        if (obj2imm_identifier(state, value, &self->v.ExceptHandler.name) < 0) {
-            return NULL;
+        // fallthrough
+        case 2: {
+            PyObject *value = PyTuple_GET_ITEM(args, 1);
+            if (obj2imm_identifier(state, value, &self->v.ExceptHandler.name) <
+                0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
-    }
-    if (2 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 2);
-        if (obj2imm_stmt_seq(state, value, &self->v.ExceptHandler.body) < 0) {
-            return NULL;
+        // fallthrough
+        case 1: {
+            PyObject *value = PyTuple_GET_ITEM(args, 0);
+            if (obj2imm_expr(state, value, &self->v.ExceptHandler.type) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
+        // fallthrough
+        default:
+            break;
     }
     return res;
 }
@@ -11867,47 +12419,65 @@ arguments_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     struct ast_state *state = get_ast_state();
     struct _arguments *self = (struct _arguments*)res;
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
-    if (0 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 0);
-        if (obj2imm_arg_seq(state, value, &self->posonlyargs) < 0) {
-            return NULL;
+    switch (posargs) {
+        case 7: {
+            PyObject *value = PyTuple_GET_ITEM(args, 6);
+            if (obj2imm_expr_seq(state, value, &self->defaults) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
-    }
-    if (1 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 1);
-        if (obj2imm_arg_seq(state, value, &self->args) < 0) {
-            return NULL;
+        // fallthrough
+        case 6: {
+            PyObject *value = PyTuple_GET_ITEM(args, 5);
+            if (obj2imm_arg(state, value, &self->kwarg) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
-    }
-    if (2 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 2);
-        if (obj2imm_arg(state, value, &self->vararg) < 0) {
-            return NULL;
+        // fallthrough
+        case 5: {
+            PyObject *value = PyTuple_GET_ITEM(args, 4);
+            if (obj2imm_expr_seq(state, value, &self->kw_defaults) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
-    }
-    if (3 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 3);
-        if (obj2imm_arg_seq(state, value, &self->kwonlyargs) < 0) {
-            return NULL;
+        // fallthrough
+        case 4: {
+            PyObject *value = PyTuple_GET_ITEM(args, 3);
+            if (obj2imm_arg_seq(state, value, &self->kwonlyargs) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
-    }
-    if (4 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 4);
-        if (obj2imm_expr_seq(state, value, &self->kw_defaults) < 0) {
-            return NULL;
+        // fallthrough
+        case 3: {
+            PyObject *value = PyTuple_GET_ITEM(args, 2);
+            if (obj2imm_arg(state, value, &self->vararg) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
-    }
-    if (5 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 5);
-        if (obj2imm_arg(state, value, &self->kwarg) < 0) {
-            return NULL;
+        // fallthrough
+        case 2: {
+            PyObject *value = PyTuple_GET_ITEM(args, 1);
+            if (obj2imm_arg_seq(state, value, &self->args) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
-    }
-    if (6 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 6);
-        if (obj2imm_expr_seq(state, value, &self->defaults) < 0) {
-            return NULL;
+        // fallthrough
+        case 1: {
+            PyObject *value = PyTuple_GET_ITEM(args, 0);
+            if (obj2imm_arg_seq(state, value, &self->posonlyargs) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
+        // fallthrough
+        default:
+            break;
     }
     return res;
 }
@@ -12063,23 +12633,33 @@ arg_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     struct ast_state *state = get_ast_state();
     struct _arg *self = (struct _arg*)res;
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
-    if (0 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 0);
-        if (obj2imm_identifier(state, value, &self->arg) < 0) {
-            return NULL;
+    switch (posargs) {
+        case 3: {
+            PyObject *value = PyTuple_GET_ITEM(args, 2);
+            if (obj2imm_string(state, value, &self->type_comment) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
-    }
-    if (1 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 1);
-        if (obj2imm_expr(state, value, &self->annotation) < 0) {
-            return NULL;
+        // fallthrough
+        case 2: {
+            PyObject *value = PyTuple_GET_ITEM(args, 1);
+            if (obj2imm_expr(state, value, &self->annotation) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
-    }
-    if (2 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 2);
-        if (obj2imm_string(state, value, &self->type_comment) < 0) {
-            return NULL;
+        // fallthrough
+        case 1: {
+            PyObject *value = PyTuple_GET_ITEM(args, 0);
+            if (obj2imm_identifier(state, value, &self->arg) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
+        // fallthrough
+        default:
+            break;
     }
     return res;
 }
@@ -12207,17 +12787,25 @@ keyword_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     struct ast_state *state = get_ast_state();
     struct _keyword *self = (struct _keyword*)res;
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
-    if (0 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 0);
-        if (obj2imm_identifier(state, value, &self->arg) < 0) {
-            return NULL;
+    switch (posargs) {
+        case 2: {
+            PyObject *value = PyTuple_GET_ITEM(args, 1);
+            if (obj2imm_expr(state, value, &self->value) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
-    }
-    if (1 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 1);
-        if (obj2imm_expr(state, value, &self->value) < 0) {
-            return NULL;
+        // fallthrough
+        case 1: {
+            PyObject *value = PyTuple_GET_ITEM(args, 0);
+            if (obj2imm_identifier(state, value, &self->arg) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
+        // fallthrough
+        default:
+            break;
     }
     return res;
 }
@@ -12338,17 +12926,25 @@ alias_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     struct ast_state *state = get_ast_state();
     struct _alias *self = (struct _alias*)res;
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
-    if (0 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 0);
-        if (obj2imm_identifier(state, value, &self->name) < 0) {
-            return NULL;
+    switch (posargs) {
+        case 2: {
+            PyObject *value = PyTuple_GET_ITEM(args, 1);
+            if (obj2imm_identifier(state, value, &self->asname) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
-    }
-    if (1 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 1);
-        if (obj2imm_identifier(state, value, &self->asname) < 0) {
-            return NULL;
+        // fallthrough
+        case 1: {
+            PyObject *value = PyTuple_GET_ITEM(args, 0);
+            if (obj2imm_identifier(state, value, &self->name) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
+        // fallthrough
+        default:
+            break;
     }
     return res;
 }
@@ -12470,17 +13066,25 @@ withitem_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     struct ast_state *state = get_ast_state();
     struct _withitem *self = (struct _withitem*)res;
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
-    if (0 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 0);
-        if (obj2imm_expr(state, value, &self->context_expr) < 0) {
-            return NULL;
+    switch (posargs) {
+        case 2: {
+            PyObject *value = PyTuple_GET_ITEM(args, 1);
+            if (obj2imm_expr(state, value, &self->optional_vars) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
-    }
-    if (1 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 1);
-        if (obj2imm_expr(state, value, &self->optional_vars) < 0) {
-            return NULL;
+        // fallthrough
+        case 1: {
+            PyObject *value = PyTuple_GET_ITEM(args, 0);
+            if (obj2imm_expr(state, value, &self->context_expr) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
+        // fallthrough
+        default:
+            break;
     }
     return res;
 }
@@ -12602,23 +13206,33 @@ match_case_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     struct ast_state *state = get_ast_state();
     struct _match_case *self = (struct _match_case*)res;
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
-    if (0 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 0);
-        if (obj2imm_pattern(state, value, &self->pattern) < 0) {
-            return NULL;
+    switch (posargs) {
+        case 3: {
+            PyObject *value = PyTuple_GET_ITEM(args, 2);
+            if (obj2imm_stmt_seq(state, value, &self->body) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
-    }
-    if (1 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 1);
-        if (obj2imm_expr(state, value, &self->guard) < 0) {
-            return NULL;
+        // fallthrough
+        case 2: {
+            PyObject *value = PyTuple_GET_ITEM(args, 1);
+            if (obj2imm_expr(state, value, &self->guard) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
-    }
-    if (2 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 2);
-        if (obj2imm_stmt_seq(state, value, &self->body) < 0) {
-            return NULL;
+        // fallthrough
+        case 1: {
+            PyObject *value = PyTuple_GET_ITEM(args, 0);
+            if (obj2imm_pattern(state, value, &self->pattern) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
+        // fallthrough
+        default:
+            break;
     }
     return res;
 }
@@ -12694,11 +13308,17 @@ MatchValue_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     struct ast_state *state = get_ast_state();
     struct _pattern *self = (struct _pattern*)res;
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
-    if (0 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 0);
-        if (obj2imm_expr(state, value, &self->v.MatchValue.value) < 0) {
-            return NULL;
+    switch (posargs) {
+        case 1: {
+            PyObject *value = PyTuple_GET_ITEM(args, 0);
+            if (obj2imm_expr(state, value, &self->v.MatchValue.value) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
+        // fallthrough
+        default:
+            break;
     }
     return res;
 }
@@ -12762,11 +13382,18 @@ MatchSingleton_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     struct ast_state *state = get_ast_state();
     struct _pattern *self = (struct _pattern*)res;
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
-    if (0 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 0);
-        if (obj2imm_constant(state, value, &self->v.MatchSingleton.value) < 0) {
-            return NULL;
+    switch (posargs) {
+        case 1: {
+            PyObject *value = PyTuple_GET_ITEM(args, 0);
+            if (obj2imm_constant(state, value, &self->v.MatchSingleton.value) <
+                0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
+        // fallthrough
+        default:
+            break;
     }
     return res;
 }
@@ -12830,12 +13457,18 @@ MatchSequence_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     struct ast_state *state = get_ast_state();
     struct _pattern *self = (struct _pattern*)res;
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
-    if (0 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 0);
-        if (obj2imm_pattern_seq(state, value, &self->v.MatchSequence.patterns)
-            < 0) {
-            return NULL;
+    switch (posargs) {
+        case 1: {
+            PyObject *value = PyTuple_GET_ITEM(args, 0);
+            if (obj2imm_pattern_seq(state, value,
+                &self->v.MatchSequence.patterns) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
+        // fallthrough
+        default:
+            break;
     }
     return res;
 }
@@ -12900,24 +13533,36 @@ MatchMapping_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     struct ast_state *state = get_ast_state();
     struct _pattern *self = (struct _pattern*)res;
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
-    if (0 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 0);
-        if (obj2imm_expr_seq(state, value, &self->v.MatchMapping.keys) < 0) {
-            return NULL;
+    switch (posargs) {
+        case 3: {
+            PyObject *value = PyTuple_GET_ITEM(args, 2);
+            if (obj2imm_identifier(state, value, &self->v.MatchMapping.rest) <
+                0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
-    }
-    if (1 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 1);
-        if (obj2imm_pattern_seq(state, value, &self->v.MatchMapping.patterns) <
-            0) {
-            return NULL;
+        // fallthrough
+        case 2: {
+            PyObject *value = PyTuple_GET_ITEM(args, 1);
+            if (obj2imm_pattern_seq(state, value,
+                &self->v.MatchMapping.patterns) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
-    }
-    if (2 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 2);
-        if (obj2imm_identifier(state, value, &self->v.MatchMapping.rest) < 0) {
-            return NULL;
+        // fallthrough
+        case 1: {
+            PyObject *value = PyTuple_GET_ITEM(args, 0);
+            if (obj2imm_expr_seq(state, value, &self->v.MatchMapping.keys) < 0)
+                {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
+        // fallthrough
+        default:
+            break;
     }
     return res;
 }
@@ -13001,32 +13646,44 @@ MatchClass_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     struct ast_state *state = get_ast_state();
     struct _pattern *self = (struct _pattern*)res;
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
-    if (0 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 0);
-        if (obj2imm_expr(state, value, &self->v.MatchClass.cls) < 0) {
-            return NULL;
+    switch (posargs) {
+        case 4: {
+            PyObject *value = PyTuple_GET_ITEM(args, 3);
+            if (obj2imm_pattern_seq(state, value,
+                &self->v.MatchClass.kwd_patterns) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
-    }
-    if (1 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 1);
-        if (obj2imm_pattern_seq(state, value, &self->v.MatchClass.patterns) <
-            0) {
-            return NULL;
+        // fallthrough
+        case 3: {
+            PyObject *value = PyTuple_GET_ITEM(args, 2);
+            if (obj2imm_identifier_seq(state, value,
+                &self->v.MatchClass.kwd_attrs) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
-    }
-    if (2 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 2);
-        if (obj2imm_identifier_seq(state, value, &self->v.MatchClass.kwd_attrs)
-            < 0) {
-            return NULL;
+        // fallthrough
+        case 2: {
+            PyObject *value = PyTuple_GET_ITEM(args, 1);
+            if (obj2imm_pattern_seq(state, value, &self->v.MatchClass.patterns)
+                < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
-    }
-    if (3 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 3);
-        if (obj2imm_pattern_seq(state, value, &self->v.MatchClass.kwd_patterns)
-            < 0) {
-            return NULL;
+        // fallthrough
+        case 1: {
+            PyObject *value = PyTuple_GET_ITEM(args, 0);
+            if (obj2imm_expr(state, value, &self->v.MatchClass.cls) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
+        // fallthrough
+        default:
+            break;
     }
     return res;
 }
@@ -13120,11 +13777,17 @@ MatchStar_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     struct ast_state *state = get_ast_state();
     struct _pattern *self = (struct _pattern*)res;
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
-    if (0 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 0);
-        if (obj2imm_identifier(state, value, &self->v.MatchStar.name) < 0) {
-            return NULL;
+    switch (posargs) {
+        case 1: {
+            PyObject *value = PyTuple_GET_ITEM(args, 0);
+            if (obj2imm_identifier(state, value, &self->v.MatchStar.name) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
+        // fallthrough
+        default:
+            break;
     }
     return res;
 }
@@ -13188,17 +13851,25 @@ MatchAs_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     struct ast_state *state = get_ast_state();
     struct _pattern *self = (struct _pattern*)res;
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
-    if (0 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 0);
-        if (obj2imm_pattern(state, value, &self->v.MatchAs.pattern) < 0) {
-            return NULL;
+    switch (posargs) {
+        case 2: {
+            PyObject *value = PyTuple_GET_ITEM(args, 1);
+            if (obj2imm_identifier(state, value, &self->v.MatchAs.name) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
-    }
-    if (1 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 1);
-        if (obj2imm_identifier(state, value, &self->v.MatchAs.name) < 0) {
-            return NULL;
+        // fallthrough
+        case 1: {
+            PyObject *value = PyTuple_GET_ITEM(args, 0);
+            if (obj2imm_pattern(state, value, &self->v.MatchAs.pattern) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
+        // fallthrough
+        default:
+            break;
     }
     return res;
 }
@@ -13271,11 +13942,18 @@ MatchOr_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     struct ast_state *state = get_ast_state();
     struct _pattern *self = (struct _pattern*)res;
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
-    if (0 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 0);
-        if (obj2imm_pattern_seq(state, value, &self->v.MatchOr.patterns) < 0) {
-            return NULL;
+    switch (posargs) {
+        case 1: {
+            PyObject *value = PyTuple_GET_ITEM(args, 0);
+            if (obj2imm_pattern_seq(state, value, &self->v.MatchOr.patterns) <
+                0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
+        // fallthrough
+        default:
+            break;
     }
     return res;
 }
@@ -13460,20 +14138,27 @@ TypeIgnore_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     struct ast_state *state = get_ast_state();
     struct _type_ignore *self = (struct _type_ignore*)res;
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
-    if (0 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 0);
-        int out;
-        if (obj2imm_int(state, value, &out) < 0) {
-            Py_DECREF(res);
-            return NULL;
+    switch (posargs) {
+        case 2: {
+            PyObject *value = PyTuple_GET_ITEM(args, 1);
+            if (obj2imm_string(state, value, &self->v.TypeIgnore.tag) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
-        self->v.TypeIgnore.lineno = out;
-    }
-    if (1 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 1);
-        if (obj2imm_string(state, value, &self->v.TypeIgnore.tag) < 0) {
-            return NULL;
+        // fallthrough
+        case 1: {
+            PyObject *value = PyTuple_GET_ITEM(args, 0);
+            int out;
+            if (obj2imm_int(state, value, &out) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
+            self->v.TypeIgnore.lineno = out;
         }
+        // fallthrough
+        default:
+            break;
     }
     return res;
 }
@@ -13639,23 +14324,34 @@ TypeVar_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     struct ast_state *state = get_ast_state();
     struct _type_param *self = (struct _type_param*)res;
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
-    if (0 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 0);
-        if (obj2imm_identifier(state, value, &self->v.TypeVar.name) < 0) {
-            return NULL;
+    switch (posargs) {
+        case 3: {
+            PyObject *value = PyTuple_GET_ITEM(args, 2);
+            if (obj2imm_expr(state, value, &self->v.TypeVar.default_value) < 0)
+                {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
-    }
-    if (1 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 1);
-        if (obj2imm_expr(state, value, &self->v.TypeVar.bound) < 0) {
-            return NULL;
+        // fallthrough
+        case 2: {
+            PyObject *value = PyTuple_GET_ITEM(args, 1);
+            if (obj2imm_expr(state, value, &self->v.TypeVar.bound) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
-    }
-    if (2 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 2);
-        if (obj2imm_expr(state, value, &self->v.TypeVar.default_value) < 0) {
-            return NULL;
+        // fallthrough
+        case 1: {
+            PyObject *value = PyTuple_GET_ITEM(args, 0);
+            if (obj2imm_identifier(state, value, &self->v.TypeVar.name) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
+        // fallthrough
+        default:
+            break;
     }
     return res;
 }
@@ -13738,17 +14434,26 @@ ParamSpec_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     struct ast_state *state = get_ast_state();
     struct _type_param *self = (struct _type_param*)res;
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
-    if (0 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 0);
-        if (obj2imm_identifier(state, value, &self->v.ParamSpec.name) < 0) {
-            return NULL;
+    switch (posargs) {
+        case 2: {
+            PyObject *value = PyTuple_GET_ITEM(args, 1);
+            if (obj2imm_expr(state, value, &self->v.ParamSpec.default_value) <
+                0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
-    }
-    if (1 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 1);
-        if (obj2imm_expr(state, value, &self->v.ParamSpec.default_value) < 0) {
-            return NULL;
+        // fallthrough
+        case 1: {
+            PyObject *value = PyTuple_GET_ITEM(args, 0);
+            if (obj2imm_identifier(state, value, &self->v.ParamSpec.name) < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
+        // fallthrough
+        default:
+            break;
     }
     return res;
 }
@@ -13822,18 +14527,27 @@ TypeVarTuple_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
     struct ast_state *state = get_ast_state();
     struct _type_param *self = (struct _type_param*)res;
     Py_ssize_t posargs = PyTuple_GET_SIZE(args);
-    if (0 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 0);
-        if (obj2imm_identifier(state, value, &self->v.TypeVarTuple.name) < 0) {
-            return NULL;
+    switch (posargs) {
+        case 2: {
+            PyObject *value = PyTuple_GET_ITEM(args, 1);
+            if (obj2imm_expr(state, value, &self->v.TypeVarTuple.default_value)
+                < 0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
-    }
-    if (1 < posargs) {
-        PyObject *value = PyTuple_GET_ITEM(args, 1);
-        if (obj2imm_expr(state, value, &self->v.TypeVarTuple.default_value) <
-            0) {
-            return NULL;
+        // fallthrough
+        case 1: {
+            PyObject *value = PyTuple_GET_ITEM(args, 0);
+            if (obj2imm_identifier(state, value, &self->v.TypeVarTuple.name) <
+                0) {
+                Py_DECREF(res);
+                return NULL;
+            }
         }
+        // fallthrough
+        default:
+            break;
     }
     return res;
 }

@@ -2978,31 +2978,15 @@ class NodesVisitor(EmitVisitor):
             self.emit("struct ast_state *state = get_ast_state();", 1)
             self.emit(f"struct _{type_name} *self = (struct _{type_name}*)res;", 1)
             self.emit("Py_ssize_t posargs = PyTuple_GET_SIZE(args);", 1)
-            for i, field in enumerate(fields):
-                self.emit(f"if ({i} < posargs) {{", 1)
-                self.emit(f"PyObject *value = PyTuple_GET_ITEM(args, {i});", 2)
-                if asdl.Quantifier.SEQUENCE in field.quantifiers:
-                    t = f"(asdl_{field.type}_seq *)" if field.type != "cmpop" else "(asdl_int_seq *)"
-                    self.emit(f"if (obj2imm_{field.type}_seq(state, value, &self{attrs}{field.name}) < 0) {{", 2)
-                    self.emit("return NULL;", 3)
-                    self.emit("}", 2)
-                elif field.type in self.metadata.simple_sums or field.type == "int":
-                    t = "int" if field.type == "int" else f"{field.type}_ty"
-                    self.emit(f"{t} out;", 2)
-                    self.emit(f"if (obj2imm_{field.type}(state, value, &out) < 0) {{", 2)
-                    self.emit("Py_DECREF(res);", 3)
-                    self.emit("return NULL;", 3)
-                    self.emit("}", 2)
-                    self.emit(f"self{attrs}{field.name} = out;", 2)
-                else:
-                    if field.type not in ("string", "constant", "identifier"):
-                        cast = f"(struct _{field.type} *)"
-                    else:
-                        cast = ""
-                    self.emit(f"if (obj2imm_{field.type}(state, value, &self{attrs}{field.name}) < 0) {{", 2)
-                    self.emit("return NULL;", 3)
-                    self.emit("}", 2)
-                self.emit("}", 1)
+            self.emit("switch (posargs) {", 1)
+            for i, field in enumerate(reversed(fields)):
+                self.emit(f"case {len(fields)-i}: {{", 2)
+                self.emit_field_new(field, attrs, len(fields) - i - 1, 3)
+                self.emit("}", 2)
+                self.emit("// fallthrough", 2)
+            self.emit("default:", 2)
+            self.emit("break;", 3)
+            self.emit("}", 1)
 
         for attribute in attributes:
             pass
@@ -3010,6 +2994,32 @@ class NodesVisitor(EmitVisitor):
         self.emit("return res;", 1)
         self.emit("}", 0)
         self.emit("", 0)
+
+    def emit_field_new(self, field, attrs, i, depth):
+        self.emit(f"PyObject *value = PyTuple_GET_ITEM(args, {i});", depth)
+        if asdl.Quantifier.SEQUENCE in field.quantifiers:
+            t = f"(asdl_{field.type}_seq *)" if field.type != "cmpop" else "(asdl_int_seq *)"
+            self.emit(f"if (obj2imm_{field.type}_seq(state, value, &self{attrs}{field.name}) < 0) {{", depth)
+            self.emit("Py_DECREF(res);", depth+1)
+            self.emit("return NULL;", depth+1)
+            self.emit("}", depth)
+        elif field.type in self.metadata.simple_sums or field.type == "int":
+            t = "int" if field.type == "int" else f"{field.type}_ty"
+            self.emit(f"{t} out;", depth)
+            self.emit(f"if (obj2imm_{field.type}(state, value, &out) < 0) {{", depth)
+            self.emit("Py_DECREF(res);", depth+1)
+            self.emit("return NULL;", depth+1)
+            self.emit("}", depth)
+            self.emit(f"self{attrs}{field.name} = out;", depth)
+        else:
+            if field.type not in ("string", "constant", "identifier"):
+                cast = f"(struct _{field.type} *)"
+            else:
+                cast = ""
+            self.emit(f"if (obj2imm_{field.type}(state, value, &self{attrs}{field.name}) < 0) {{", depth)
+            self.emit("Py_DECREF(res);", depth+1)
+            self.emit("return NULL;", depth+1)
+            self.emit("}", depth)
 
     def ast_type(self, node_name, type_name, doc=""):
         self.emit(
