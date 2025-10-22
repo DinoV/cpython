@@ -23059,6 +23059,17 @@ obj2ast_mod(struct ast_state *state, PyObject* obj, mod_ty* out, PyArena* arena)
 int
 obj2imm_mod(struct ast_state *state, PyObject* obj, mod_ty* out)
 {
+    int isinstance;
+
+    PyObject *tp;
+    tp = state->_mod_type;
+    isinstance = PyObject_IsInstance(obj, tp);
+    if (isinstance == -1) {
+        return -1;
+    } else if (isinstance == 1) {
+        *out = (mod_ty)Py_NewRef(obj);
+        return 0;
+    }
     *out = (mod_ty)Py_NewRef(obj);
     return 0;
 }
@@ -25735,6 +25746,17 @@ obj2ast_stmt(struct ast_state *state, PyObject* obj, stmt_ty* out, PyArena*
 int
 obj2imm_stmt(struct ast_state *state, PyObject* obj, stmt_ty* out)
 {
+    int isinstance;
+
+    PyObject *tp;
+    tp = state->_stmt_type;
+    isinstance = PyObject_IsInstance(obj, tp);
+    if (isinstance == -1) {
+        return -1;
+    } else if (isinstance == 1) {
+        *out = (stmt_ty)Py_NewRef(obj);
+        return 0;
+    }
     *out = (stmt_ty)Py_NewRef(obj);
     return 0;
 }
@@ -27666,6 +27688,17 @@ obj2ast_expr(struct ast_state *state, PyObject* obj, expr_ty* out, PyArena*
 int
 obj2imm_expr(struct ast_state *state, PyObject* obj, expr_ty* out)
 {
+    int isinstance;
+
+    PyObject *tp;
+    tp = state->_expr_type;
+    isinstance = PyObject_IsInstance(obj, tp);
+    if (isinstance == -1) {
+        return -1;
+    } else if (isinstance == 1) {
+        *out = (expr_ty)Py_NewRef(obj);
+        return 0;
+    }
     *out = (expr_ty)Py_NewRef(obj);
     return 0;
 }
@@ -28747,6 +28780,17 @@ int
 obj2imm_excepthandler(struct ast_state *state, PyObject* obj, excepthandler_ty*
                       out)
 {
+    int isinstance;
+
+    PyObject *tp;
+    tp = state->_excepthandler_type;
+    isinstance = PyObject_IsInstance(obj, tp);
+    if (isinstance == -1) {
+        return -1;
+    } else if (isinstance == 1) {
+        *out = (excepthandler_ty)Py_NewRef(obj);
+        return 0;
+    }
     *out = (excepthandler_ty)Py_NewRef(obj);
     return 0;
 }
@@ -30981,6 +31025,17 @@ obj2ast_pattern(struct ast_state *state, PyObject* obj, pattern_ty* out,
 int
 obj2imm_pattern(struct ast_state *state, PyObject* obj, pattern_ty* out)
 {
+    int isinstance;
+
+    PyObject *tp;
+    tp = state->_pattern_type;
+    isinstance = PyObject_IsInstance(obj, tp);
+    if (isinstance == -1) {
+        return -1;
+    } else if (isinstance == 1) {
+        *out = (pattern_ty)Py_NewRef(obj);
+        return 0;
+    }
     *out = (pattern_ty)Py_NewRef(obj);
     return 0;
 }
@@ -31067,6 +31122,17 @@ obj2ast_type_ignore(struct ast_state *state, PyObject* obj, type_ignore_ty*
 int
 obj2imm_type_ignore(struct ast_state *state, PyObject* obj, type_ignore_ty* out)
 {
+    int isinstance;
+
+    PyObject *tp;
+    tp = state->_type_ignore_type;
+    isinstance = PyObject_IsInstance(obj, tp);
+    if (isinstance == -1) {
+        return -1;
+    } else if (isinstance == 1) {
+        *out = (type_ignore_ty)Py_NewRef(obj);
+        return 0;
+    }
     *out = (type_ignore_ty)Py_NewRef(obj);
     return 0;
 }
@@ -31340,6 +31406,17 @@ obj2ast_type_param(struct ast_state *state, PyObject* obj, type_param_ty* out,
 int
 obj2imm_type_param(struct ast_state *state, PyObject* obj, type_param_ty* out)
 {
+    int isinstance;
+
+    PyObject *tp;
+    tp = state->_type_param_type;
+    isinstance = PyObject_IsInstance(obj, tp);
+    if (isinstance == -1) {
+        return -1;
+    } else if (isinstance == 1) {
+        *out = (type_param_ty)Py_NewRef(obj);
+        return 0;
+    }
     *out = (type_param_ty)Py_NewRef(obj);
     return 0;
 }
@@ -31370,51 +31447,53 @@ astmodule_exec(PyObject *m)
     if (PyModule_AddObjectRef(m, "mod", state->mod_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObjectRef(m, "_mod", state->mod_type) < 0) {
+    if (PyModule_AddObjectRef(m, "_mod", state->_mod_type) < 0) {
+        return -1;
+    }
+    if (PyModule_AddObjectRef(m, "_mod_seq", state->_mod_seq_type) < 0) {
         return -1;
     }
     if (PyModule_AddObjectRef(m, "Module", state->Module_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObjectRef(m, "_Module", state->Module_type) < 0) {
+    if (PyModule_AddObjectRef(m, "_Module", state->_Module_type) < 0) {
         return -1;
     }
     if (PyModule_AddObjectRef(m, "Interactive", state->Interactive_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObjectRef(m, "_Interactive", state->Interactive_type) < 0) {
+    if (PyModule_AddObjectRef(m, "_Interactive", state->_Interactive_type) < 0)
+        {
         return -1;
     }
     if (PyModule_AddObjectRef(m, "Expression", state->Expression_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObjectRef(m, "_Expression", state->Expression_type) < 0) {
+    if (PyModule_AddObjectRef(m, "_Expression", state->_Expression_type) < 0) {
         return -1;
     }
     if (PyModule_AddObjectRef(m, "FunctionType", state->FunctionType_type) < 0)
         {
         return -1;
     }
-    if (PyModule_AddObjectRef(m, "_FunctionType", state->FunctionType_type) <
+    if (PyModule_AddObjectRef(m, "_FunctionType", state->_FunctionType_type) <
         0) {
-        return -1;
-    }
-    if (PyModule_AddObjectRef(m, "_mod_seq", state->_mod_seq_type) < 0) {
-        return -1;
-    }
-    if (PyModule_AddObjectRef(m, "__mod_seq", state->_mod_seq_type) < 0) {
         return -1;
     }
     if (PyModule_AddObjectRef(m, "stmt", state->stmt_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObjectRef(m, "_stmt", state->stmt_type) < 0) {
+    if (PyModule_AddObjectRef(m, "_stmt", state->_stmt_type) < 0) {
+        return -1;
+    }
+    if (PyModule_AddObjectRef(m, "_stmt_seq", state->_stmt_seq_type) < 0) {
         return -1;
     }
     if (PyModule_AddObjectRef(m, "FunctionDef", state->FunctionDef_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObjectRef(m, "_FunctionDef", state->FunctionDef_type) < 0) {
+    if (PyModule_AddObjectRef(m, "_FunctionDef", state->_FunctionDef_type) < 0)
+        {
         return -1;
     }
     if (PyModule_AddObjectRef(m, "AsyncFunctionDef",
@@ -31422,361 +31501,353 @@ astmodule_exec(PyObject *m)
         return -1;
     }
     if (PyModule_AddObjectRef(m, "_AsyncFunctionDef",
-        state->AsyncFunctionDef_type) < 0) {
+        state->_AsyncFunctionDef_type) < 0) {
         return -1;
     }
     if (PyModule_AddObjectRef(m, "ClassDef", state->ClassDef_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObjectRef(m, "_ClassDef", state->ClassDef_type) < 0) {
+    if (PyModule_AddObjectRef(m, "_ClassDef", state->_ClassDef_type) < 0) {
         return -1;
     }
     if (PyModule_AddObjectRef(m, "Return", state->Return_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObjectRef(m, "_Return", state->Return_type) < 0) {
+    if (PyModule_AddObjectRef(m, "_Return", state->_Return_type) < 0) {
         return -1;
     }
     if (PyModule_AddObjectRef(m, "Delete", state->Delete_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObjectRef(m, "_Delete", state->Delete_type) < 0) {
+    if (PyModule_AddObjectRef(m, "_Delete", state->_Delete_type) < 0) {
         return -1;
     }
     if (PyModule_AddObjectRef(m, "Assign", state->Assign_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObjectRef(m, "_Assign", state->Assign_type) < 0) {
+    if (PyModule_AddObjectRef(m, "_Assign", state->_Assign_type) < 0) {
         return -1;
     }
     if (PyModule_AddObjectRef(m, "TypeAlias", state->TypeAlias_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObjectRef(m, "_TypeAlias", state->TypeAlias_type) < 0) {
+    if (PyModule_AddObjectRef(m, "_TypeAlias", state->_TypeAlias_type) < 0) {
         return -1;
     }
     if (PyModule_AddObjectRef(m, "AugAssign", state->AugAssign_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObjectRef(m, "_AugAssign", state->AugAssign_type) < 0) {
+    if (PyModule_AddObjectRef(m, "_AugAssign", state->_AugAssign_type) < 0) {
         return -1;
     }
     if (PyModule_AddObjectRef(m, "AnnAssign", state->AnnAssign_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObjectRef(m, "_AnnAssign", state->AnnAssign_type) < 0) {
+    if (PyModule_AddObjectRef(m, "_AnnAssign", state->_AnnAssign_type) < 0) {
         return -1;
     }
     if (PyModule_AddObjectRef(m, "For", state->For_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObjectRef(m, "_For", state->For_type) < 0) {
+    if (PyModule_AddObjectRef(m, "_For", state->_For_type) < 0) {
         return -1;
     }
     if (PyModule_AddObjectRef(m, "AsyncFor", state->AsyncFor_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObjectRef(m, "_AsyncFor", state->AsyncFor_type) < 0) {
+    if (PyModule_AddObjectRef(m, "_AsyncFor", state->_AsyncFor_type) < 0) {
         return -1;
     }
     if (PyModule_AddObjectRef(m, "While", state->While_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObjectRef(m, "_While", state->While_type) < 0) {
+    if (PyModule_AddObjectRef(m, "_While", state->_While_type) < 0) {
         return -1;
     }
     if (PyModule_AddObjectRef(m, "If", state->If_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObjectRef(m, "_If", state->If_type) < 0) {
+    if (PyModule_AddObjectRef(m, "_If", state->_If_type) < 0) {
         return -1;
     }
     if (PyModule_AddObjectRef(m, "With", state->With_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObjectRef(m, "_With", state->With_type) < 0) {
+    if (PyModule_AddObjectRef(m, "_With", state->_With_type) < 0) {
         return -1;
     }
     if (PyModule_AddObjectRef(m, "AsyncWith", state->AsyncWith_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObjectRef(m, "_AsyncWith", state->AsyncWith_type) < 0) {
+    if (PyModule_AddObjectRef(m, "_AsyncWith", state->_AsyncWith_type) < 0) {
         return -1;
     }
     if (PyModule_AddObjectRef(m, "Match", state->Match_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObjectRef(m, "_Match", state->Match_type) < 0) {
+    if (PyModule_AddObjectRef(m, "_Match", state->_Match_type) < 0) {
         return -1;
     }
     if (PyModule_AddObjectRef(m, "Raise", state->Raise_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObjectRef(m, "_Raise", state->Raise_type) < 0) {
+    if (PyModule_AddObjectRef(m, "_Raise", state->_Raise_type) < 0) {
         return -1;
     }
     if (PyModule_AddObjectRef(m, "Try", state->Try_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObjectRef(m, "_Try", state->Try_type) < 0) {
+    if (PyModule_AddObjectRef(m, "_Try", state->_Try_type) < 0) {
         return -1;
     }
     if (PyModule_AddObjectRef(m, "TryStar", state->TryStar_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObjectRef(m, "_TryStar", state->TryStar_type) < 0) {
+    if (PyModule_AddObjectRef(m, "_TryStar", state->_TryStar_type) < 0) {
         return -1;
     }
     if (PyModule_AddObjectRef(m, "Assert", state->Assert_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObjectRef(m, "_Assert", state->Assert_type) < 0) {
+    if (PyModule_AddObjectRef(m, "_Assert", state->_Assert_type) < 0) {
         return -1;
     }
     if (PyModule_AddObjectRef(m, "Import", state->Import_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObjectRef(m, "_Import", state->Import_type) < 0) {
+    if (PyModule_AddObjectRef(m, "_Import", state->_Import_type) < 0) {
         return -1;
     }
     if (PyModule_AddObjectRef(m, "ImportFrom", state->ImportFrom_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObjectRef(m, "_ImportFrom", state->ImportFrom_type) < 0) {
+    if (PyModule_AddObjectRef(m, "_ImportFrom", state->_ImportFrom_type) < 0) {
         return -1;
     }
     if (PyModule_AddObjectRef(m, "Global", state->Global_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObjectRef(m, "_Global", state->Global_type) < 0) {
+    if (PyModule_AddObjectRef(m, "_Global", state->_Global_type) < 0) {
         return -1;
     }
     if (PyModule_AddObjectRef(m, "Nonlocal", state->Nonlocal_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObjectRef(m, "_Nonlocal", state->Nonlocal_type) < 0) {
+    if (PyModule_AddObjectRef(m, "_Nonlocal", state->_Nonlocal_type) < 0) {
         return -1;
     }
     if (PyModule_AddObjectRef(m, "Expr", state->Expr_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObjectRef(m, "_Expr", state->Expr_type) < 0) {
+    if (PyModule_AddObjectRef(m, "_Expr", state->_Expr_type) < 0) {
         return -1;
     }
     if (PyModule_AddObjectRef(m, "Pass", state->Pass_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObjectRef(m, "_Pass", state->Pass_type) < 0) {
+    if (PyModule_AddObjectRef(m, "_Pass", state->_Pass_type) < 0) {
         return -1;
     }
     if (PyModule_AddObjectRef(m, "Break", state->Break_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObjectRef(m, "_Break", state->Break_type) < 0) {
+    if (PyModule_AddObjectRef(m, "_Break", state->_Break_type) < 0) {
         return -1;
     }
     if (PyModule_AddObjectRef(m, "Continue", state->Continue_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObjectRef(m, "_Continue", state->Continue_type) < 0) {
-        return -1;
-    }
-    if (PyModule_AddObjectRef(m, "_stmt_seq", state->_stmt_seq_type) < 0) {
-        return -1;
-    }
-    if (PyModule_AddObjectRef(m, "__stmt_seq", state->_stmt_seq_type) < 0) {
+    if (PyModule_AddObjectRef(m, "_Continue", state->_Continue_type) < 0) {
         return -1;
     }
     if (PyModule_AddObjectRef(m, "expr", state->expr_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObjectRef(m, "_expr", state->expr_type) < 0) {
+    if (PyModule_AddObjectRef(m, "_expr", state->_expr_type) < 0) {
+        return -1;
+    }
+    if (PyModule_AddObjectRef(m, "_expr_seq", state->_expr_seq_type) < 0) {
         return -1;
     }
     if (PyModule_AddObjectRef(m, "BoolOp", state->BoolOp_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObjectRef(m, "_BoolOp", state->BoolOp_type) < 0) {
+    if (PyModule_AddObjectRef(m, "_BoolOp", state->_BoolOp_type) < 0) {
         return -1;
     }
     if (PyModule_AddObjectRef(m, "NamedExpr", state->NamedExpr_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObjectRef(m, "_NamedExpr", state->NamedExpr_type) < 0) {
+    if (PyModule_AddObjectRef(m, "_NamedExpr", state->_NamedExpr_type) < 0) {
         return -1;
     }
     if (PyModule_AddObjectRef(m, "BinOp", state->BinOp_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObjectRef(m, "_BinOp", state->BinOp_type) < 0) {
+    if (PyModule_AddObjectRef(m, "_BinOp", state->_BinOp_type) < 0) {
         return -1;
     }
     if (PyModule_AddObjectRef(m, "UnaryOp", state->UnaryOp_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObjectRef(m, "_UnaryOp", state->UnaryOp_type) < 0) {
+    if (PyModule_AddObjectRef(m, "_UnaryOp", state->_UnaryOp_type) < 0) {
         return -1;
     }
     if (PyModule_AddObjectRef(m, "Lambda", state->Lambda_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObjectRef(m, "_Lambda", state->Lambda_type) < 0) {
+    if (PyModule_AddObjectRef(m, "_Lambda", state->_Lambda_type) < 0) {
         return -1;
     }
     if (PyModule_AddObjectRef(m, "IfExp", state->IfExp_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObjectRef(m, "_IfExp", state->IfExp_type) < 0) {
+    if (PyModule_AddObjectRef(m, "_IfExp", state->_IfExp_type) < 0) {
         return -1;
     }
     if (PyModule_AddObjectRef(m, "Dict", state->Dict_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObjectRef(m, "_Dict", state->Dict_type) < 0) {
+    if (PyModule_AddObjectRef(m, "_Dict", state->_Dict_type) < 0) {
         return -1;
     }
     if (PyModule_AddObjectRef(m, "Set", state->Set_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObjectRef(m, "_Set", state->Set_type) < 0) {
+    if (PyModule_AddObjectRef(m, "_Set", state->_Set_type) < 0) {
         return -1;
     }
     if (PyModule_AddObjectRef(m, "ListComp", state->ListComp_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObjectRef(m, "_ListComp", state->ListComp_type) < 0) {
+    if (PyModule_AddObjectRef(m, "_ListComp", state->_ListComp_type) < 0) {
         return -1;
     }
     if (PyModule_AddObjectRef(m, "SetComp", state->SetComp_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObjectRef(m, "_SetComp", state->SetComp_type) < 0) {
+    if (PyModule_AddObjectRef(m, "_SetComp", state->_SetComp_type) < 0) {
         return -1;
     }
     if (PyModule_AddObjectRef(m, "DictComp", state->DictComp_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObjectRef(m, "_DictComp", state->DictComp_type) < 0) {
+    if (PyModule_AddObjectRef(m, "_DictComp", state->_DictComp_type) < 0) {
         return -1;
     }
     if (PyModule_AddObjectRef(m, "GeneratorExp", state->GeneratorExp_type) < 0)
         {
         return -1;
     }
-    if (PyModule_AddObjectRef(m, "_GeneratorExp", state->GeneratorExp_type) <
+    if (PyModule_AddObjectRef(m, "_GeneratorExp", state->_GeneratorExp_type) <
         0) {
         return -1;
     }
     if (PyModule_AddObjectRef(m, "Await", state->Await_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObjectRef(m, "_Await", state->Await_type) < 0) {
+    if (PyModule_AddObjectRef(m, "_Await", state->_Await_type) < 0) {
         return -1;
     }
     if (PyModule_AddObjectRef(m, "Yield", state->Yield_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObjectRef(m, "_Yield", state->Yield_type) < 0) {
+    if (PyModule_AddObjectRef(m, "_Yield", state->_Yield_type) < 0) {
         return -1;
     }
     if (PyModule_AddObjectRef(m, "YieldFrom", state->YieldFrom_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObjectRef(m, "_YieldFrom", state->YieldFrom_type) < 0) {
+    if (PyModule_AddObjectRef(m, "_YieldFrom", state->_YieldFrom_type) < 0) {
         return -1;
     }
     if (PyModule_AddObjectRef(m, "Compare", state->Compare_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObjectRef(m, "_Compare", state->Compare_type) < 0) {
+    if (PyModule_AddObjectRef(m, "_Compare", state->_Compare_type) < 0) {
         return -1;
     }
     if (PyModule_AddObjectRef(m, "Call", state->Call_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObjectRef(m, "_Call", state->Call_type) < 0) {
+    if (PyModule_AddObjectRef(m, "_Call", state->_Call_type) < 0) {
         return -1;
     }
     if (PyModule_AddObjectRef(m, "FormattedValue", state->FormattedValue_type)
         < 0) {
         return -1;
     }
-    if (PyModule_AddObjectRef(m, "_FormattedValue", state->FormattedValue_type)
-        < 0) {
+    if (PyModule_AddObjectRef(m, "_FormattedValue",
+        state->_FormattedValue_type) < 0) {
         return -1;
     }
     if (PyModule_AddObjectRef(m, "Interpolation", state->Interpolation_type) <
         0) {
         return -1;
     }
-    if (PyModule_AddObjectRef(m, "_Interpolation", state->Interpolation_type) <
-        0) {
+    if (PyModule_AddObjectRef(m, "_Interpolation", state->_Interpolation_type)
+        < 0) {
         return -1;
     }
     if (PyModule_AddObjectRef(m, "JoinedStr", state->JoinedStr_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObjectRef(m, "_JoinedStr", state->JoinedStr_type) < 0) {
+    if (PyModule_AddObjectRef(m, "_JoinedStr", state->_JoinedStr_type) < 0) {
         return -1;
     }
     if (PyModule_AddObjectRef(m, "TemplateStr", state->TemplateStr_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObjectRef(m, "_TemplateStr", state->TemplateStr_type) < 0) {
+    if (PyModule_AddObjectRef(m, "_TemplateStr", state->_TemplateStr_type) < 0)
+        {
         return -1;
     }
     if (PyModule_AddObjectRef(m, "Constant", state->Constant_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObjectRef(m, "_Constant", state->Constant_type) < 0) {
+    if (PyModule_AddObjectRef(m, "_Constant", state->_Constant_type) < 0) {
         return -1;
     }
     if (PyModule_AddObjectRef(m, "Attribute", state->Attribute_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObjectRef(m, "_Attribute", state->Attribute_type) < 0) {
+    if (PyModule_AddObjectRef(m, "_Attribute", state->_Attribute_type) < 0) {
         return -1;
     }
     if (PyModule_AddObjectRef(m, "Subscript", state->Subscript_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObjectRef(m, "_Subscript", state->Subscript_type) < 0) {
+    if (PyModule_AddObjectRef(m, "_Subscript", state->_Subscript_type) < 0) {
         return -1;
     }
     if (PyModule_AddObjectRef(m, "Starred", state->Starred_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObjectRef(m, "_Starred", state->Starred_type) < 0) {
+    if (PyModule_AddObjectRef(m, "_Starred", state->_Starred_type) < 0) {
         return -1;
     }
     if (PyModule_AddObjectRef(m, "Name", state->Name_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObjectRef(m, "_Name", state->Name_type) < 0) {
+    if (PyModule_AddObjectRef(m, "_Name", state->_Name_type) < 0) {
         return -1;
     }
     if (PyModule_AddObjectRef(m, "List", state->List_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObjectRef(m, "_List", state->List_type) < 0) {
+    if (PyModule_AddObjectRef(m, "_List", state->_List_type) < 0) {
         return -1;
     }
     if (PyModule_AddObjectRef(m, "Tuple", state->Tuple_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObjectRef(m, "_Tuple", state->Tuple_type) < 0) {
+    if (PyModule_AddObjectRef(m, "_Tuple", state->_Tuple_type) < 0) {
         return -1;
     }
     if (PyModule_AddObjectRef(m, "Slice", state->Slice_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObjectRef(m, "_Slice", state->Slice_type) < 0) {
-        return -1;
-    }
-    if (PyModule_AddObjectRef(m, "_expr_seq", state->_expr_seq_type) < 0) {
-        return -1;
-    }
-    if (PyModule_AddObjectRef(m, "__expr_seq", state->_expr_seq_type) < 0) {
+    if (PyModule_AddObjectRef(m, "_Slice", state->_Slice_type) < 0) {
         return -1;
     }
     if (PyModule_AddObjectRef(m, "expr_context", state->expr_context_type) < 0)
@@ -31895,15 +31966,7 @@ astmodule_exec(PyObject *m)
         0) {
         return -1;
     }
-    if (PyModule_AddObjectRef(m, "_comprehension", state->comprehension_type) <
-        0) {
-        return -1;
-    }
     if (PyModule_AddObjectRef(m, "_comprehension_seq",
-        state->_comprehension_seq_type) < 0) {
-        return -1;
-    }
-    if (PyModule_AddObjectRef(m, "__comprehension_seq",
         state->_comprehension_seq_type) < 0) {
         return -1;
     }
@@ -31911,226 +31974,171 @@ astmodule_exec(PyObject *m)
         0) {
         return -1;
     }
-    if (PyModule_AddObjectRef(m, "_excepthandler", state->excepthandler_type) <
-        0) {
-        return -1;
-    }
-    if (PyModule_AddObjectRef(m, "ExceptHandler", state->ExceptHandler_type) <
-        0) {
-        return -1;
-    }
-    if (PyModule_AddObjectRef(m, "_ExceptHandler", state->ExceptHandler_type) <
-        0) {
+    if (PyModule_AddObjectRef(m, "_excepthandler", state->_excepthandler_type)
+        < 0) {
         return -1;
     }
     if (PyModule_AddObjectRef(m, "_excepthandler_seq",
         state->_excepthandler_seq_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObjectRef(m, "__excepthandler_seq",
-        state->_excepthandler_seq_type) < 0) {
+    if (PyModule_AddObjectRef(m, "ExceptHandler", state->ExceptHandler_type) <
+        0) {
+        return -1;
+    }
+    if (PyModule_AddObjectRef(m, "_ExceptHandler", state->_ExceptHandler_type)
+        < 0) {
         return -1;
     }
     if (PyModule_AddObjectRef(m, "arguments", state->arguments_type) < 0) {
-        return -1;
-    }
-    if (PyModule_AddObjectRef(m, "_arguments", state->arguments_type) < 0) {
         return -1;
     }
     if (PyModule_AddObjectRef(m, "_arguments_seq", state->_arguments_seq_type)
         < 0) {
         return -1;
     }
-    if (PyModule_AddObjectRef(m, "__arguments_seq", state->_arguments_seq_type)
-        < 0) {
-        return -1;
-    }
     if (PyModule_AddObjectRef(m, "arg", state->arg_type) < 0) {
-        return -1;
-    }
-    if (PyModule_AddObjectRef(m, "_arg", state->arg_type) < 0) {
         return -1;
     }
     if (PyModule_AddObjectRef(m, "_arg_seq", state->_arg_seq_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObjectRef(m, "__arg_seq", state->_arg_seq_type) < 0) {
-        return -1;
-    }
     if (PyModule_AddObjectRef(m, "keyword", state->keyword_type) < 0) {
-        return -1;
-    }
-    if (PyModule_AddObjectRef(m, "_keyword", state->keyword_type) < 0) {
         return -1;
     }
     if (PyModule_AddObjectRef(m, "_keyword_seq", state->_keyword_seq_type) < 0)
         {
         return -1;
     }
-    if (PyModule_AddObjectRef(m, "__keyword_seq", state->_keyword_seq_type) <
-        0) {
-        return -1;
-    }
     if (PyModule_AddObjectRef(m, "alias", state->alias_type) < 0) {
-        return -1;
-    }
-    if (PyModule_AddObjectRef(m, "_alias", state->alias_type) < 0) {
         return -1;
     }
     if (PyModule_AddObjectRef(m, "_alias_seq", state->_alias_seq_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObjectRef(m, "__alias_seq", state->_alias_seq_type) < 0) {
-        return -1;
-    }
     if (PyModule_AddObjectRef(m, "withitem", state->withitem_type) < 0) {
-        return -1;
-    }
-    if (PyModule_AddObjectRef(m, "_withitem", state->withitem_type) < 0) {
         return -1;
     }
     if (PyModule_AddObjectRef(m, "_withitem_seq", state->_withitem_seq_type) <
         0) {
         return -1;
     }
-    if (PyModule_AddObjectRef(m, "__withitem_seq", state->_withitem_seq_type) <
-        0) {
-        return -1;
-    }
     if (PyModule_AddObjectRef(m, "match_case", state->match_case_type) < 0) {
-        return -1;
-    }
-    if (PyModule_AddObjectRef(m, "_match_case", state->match_case_type) < 0) {
         return -1;
     }
     if (PyModule_AddObjectRef(m, "_match_case_seq",
         state->_match_case_seq_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObjectRef(m, "__match_case_seq",
-        state->_match_case_seq_type) < 0) {
-        return -1;
-    }
     if (PyModule_AddObjectRef(m, "pattern", state->pattern_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObjectRef(m, "_pattern", state->pattern_type) < 0) {
-        return -1;
-    }
-    if (PyModule_AddObjectRef(m, "MatchValue", state->MatchValue_type) < 0) {
-        return -1;
-    }
-    if (PyModule_AddObjectRef(m, "_MatchValue", state->MatchValue_type) < 0) {
-        return -1;
-    }
-    if (PyModule_AddObjectRef(m, "MatchSingleton", state->MatchSingleton_type)
-        < 0) {
-        return -1;
-    }
-    if (PyModule_AddObjectRef(m, "_MatchSingleton", state->MatchSingleton_type)
-        < 0) {
-        return -1;
-    }
-    if (PyModule_AddObjectRef(m, "MatchSequence", state->MatchSequence_type) <
-        0) {
-        return -1;
-    }
-    if (PyModule_AddObjectRef(m, "_MatchSequence", state->MatchSequence_type) <
-        0) {
-        return -1;
-    }
-    if (PyModule_AddObjectRef(m, "MatchMapping", state->MatchMapping_type) < 0)
-        {
-        return -1;
-    }
-    if (PyModule_AddObjectRef(m, "_MatchMapping", state->MatchMapping_type) <
-        0) {
-        return -1;
-    }
-    if (PyModule_AddObjectRef(m, "MatchClass", state->MatchClass_type) < 0) {
-        return -1;
-    }
-    if (PyModule_AddObjectRef(m, "_MatchClass", state->MatchClass_type) < 0) {
-        return -1;
-    }
-    if (PyModule_AddObjectRef(m, "MatchStar", state->MatchStar_type) < 0) {
-        return -1;
-    }
-    if (PyModule_AddObjectRef(m, "_MatchStar", state->MatchStar_type) < 0) {
-        return -1;
-    }
-    if (PyModule_AddObjectRef(m, "MatchAs", state->MatchAs_type) < 0) {
-        return -1;
-    }
-    if (PyModule_AddObjectRef(m, "_MatchAs", state->MatchAs_type) < 0) {
-        return -1;
-    }
-    if (PyModule_AddObjectRef(m, "MatchOr", state->MatchOr_type) < 0) {
-        return -1;
-    }
-    if (PyModule_AddObjectRef(m, "_MatchOr", state->MatchOr_type) < 0) {
+    if (PyModule_AddObjectRef(m, "_pattern", state->_pattern_type) < 0) {
         return -1;
     }
     if (PyModule_AddObjectRef(m, "_pattern_seq", state->_pattern_seq_type) < 0)
         {
         return -1;
     }
-    if (PyModule_AddObjectRef(m, "__pattern_seq", state->_pattern_seq_type) <
+    if (PyModule_AddObjectRef(m, "MatchValue", state->MatchValue_type) < 0) {
+        return -1;
+    }
+    if (PyModule_AddObjectRef(m, "_MatchValue", state->_MatchValue_type) < 0) {
+        return -1;
+    }
+    if (PyModule_AddObjectRef(m, "MatchSingleton", state->MatchSingleton_type)
+        < 0) {
+        return -1;
+    }
+    if (PyModule_AddObjectRef(m, "_MatchSingleton",
+        state->_MatchSingleton_type) < 0) {
+        return -1;
+    }
+    if (PyModule_AddObjectRef(m, "MatchSequence", state->MatchSequence_type) <
         0) {
+        return -1;
+    }
+    if (PyModule_AddObjectRef(m, "_MatchSequence", state->_MatchSequence_type)
+        < 0) {
+        return -1;
+    }
+    if (PyModule_AddObjectRef(m, "MatchMapping", state->MatchMapping_type) < 0)
+        {
+        return -1;
+    }
+    if (PyModule_AddObjectRef(m, "_MatchMapping", state->_MatchMapping_type) <
+        0) {
+        return -1;
+    }
+    if (PyModule_AddObjectRef(m, "MatchClass", state->MatchClass_type) < 0) {
+        return -1;
+    }
+    if (PyModule_AddObjectRef(m, "_MatchClass", state->_MatchClass_type) < 0) {
+        return -1;
+    }
+    if (PyModule_AddObjectRef(m, "MatchStar", state->MatchStar_type) < 0) {
+        return -1;
+    }
+    if (PyModule_AddObjectRef(m, "_MatchStar", state->_MatchStar_type) < 0) {
+        return -1;
+    }
+    if (PyModule_AddObjectRef(m, "MatchAs", state->MatchAs_type) < 0) {
+        return -1;
+    }
+    if (PyModule_AddObjectRef(m, "_MatchAs", state->_MatchAs_type) < 0) {
+        return -1;
+    }
+    if (PyModule_AddObjectRef(m, "MatchOr", state->MatchOr_type) < 0) {
+        return -1;
+    }
+    if (PyModule_AddObjectRef(m, "_MatchOr", state->_MatchOr_type) < 0) {
         return -1;
     }
     if (PyModule_AddObjectRef(m, "type_ignore", state->type_ignore_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObjectRef(m, "_type_ignore", state->type_ignore_type) < 0) {
-        return -1;
-    }
-    if (PyModule_AddObjectRef(m, "TypeIgnore", state->TypeIgnore_type) < 0) {
-        return -1;
-    }
-    if (PyModule_AddObjectRef(m, "_TypeIgnore", state->TypeIgnore_type) < 0) {
+    if (PyModule_AddObjectRef(m, "_type_ignore", state->_type_ignore_type) < 0)
+        {
         return -1;
     }
     if (PyModule_AddObjectRef(m, "_type_ignore_seq",
         state->_type_ignore_seq_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObjectRef(m, "__type_ignore_seq",
-        state->_type_ignore_seq_type) < 0) {
+    if (PyModule_AddObjectRef(m, "TypeIgnore", state->TypeIgnore_type) < 0) {
+        return -1;
+    }
+    if (PyModule_AddObjectRef(m, "_TypeIgnore", state->_TypeIgnore_type) < 0) {
         return -1;
     }
     if (PyModule_AddObjectRef(m, "type_param", state->type_param_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObjectRef(m, "_type_param", state->type_param_type) < 0) {
-        return -1;
-    }
-    if (PyModule_AddObjectRef(m, "TypeVar", state->TypeVar_type) < 0) {
-        return -1;
-    }
-    if (PyModule_AddObjectRef(m, "_TypeVar", state->TypeVar_type) < 0) {
-        return -1;
-    }
-    if (PyModule_AddObjectRef(m, "ParamSpec", state->ParamSpec_type) < 0) {
-        return -1;
-    }
-    if (PyModule_AddObjectRef(m, "_ParamSpec", state->ParamSpec_type) < 0) {
-        return -1;
-    }
-    if (PyModule_AddObjectRef(m, "TypeVarTuple", state->TypeVarTuple_type) < 0)
-        {
-        return -1;
-    }
-    if (PyModule_AddObjectRef(m, "_TypeVarTuple", state->TypeVarTuple_type) <
-        0) {
+    if (PyModule_AddObjectRef(m, "_type_param", state->_type_param_type) < 0) {
         return -1;
     }
     if (PyModule_AddObjectRef(m, "_type_param_seq",
         state->_type_param_seq_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObjectRef(m, "__type_param_seq",
-        state->_type_param_seq_type) < 0) {
+    if (PyModule_AddObjectRef(m, "TypeVar", state->TypeVar_type) < 0) {
+        return -1;
+    }
+    if (PyModule_AddObjectRef(m, "_TypeVar", state->_TypeVar_type) < 0) {
+        return -1;
+    }
+    if (PyModule_AddObjectRef(m, "ParamSpec", state->ParamSpec_type) < 0) {
+        return -1;
+    }
+    if (PyModule_AddObjectRef(m, "_ParamSpec", state->_ParamSpec_type) < 0) {
+        return -1;
+    }
+    if (PyModule_AddObjectRef(m, "TypeVarTuple", state->TypeVarTuple_type) < 0)
+        {
+        return -1;
+    }
+    if (PyModule_AddObjectRef(m, "_TypeVarTuple", state->_TypeVarTuple_type) <
+        0) {
         return -1;
     }
     return 0;

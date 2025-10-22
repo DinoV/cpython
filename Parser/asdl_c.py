@@ -770,9 +770,18 @@ class Obj2ModVisitor(PickleVisitor):
         self.sumTrailer(name, True)
 
         ctype = get_c_type(name)
-        self.emit("int", 0)
-        self.emit(f"obj2imm_{name}(struct ast_state *state, PyObject* obj, {ctype}* out)", 0)
-        self.emit("{", 0)
+        self.funcHeaderImm(name)
+
+        self.emit("PyObject *tp;", 1)
+        self.emit(f"tp = state->_{name}_type;", 1)
+        self.emit("isinstance = PyObject_IsInstance(obj, tp);", 1)
+        self.emit("if (isinstance == -1) {", 1)
+        self.emit("return -1;", 2)
+        self.emit("} else if (isinstance == 1) {", 1)
+        self.emit(f"*out = ({ctype})Py_NewRef(obj);", 2)
+        self.emit("return 0;", 2)
+        self.emit("}", 1)
+
         self.emit(f"*out = ({ctype})Py_NewRef(obj);", 1)
         self.emit("return 0;", 1)
         self.emit("}", 0)
@@ -2384,26 +2393,23 @@ PyInit__ast(void)
         self.addObj(f"_{name}_seq")
 
     def visitSum(self, sum, name):
-        self.addObj(name, is_simple(sum))
+        self.addObj(name)
+        if not is_simple(sum):
+            self.addObj(f"_{name}")
+            self.addObj(f"_{name}_seq")
         for t in sum.types:
             self.visitConstructor(t, name, is_simple(sum))
 
-        if not is_simple(sum):
-            self.addObj(f"_{name}_seq")
-
     def visitConstructor(self, cons, name, is_simple):
-        self.addObj(cons.name, is_simple)
+        self.addObj(cons.name)
+        if not is_simple:
+            self.addObj(f"_{cons.name}")
 
-    def addObj(self, name, is_simple=False):
+    def addObj(self, name):
         self.emit("if (PyModule_AddObjectRef(m, \"%s\", "
                   "state->%s_type) < 0) {" % (name, name), 1)
         self.emit("return -1;", 2)
         self.emit('}', 1)
-        if not is_simple:
-            self.emit("if (PyModule_AddObjectRef(m, \"_%s\", "
-                    "state->%s_type) < 0) {" % (name, name), 1)
-            self.emit("return -1;", 2)
-            self.emit('}', 1)
 
 
 class StaticVisitor(PickleVisitor):
