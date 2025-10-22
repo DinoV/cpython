@@ -2270,12 +2270,14 @@ static int add_ast_fields(struct ast_state *state)
             }
         '''))
 
-    def create_type(self, type_name, name, base_name="AST", fields=None):
+    def create_type(self, type_name, name, base_name="AST", fields=None, attributes=None):
         self.emit(f"t = PyType_FromSpecWithBases(&_{type_name}_type_spec, state->_{base_name}_type);", 1)
         self.emit(f"state->_{type_name}_type = t;", 1)
         self.emit(f"if (state->_{type_name}_type == NULL) return -1;", 1)
         if fields:
             self.emit(f"if (add_fields(state->_{type_name}_type, {fields}) < 0) return -1;", 1)
+        if attributes:
+            self.emit(f"if (add_attributes(state, state->_{type_name}_type, {attributes}) < 0) return -1;", 1)
 
     def visitProduct(self, prod, name):
         if prod.fields:
@@ -2294,7 +2296,11 @@ static int add_ast_fields(struct ast_state *state)
         self.emit_defaults(name, prod.fields, 1)
         self.emit_defaults(name, prod.attributes, 1)
 
-        self.create_type(name, name, fields=f"{fields}, {len(prod.fields)}")
+        attributes = "NULL, 0"
+        if prod.attributes:
+            attributes = f"{name}_attributes, {len(prod.attributes)}"
+
+        self.create_type(name, name, fields=f"{fields}, {len(prod.fields)}", attributes=attributes)
 
         self.create_type(name + "_seq", name + "_seq")
 
@@ -2311,7 +2317,11 @@ static int add_ast_fields(struct ast_state *state)
         self.emit_defaults(name, sum.attributes, 1)
         simple = is_simple(sum)
         if not simple:
-            self.create_type(name, name)
+            attributes = "NULL, 0"
+            if sum.attributes:
+                attributes = f"{name}_attributes, {len(sum.attributes)}"
+
+            self.create_type(name, name, attributes=attributes)
             self.create_type(name + "_seq", name + "_seq")
         for t in sum.types:
             self.visitConstructor(t, name, simple)
@@ -2353,6 +2363,9 @@ class ASTModuleVisitor(PickleVisitor):
         self.emit('return -1;', 2)
         self.emit('}', 1)
         self.emit('if (PyModule_AddObjectRef(m, "AST", state->AST_type) < 0) {', 1)
+        self.emit('return -1;', 2)
+        self.emit('}', 1)
+        self.emit('if (PyModule_AddObjectRef(m, "_AST", state->_AST_type) < 0) {', 1)
         self.emit('return -1;', 2)
         self.emit('}', 1)
         self.emit('if (PyModule_AddIntMacro(m, PyCF_ALLOW_TOP_LEVEL_AWAIT) < 0) {', 1)
@@ -3055,7 +3068,7 @@ static PyType_Spec _{node_name}_type_spec = {{
     "ast._{node_name}",
     sizeof(struct _{type_name}),
     0,
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _{node_name}_type_slots
 }};
 
@@ -3170,7 +3183,7 @@ static PyType_Spec _{name}_seq_type_spec = {{
     "ast._{name}_seq",
     sizeof(asdl_{name}_seq) - sizeof({ctype}),
     sizeof({ctype}),
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _PyAST_{name}_seq_type_slots
 }};""", 0, reflow=False)
 

@@ -21,6 +21,7 @@ that work tightly with the python syntax (template engines for example).
 :license: Python License.
 """
 from _ast import *
+import _ast
 
 
 def parse(source, filename='<unknown>', mode='exec', *,
@@ -688,6 +689,22 @@ def main(args=None):
                  feature_version=feature_version, optimize=args.optimize)
     print(dump(tree, include_attributes=args.include_attributes,
                indent=args.indent, show_empty=args.show_empty))
+
+def make_mutable_types(cur_type):
+    name = cur_type.__name__
+    if not name.startswith("_"):
+        # we see one of the newly created mutable types
+        return
+    new_name = name[1:]
+    new_type = type(new_name, (cur_type,), {})
+    
+    #globals()[new_name] = new_type
+    for base in cur_type.__subclasses__():
+        make_mutable_types(base)
+
+
+make_mutable_types(_ast._AST)
+
 
 if __name__ == '__main__':
     main()

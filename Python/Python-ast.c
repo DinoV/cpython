@@ -5463,7 +5463,7 @@ static PyType_Spec _int_seq_type_spec = {
     "ast._int_seq",
     sizeof(asdl_int_seq) - sizeof(int),
     sizeof(int),
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _PyAST_int_seq_type_slots
 };
 
@@ -5510,7 +5510,7 @@ static PyType_Spec _identifier_seq_type_spec = {
     "ast._identifier_seq",
     sizeof(asdl_identifier_seq) - sizeof(identifier),
     sizeof(identifier),
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _PyAST_identifier_seq_type_slots
 };
 
@@ -5566,7 +5566,7 @@ static PyType_Spec _AST_type_spec = {
     "ast._AST",
     sizeof(struct _object),
     0,
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _AST_type_slots
 };
 
@@ -5634,7 +5634,7 @@ static PyType_Spec _Module_type_spec = {
     "ast._Module",
     sizeof(struct _mod),
     0,
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _Module_type_slots
 };
 
@@ -5715,7 +5715,7 @@ static PyType_Spec _Interactive_type_spec = {
     "ast._Interactive",
     sizeof(struct _mod),
     0,
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _Interactive_type_slots
 };
 
@@ -5790,7 +5790,7 @@ static PyType_Spec _Expression_type_spec = {
     "ast._Expression",
     sizeof(struct _mod),
     0,
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _Expression_type_slots
 };
 
@@ -5876,7 +5876,7 @@ static PyType_Spec _FunctionType_type_spec = {
     "ast._FunctionType",
     sizeof(struct _mod),
     0,
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _FunctionType_type_slots
 };
 
@@ -5958,7 +5958,7 @@ static PyType_Spec _mod_type_spec = {
     "ast._mod",
     sizeof(struct _mod),
     0,
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _mod_type_slots
 };
 
@@ -5990,7 +5990,7 @@ static PyType_Spec _mod_seq_type_spec = {
     "ast._mod_seq",
     sizeof(asdl_mod_seq) - sizeof(mod_ty),
     sizeof(mod_ty),
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _PyAST_mod_seq_type_slots
 };
 
@@ -6137,7 +6137,7 @@ static PyType_Spec _FunctionDef_type_spec = {
     "ast._FunctionDef",
     sizeof(struct _stmt),
     0,
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _FunctionDef_type_slots
 };
 
@@ -6326,7 +6326,7 @@ static PyType_Spec _AsyncFunctionDef_type_spec = {
     "ast._AsyncFunctionDef",
     sizeof(struct _stmt),
     0,
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _AsyncFunctionDef_type_slots
 };
 
@@ -6502,7 +6502,7 @@ static PyType_Spec _ClassDef_type_spec = {
     "ast._ClassDef",
     sizeof(struct _stmt),
     0,
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _ClassDef_type_slots
 };
 
@@ -6609,7 +6609,7 @@ static PyType_Spec _Return_type_spec = {
     "ast._Return",
     sizeof(struct _stmt),
     0,
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _Return_type_slots
 };
 
@@ -6684,7 +6684,7 @@ static PyType_Spec _Delete_type_spec = {
     "ast._Delete",
     sizeof(struct _stmt),
     0,
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _Delete_type_slots
 };
 
@@ -6782,7 +6782,7 @@ static PyType_Spec _Assign_type_spec = {
     "ast._Assign",
     sizeof(struct _stmt),
     0,
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _Assign_type_slots
 };
 
@@ -6891,7 +6891,7 @@ static PyType_Spec _TypeAlias_type_spec = {
     "ast._TypeAlias",
     sizeof(struct _stmt),
     0,
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _TypeAlias_type_slots
 };
 
@@ -7000,7 +7000,7 @@ static PyType_Spec _AugAssign_type_spec = {
     "ast._AugAssign",
     sizeof(struct _stmt),
     0,
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _AugAssign_type_slots
 };
 
@@ -7115,7 +7115,7 @@ static PyType_Spec _AnnAssign_type_spec = {
     "ast._AnnAssign",
     sizeof(struct _stmt),
     0,
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _AnnAssign_type_slots
 };
 
@@ -7249,7 +7249,7 @@ static PyType_Spec _For_type_spec = {
     "ast._For",
     sizeof(struct _stmt),
     0,
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _For_type_slots
 };
 
@@ -7393,7 +7393,7 @@ static PyType_Spec _AsyncFor_type_spec = {
     "ast._AsyncFor",
     sizeof(struct _stmt),
     0,
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _AsyncFor_type_slots
 };
 
@@ -7515,7 +7515,7 @@ static PyType_Spec _While_type_spec = {
     "ast._While",
     sizeof(struct _stmt),
     0,
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _While_type_slots
 };
 
@@ -7625,7 +7625,7 @@ static PyType_Spec _If_type_spec = {
     "ast._If",
     sizeof(struct _stmt),
     0,
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _If_type_slots
 };
 
@@ -7734,7 +7734,7 @@ static PyType_Spec _With_type_spec = {
     "ast._With",
     sizeof(struct _stmt),
     0,
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _With_type_slots
 };
 
@@ -7844,7 +7844,7 @@ static PyType_Spec _AsyncWith_type_spec = {
     "ast._AsyncWith",
     sizeof(struct _stmt),
     0,
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _AsyncWith_type_slots
 };
 
@@ -7944,7 +7944,7 @@ static PyType_Spec _Match_type_spec = {
     "ast._Match",
     sizeof(struct _stmt),
     0,
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _Match_type_slots
 };
 
@@ -8035,7 +8035,7 @@ static PyType_Spec _Raise_type_spec = {
     "ast._Raise",
     sizeof(struct _stmt),
     0,
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _Raise_type_slots
 };
 
@@ -8152,7 +8152,7 @@ static PyType_Spec _Try_type_spec = {
     "ast._Try",
     sizeof(struct _stmt),
     0,
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _Try_type_slots
 };
 
@@ -8281,7 +8281,7 @@ static PyType_Spec _TryStar_type_spec = {
     "ast._TryStar",
     sizeof(struct _stmt),
     0,
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _TryStar_type_slots
 };
 
@@ -8386,7 +8386,7 @@ static PyType_Spec _Assert_type_spec = {
     "ast._Assert",
     sizeof(struct _stmt),
     0,
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _Assert_type_slots
 };
 
@@ -8467,7 +8467,7 @@ static PyType_Spec _Import_type_spec = {
     "ast._Import",
     sizeof(struct _stmt),
     0,
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _Import_type_slots
 };
 
@@ -8566,7 +8566,7 @@ static PyType_Spec _ImportFrom_type_spec = {
     "ast._ImportFrom",
     sizeof(struct _stmt),
     0,
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _ImportFrom_type_slots
 };
 
@@ -8649,7 +8649,7 @@ static PyType_Spec _Global_type_spec = {
     "ast._Global",
     sizeof(struct _stmt),
     0,
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _Global_type_slots
 };
 
@@ -8724,7 +8724,7 @@ static PyType_Spec _Nonlocal_type_spec = {
     "ast._Nonlocal",
     sizeof(struct _stmt),
     0,
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _Nonlocal_type_slots
 };
 
@@ -8799,7 +8799,7 @@ static PyType_Spec _Expr_type_spec = {
     "ast._Expr",
     sizeof(struct _stmt),
     0,
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _Expr_type_slots
 };
 
@@ -8854,7 +8854,7 @@ static PyType_Spec _Pass_type_spec = {
     "ast._Pass",
     sizeof(struct _stmt),
     0,
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _Pass_type_slots
 };
 
@@ -8903,7 +8903,7 @@ static PyType_Spec _Break_type_spec = {
     "ast._Break",
     sizeof(struct _stmt),
     0,
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _Break_type_slots
 };
 
@@ -8953,7 +8953,7 @@ static PyType_Spec _Continue_type_spec = {
     "ast._Continue",
     sizeof(struct _stmt),
     0,
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _Continue_type_slots
 };
 
@@ -9093,7 +9093,7 @@ static PyType_Spec _stmt_type_spec = {
     "ast._stmt",
     sizeof(struct _stmt),
     0,
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _stmt_type_slots
 };
 
@@ -9125,7 +9125,7 @@ static PyType_Spec _stmt_seq_type_spec = {
     "ast._stmt_seq",
     sizeof(asdl_stmt_seq) - sizeof(stmt_ty),
     sizeof(stmt_ty),
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _PyAST_stmt_seq_type_slots
 };
 
@@ -9212,7 +9212,7 @@ static PyType_Spec _BoolOp_type_spec = {
     "ast._BoolOp",
     sizeof(struct _expr),
     0,
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _BoolOp_type_slots
 };
 
@@ -9298,7 +9298,7 @@ static PyType_Spec _NamedExpr_type_spec = {
     "ast._NamedExpr",
     sizeof(struct _expr),
     0,
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _NamedExpr_type_slots
 };
 
@@ -9400,7 +9400,7 @@ static PyType_Spec _BinOp_type_spec = {
     "ast._BinOp",
     sizeof(struct _expr),
     0,
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _BinOp_type_slots
 };
 
@@ -9492,7 +9492,7 @@ static PyType_Spec _UnaryOp_type_spec = {
     "ast._UnaryOp",
     sizeof(struct _expr),
     0,
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _UnaryOp_type_slots
 };
 
@@ -9578,7 +9578,7 @@ static PyType_Spec _Lambda_type_spec = {
     "ast._Lambda",
     sizeof(struct _expr),
     0,
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _Lambda_type_slots
 };
 
@@ -9680,7 +9680,7 @@ static PyType_Spec _IfExp_type_spec = {
     "ast._IfExp",
     sizeof(struct _expr),
     0,
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _IfExp_type_slots
 };
 
@@ -9779,7 +9779,7 @@ static PyType_Spec _Dict_type_spec = {
     "ast._Dict",
     sizeof(struct _expr),
     0,
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _Dict_type_slots
 };
 
@@ -9859,7 +9859,7 @@ static PyType_Spec _Set_type_spec = {
     "ast._Set",
     sizeof(struct _expr),
     0,
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _Set_type_slots
 };
 
@@ -9944,7 +9944,7 @@ static PyType_Spec _ListComp_type_spec = {
     "ast._ListComp",
     sizeof(struct _expr),
     0,
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _ListComp_type_slots
 };
 
@@ -10037,7 +10037,7 @@ static PyType_Spec _SetComp_type_spec = {
     "ast._SetComp",
     sizeof(struct _expr),
     0,
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _SetComp_type_slots
 };
 
@@ -10141,7 +10141,7 @@ static PyType_Spec _DictComp_type_spec = {
     "ast._DictComp",
     sizeof(struct _expr),
     0,
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _DictComp_type_slots
 };
 
@@ -10240,7 +10240,7 @@ static PyType_Spec _GeneratorExp_type_spec = {
     "ast._GeneratorExp",
     sizeof(struct _expr),
     0,
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _GeneratorExp_type_slots
 };
 
@@ -10321,7 +10321,7 @@ static PyType_Spec _Await_type_spec = {
     "ast._Await",
     sizeof(struct _expr),
     0,
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _Await_type_slots
 };
 
@@ -10395,7 +10395,7 @@ static PyType_Spec _Yield_type_spec = {
     "ast._Yield",
     sizeof(struct _expr),
     0,
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _Yield_type_slots
 };
 
@@ -10469,7 +10469,7 @@ static PyType_Spec _YieldFrom_type_spec = {
     "ast._YieldFrom",
     sizeof(struct _expr),
     0,
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _YieldFrom_type_slots
 };
 
@@ -10565,7 +10565,7 @@ static PyType_Spec _Compare_type_spec = {
     "ast._Compare",
     sizeof(struct _expr),
     0,
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _Compare_type_slots
 };
 
@@ -10676,7 +10676,7 @@ static PyType_Spec _Call_type_spec = {
     "ast._Call",
     sizeof(struct _expr),
     0,
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _Call_type_slots
 };
 
@@ -10785,7 +10785,7 @@ static PyType_Spec _FormattedValue_type_spec = {
     "ast._FormattedValue",
     sizeof(struct _expr),
     0,
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _FormattedValue_type_slots
 };
 
@@ -10904,7 +10904,7 @@ static PyType_Spec _Interpolation_type_spec = {
     "ast._Interpolation",
     sizeof(struct _expr),
     0,
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _Interpolation_type_slots
 };
 
@@ -10994,7 +10994,7 @@ static PyType_Spec _JoinedStr_type_spec = {
     "ast._JoinedStr",
     sizeof(struct _expr),
     0,
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _JoinedStr_type_slots
 };
 
@@ -11070,7 +11070,7 @@ static PyType_Spec _TemplateStr_type_spec = {
     "ast._TemplateStr",
     sizeof(struct _expr),
     0,
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _TemplateStr_type_slots
 };
 
@@ -11156,7 +11156,7 @@ static PyType_Spec _Constant_type_spec = {
     "ast._Constant",
     sizeof(struct _expr),
     0,
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _Constant_type_slots
 };
 
@@ -11259,7 +11259,7 @@ static PyType_Spec _Attribute_type_spec = {
     "ast._Attribute",
     sizeof(struct _expr),
     0,
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _Attribute_type_slots
 };
 
@@ -11363,7 +11363,7 @@ static PyType_Spec _Subscript_type_spec = {
     "ast._Subscript",
     sizeof(struct _expr),
     0,
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _Subscript_type_slots
 };
 
@@ -11455,7 +11455,7 @@ static PyType_Spec _Starred_type_spec = {
     "ast._Starred",
     sizeof(struct _expr),
     0,
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _Starred_type_slots
 };
 
@@ -11540,7 +11540,7 @@ static PyType_Spec _Name_type_spec = {
     "ast._Name",
     sizeof(struct _expr),
     0,
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _Name_type_slots
 };
 
@@ -11626,7 +11626,7 @@ static PyType_Spec _List_type_spec = {
     "ast._List",
     sizeof(struct _expr),
     0,
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _List_type_slots
 };
 
@@ -11712,7 +11712,7 @@ static PyType_Spec _Tuple_type_spec = {
     "ast._Tuple",
     sizeof(struct _expr),
     0,
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _Tuple_type_slots
 };
 
@@ -11809,7 +11809,7 @@ static PyType_Spec _Slice_type_spec = {
     "ast._Slice",
     sizeof(struct _expr),
     0,
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _Slice_type_slots
 };
 
@@ -11970,7 +11970,7 @@ static PyType_Spec _expr_type_spec = {
     "ast._expr",
     sizeof(struct _expr),
     0,
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _expr_type_slots
 };
 
@@ -12002,7 +12002,7 @@ static PyType_Spec _expr_seq_type_spec = {
     "ast._expr_seq",
     sizeof(asdl_expr_seq) - sizeof(expr_ty),
     sizeof(expr_ty),
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _PyAST_expr_seq_type_slots
 };
 
@@ -12054,7 +12054,7 @@ static PyType_Spec _comprehension_seq_type_spec = {
     "ast._comprehension_seq",
     sizeof(asdl_comprehension_seq) - sizeof(comprehension_ty),
     sizeof(comprehension_ty),
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _PyAST_comprehension_seq_type_slots
 };
 
@@ -12157,7 +12157,7 @@ static PyType_Spec _comprehension_type_spec = {
     "ast._comprehension",
     sizeof(struct _comprehension),
     0,
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _comprehension_type_slots
 };
 
@@ -12268,7 +12268,7 @@ static PyType_Spec _ExceptHandler_type_spec = {
     "ast._ExceptHandler",
     sizeof(struct _excepthandler),
     0,
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _ExceptHandler_type_slots
 };
 
@@ -12347,7 +12347,7 @@ static PyType_Spec _excepthandler_type_spec = {
     "ast._excepthandler",
     sizeof(struct _excepthandler),
     0,
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _excepthandler_type_slots
 };
 
@@ -12379,7 +12379,7 @@ static PyType_Spec _excepthandler_seq_type_spec = {
     "ast._excepthandler_seq",
     sizeof(asdl_excepthandler_seq) - sizeof(excepthandler_ty),
     sizeof(excepthandler_ty),
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _PyAST_excepthandler_seq_type_slots
 };
 
@@ -12433,7 +12433,7 @@ static PyType_Spec _arguments_seq_type_spec = {
     "ast._arguments_seq",
     sizeof(asdl_arguments_seq) - sizeof(arguments_ty),
     sizeof(arguments_ty),
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _PyAST_arguments_seq_type_slots
 };
 
@@ -12565,7 +12565,7 @@ static PyType_Spec _arguments_type_spec = {
     "ast._arguments",
     sizeof(struct _arguments),
     0,
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _arguments_type_slots
 };
 
@@ -12652,7 +12652,7 @@ static PyType_Spec _arg_seq_type_spec = {
     "ast._arg_seq",
     sizeof(asdl_arg_seq) - sizeof(arg_ty),
     sizeof(arg_ty),
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _PyAST_arg_seq_type_slots
 };
 
@@ -12743,7 +12743,7 @@ static PyType_Spec _arg_type_spec = {
     "ast._arg",
     sizeof(struct _arg),
     0,
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _arg_type_slots
 };
 
@@ -12805,7 +12805,7 @@ static PyType_Spec _keyword_seq_type_spec = {
     "ast._keyword_seq",
     sizeof(asdl_keyword_seq) - sizeof(keyword_ty),
     sizeof(keyword_ty),
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _PyAST_keyword_seq_type_slots
 };
 
@@ -12888,7 +12888,7 @@ static PyType_Spec _keyword_type_spec = {
     "ast._keyword",
     sizeof(struct _keyword),
     0,
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _keyword_type_slots
 };
 
@@ -12945,7 +12945,7 @@ static PyType_Spec _alias_seq_type_spec = {
     "ast._alias_seq",
     sizeof(asdl_alias_seq) - sizeof(alias_ty),
     sizeof(alias_ty),
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _PyAST_alias_seq_type_slots
 };
 
@@ -13027,7 +13027,7 @@ static PyType_Spec _alias_type_spec = {
     "ast._alias",
     sizeof(struct _alias),
     0,
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _alias_type_slots
 };
 
@@ -13084,7 +13084,7 @@ static PyType_Spec _withitem_seq_type_spec = {
     "ast._withitem_seq",
     sizeof(asdl_withitem_seq) - sizeof(withitem_ty),
     sizeof(withitem_ty),
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _PyAST_withitem_seq_type_slots
 };
 
@@ -13167,7 +13167,7 @@ static PyType_Spec _withitem_type_spec = {
     "ast._withitem",
     sizeof(struct _withitem),
     0,
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _withitem_type_slots
 };
 
@@ -13224,7 +13224,7 @@ static PyType_Spec _match_case_seq_type_spec = {
     "ast._match_case_seq",
     sizeof(asdl_match_case_seq) - sizeof(match_case_ty),
     sizeof(match_case_ty),
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _PyAST_match_case_seq_type_slots
 };
 
@@ -13316,7 +13316,7 @@ static PyType_Spec _match_case_type_spec = {
     "ast._match_case",
     sizeof(struct _match_case),
     0,
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _match_case_type_slots
 };
 
@@ -13402,7 +13402,7 @@ static PyType_Spec _MatchValue_type_spec = {
     "ast._MatchValue",
     sizeof(struct _pattern),
     0,
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _MatchValue_type_slots
 };
 
@@ -13477,7 +13477,7 @@ static PyType_Spec _MatchSingleton_type_spec = {
     "ast._MatchSingleton",
     sizeof(struct _pattern),
     0,
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _MatchSingleton_type_slots
 };
 
@@ -13552,7 +13552,7 @@ static PyType_Spec _MatchSequence_type_spec = {
     "ast._MatchSequence",
     sizeof(struct _pattern),
     0,
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _MatchSequence_type_slots
 };
 
@@ -13652,7 +13652,7 @@ static PyType_Spec _MatchMapping_type_spec = {
     "ast._MatchMapping",
     sizeof(struct _pattern),
     0,
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _MatchMapping_type_slots
 };
 
@@ -13776,7 +13776,7 @@ static PyType_Spec _MatchClass_type_spec = {
     "ast._MatchClass",
     sizeof(struct _pattern),
     0,
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _MatchClass_type_slots
 };
 
@@ -13871,7 +13871,7 @@ static PyType_Spec _MatchStar_type_spec = {
     "ast._MatchStar",
     sizeof(struct _pattern),
     0,
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _MatchStar_type_slots
 };
 
@@ -13956,7 +13956,7 @@ static PyType_Spec _MatchAs_type_spec = {
     "ast._MatchAs",
     sizeof(struct _pattern),
     0,
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _MatchAs_type_slots
 };
 
@@ -14037,7 +14037,7 @@ static PyType_Spec _MatchOr_type_spec = {
     "ast._MatchOr",
     sizeof(struct _pattern),
     0,
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _MatchOr_type_slots
 };
 
@@ -14124,7 +14124,7 @@ static PyType_Spec _pattern_type_spec = {
     "ast._pattern",
     sizeof(struct _pattern),
     0,
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _pattern_type_slots
 };
 
@@ -14156,7 +14156,7 @@ static PyType_Spec _pattern_seq_type_spec = {
     "ast._pattern_seq",
     sizeof(asdl_pattern_seq) - sizeof(pattern_ty),
     sizeof(pattern_ty),
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _PyAST_pattern_seq_type_slots
 };
 
@@ -14244,7 +14244,7 @@ static PyType_Spec _TypeIgnore_type_spec = {
     "ast._TypeIgnore",
     sizeof(struct _type_ignore),
     0,
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _TypeIgnore_type_slots
 };
 
@@ -14310,7 +14310,7 @@ static PyType_Spec _type_ignore_type_spec = {
     "ast._type_ignore",
     sizeof(struct _type_ignore),
     0,
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _type_ignore_type_slots
 };
 
@@ -14342,7 +14342,7 @@ static PyType_Spec _type_ignore_seq_type_spec = {
     "ast._type_ignore_seq",
     sizeof(asdl_type_ignore_seq) - sizeof(type_ignore_ty),
     sizeof(type_ignore_ty),
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _PyAST_type_ignore_seq_type_slots
 };
 
@@ -14441,7 +14441,7 @@ static PyType_Spec _TypeVar_type_spec = {
     "ast._TypeVar",
     sizeof(struct _type_param),
     0,
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _TypeVar_type_slots
 };
 
@@ -14540,7 +14540,7 @@ static PyType_Spec _ParamSpec_type_spec = {
     "ast._ParamSpec",
     sizeof(struct _type_param),
     0,
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _ParamSpec_type_slots
 };
 
@@ -14634,7 +14634,7 @@ static PyType_Spec _TypeVarTuple_type_spec = {
     "ast._TypeVarTuple",
     sizeof(struct _type_param),
     0,
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _TypeVarTuple_type_slots
 };
 
@@ -14712,7 +14712,7 @@ static PyType_Spec _type_param_type_spec = {
     "ast._type_param",
     sizeof(struct _type_param),
     0,
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _type_param_type_slots
 };
 
@@ -14744,7 +14744,7 @@ static PyType_Spec _type_param_seq_type_spec = {
     "ast._type_param_seq",
     sizeof(asdl_type_param_seq) - sizeof(type_param_ty),
     sizeof(type_param_ty),
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _PyAST_type_param_seq_type_slots
 };
 
@@ -15864,6 +15864,7 @@ init_types(void *arg)
     t = PyType_FromSpecWithBases(&_mod_type_spec, state->_AST_type);
     state->_mod_type = t;
     if (state->_mod_type == NULL) return -1;
+    if (add_attributes(state, state->_mod_type, NULL, 0) < 0) return -1;
     t = PyType_FromSpecWithBases(&_mod_seq_type_spec, state->_AST_type);
     state->_mod_seq_type = t;
     if (state->_mod_seq_type == NULL) return -1;
@@ -15943,6 +15944,8 @@ init_types(void *arg)
     t = PyType_FromSpecWithBases(&_stmt_type_spec, state->_AST_type);
     state->_stmt_type = t;
     if (state->_stmt_type == NULL) return -1;
+    if (add_attributes(state, state->_stmt_type, stmt_attributes, 4) < 0)
+        return -1;
     t = PyType_FromSpecWithBases(&_stmt_seq_type_spec, state->_AST_type);
     state->_stmt_seq_type = t;
     if (state->_stmt_seq_type == NULL) return -1;
@@ -16250,6 +16253,8 @@ init_types(void *arg)
     t = PyType_FromSpecWithBases(&_expr_type_spec, state->_AST_type);
     state->_expr_type = t;
     if (state->_expr_type == NULL) return -1;
+    if (add_attributes(state, state->_expr_type, expr_attributes, 4) < 0)
+        return -1;
     t = PyType_FromSpecWithBases(&_expr_seq_type_spec, state->_AST_type);
     state->_expr_seq_type = t;
     if (state->_expr_seq_type == NULL) return -1;
@@ -16749,6 +16754,8 @@ init_types(void *arg)
     if (state->_comprehension_type == NULL) return -1;
     if (add_fields(state->_comprehension_type, comprehension_fields, 4) < 0)
         return -1;
+    if (add_attributes(state, state->_comprehension_type, NULL, 0) < 0) return
+        -1;
     t = PyType_FromSpecWithBases(&_comprehension_seq_type_spec,
                                  state->_AST_type);
     state->_comprehension_seq_type = t;
@@ -16768,6 +16775,8 @@ init_types(void *arg)
     t = PyType_FromSpecWithBases(&_excepthandler_type_spec, state->_AST_type);
     state->_excepthandler_type = t;
     if (state->_excepthandler_type == NULL) return -1;
+    if (add_attributes(state, state->_excepthandler_type,
+        excepthandler_attributes, 4) < 0) return -1;
     t = PyType_FromSpecWithBases(&_excepthandler_seq_type_spec,
                                  state->_AST_type);
     state->_excepthandler_seq_type = t;
@@ -16800,6 +16809,7 @@ init_types(void *arg)
     state->_arguments_type = t;
     if (state->_arguments_type == NULL) return -1;
     if (add_fields(state->_arguments_type, arguments_fields, 7) < 0) return -1;
+    if (add_attributes(state, state->_arguments_type, NULL, 0) < 0) return -1;
     t = PyType_FromSpecWithBases(&_arguments_seq_type_spec, state->_AST_type);
     state->_arguments_seq_type = t;
     if (state->_arguments_seq_type == NULL) return -1;
@@ -16820,6 +16830,8 @@ init_types(void *arg)
     state->_arg_type = t;
     if (state->_arg_type == NULL) return -1;
     if (add_fields(state->_arg_type, arg_fields, 3) < 0) return -1;
+    if (add_attributes(state, state->_arg_type, arg_attributes, 4) < 0) return
+        -1;
     t = PyType_FromSpecWithBases(&_arg_seq_type_spec, state->_AST_type);
     state->_arg_seq_type = t;
     if (state->_arg_seq_type == NULL) return -1;
@@ -16840,6 +16852,8 @@ init_types(void *arg)
     state->_keyword_type = t;
     if (state->_keyword_type == NULL) return -1;
     if (add_fields(state->_keyword_type, keyword_fields, 2) < 0) return -1;
+    if (add_attributes(state, state->_keyword_type, keyword_attributes, 4) < 0)
+        return -1;
     t = PyType_FromSpecWithBases(&_keyword_seq_type_spec, state->_AST_type);
     state->_keyword_seq_type = t;
     if (state->_keyword_seq_type == NULL) return -1;
@@ -16860,6 +16874,8 @@ init_types(void *arg)
     state->_alias_type = t;
     if (state->_alias_type == NULL) return -1;
     if (add_fields(state->_alias_type, alias_fields, 2) < 0) return -1;
+    if (add_attributes(state, state->_alias_type, alias_attributes, 4) < 0)
+        return -1;
     t = PyType_FromSpecWithBases(&_alias_seq_type_spec, state->_AST_type);
     state->_alias_seq_type = t;
     if (state->_alias_seq_type == NULL) return -1;
@@ -16875,6 +16891,7 @@ init_types(void *arg)
     state->_withitem_type = t;
     if (state->_withitem_type == NULL) return -1;
     if (add_fields(state->_withitem_type, withitem_fields, 2) < 0) return -1;
+    if (add_attributes(state, state->_withitem_type, NULL, 0) < 0) return -1;
     t = PyType_FromSpecWithBases(&_withitem_seq_type_spec, state->_AST_type);
     state->_withitem_seq_type = t;
     if (state->_withitem_seq_type == NULL) return -1;
@@ -16890,6 +16907,7 @@ init_types(void *arg)
     if (state->_match_case_type == NULL) return -1;
     if (add_fields(state->_match_case_type, match_case_fields, 3) < 0) return
         -1;
+    if (add_attributes(state, state->_match_case_type, NULL, 0) < 0) return -1;
     t = PyType_FromSpecWithBases(&_match_case_seq_type_spec, state->_AST_type);
     state->_match_case_seq_type = t;
     if (state->_match_case_seq_type == NULL) return -1;
@@ -16908,6 +16926,8 @@ init_types(void *arg)
     t = PyType_FromSpecWithBases(&_pattern_type_spec, state->_AST_type);
     state->_pattern_type = t;
     if (state->_pattern_type == NULL) return -1;
+    if (add_attributes(state, state->_pattern_type, pattern_attributes, 4) < 0)
+        return -1;
     t = PyType_FromSpecWithBases(&_pattern_seq_type_spec, state->_AST_type);
     state->_pattern_seq_type = t;
     if (state->_pattern_seq_type == NULL) return -1;
@@ -17004,6 +17024,7 @@ init_types(void *arg)
     t = PyType_FromSpecWithBases(&_type_ignore_type_spec, state->_AST_type);
     state->_type_ignore_type = t;
     if (state->_type_ignore_type == NULL) return -1;
+    if (add_attributes(state, state->_type_ignore_type, NULL, 0) < 0) return -1;
     t = PyType_FromSpecWithBases(&_type_ignore_seq_type_spec, state->_AST_type);
     state->_type_ignore_seq_type = t;
     if (state->_type_ignore_seq_type == NULL) return -1;
@@ -17029,6 +17050,8 @@ init_types(void *arg)
     t = PyType_FromSpecWithBases(&_type_param_type_spec, state->_AST_type);
     state->_type_param_type = t;
     if (state->_type_param_type == NULL) return -1;
+    if (add_attributes(state, state->_type_param_type, type_param_attributes,
+        4) < 0) return -1;
     t = PyType_FromSpecWithBases(&_type_param_seq_type_spec, state->_AST_type);
     state->_type_param_seq_type = t;
     if (state->_type_param_seq_type == NULL) return -1;
@@ -37078,6 +37101,9 @@ astmodule_exec(PyObject *m)
         return -1;
     }
     if (PyModule_AddObjectRef(m, "AST", state->AST_type) < 0) {
+        return -1;
+    }
+    if (PyModule_AddObjectRef(m, "_AST", state->_AST_type) < 0) {
         return -1;
     }
     if (PyModule_AddIntMacro(m, PyCF_ALLOW_TOP_LEVEL_AWAIT) < 0) {

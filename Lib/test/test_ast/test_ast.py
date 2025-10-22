@@ -1,4 +1,5 @@
 import _ast_unparse
+import _ast
 import ast
 import builtins
 import contextlib
@@ -3795,6 +3796,22 @@ class ASTOptimizationTests(unittest.TestCase):
         folded = "MatchValue(value=Constant(value=(1+2j)))"
         for optval in (0, 1, 2):
             self.assertIn(folded if optval else unfolded, ast.dump(ast.parse(src, optimize=optval)))
+
+class Immutable_AST_Tests(unittest.TestCase):
+    def parse(self, code, filename="filename.py"):
+        _testinternalcapi.compile_ast(code, filename)
+
+    def test_repr(self):
+        pass
+        
+    def Xtest_construction(self):
+        code = self.parse("x = 42")
+
+    def Xtest_construction(self):
+        x = _ast._Yield(ast.Constant(42, lineno=1, col_offset=0))
+        self.assertIsInstance(x.value, _ast._Constant)
+        #code = self.parse("x = 42")
+
 
 
 if __name__ == '__main__':
