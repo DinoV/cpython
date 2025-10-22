@@ -22090,6 +22090,11 @@ obj2ast_mod(struct ast_state *state, PyObject* obj, mod_ty* out, PyArena* arena)
     PyObject *tmp = NULL;
     PyObject *tp;
 
+    if (Py_TYPE(obj) == (PyTypeObject *)state->_mod_type) {
+        *out = (mod_ty)Py_NewRef(obj);
+        return *out != NULL ? 0 : -1;
+    }
+
     if (obj == Py_None) {
         *out = NULL;
         return 0;
@@ -22363,6 +22368,11 @@ obj2ast_stmt(struct ast_state *state, PyObject* obj, stmt_ty* out, PyArena*
     int col_offset;
     int end_lineno;
     int end_col_offset;
+
+    if (Py_TYPE(obj) == (PyTypeObject *)state->_stmt_type) {
+        *out = (stmt_ty)Py_NewRef(obj);
+        return *out != NULL ? 0 : -1;
+    }
 
     if (obj == Py_None) {
         *out = NULL;
@@ -25034,6 +25044,11 @@ obj2ast_expr(struct ast_state *state, PyObject* obj, expr_ty* out, PyArena*
     int col_offset;
     int end_lineno;
     int end_col_offset;
+
+    if (Py_TYPE(obj) == (PyTypeObject *)state->_expr_type) {
+        *out = (expr_ty)Py_NewRef(obj);
+        return *out != NULL ? 0 : -1;
+    }
 
     if (obj == Py_None) {
         *out = NULL;
@@ -27843,6 +27858,11 @@ obj2ast_excepthandler(struct ast_state *state, PyObject* obj, excepthandler_ty*
     int end_lineno;
     int end_col_offset;
 
+    if (Py_TYPE(obj) == (PyTypeObject *)state->_excepthandler_type) {
+        *out = (excepthandler_ty)Py_NewRef(obj);
+        return *out != NULL ? 0 : -1;
+    }
+
     if (obj == Py_None) {
         *out = NULL;
         return 0;
@@ -29664,6 +29684,11 @@ obj2ast_pattern(struct ast_state *state, PyObject* obj, pattern_ty* out,
     int end_lineno;
     int end_col_offset;
 
+    if (Py_TYPE(obj) == (PyTypeObject *)state->_pattern_type) {
+        *out = (pattern_ty)Py_NewRef(obj);
+        return *out != NULL ? 0 : -1;
+    }
+
     if (obj == Py_None) {
         *out = NULL;
         return 0;
@@ -30262,6 +30287,11 @@ obj2ast_type_ignore(struct ast_state *state, PyObject* obj, type_ignore_ty*
     PyObject *tmp = NULL;
     PyObject *tp;
 
+    if (Py_TYPE(obj) == (PyTypeObject *)state->_type_ignore_type) {
+        *out = (type_ignore_ty)Py_NewRef(obj);
+        return *out != NULL ? 0 : -1;
+    }
+
     if (obj == Py_None) {
         *out = NULL;
         return 0;
@@ -30346,6 +30376,11 @@ obj2ast_type_param(struct ast_state *state, PyObject* obj, type_param_ty* out,
     int col_offset;
     int end_lineno;
     int end_col_offset;
+
+    if (Py_TYPE(obj) == (PyTypeObject *)state->_type_param_type) {
+        *out = (type_param_ty)Py_NewRef(obj);
+        return *out != NULL ? 0 : -1;
+    }
 
     if (obj == Py_None) {
         *out = NULL;

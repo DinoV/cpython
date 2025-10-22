@@ -734,6 +734,15 @@ class Obj2ModVisitor(PickleVisitor):
         for a in sum.attributes:
             self.visitAttributeDeclaration(a, name, sum=sum)
         self.emit("", 0)
+
+        ctype = get_c_type(name)
+        # TODO: Or fast patch check for non-overridden mutable
+        self.emit(f"if (Py_TYPE(obj) == (PyTypeObject *)state->_{name}_type) {{", 1)
+        self.emit(f"*out = ({ctype})Py_NewRef(obj);", 2)
+        self.emit("return *out != NULL ? 0 : -1;", 2)
+        self.emit("}", 1)
+        self.emit("", 0)
+
         # XXX: should we only do this for 'expr'?
         self.emit("if (obj == Py_None) {", 1)
         self.emit("*out = NULL;", 2)
