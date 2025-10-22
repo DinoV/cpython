@@ -605,9 +605,9 @@ class Obj2ModVisitor(PickleVisitor):
         super().visitModule(mod)
 
     @contextmanager
-    def recursive_call(self, node, level):
+    def recursive_call(self, node, level, label="failed"):
         self.emit('if (_Py_EnterRecursiveCall(" while traversing \'%s\' node")) {' % node, level, reflow=False)
-        self.emit('goto failed;', level + 1)
+        self.emit(f'goto {label};', level + 1)
         self.emit('}', level)
         yield
         self.emit('_Py_LeaveRecursiveCall();', level)
@@ -736,13 +736,6 @@ class Obj2ModVisitor(PickleVisitor):
         self.emit("", 0)
 
         ctype = get_c_type(name)
-        # TODO: Or fast patch check for non-overridden mutable
-        self.emit(f"if (Py_TYPE(obj) == (PyTypeObject *)state->_{name}_type) {{", 1)
-        self.emit(f"*out = ({ctype})Py_NewRef(obj);", 2)
-        self.emit("return *out != NULL ? 0 : -1;", 2)
-        self.emit("}", 1)
-        self.emit("", 0)
-
         # XXX: should we only do this for 'expr'?
         self.emit("if (obj == Py_None) {", 1)
         self.emit("*out = NULL;", 2)
@@ -773,17 +766,49 @@ class Obj2ModVisitor(PickleVisitor):
         self.funcHeaderImm(name)
 
         self.emit("PyObject *tp;", 1)
-        self.emit(f"tp = state->_{name}_type;", 1)
-        self.emit("isinstance = PyObject_IsInstance(obj, tp);", 1)
-        self.emit("if (isinstance == -1) {", 1)
-        self.emit("return -1;", 2)
-        self.emit("} else if (isinstance == 1) {", 1)
+        self.emit("PyObject *tmp = NULL;", 1)
+        for a in sum.attributes:
+            self.visitAttributeDeclaration(a, name, sum=sum)
+
+        type_checks = " ||\n        ".join(f"Py_TYPE(obj) == (PyTypeObject *)state->_{t.name}_type" for t in sum.types)
+        
+        self.emit(f"if ({type_checks}) {{", 1, reflow=False)
         self.emit(f"*out = ({ctype})Py_NewRef(obj);", 2)
         self.emit("return 0;", 2)
         self.emit("}", 1)
 
+        # TODO: Check for subclass
+
+        for a in sum.attributes:
+            self.visitField2(a, name, sum=sum, depth=1)
+
+        for t in sum.types:
+            self.emit("tp = state->_%s_type;" % (t.name,), 1)
+            self.emit("isinstance = PyObject_IsInstance(obj, tp);", 1)
+            self.emit("if (isinstance == -1) {", 1)
+            self.emit("return -1;", 2)
+            self.emit("}", 1)
+            self.emit("if (isinstance) {", 1)
+            for f in t.fields:
+                self.visitFieldDeclaration(f, t.name, sum=sum, depth=2)
+            self.emit("", 0)
+            for f in t.fields:
+                self.visitField2(f, t.name, sum=sum, depth=2,)
+            args = [f.name for f in t.fields] + [a.name for a in sum.attributes]
+            
+            #self.emit("*out = %s(%s);" % (ast_func_name(t.name), self.buildArgs(args)), 2)
+            #self.emit("*out = NULL;", 2)
+            self.emit(f"if (*out == NULL) goto failed_{t.name};", 2)
+            self.emit("return 0;", 2)
+            self.emit(f"failed_{t.name}:", 2)
+            self.visitFieldsCleanup(t.fields, 2)
+            self.emit("}", 1)
+
         self.emit(f"*out = ({ctype})Py_NewRef(obj);", 1)
         self.emit("return 0;", 1)
+        if sum.attributes:
+            self.emit(f"failed_{name}:", 0)
+            self.emit("return -1;", 1)
         self.emit("}", 0)
         self.emit("", 0)
 
@@ -850,17 +875,20 @@ class Obj2ModVisitor(PickleVisitor):
         args = [f.name for f in prod.fields]
         args.extend([a.name for a in prod.attributes])
         self.emit("*out = %sHeap(%s);" % (ast_func_name(name), self.buildArgsHeap(args)), 1)
-        self.emit("if (*out == NULL) goto failed;", 1)
+        self.emit(f"if (*out == NULL) goto failed_{name};", 1)
         self.emit("return 0;", 1)
-        self.emit("failed:", 0)
+        self.emit(f"failed_{name}:", 0)
+        self.visitFieldsCleanup(prod.fields, 1)
         self.emit("Py_XDECREF(tmp);", 1)
-        for f in prod.fields:
-            ctype = get_c_type(f.type)
-            if ctype not in NON_PYOBJECT_TYPES:
-                self.emit(f"Py_XDECREF({f.name});", 1)
         self.emit("return -1;", 1)
         self.emit("}", 0)
         self.emit("", 0)
+
+    def visitFieldsCleanup(self, fields, depth):
+        for f in fields:
+            ctype = get_c_type(f.type)
+            if ctype not in NON_PYOBJECT_TYPES:
+                self.emit(f"Py_XDECREF({f.name});", depth)
 
     def visitFieldDeclaration(self, field, name, sum=None, prod=None, depth=0):
         ctype = get_c_type(field.type)
@@ -975,7 +1003,7 @@ class Obj2ModVisitor(PickleVisitor):
             self.emit("if (tmp == NULL) {", depth)
             self.emit("tmp = PyList_New(0);", depth+1)
             self.emit("if (tmp == NULL) {", depth+1)
-            self.emit("goto failed;", depth+2)
+            self.emit(f"goto failed_{name};", depth+2)
             self.emit("}", depth+1)
             self.emit("}", depth)
             self.emit("{", depth)
@@ -985,7 +1013,7 @@ class Obj2ModVisitor(PickleVisitor):
                 message = "required field \\\"%s\\\" missing from %s" % (field.name, name)
                 format = "PyErr_SetString(PyExc_TypeError, \"%s\");"
                 self.emit(format % message, depth+1, reflow=False)
-                self.emit("goto failed;", depth+1)
+                self.emit(f"goto failed_{name};", depth+1)
             else:
                 self.emit("if (tmp == NULL || tmp == Py_None) {", depth)
                 self.emit("Py_CLEAR(tmp);", depth+1)
@@ -1013,7 +1041,7 @@ class Obj2ModVisitor(PickleVisitor):
                       "be a list, not a %%.200s\", _PyType_Name(Py_TYPE(tmp)));" %
                       (name, field.name),
                       depth+2, reflow=False)
-            self.emit("goto failed;", depth+2)
+            self.emit(f"goto failed_{name};", depth+2)
             self.emit("}", depth+1)
             self.emit("len = PyList_GET_SIZE(tmp);", depth+1)
             # TODO Heap allocated sequences
@@ -1021,29 +1049,29 @@ class Obj2ModVisitor(PickleVisitor):
                 self.emit("%s = _Py_asdl_int_seq_new(len, NULL);" % field.name, depth+1)
             else:
                 self.emit("%s = _Py_asdl_%s_seq_new(len, NULL);" % (field.name, field.type), depth+1)
-            self.emit("if (%s == NULL) goto failed;" % field.name, depth+1)
+            self.emit(f"if ({field.name} == NULL) goto failed_{name};", depth+1)
             self.emit("for (i = 0; i < len; i++) {", depth+1)
             self.emit("%s val;" % ctype, depth+2)
             self.emit("PyObject *tmp2 = Py_NewRef(PyList_GET_ITEM(tmp, i));", depth+2)
-            with self.recursive_call(name, depth+2):
+            with self.recursive_call(name, depth+2, label=f"failed_{name}"):
                 self.emit("res = obj2imm_%s(state, tmp2, &val);" %
                           field.type, depth+2, reflow=False)
             self.emit("Py_DECREF(tmp2);", depth+2)
-            self.emit("if (res != 0) goto failed;", depth+2)
+            self.emit(f"if (res != 0) goto failed_{name};", depth+2)
             self.emit("if (len != PyList_GET_SIZE(tmp)) {", depth+2)
             self.emit("PyErr_SetString(PyExc_RuntimeError, \"%s field \\\"%s\\\" "
                       "changed size during iteration\");" %
                       (name, field.name),
                       depth+3, reflow=False)
-            self.emit("goto failed;", depth+3)
+            self.emit(f"goto failed_{name};", depth+3)
             self.emit("}", depth+2)
             self.emit("asdl_seq_SET(%s, i, val);" % field.name, depth+2)
             self.emit("}", depth+1)
         else:
-            with self.recursive_call(name, depth+1):
+            with self.recursive_call(name, depth+1, label=f"failed_{name}"):
                 self.emit("res = obj2imm_%s(state, tmp, &%s);" %
                           (field.type, field.name), depth+1)
-            self.emit("if (res != 0) goto failed;", depth+1)
+            self.emit(f"if (res != 0) goto failed_{name};", depth+1)
 
         self.emit("Py_CLEAR(tmp);", depth+1)
         self.emit("}", depth)
