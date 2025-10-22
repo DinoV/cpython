@@ -5379,6 +5379,8 @@ static int obj2ast_type_param(struct ast_state *state, PyObject* obj,
 static int obj2imm_type_param(struct ast_state *state, PyObject* obj,
                               type_param_ty* out);
 
+static PyObject *ast_repr(PyObject *self);
+
 static int obj2imm_constant(struct ast_state *Py_UNUSED(state), PyObject* obj,
                             PyObject **out)
 {
@@ -32235,3 +32237,5 @@ int PyAST_Check(PyObject* obj)
     }
     return PyObject_IsInstance(obj, state->AST_type);
 }
+
+

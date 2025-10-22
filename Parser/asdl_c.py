@@ -2835,6 +2835,8 @@ class NodesDeclVisitor(EmitVisitor):
 
 class NodesVisitor(EmitVisitor):
     def visitModule(self, mod):
+        self.emit("static PyObject *ast_repr(PyObject *self);", 0)
+        self.emit("", 0)
         self.emit("static int obj2imm_constant(struct ast_state *Py_UNUSED(state), PyObject* obj, PyObject **out)", 0)
         self.emit("{", 0)
         self.emit("*out = Py_NewRef(obj);", 1)
@@ -3030,9 +3032,12 @@ class NodesVisitor(EmitVisitor):
     def ast_type(self, node_name, type_name, doc=""):
         self.emit(
             f"""
-static PyType_Slot _PyAST_{node_name}_type_slots[] = {{
-    {{Py_tp_dealloc, &{node_name}_dealloc}},
-    {{Py_tp_members, {node_name}_members}},
+static PyType_Slot _{node_name}_type_slots[] = {{
+    {{Py_tp_dealloc, &{node_name}_dealloc}},""", 0, reflow=False)
+        if node_name == "AST":
+            self.emit("{Py_tp_repr, ast_repr},", 0)
+        self.emit(
+            f"""{{Py_tp_members, {node_name}_members}},
     {{Py_tp_free, PyObject_Free}},
     {{Py_tp_doc, {reflow_c_string(doc, 2)}}},
     {{Py_tp_new, {node_name}_new}},
