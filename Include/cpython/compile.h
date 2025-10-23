@@ -20,9 +20,11 @@
 #define PyCF_ALLOW_TOP_LEVEL_AWAIT 0x2000
 #define PyCF_ALLOW_INCOMPLETE_INPUT 0x4000
 #define PyCF_OPTIMIZED_AST (0x8000 | PyCF_ONLY_AST)
+#define PyCF_IMMUTABLE_AST 0x10000
 #define PyCF_COMPILE_MASK (PyCF_ONLY_AST | PyCF_ALLOW_TOP_LEVEL_AWAIT | \
                            PyCF_TYPE_COMMENTS | PyCF_DONT_IMPLY_DEDENT | \
-                           PyCF_ALLOW_INCOMPLETE_INPUT | PyCF_OPTIMIZED_AST)
+                           PyCF_ALLOW_INCOMPLETE_INPUT | PyCF_OPTIMIZED_AST | \
+                           PyCF_IMMUTABLE_AST)
 
 typedef struct {
     int cf_flags;  /* bitmask of CO_xxx flags relevant to future */

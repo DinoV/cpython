@@ -1525,7 +1525,12 @@ Py_CompileStringObject(const char *str, PyObject *filename, int start,
             _PyArena_Free(arena);
             return NULL;
         }
-        PyObject *result = PyAST_mod2obj(mod);
+        PyObject *result;
+        if (flags->cf_flags & PyCF_IMMUTABLE_AST) {
+            result = (PyObject *)_PyAst_mod_Copy(mod);
+        } else {
+            result = PyAST_mod2obj(mod);
+        }
         _PyArena_Free(arena);
         return result;
     }

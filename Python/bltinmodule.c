@@ -850,7 +850,11 @@ builtin_compile_impl(PyObject *module, PyObject *source, PyObject *filename,
                 _PyArena_Free(arena);
                 goto error;
             }
-            result = PyAST_mod2obj(mod);
+            if (flags & PyCF_IMMUTABLE_AST) {
+                result = (PyObject *)_PyAst_mod_Copy(mod);
+            } else {
+                result = PyAST_mod2obj(mod);
+            }
         }
         else {
             mod_ty mod = PyAST_obj2mod(source, arena, compile_mode);

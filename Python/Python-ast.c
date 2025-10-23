@@ -50751,6 +50751,9 @@ astmodule_exec(PyObject *m)
     if (PyModule_AddIntMacro(m, PyCF_OPTIMIZED_AST) < 0) {
         return -1;
     }
+    if (PyModule_AddIntMacro(m, PyCF_IMMUTABLE_AST) < 0) {
+        return -1;
+    }
     static PyMethodDef repr_def = {"__repr__", ast_repr_generic, METH_NOARGS,
                                     NULL};
     PyObject *repr = PyDescr_NewMethod(&PyBaseObject_Type, &repr_def);
