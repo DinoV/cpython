@@ -690,21 +690,65 @@ def main(args=None):
     print(dump(tree, include_attributes=args.include_attributes,
                indent=args.indent, show_empty=args.show_empty))
 
-def make_mutable_types(cur_type):
+def _to_mut(immutable):
+    if issubclass(immutable._mut_type, list):
+        print(immutable)
+        return list(immutable)
+    res = immutable._mut_type.__new__(immutable._mut_type)
+    res._imm = immutable
+    return res
+    
+def _make_mut_type(cur_type, base_type):
+    new_name = cur_type.__name__[1:]
+    members = dict(cur_type.__dict__)
+    if new_name == "AST":
+        members["__repr__"] = _ast._repr
+    if "__new__" in members:
+        del members["__new__"]
+    members["_imm_type"] = cur_type
+    
+    for field in cur_type._fields:
+        def make_prop(field):
+            def getter(self):
+                if field in self.__dict__:
+                    return self.__dict__[field]
+                res = getattr(self._imm, field)
+                if hasattr(res, "_mut_type"):
+                    res = _to_mut(res)
+                self.__dict__[field] = res
+                return res
+
+            def setter(self, value):
+                self.__dict__[field] = value
+
+            return property(getter, setter)
+        
+        members[field] = make_prop(field)
+    
+    return type(new_name, (base_type,), members)
+
+
+def _make_mutable_types(cur_type, base_type, res):
     name = cur_type.__name__
     if not name.startswith("_"):
         # we see one of the newly created mutable types
         return
-    new_name = name[1:]
-    new_type = type(new_name, (cur_type,), {})
     
+    if name.endswith("_seq"):
+        new_type = list
+    else:
+        new_type = _make_mut_type(cur_type, base_type)
+        res[new_type.__name__] = new_type
+    cur_type._mut_type = new_type
     #globals()[new_name] = new_type
     for base in cur_type.__subclasses__():
-        make_mutable_types(base)
+        _make_mutable_types(base, new_type, res)
+    return res
 
 
-make_mutable_types(_ast._AST)
-
+_MUT_TYPES = {}
+_make_mutable_types(_ast._AST, object, _MUT_TYPES)
+#globals().update(_MUT_TYPES)
 
 if __name__ == '__main__':
     main()

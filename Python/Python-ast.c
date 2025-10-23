@@ -6826,7 +6826,11 @@ static Py_ssize_t ast_seq_len(asdl_seq *seq) {
 }
 
 static PyObject *ast_seq_get(asdl_seq *seq, Py_ssize_t i) {
-    return (PyObject *)asdl_seq_GET_UNTYPED(seq, i);
+if (i >= asdl_seq_LEN(seq) || i < 0) {
+    PyErr_SetString(PyExc_IndexError, "index out of range");
+    return NULL;
+}
+    return Py_NewRef((PyObject *)asdl_seq_GET_UNTYPED(seq, i));
 }
 
 static int ast_seq_contains(asdl_seq *seq, PyObject *el) {
@@ -7638,7 +7642,7 @@ FunctionDef_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
     PyObject *tmp;
     struct ast_state *state = get_ast_state();
     switch (posargs) {
-        case 7: {
+        case 11: {
             tmp = PyTuple_GET_ITEM(pargs, 10);
             if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
                 goto fail;
@@ -7646,7 +7650,7 @@ FunctionDef_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_end_col_offset = true;
         }
         // fallthrough
-        case 6: {
+        case 10: {
             tmp = PyTuple_GET_ITEM(pargs, 9);
             if (obj2imm_int(state, tmp, &end_lineno) < 0) {
                 goto fail;
@@ -7654,7 +7658,7 @@ FunctionDef_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_end_lineno = true;
         }
         // fallthrough
-        case 5: {
+        case 9: {
             tmp = PyTuple_GET_ITEM(pargs, 8);
             if (obj2imm_int(state, tmp, &col_offset) < 0) {
                 goto fail;
@@ -7662,7 +7666,7 @@ FunctionDef_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_col_offset = true;
         }
         // fallthrough
-        case 4: {
+        case 8: {
             tmp = PyTuple_GET_ITEM(pargs, 7);
             if (obj2imm_int(state, tmp, &lineno) < 0) {
                 goto fail;
@@ -7670,7 +7674,7 @@ FunctionDef_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_lineno = true;
         }
         // fallthrough
-        case 3: {
+        case 7: {
             tmp = PyTuple_GET_ITEM(pargs, 6);
             if (obj2imm_type_param_seq(state, tmp, "FunctionDef",
                 "type_params", &type_params) < 0) {
@@ -7678,21 +7682,21 @@ FunctionDef_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             }
         }
         // fallthrough
-        case 2: {
+        case 6: {
             tmp = PyTuple_GET_ITEM(pargs, 5);
             if (obj2imm_string(state, tmp, &type_comment) < 0) {
                 goto fail;
             }
         }
         // fallthrough
-        case 1: {
+        case 5: {
             tmp = PyTuple_GET_ITEM(pargs, 4);
             if (obj2imm_expr(state, tmp, &returns) < 0) {
                 goto fail;
             }
         }
         // fallthrough
-        case 0: {
+        case 4: {
             tmp = PyTuple_GET_ITEM(pargs, 3);
             if (obj2imm_expr_seq(state, tmp, "FunctionDef", "decorator_list",
                 &decorator_list) < 0) {
@@ -7700,7 +7704,7 @@ FunctionDef_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             }
         }
         // fallthrough
-        case -1: {
+        case 3: {
             tmp = PyTuple_GET_ITEM(pargs, 2);
             if (obj2imm_stmt_seq(state, tmp, "FunctionDef", "body", &body) < 0)
                 {
@@ -7708,14 +7712,14 @@ FunctionDef_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             }
         }
         // fallthrough
-        case -2: {
+        case 2: {
             tmp = PyTuple_GET_ITEM(pargs, 1);
             if (obj2imm_arguments(state, tmp, &args) < 0) {
                 goto fail;
             }
         }
         // fallthrough
-        case -3: {
+        case 1: {
             tmp = PyTuple_GET_ITEM(pargs, 0);
             if (obj2imm_identifier(state, tmp, &name) < 0) {
                 goto fail;
@@ -8004,7 +8008,7 @@ AsyncFunctionDef_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
     PyObject *tmp;
     struct ast_state *state = get_ast_state();
     switch (posargs) {
-        case 7: {
+        case 11: {
             tmp = PyTuple_GET_ITEM(pargs, 10);
             if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
                 goto fail;
@@ -8012,7 +8016,7 @@ AsyncFunctionDef_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_end_col_offset = true;
         }
         // fallthrough
-        case 6: {
+        case 10: {
             tmp = PyTuple_GET_ITEM(pargs, 9);
             if (obj2imm_int(state, tmp, &end_lineno) < 0) {
                 goto fail;
@@ -8020,7 +8024,7 @@ AsyncFunctionDef_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_end_lineno = true;
         }
         // fallthrough
-        case 5: {
+        case 9: {
             tmp = PyTuple_GET_ITEM(pargs, 8);
             if (obj2imm_int(state, tmp, &col_offset) < 0) {
                 goto fail;
@@ -8028,7 +8032,7 @@ AsyncFunctionDef_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_col_offset = true;
         }
         // fallthrough
-        case 4: {
+        case 8: {
             tmp = PyTuple_GET_ITEM(pargs, 7);
             if (obj2imm_int(state, tmp, &lineno) < 0) {
                 goto fail;
@@ -8036,7 +8040,7 @@ AsyncFunctionDef_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_lineno = true;
         }
         // fallthrough
-        case 3: {
+        case 7: {
             tmp = PyTuple_GET_ITEM(pargs, 6);
             if (obj2imm_type_param_seq(state, tmp, "AsyncFunctionDef",
                 "type_params", &type_params) < 0) {
@@ -8044,21 +8048,21 @@ AsyncFunctionDef_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             }
         }
         // fallthrough
-        case 2: {
+        case 6: {
             tmp = PyTuple_GET_ITEM(pargs, 5);
             if (obj2imm_string(state, tmp, &type_comment) < 0) {
                 goto fail;
             }
         }
         // fallthrough
-        case 1: {
+        case 5: {
             tmp = PyTuple_GET_ITEM(pargs, 4);
             if (obj2imm_expr(state, tmp, &returns) < 0) {
                 goto fail;
             }
         }
         // fallthrough
-        case 0: {
+        case 4: {
             tmp = PyTuple_GET_ITEM(pargs, 3);
             if (obj2imm_expr_seq(state, tmp, "AsyncFunctionDef",
                 "decorator_list", &decorator_list) < 0) {
@@ -8066,7 +8070,7 @@ AsyncFunctionDef_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             }
         }
         // fallthrough
-        case -1: {
+        case 3: {
             tmp = PyTuple_GET_ITEM(pargs, 2);
             if (obj2imm_stmt_seq(state, tmp, "AsyncFunctionDef", "body", &body)
                 < 0) {
@@ -8074,14 +8078,14 @@ AsyncFunctionDef_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             }
         }
         // fallthrough
-        case -2: {
+        case 2: {
             tmp = PyTuple_GET_ITEM(pargs, 1);
             if (obj2imm_arguments(state, tmp, &args) < 0) {
                 goto fail;
             }
         }
         // fallthrough
-        case -3: {
+        case 1: {
             tmp = PyTuple_GET_ITEM(pargs, 0);
             if (obj2imm_identifier(state, tmp, &name) < 0) {
                 goto fail;
@@ -8369,7 +8373,7 @@ ClassDef_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
     PyObject *tmp;
     struct ast_state *state = get_ast_state();
     switch (posargs) {
-        case 6: {
+        case 10: {
             tmp = PyTuple_GET_ITEM(pargs, 9);
             if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
                 goto fail;
@@ -8377,7 +8381,7 @@ ClassDef_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_end_col_offset = true;
         }
         // fallthrough
-        case 5: {
+        case 9: {
             tmp = PyTuple_GET_ITEM(pargs, 8);
             if (obj2imm_int(state, tmp, &end_lineno) < 0) {
                 goto fail;
@@ -8385,7 +8389,7 @@ ClassDef_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_end_lineno = true;
         }
         // fallthrough
-        case 4: {
+        case 8: {
             tmp = PyTuple_GET_ITEM(pargs, 7);
             if (obj2imm_int(state, tmp, &col_offset) < 0) {
                 goto fail;
@@ -8393,7 +8397,7 @@ ClassDef_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_col_offset = true;
         }
         // fallthrough
-        case 3: {
+        case 7: {
             tmp = PyTuple_GET_ITEM(pargs, 6);
             if (obj2imm_int(state, tmp, &lineno) < 0) {
                 goto fail;
@@ -8401,7 +8405,7 @@ ClassDef_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_lineno = true;
         }
         // fallthrough
-        case 2: {
+        case 6: {
             tmp = PyTuple_GET_ITEM(pargs, 5);
             if (obj2imm_type_param_seq(state, tmp, "ClassDef", "type_params",
                 &type_params) < 0) {
@@ -8409,7 +8413,7 @@ ClassDef_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             }
         }
         // fallthrough
-        case 1: {
+        case 5: {
             tmp = PyTuple_GET_ITEM(pargs, 4);
             if (obj2imm_expr_seq(state, tmp, "ClassDef", "decorator_list",
                 &decorator_list) < 0) {
@@ -8417,14 +8421,14 @@ ClassDef_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             }
         }
         // fallthrough
-        case 0: {
+        case 4: {
             tmp = PyTuple_GET_ITEM(pargs, 3);
             if (obj2imm_stmt_seq(state, tmp, "ClassDef", "body", &body) < 0) {
                 goto fail;
             }
         }
         // fallthrough
-        case -1: {
+        case 3: {
             tmp = PyTuple_GET_ITEM(pargs, 2);
             if (obj2imm_keyword_seq(state, tmp, "ClassDef", "keywords",
                 &keywords) < 0) {
@@ -8432,14 +8436,14 @@ ClassDef_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             }
         }
         // fallthrough
-        case -2: {
+        case 2: {
             tmp = PyTuple_GET_ITEM(pargs, 1);
             if (obj2imm_expr_seq(state, tmp, "ClassDef", "bases", &bases) < 0) {
                 goto fail;
             }
         }
         // fallthrough
-        case -3: {
+        case 1: {
             tmp = PyTuple_GET_ITEM(pargs, 0);
             if (obj2imm_identifier(state, tmp, &name) < 0) {
                 goto fail;
@@ -8701,7 +8705,7 @@ Return_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
     PyObject *tmp;
     struct ast_state *state = get_ast_state();
     switch (posargs) {
-        case 1: {
+        case 5: {
             tmp = PyTuple_GET_ITEM(pargs, 4);
             if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
                 goto fail;
@@ -8709,7 +8713,7 @@ Return_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_end_col_offset = true;
         }
         // fallthrough
-        case 0: {
+        case 4: {
             tmp = PyTuple_GET_ITEM(pargs, 3);
             if (obj2imm_int(state, tmp, &end_lineno) < 0) {
                 goto fail;
@@ -8717,7 +8721,7 @@ Return_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_end_lineno = true;
         }
         // fallthrough
-        case -1: {
+        case 3: {
             tmp = PyTuple_GET_ITEM(pargs, 2);
             if (obj2imm_int(state, tmp, &col_offset) < 0) {
                 goto fail;
@@ -8725,7 +8729,7 @@ Return_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_col_offset = true;
         }
         // fallthrough
-        case -2: {
+        case 2: {
             tmp = PyTuple_GET_ITEM(pargs, 1);
             if (obj2imm_int(state, tmp, &lineno) < 0) {
                 goto fail;
@@ -8733,7 +8737,7 @@ Return_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_lineno = true;
         }
         // fallthrough
-        case -3: {
+        case 1: {
             tmp = PyTuple_GET_ITEM(pargs, 0);
             if (obj2imm_expr(state, tmp, &value) < 0) {
                 goto fail;
@@ -8887,7 +8891,7 @@ Delete_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
     PyObject *tmp;
     struct ast_state *state = get_ast_state();
     switch (posargs) {
-        case 1: {
+        case 5: {
             tmp = PyTuple_GET_ITEM(pargs, 4);
             if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
                 goto fail;
@@ -8895,7 +8899,7 @@ Delete_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_end_col_offset = true;
         }
         // fallthrough
-        case 0: {
+        case 4: {
             tmp = PyTuple_GET_ITEM(pargs, 3);
             if (obj2imm_int(state, tmp, &end_lineno) < 0) {
                 goto fail;
@@ -8903,7 +8907,7 @@ Delete_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_end_lineno = true;
         }
         // fallthrough
-        case -1: {
+        case 3: {
             tmp = PyTuple_GET_ITEM(pargs, 2);
             if (obj2imm_int(state, tmp, &col_offset) < 0) {
                 goto fail;
@@ -8911,7 +8915,7 @@ Delete_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_col_offset = true;
         }
         // fallthrough
-        case -2: {
+        case 2: {
             tmp = PyTuple_GET_ITEM(pargs, 1);
             if (obj2imm_int(state, tmp, &lineno) < 0) {
                 goto fail;
@@ -8919,7 +8923,7 @@ Delete_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_lineno = true;
         }
         // fallthrough
-        case -3: {
+        case 1: {
             tmp = PyTuple_GET_ITEM(pargs, 0);
             if (obj2imm_expr_seq(state, tmp, "Delete", "targets", &targets) <
                 0) {
@@ -9077,7 +9081,7 @@ Assign_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
     PyObject *tmp;
     struct ast_state *state = get_ast_state();
     switch (posargs) {
-        case 3: {
+        case 7: {
             tmp = PyTuple_GET_ITEM(pargs, 6);
             if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
                 goto fail;
@@ -9085,7 +9089,7 @@ Assign_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_end_col_offset = true;
         }
         // fallthrough
-        case 2: {
+        case 6: {
             tmp = PyTuple_GET_ITEM(pargs, 5);
             if (obj2imm_int(state, tmp, &end_lineno) < 0) {
                 goto fail;
@@ -9093,7 +9097,7 @@ Assign_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_end_lineno = true;
         }
         // fallthrough
-        case 1: {
+        case 5: {
             tmp = PyTuple_GET_ITEM(pargs, 4);
             if (obj2imm_int(state, tmp, &col_offset) < 0) {
                 goto fail;
@@ -9101,7 +9105,7 @@ Assign_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_col_offset = true;
         }
         // fallthrough
-        case 0: {
+        case 4: {
             tmp = PyTuple_GET_ITEM(pargs, 3);
             if (obj2imm_int(state, tmp, &lineno) < 0) {
                 goto fail;
@@ -9109,21 +9113,21 @@ Assign_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_lineno = true;
         }
         // fallthrough
-        case -1: {
+        case 3: {
             tmp = PyTuple_GET_ITEM(pargs, 2);
             if (obj2imm_string(state, tmp, &type_comment) < 0) {
                 goto fail;
             }
         }
         // fallthrough
-        case -2: {
+        case 2: {
             tmp = PyTuple_GET_ITEM(pargs, 1);
             if (obj2imm_expr(state, tmp, &value) < 0) {
                 goto fail;
             }
         }
         // fallthrough
-        case -3: {
+        case 1: {
             tmp = PyTuple_GET_ITEM(pargs, 0);
             if (obj2imm_expr_seq(state, tmp, "Assign", "targets", &targets) <
                 0) {
@@ -9321,7 +9325,7 @@ TypeAlias_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
     PyObject *tmp;
     struct ast_state *state = get_ast_state();
     switch (posargs) {
-        case 3: {
+        case 7: {
             tmp = PyTuple_GET_ITEM(pargs, 6);
             if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
                 goto fail;
@@ -9329,7 +9333,7 @@ TypeAlias_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_end_col_offset = true;
         }
         // fallthrough
-        case 2: {
+        case 6: {
             tmp = PyTuple_GET_ITEM(pargs, 5);
             if (obj2imm_int(state, tmp, &end_lineno) < 0) {
                 goto fail;
@@ -9337,7 +9341,7 @@ TypeAlias_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_end_lineno = true;
         }
         // fallthrough
-        case 1: {
+        case 5: {
             tmp = PyTuple_GET_ITEM(pargs, 4);
             if (obj2imm_int(state, tmp, &col_offset) < 0) {
                 goto fail;
@@ -9345,7 +9349,7 @@ TypeAlias_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_col_offset = true;
         }
         // fallthrough
-        case 0: {
+        case 4: {
             tmp = PyTuple_GET_ITEM(pargs, 3);
             if (obj2imm_int(state, tmp, &lineno) < 0) {
                 goto fail;
@@ -9353,14 +9357,14 @@ TypeAlias_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_lineno = true;
         }
         // fallthrough
-        case -1: {
+        case 3: {
             tmp = PyTuple_GET_ITEM(pargs, 2);
             if (obj2imm_expr(state, tmp, &value) < 0) {
                 goto fail;
             }
         }
         // fallthrough
-        case -2: {
+        case 2: {
             tmp = PyTuple_GET_ITEM(pargs, 1);
             if (obj2imm_type_param_seq(state, tmp, "TypeAlias", "type_params",
                 &type_params) < 0) {
@@ -9368,7 +9372,7 @@ TypeAlias_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             }
         }
         // fallthrough
-        case -3: {
+        case 1: {
             tmp = PyTuple_GET_ITEM(pargs, 0);
             if (obj2imm_expr(state, tmp, &name) < 0) {
                 goto fail;
@@ -9567,7 +9571,7 @@ AugAssign_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
     PyObject *tmp;
     struct ast_state *state = get_ast_state();
     switch (posargs) {
-        case 3: {
+        case 7: {
             tmp = PyTuple_GET_ITEM(pargs, 6);
             if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
                 goto fail;
@@ -9575,7 +9579,7 @@ AugAssign_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_end_col_offset = true;
         }
         // fallthrough
-        case 2: {
+        case 6: {
             tmp = PyTuple_GET_ITEM(pargs, 5);
             if (obj2imm_int(state, tmp, &end_lineno) < 0) {
                 goto fail;
@@ -9583,7 +9587,7 @@ AugAssign_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_end_lineno = true;
         }
         // fallthrough
-        case 1: {
+        case 5: {
             tmp = PyTuple_GET_ITEM(pargs, 4);
             if (obj2imm_int(state, tmp, &col_offset) < 0) {
                 goto fail;
@@ -9591,7 +9595,7 @@ AugAssign_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_col_offset = true;
         }
         // fallthrough
-        case 0: {
+        case 4: {
             tmp = PyTuple_GET_ITEM(pargs, 3);
             if (obj2imm_int(state, tmp, &lineno) < 0) {
                 goto fail;
@@ -9599,14 +9603,14 @@ AugAssign_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_lineno = true;
         }
         // fallthrough
-        case -1: {
+        case 3: {
             tmp = PyTuple_GET_ITEM(pargs, 2);
             if (obj2imm_expr(state, tmp, &value) < 0) {
                 goto fail;
             }
         }
         // fallthrough
-        case -2: {
+        case 2: {
             tmp = PyTuple_GET_ITEM(pargs, 1);
             if (obj2imm_operator(state, tmp, &op) < 0) {
                 goto fail;
@@ -9614,7 +9618,7 @@ AugAssign_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_op = true;
         }
         // fallthrough
-        case -3: {
+        case 1: {
             tmp = PyTuple_GET_ITEM(pargs, 0);
             if (obj2imm_expr(state, tmp, &target) < 0) {
                 goto fail;
@@ -9804,7 +9808,7 @@ AnnAssign_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
     PyObject *tmp;
     struct ast_state *state = get_ast_state();
     switch (posargs) {
-        case 4: {
+        case 8: {
             tmp = PyTuple_GET_ITEM(pargs, 7);
             if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
                 goto fail;
@@ -9812,7 +9816,7 @@ AnnAssign_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_end_col_offset = true;
         }
         // fallthrough
-        case 3: {
+        case 7: {
             tmp = PyTuple_GET_ITEM(pargs, 6);
             if (obj2imm_int(state, tmp, &end_lineno) < 0) {
                 goto fail;
@@ -9820,7 +9824,7 @@ AnnAssign_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_end_lineno = true;
         }
         // fallthrough
-        case 2: {
+        case 6: {
             tmp = PyTuple_GET_ITEM(pargs, 5);
             if (obj2imm_int(state, tmp, &col_offset) < 0) {
                 goto fail;
@@ -9828,7 +9832,7 @@ AnnAssign_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_col_offset = true;
         }
         // fallthrough
-        case 1: {
+        case 5: {
             tmp = PyTuple_GET_ITEM(pargs, 4);
             if (obj2imm_int(state, tmp, &lineno) < 0) {
                 goto fail;
@@ -9836,7 +9840,7 @@ AnnAssign_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_lineno = true;
         }
         // fallthrough
-        case 0: {
+        case 4: {
             tmp = PyTuple_GET_ITEM(pargs, 3);
             if (obj2imm_int(state, tmp, &simple) < 0) {
                 goto fail;
@@ -9844,21 +9848,21 @@ AnnAssign_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_simple = true;
         }
         // fallthrough
-        case -1: {
+        case 3: {
             tmp = PyTuple_GET_ITEM(pargs, 2);
             if (obj2imm_expr(state, tmp, &value) < 0) {
                 goto fail;
             }
         }
         // fallthrough
-        case -2: {
+        case 2: {
             tmp = PyTuple_GET_ITEM(pargs, 1);
             if (obj2imm_expr(state, tmp, &annotation) < 0) {
                 goto fail;
             }
         }
         // fallthrough
-        case -3: {
+        case 1: {
             tmp = PyTuple_GET_ITEM(pargs, 0);
             if (obj2imm_expr(state, tmp, &target) < 0) {
                 goto fail;
@@ -10070,7 +10074,7 @@ For_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
     PyObject *tmp;
     struct ast_state *state = get_ast_state();
     switch (posargs) {
-        case 5: {
+        case 9: {
             tmp = PyTuple_GET_ITEM(pargs, 8);
             if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
                 goto fail;
@@ -10078,7 +10082,7 @@ For_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_end_col_offset = true;
         }
         // fallthrough
-        case 4: {
+        case 8: {
             tmp = PyTuple_GET_ITEM(pargs, 7);
             if (obj2imm_int(state, tmp, &end_lineno) < 0) {
                 goto fail;
@@ -10086,7 +10090,7 @@ For_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_end_lineno = true;
         }
         // fallthrough
-        case 3: {
+        case 7: {
             tmp = PyTuple_GET_ITEM(pargs, 6);
             if (obj2imm_int(state, tmp, &col_offset) < 0) {
                 goto fail;
@@ -10094,7 +10098,7 @@ For_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_col_offset = true;
         }
         // fallthrough
-        case 2: {
+        case 6: {
             tmp = PyTuple_GET_ITEM(pargs, 5);
             if (obj2imm_int(state, tmp, &lineno) < 0) {
                 goto fail;
@@ -10102,35 +10106,35 @@ For_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_lineno = true;
         }
         // fallthrough
-        case 1: {
+        case 5: {
             tmp = PyTuple_GET_ITEM(pargs, 4);
             if (obj2imm_string(state, tmp, &type_comment) < 0) {
                 goto fail;
             }
         }
         // fallthrough
-        case 0: {
+        case 4: {
             tmp = PyTuple_GET_ITEM(pargs, 3);
             if (obj2imm_stmt_seq(state, tmp, "For", "orelse", &orelse) < 0) {
                 goto fail;
             }
         }
         // fallthrough
-        case -1: {
+        case 3: {
             tmp = PyTuple_GET_ITEM(pargs, 2);
             if (obj2imm_stmt_seq(state, tmp, "For", "body", &body) < 0) {
                 goto fail;
             }
         }
         // fallthrough
-        case -2: {
+        case 2: {
             tmp = PyTuple_GET_ITEM(pargs, 1);
             if (obj2imm_expr(state, tmp, &iter) < 0) {
                 goto fail;
             }
         }
         // fallthrough
-        case -3: {
+        case 1: {
             tmp = PyTuple_GET_ITEM(pargs, 0);
             if (obj2imm_expr(state, tmp, &target) < 0) {
                 goto fail;
@@ -10368,7 +10372,7 @@ AsyncFor_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
     PyObject *tmp;
     struct ast_state *state = get_ast_state();
     switch (posargs) {
-        case 5: {
+        case 9: {
             tmp = PyTuple_GET_ITEM(pargs, 8);
             if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
                 goto fail;
@@ -10376,7 +10380,7 @@ AsyncFor_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_end_col_offset = true;
         }
         // fallthrough
-        case 4: {
+        case 8: {
             tmp = PyTuple_GET_ITEM(pargs, 7);
             if (obj2imm_int(state, tmp, &end_lineno) < 0) {
                 goto fail;
@@ -10384,7 +10388,7 @@ AsyncFor_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_end_lineno = true;
         }
         // fallthrough
-        case 3: {
+        case 7: {
             tmp = PyTuple_GET_ITEM(pargs, 6);
             if (obj2imm_int(state, tmp, &col_offset) < 0) {
                 goto fail;
@@ -10392,7 +10396,7 @@ AsyncFor_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_col_offset = true;
         }
         // fallthrough
-        case 2: {
+        case 6: {
             tmp = PyTuple_GET_ITEM(pargs, 5);
             if (obj2imm_int(state, tmp, &lineno) < 0) {
                 goto fail;
@@ -10400,14 +10404,14 @@ AsyncFor_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_lineno = true;
         }
         // fallthrough
-        case 1: {
+        case 5: {
             tmp = PyTuple_GET_ITEM(pargs, 4);
             if (obj2imm_string(state, tmp, &type_comment) < 0) {
                 goto fail;
             }
         }
         // fallthrough
-        case 0: {
+        case 4: {
             tmp = PyTuple_GET_ITEM(pargs, 3);
             if (obj2imm_stmt_seq(state, tmp, "AsyncFor", "orelse", &orelse) <
                 0) {
@@ -10415,21 +10419,21 @@ AsyncFor_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             }
         }
         // fallthrough
-        case -1: {
+        case 3: {
             tmp = PyTuple_GET_ITEM(pargs, 2);
             if (obj2imm_stmt_seq(state, tmp, "AsyncFor", "body", &body) < 0) {
                 goto fail;
             }
         }
         // fallthrough
-        case -2: {
+        case 2: {
             tmp = PyTuple_GET_ITEM(pargs, 1);
             if (obj2imm_expr(state, tmp, &iter) < 0) {
                 goto fail;
             }
         }
         // fallthrough
-        case -3: {
+        case 1: {
             tmp = PyTuple_GET_ITEM(pargs, 0);
             if (obj2imm_expr(state, tmp, &target) < 0) {
                 goto fail;
@@ -10667,7 +10671,7 @@ While_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
     PyObject *tmp;
     struct ast_state *state = get_ast_state();
     switch (posargs) {
-        case 3: {
+        case 7: {
             tmp = PyTuple_GET_ITEM(pargs, 6);
             if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
                 goto fail;
@@ -10675,7 +10679,7 @@ While_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_end_col_offset = true;
         }
         // fallthrough
-        case 2: {
+        case 6: {
             tmp = PyTuple_GET_ITEM(pargs, 5);
             if (obj2imm_int(state, tmp, &end_lineno) < 0) {
                 goto fail;
@@ -10683,7 +10687,7 @@ While_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_end_lineno = true;
         }
         // fallthrough
-        case 1: {
+        case 5: {
             tmp = PyTuple_GET_ITEM(pargs, 4);
             if (obj2imm_int(state, tmp, &col_offset) < 0) {
                 goto fail;
@@ -10691,7 +10695,7 @@ While_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_col_offset = true;
         }
         // fallthrough
-        case 0: {
+        case 4: {
             tmp = PyTuple_GET_ITEM(pargs, 3);
             if (obj2imm_int(state, tmp, &lineno) < 0) {
                 goto fail;
@@ -10699,21 +10703,21 @@ While_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_lineno = true;
         }
         // fallthrough
-        case -1: {
+        case 3: {
             tmp = PyTuple_GET_ITEM(pargs, 2);
             if (obj2imm_stmt_seq(state, tmp, "While", "orelse", &orelse) < 0) {
                 goto fail;
             }
         }
         // fallthrough
-        case -2: {
+        case 2: {
             tmp = PyTuple_GET_ITEM(pargs, 1);
             if (obj2imm_stmt_seq(state, tmp, "While", "body", &body) < 0) {
                 goto fail;
             }
         }
         // fallthrough
-        case -3: {
+        case 1: {
             tmp = PyTuple_GET_ITEM(pargs, 0);
             if (obj2imm_expr(state, tmp, &test) < 0) {
                 goto fail;
@@ -10910,7 +10914,7 @@ If_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
     PyObject *tmp;
     struct ast_state *state = get_ast_state();
     switch (posargs) {
-        case 3: {
+        case 7: {
             tmp = PyTuple_GET_ITEM(pargs, 6);
             if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
                 goto fail;
@@ -10918,7 +10922,7 @@ If_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_end_col_offset = true;
         }
         // fallthrough
-        case 2: {
+        case 6: {
             tmp = PyTuple_GET_ITEM(pargs, 5);
             if (obj2imm_int(state, tmp, &end_lineno) < 0) {
                 goto fail;
@@ -10926,7 +10930,7 @@ If_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_end_lineno = true;
         }
         // fallthrough
-        case 1: {
+        case 5: {
             tmp = PyTuple_GET_ITEM(pargs, 4);
             if (obj2imm_int(state, tmp, &col_offset) < 0) {
                 goto fail;
@@ -10934,7 +10938,7 @@ If_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_col_offset = true;
         }
         // fallthrough
-        case 0: {
+        case 4: {
             tmp = PyTuple_GET_ITEM(pargs, 3);
             if (obj2imm_int(state, tmp, &lineno) < 0) {
                 goto fail;
@@ -10942,21 +10946,21 @@ If_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_lineno = true;
         }
         // fallthrough
-        case -1: {
+        case 3: {
             tmp = PyTuple_GET_ITEM(pargs, 2);
             if (obj2imm_stmt_seq(state, tmp, "If", "orelse", &orelse) < 0) {
                 goto fail;
             }
         }
         // fallthrough
-        case -2: {
+        case 2: {
             tmp = PyTuple_GET_ITEM(pargs, 1);
             if (obj2imm_stmt_seq(state, tmp, "If", "body", &body) < 0) {
                 goto fail;
             }
         }
         // fallthrough
-        case -3: {
+        case 1: {
             tmp = PyTuple_GET_ITEM(pargs, 0);
             if (obj2imm_expr(state, tmp, &test) < 0) {
                 goto fail;
@@ -11151,7 +11155,7 @@ With_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
     PyObject *tmp;
     struct ast_state *state = get_ast_state();
     switch (posargs) {
-        case 3: {
+        case 7: {
             tmp = PyTuple_GET_ITEM(pargs, 6);
             if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
                 goto fail;
@@ -11159,7 +11163,7 @@ With_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_end_col_offset = true;
         }
         // fallthrough
-        case 2: {
+        case 6: {
             tmp = PyTuple_GET_ITEM(pargs, 5);
             if (obj2imm_int(state, tmp, &end_lineno) < 0) {
                 goto fail;
@@ -11167,7 +11171,7 @@ With_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_end_lineno = true;
         }
         // fallthrough
-        case 1: {
+        case 5: {
             tmp = PyTuple_GET_ITEM(pargs, 4);
             if (obj2imm_int(state, tmp, &col_offset) < 0) {
                 goto fail;
@@ -11175,7 +11179,7 @@ With_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_col_offset = true;
         }
         // fallthrough
-        case 0: {
+        case 4: {
             tmp = PyTuple_GET_ITEM(pargs, 3);
             if (obj2imm_int(state, tmp, &lineno) < 0) {
                 goto fail;
@@ -11183,21 +11187,21 @@ With_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_lineno = true;
         }
         // fallthrough
-        case -1: {
+        case 3: {
             tmp = PyTuple_GET_ITEM(pargs, 2);
             if (obj2imm_string(state, tmp, &type_comment) < 0) {
                 goto fail;
             }
         }
         // fallthrough
-        case -2: {
+        case 2: {
             tmp = PyTuple_GET_ITEM(pargs, 1);
             if (obj2imm_stmt_seq(state, tmp, "With", "body", &body) < 0) {
                 goto fail;
             }
         }
         // fallthrough
-        case -3: {
+        case 1: {
             tmp = PyTuple_GET_ITEM(pargs, 0);
             if (obj2imm_withitem_seq(state, tmp, "With", "items", &items) < 0) {
                 goto fail;
@@ -11393,7 +11397,7 @@ AsyncWith_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
     PyObject *tmp;
     struct ast_state *state = get_ast_state();
     switch (posargs) {
-        case 3: {
+        case 7: {
             tmp = PyTuple_GET_ITEM(pargs, 6);
             if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
                 goto fail;
@@ -11401,7 +11405,7 @@ AsyncWith_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_end_col_offset = true;
         }
         // fallthrough
-        case 2: {
+        case 6: {
             tmp = PyTuple_GET_ITEM(pargs, 5);
             if (obj2imm_int(state, tmp, &end_lineno) < 0) {
                 goto fail;
@@ -11409,7 +11413,7 @@ AsyncWith_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_end_lineno = true;
         }
         // fallthrough
-        case 1: {
+        case 5: {
             tmp = PyTuple_GET_ITEM(pargs, 4);
             if (obj2imm_int(state, tmp, &col_offset) < 0) {
                 goto fail;
@@ -11417,7 +11421,7 @@ AsyncWith_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_col_offset = true;
         }
         // fallthrough
-        case 0: {
+        case 4: {
             tmp = PyTuple_GET_ITEM(pargs, 3);
             if (obj2imm_int(state, tmp, &lineno) < 0) {
                 goto fail;
@@ -11425,21 +11429,21 @@ AsyncWith_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_lineno = true;
         }
         // fallthrough
-        case -1: {
+        case 3: {
             tmp = PyTuple_GET_ITEM(pargs, 2);
             if (obj2imm_string(state, tmp, &type_comment) < 0) {
                 goto fail;
             }
         }
         // fallthrough
-        case -2: {
+        case 2: {
             tmp = PyTuple_GET_ITEM(pargs, 1);
             if (obj2imm_stmt_seq(state, tmp, "AsyncWith", "body", &body) < 0) {
                 goto fail;
             }
         }
         // fallthrough
-        case -3: {
+        case 1: {
             tmp = PyTuple_GET_ITEM(pargs, 0);
             if (obj2imm_withitem_seq(state, tmp, "AsyncWith", "items", &items)
                 < 0) {
@@ -11639,7 +11643,7 @@ Match_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
     PyObject *tmp;
     struct ast_state *state = get_ast_state();
     switch (posargs) {
-        case 2: {
+        case 6: {
             tmp = PyTuple_GET_ITEM(pargs, 5);
             if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
                 goto fail;
@@ -11647,7 +11651,7 @@ Match_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_end_col_offset = true;
         }
         // fallthrough
-        case 1: {
+        case 5: {
             tmp = PyTuple_GET_ITEM(pargs, 4);
             if (obj2imm_int(state, tmp, &end_lineno) < 0) {
                 goto fail;
@@ -11655,7 +11659,7 @@ Match_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_end_lineno = true;
         }
         // fallthrough
-        case 0: {
+        case 4: {
             tmp = PyTuple_GET_ITEM(pargs, 3);
             if (obj2imm_int(state, tmp, &col_offset) < 0) {
                 goto fail;
@@ -11663,7 +11667,7 @@ Match_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_col_offset = true;
         }
         // fallthrough
-        case -1: {
+        case 3: {
             tmp = PyTuple_GET_ITEM(pargs, 2);
             if (obj2imm_int(state, tmp, &lineno) < 0) {
                 goto fail;
@@ -11671,7 +11675,7 @@ Match_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_lineno = true;
         }
         // fallthrough
-        case -2: {
+        case 2: {
             tmp = PyTuple_GET_ITEM(pargs, 1);
             if (obj2imm_match_case_seq(state, tmp, "Match", "cases", &cases) <
                 0) {
@@ -11679,7 +11683,7 @@ Match_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             }
         }
         // fallthrough
-        case -3: {
+        case 1: {
             tmp = PyTuple_GET_ITEM(pargs, 0);
             if (obj2imm_expr(state, tmp, &subject) < 0) {
                 goto fail;
@@ -11855,7 +11859,7 @@ Raise_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
     PyObject *tmp;
     struct ast_state *state = get_ast_state();
     switch (posargs) {
-        case 2: {
+        case 6: {
             tmp = PyTuple_GET_ITEM(pargs, 5);
             if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
                 goto fail;
@@ -11863,7 +11867,7 @@ Raise_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_end_col_offset = true;
         }
         // fallthrough
-        case 1: {
+        case 5: {
             tmp = PyTuple_GET_ITEM(pargs, 4);
             if (obj2imm_int(state, tmp, &end_lineno) < 0) {
                 goto fail;
@@ -11871,7 +11875,7 @@ Raise_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_end_lineno = true;
         }
         // fallthrough
-        case 0: {
+        case 4: {
             tmp = PyTuple_GET_ITEM(pargs, 3);
             if (obj2imm_int(state, tmp, &col_offset) < 0) {
                 goto fail;
@@ -11879,7 +11883,7 @@ Raise_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_col_offset = true;
         }
         // fallthrough
-        case -1: {
+        case 3: {
             tmp = PyTuple_GET_ITEM(pargs, 2);
             if (obj2imm_int(state, tmp, &lineno) < 0) {
                 goto fail;
@@ -11887,14 +11891,14 @@ Raise_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_lineno = true;
         }
         // fallthrough
-        case -2: {
+        case 2: {
             tmp = PyTuple_GET_ITEM(pargs, 1);
             if (obj2imm_expr(state, tmp, &cause) < 0) {
                 goto fail;
             }
         }
         // fallthrough
-        case -3: {
+        case 1: {
             tmp = PyTuple_GET_ITEM(pargs, 0);
             if (obj2imm_expr(state, tmp, &exc) < 0) {
                 goto fail;
@@ -12071,7 +12075,7 @@ Try_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
     PyObject *tmp;
     struct ast_state *state = get_ast_state();
     switch (posargs) {
-        case 4: {
+        case 8: {
             tmp = PyTuple_GET_ITEM(pargs, 7);
             if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
                 goto fail;
@@ -12079,7 +12083,7 @@ Try_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_end_col_offset = true;
         }
         // fallthrough
-        case 3: {
+        case 7: {
             tmp = PyTuple_GET_ITEM(pargs, 6);
             if (obj2imm_int(state, tmp, &end_lineno) < 0) {
                 goto fail;
@@ -12087,7 +12091,7 @@ Try_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_end_lineno = true;
         }
         // fallthrough
-        case 2: {
+        case 6: {
             tmp = PyTuple_GET_ITEM(pargs, 5);
             if (obj2imm_int(state, tmp, &col_offset) < 0) {
                 goto fail;
@@ -12095,7 +12099,7 @@ Try_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_col_offset = true;
         }
         // fallthrough
-        case 1: {
+        case 5: {
             tmp = PyTuple_GET_ITEM(pargs, 4);
             if (obj2imm_int(state, tmp, &lineno) < 0) {
                 goto fail;
@@ -12103,7 +12107,7 @@ Try_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_lineno = true;
         }
         // fallthrough
-        case 0: {
+        case 4: {
             tmp = PyTuple_GET_ITEM(pargs, 3);
             if (obj2imm_stmt_seq(state, tmp, "Try", "finalbody", &finalbody) <
                 0) {
@@ -12111,14 +12115,14 @@ Try_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             }
         }
         // fallthrough
-        case -1: {
+        case 3: {
             tmp = PyTuple_GET_ITEM(pargs, 2);
             if (obj2imm_stmt_seq(state, tmp, "Try", "orelse", &orelse) < 0) {
                 goto fail;
             }
         }
         // fallthrough
-        case -2: {
+        case 2: {
             tmp = PyTuple_GET_ITEM(pargs, 1);
             if (obj2imm_excepthandler_seq(state, tmp, "Try", "handlers",
                 &handlers) < 0) {
@@ -12126,7 +12130,7 @@ Try_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             }
         }
         // fallthrough
-        case -3: {
+        case 1: {
             tmp = PyTuple_GET_ITEM(pargs, 0);
             if (obj2imm_stmt_seq(state, tmp, "Try", "body", &body) < 0) {
                 goto fail;
@@ -12346,7 +12350,7 @@ TryStar_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
     PyObject *tmp;
     struct ast_state *state = get_ast_state();
     switch (posargs) {
-        case 4: {
+        case 8: {
             tmp = PyTuple_GET_ITEM(pargs, 7);
             if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
                 goto fail;
@@ -12354,7 +12358,7 @@ TryStar_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_end_col_offset = true;
         }
         // fallthrough
-        case 3: {
+        case 7: {
             tmp = PyTuple_GET_ITEM(pargs, 6);
             if (obj2imm_int(state, tmp, &end_lineno) < 0) {
                 goto fail;
@@ -12362,7 +12366,7 @@ TryStar_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_end_lineno = true;
         }
         // fallthrough
-        case 2: {
+        case 6: {
             tmp = PyTuple_GET_ITEM(pargs, 5);
             if (obj2imm_int(state, tmp, &col_offset) < 0) {
                 goto fail;
@@ -12370,7 +12374,7 @@ TryStar_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_col_offset = true;
         }
         // fallthrough
-        case 1: {
+        case 5: {
             tmp = PyTuple_GET_ITEM(pargs, 4);
             if (obj2imm_int(state, tmp, &lineno) < 0) {
                 goto fail;
@@ -12378,7 +12382,7 @@ TryStar_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_lineno = true;
         }
         // fallthrough
-        case 0: {
+        case 4: {
             tmp = PyTuple_GET_ITEM(pargs, 3);
             if (obj2imm_stmt_seq(state, tmp, "TryStar", "finalbody",
                 &finalbody) < 0) {
@@ -12386,7 +12390,7 @@ TryStar_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             }
         }
         // fallthrough
-        case -1: {
+        case 3: {
             tmp = PyTuple_GET_ITEM(pargs, 2);
             if (obj2imm_stmt_seq(state, tmp, "TryStar", "orelse", &orelse) < 0)
                 {
@@ -12394,7 +12398,7 @@ TryStar_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             }
         }
         // fallthrough
-        case -2: {
+        case 2: {
             tmp = PyTuple_GET_ITEM(pargs, 1);
             if (obj2imm_excepthandler_seq(state, tmp, "TryStar", "handlers",
                 &handlers) < 0) {
@@ -12402,7 +12406,7 @@ TryStar_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             }
         }
         // fallthrough
-        case -3: {
+        case 1: {
             tmp = PyTuple_GET_ITEM(pargs, 0);
             if (obj2imm_stmt_seq(state, tmp, "TryStar", "body", &body) < 0) {
                 goto fail;
@@ -12623,7 +12627,7 @@ Assert_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
     PyObject *tmp;
     struct ast_state *state = get_ast_state();
     switch (posargs) {
-        case 2: {
+        case 6: {
             tmp = PyTuple_GET_ITEM(pargs, 5);
             if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
                 goto fail;
@@ -12631,7 +12635,7 @@ Assert_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_end_col_offset = true;
         }
         // fallthrough
-        case 1: {
+        case 5: {
             tmp = PyTuple_GET_ITEM(pargs, 4);
             if (obj2imm_int(state, tmp, &end_lineno) < 0) {
                 goto fail;
@@ -12639,7 +12643,7 @@ Assert_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_end_lineno = true;
         }
         // fallthrough
-        case 0: {
+        case 4: {
             tmp = PyTuple_GET_ITEM(pargs, 3);
             if (obj2imm_int(state, tmp, &col_offset) < 0) {
                 goto fail;
@@ -12647,7 +12651,7 @@ Assert_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_col_offset = true;
         }
         // fallthrough
-        case -1: {
+        case 3: {
             tmp = PyTuple_GET_ITEM(pargs, 2);
             if (obj2imm_int(state, tmp, &lineno) < 0) {
                 goto fail;
@@ -12655,14 +12659,14 @@ Assert_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_lineno = true;
         }
         // fallthrough
-        case -2: {
+        case 2: {
             tmp = PyTuple_GET_ITEM(pargs, 1);
             if (obj2imm_expr(state, tmp, &msg) < 0) {
                 goto fail;
             }
         }
         // fallthrough
-        case -3: {
+        case 1: {
             tmp = PyTuple_GET_ITEM(pargs, 0);
             if (obj2imm_expr(state, tmp, &test) < 0) {
                 goto fail;
@@ -12836,7 +12840,7 @@ Import_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
     PyObject *tmp;
     struct ast_state *state = get_ast_state();
     switch (posargs) {
-        case 1: {
+        case 5: {
             tmp = PyTuple_GET_ITEM(pargs, 4);
             if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
                 goto fail;
@@ -12844,7 +12848,7 @@ Import_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_end_col_offset = true;
         }
         // fallthrough
-        case 0: {
+        case 4: {
             tmp = PyTuple_GET_ITEM(pargs, 3);
             if (obj2imm_int(state, tmp, &end_lineno) < 0) {
                 goto fail;
@@ -12852,7 +12856,7 @@ Import_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_end_lineno = true;
         }
         // fallthrough
-        case -1: {
+        case 3: {
             tmp = PyTuple_GET_ITEM(pargs, 2);
             if (obj2imm_int(state, tmp, &col_offset) < 0) {
                 goto fail;
@@ -12860,7 +12864,7 @@ Import_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_col_offset = true;
         }
         // fallthrough
-        case -2: {
+        case 2: {
             tmp = PyTuple_GET_ITEM(pargs, 1);
             if (obj2imm_int(state, tmp, &lineno) < 0) {
                 goto fail;
@@ -12868,7 +12872,7 @@ Import_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_lineno = true;
         }
         // fallthrough
-        case -3: {
+        case 1: {
             tmp = PyTuple_GET_ITEM(pargs, 0);
             if (obj2imm_alias_seq(state, tmp, "Import", "names", &names) < 0) {
                 goto fail;
@@ -13026,7 +13030,7 @@ ImportFrom_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
     PyObject *tmp;
     struct ast_state *state = get_ast_state();
     switch (posargs) {
-        case 3: {
+        case 7: {
             tmp = PyTuple_GET_ITEM(pargs, 6);
             if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
                 goto fail;
@@ -13034,7 +13038,7 @@ ImportFrom_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_end_col_offset = true;
         }
         // fallthrough
-        case 2: {
+        case 6: {
             tmp = PyTuple_GET_ITEM(pargs, 5);
             if (obj2imm_int(state, tmp, &end_lineno) < 0) {
                 goto fail;
@@ -13042,7 +13046,7 @@ ImportFrom_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_end_lineno = true;
         }
         // fallthrough
-        case 1: {
+        case 5: {
             tmp = PyTuple_GET_ITEM(pargs, 4);
             if (obj2imm_int(state, tmp, &col_offset) < 0) {
                 goto fail;
@@ -13050,7 +13054,7 @@ ImportFrom_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_col_offset = true;
         }
         // fallthrough
-        case 0: {
+        case 4: {
             tmp = PyTuple_GET_ITEM(pargs, 3);
             if (obj2imm_int(state, tmp, &lineno) < 0) {
                 goto fail;
@@ -13058,7 +13062,7 @@ ImportFrom_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_lineno = true;
         }
         // fallthrough
-        case -1: {
+        case 3: {
             tmp = PyTuple_GET_ITEM(pargs, 2);
             if (obj2imm_int(state, tmp, &level) < 0) {
                 goto fail;
@@ -13066,7 +13070,7 @@ ImportFrom_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_level = true;
         }
         // fallthrough
-        case -2: {
+        case 2: {
             tmp = PyTuple_GET_ITEM(pargs, 1);
             if (obj2imm_alias_seq(state, tmp, "ImportFrom", "names", &names) <
                 0) {
@@ -13074,7 +13078,7 @@ ImportFrom_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             }
         }
         // fallthrough
-        case -3: {
+        case 1: {
             tmp = PyTuple_GET_ITEM(pargs, 0);
             if (obj2imm_identifier(state, tmp, &module) < 0) {
                 goto fail;
@@ -13263,7 +13267,7 @@ Global_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
     PyObject *tmp;
     struct ast_state *state = get_ast_state();
     switch (posargs) {
-        case 1: {
+        case 5: {
             tmp = PyTuple_GET_ITEM(pargs, 4);
             if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
                 goto fail;
@@ -13271,7 +13275,7 @@ Global_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_end_col_offset = true;
         }
         // fallthrough
-        case 0: {
+        case 4: {
             tmp = PyTuple_GET_ITEM(pargs, 3);
             if (obj2imm_int(state, tmp, &end_lineno) < 0) {
                 goto fail;
@@ -13279,7 +13283,7 @@ Global_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_end_lineno = true;
         }
         // fallthrough
-        case -1: {
+        case 3: {
             tmp = PyTuple_GET_ITEM(pargs, 2);
             if (obj2imm_int(state, tmp, &col_offset) < 0) {
                 goto fail;
@@ -13287,7 +13291,7 @@ Global_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_col_offset = true;
         }
         // fallthrough
-        case -2: {
+        case 2: {
             tmp = PyTuple_GET_ITEM(pargs, 1);
             if (obj2imm_int(state, tmp, &lineno) < 0) {
                 goto fail;
@@ -13295,7 +13299,7 @@ Global_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_lineno = true;
         }
         // fallthrough
-        case -3: {
+        case 1: {
             tmp = PyTuple_GET_ITEM(pargs, 0);
             if (obj2imm_identifier_seq(state, tmp, "Global", "names", &names) <
                 0) {
@@ -13451,7 +13455,7 @@ Nonlocal_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
     PyObject *tmp;
     struct ast_state *state = get_ast_state();
     switch (posargs) {
-        case 1: {
+        case 5: {
             tmp = PyTuple_GET_ITEM(pargs, 4);
             if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
                 goto fail;
@@ -13459,7 +13463,7 @@ Nonlocal_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_end_col_offset = true;
         }
         // fallthrough
-        case 0: {
+        case 4: {
             tmp = PyTuple_GET_ITEM(pargs, 3);
             if (obj2imm_int(state, tmp, &end_lineno) < 0) {
                 goto fail;
@@ -13467,7 +13471,7 @@ Nonlocal_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_end_lineno = true;
         }
         // fallthrough
-        case -1: {
+        case 3: {
             tmp = PyTuple_GET_ITEM(pargs, 2);
             if (obj2imm_int(state, tmp, &col_offset) < 0) {
                 goto fail;
@@ -13475,7 +13479,7 @@ Nonlocal_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_col_offset = true;
         }
         // fallthrough
-        case -2: {
+        case 2: {
             tmp = PyTuple_GET_ITEM(pargs, 1);
             if (obj2imm_int(state, tmp, &lineno) < 0) {
                 goto fail;
@@ -13483,7 +13487,7 @@ Nonlocal_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_lineno = true;
         }
         // fallthrough
-        case -3: {
+        case 1: {
             tmp = PyTuple_GET_ITEM(pargs, 0);
             if (obj2imm_identifier_seq(state, tmp, "Nonlocal", "names", &names)
                 < 0) {
@@ -13640,7 +13644,7 @@ Expr_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
     PyObject *tmp;
     struct ast_state *state = get_ast_state();
     switch (posargs) {
-        case 1: {
+        case 5: {
             tmp = PyTuple_GET_ITEM(pargs, 4);
             if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
                 goto fail;
@@ -13648,7 +13652,7 @@ Expr_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_end_col_offset = true;
         }
         // fallthrough
-        case 0: {
+        case 4: {
             tmp = PyTuple_GET_ITEM(pargs, 3);
             if (obj2imm_int(state, tmp, &end_lineno) < 0) {
                 goto fail;
@@ -13656,7 +13660,7 @@ Expr_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_end_lineno = true;
         }
         // fallthrough
-        case -1: {
+        case 3: {
             tmp = PyTuple_GET_ITEM(pargs, 2);
             if (obj2imm_int(state, tmp, &col_offset) < 0) {
                 goto fail;
@@ -13664,7 +13668,7 @@ Expr_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_col_offset = true;
         }
         // fallthrough
-        case -2: {
+        case 2: {
             tmp = PyTuple_GET_ITEM(pargs, 1);
             if (obj2imm_int(state, tmp, &lineno) < 0) {
                 goto fail;
@@ -13672,7 +13676,7 @@ Expr_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_lineno = true;
         }
         // fallthrough
-        case -3: {
+        case 1: {
             tmp = PyTuple_GET_ITEM(pargs, 0);
             if (obj2imm_expr(state, tmp, &value) < 0) {
                 goto fail;
@@ -14442,7 +14446,7 @@ BoolOp_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
     PyObject *tmp;
     struct ast_state *state = get_ast_state();
     switch (posargs) {
-        case 2: {
+        case 6: {
             tmp = PyTuple_GET_ITEM(pargs, 5);
             if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
                 goto fail;
@@ -14450,7 +14454,7 @@ BoolOp_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_end_col_offset = true;
         }
         // fallthrough
-        case 1: {
+        case 5: {
             tmp = PyTuple_GET_ITEM(pargs, 4);
             if (obj2imm_int(state, tmp, &end_lineno) < 0) {
                 goto fail;
@@ -14458,7 +14462,7 @@ BoolOp_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_end_lineno = true;
         }
         // fallthrough
-        case 0: {
+        case 4: {
             tmp = PyTuple_GET_ITEM(pargs, 3);
             if (obj2imm_int(state, tmp, &col_offset) < 0) {
                 goto fail;
@@ -14466,7 +14470,7 @@ BoolOp_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_col_offset = true;
         }
         // fallthrough
-        case -1: {
+        case 3: {
             tmp = PyTuple_GET_ITEM(pargs, 2);
             if (obj2imm_int(state, tmp, &lineno) < 0) {
                 goto fail;
@@ -14474,14 +14478,14 @@ BoolOp_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_lineno = true;
         }
         // fallthrough
-        case -2: {
+        case 2: {
             tmp = PyTuple_GET_ITEM(pargs, 1);
             if (obj2imm_expr_seq(state, tmp, "BoolOp", "values", &values) < 0) {
                 goto fail;
             }
         }
         // fallthrough
-        case -3: {
+        case 1: {
             tmp = PyTuple_GET_ITEM(pargs, 0);
             if (obj2imm_boolop(state, tmp, &op) < 0) {
                 goto fail;
@@ -14650,7 +14654,7 @@ NamedExpr_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
     PyObject *tmp;
     struct ast_state *state = get_ast_state();
     switch (posargs) {
-        case 2: {
+        case 6: {
             tmp = PyTuple_GET_ITEM(pargs, 5);
             if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
                 goto fail;
@@ -14658,7 +14662,7 @@ NamedExpr_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_end_col_offset = true;
         }
         // fallthrough
-        case 1: {
+        case 5: {
             tmp = PyTuple_GET_ITEM(pargs, 4);
             if (obj2imm_int(state, tmp, &end_lineno) < 0) {
                 goto fail;
@@ -14666,7 +14670,7 @@ NamedExpr_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_end_lineno = true;
         }
         // fallthrough
-        case 0: {
+        case 4: {
             tmp = PyTuple_GET_ITEM(pargs, 3);
             if (obj2imm_int(state, tmp, &col_offset) < 0) {
                 goto fail;
@@ -14674,7 +14678,7 @@ NamedExpr_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_col_offset = true;
         }
         // fallthrough
-        case -1: {
+        case 3: {
             tmp = PyTuple_GET_ITEM(pargs, 2);
             if (obj2imm_int(state, tmp, &lineno) < 0) {
                 goto fail;
@@ -14682,14 +14686,14 @@ NamedExpr_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_lineno = true;
         }
         // fallthrough
-        case -2: {
+        case 2: {
             tmp = PyTuple_GET_ITEM(pargs, 1);
             if (obj2imm_expr(state, tmp, &value) < 0) {
                 goto fail;
             }
         }
         // fallthrough
-        case -3: {
+        case 1: {
             tmp = PyTuple_GET_ITEM(pargs, 0);
             if (obj2imm_expr(state, tmp, &target) < 0) {
                 goto fail;
@@ -14866,7 +14870,7 @@ BinOp_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
     PyObject *tmp;
     struct ast_state *state = get_ast_state();
     switch (posargs) {
-        case 3: {
+        case 7: {
             tmp = PyTuple_GET_ITEM(pargs, 6);
             if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
                 goto fail;
@@ -14874,7 +14878,7 @@ BinOp_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_end_col_offset = true;
         }
         // fallthrough
-        case 2: {
+        case 6: {
             tmp = PyTuple_GET_ITEM(pargs, 5);
             if (obj2imm_int(state, tmp, &end_lineno) < 0) {
                 goto fail;
@@ -14882,7 +14886,7 @@ BinOp_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_end_lineno = true;
         }
         // fallthrough
-        case 1: {
+        case 5: {
             tmp = PyTuple_GET_ITEM(pargs, 4);
             if (obj2imm_int(state, tmp, &col_offset) < 0) {
                 goto fail;
@@ -14890,7 +14894,7 @@ BinOp_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_col_offset = true;
         }
         // fallthrough
-        case 0: {
+        case 4: {
             tmp = PyTuple_GET_ITEM(pargs, 3);
             if (obj2imm_int(state, tmp, &lineno) < 0) {
                 goto fail;
@@ -14898,14 +14902,14 @@ BinOp_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_lineno = true;
         }
         // fallthrough
-        case -1: {
+        case 3: {
             tmp = PyTuple_GET_ITEM(pargs, 2);
             if (obj2imm_expr(state, tmp, &right) < 0) {
                 goto fail;
             }
         }
         // fallthrough
-        case -2: {
+        case 2: {
             tmp = PyTuple_GET_ITEM(pargs, 1);
             if (obj2imm_operator(state, tmp, &op) < 0) {
                 goto fail;
@@ -14913,7 +14917,7 @@ BinOp_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_op = true;
         }
         // fallthrough
-        case -3: {
+        case 1: {
             tmp = PyTuple_GET_ITEM(pargs, 0);
             if (obj2imm_expr(state, tmp, &left) < 0) {
                 goto fail;
@@ -15101,7 +15105,7 @@ UnaryOp_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
     PyObject *tmp;
     struct ast_state *state = get_ast_state();
     switch (posargs) {
-        case 2: {
+        case 6: {
             tmp = PyTuple_GET_ITEM(pargs, 5);
             if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
                 goto fail;
@@ -15109,7 +15113,7 @@ UnaryOp_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_end_col_offset = true;
         }
         // fallthrough
-        case 1: {
+        case 5: {
             tmp = PyTuple_GET_ITEM(pargs, 4);
             if (obj2imm_int(state, tmp, &end_lineno) < 0) {
                 goto fail;
@@ -15117,7 +15121,7 @@ UnaryOp_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_end_lineno = true;
         }
         // fallthrough
-        case 0: {
+        case 4: {
             tmp = PyTuple_GET_ITEM(pargs, 3);
             if (obj2imm_int(state, tmp, &col_offset) < 0) {
                 goto fail;
@@ -15125,7 +15129,7 @@ UnaryOp_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_col_offset = true;
         }
         // fallthrough
-        case -1: {
+        case 3: {
             tmp = PyTuple_GET_ITEM(pargs, 2);
             if (obj2imm_int(state, tmp, &lineno) < 0) {
                 goto fail;
@@ -15133,14 +15137,14 @@ UnaryOp_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_lineno = true;
         }
         // fallthrough
-        case -2: {
+        case 2: {
             tmp = PyTuple_GET_ITEM(pargs, 1);
             if (obj2imm_expr(state, tmp, &operand) < 0) {
                 goto fail;
             }
         }
         // fallthrough
-        case -3: {
+        case 1: {
             tmp = PyTuple_GET_ITEM(pargs, 0);
             if (obj2imm_unaryop(state, tmp, &op) < 0) {
                 goto fail;
@@ -15308,7 +15312,7 @@ Lambda_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
     PyObject *tmp;
     struct ast_state *state = get_ast_state();
     switch (posargs) {
-        case 2: {
+        case 6: {
             tmp = PyTuple_GET_ITEM(pargs, 5);
             if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
                 goto fail;
@@ -15316,7 +15320,7 @@ Lambda_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_end_col_offset = true;
         }
         // fallthrough
-        case 1: {
+        case 5: {
             tmp = PyTuple_GET_ITEM(pargs, 4);
             if (obj2imm_int(state, tmp, &end_lineno) < 0) {
                 goto fail;
@@ -15324,7 +15328,7 @@ Lambda_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_end_lineno = true;
         }
         // fallthrough
-        case 0: {
+        case 4: {
             tmp = PyTuple_GET_ITEM(pargs, 3);
             if (obj2imm_int(state, tmp, &col_offset) < 0) {
                 goto fail;
@@ -15332,7 +15336,7 @@ Lambda_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_col_offset = true;
         }
         // fallthrough
-        case -1: {
+        case 3: {
             tmp = PyTuple_GET_ITEM(pargs, 2);
             if (obj2imm_int(state, tmp, &lineno) < 0) {
                 goto fail;
@@ -15340,14 +15344,14 @@ Lambda_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_lineno = true;
         }
         // fallthrough
-        case -2: {
+        case 2: {
             tmp = PyTuple_GET_ITEM(pargs, 1);
             if (obj2imm_expr(state, tmp, &body) < 0) {
                 goto fail;
             }
         }
         // fallthrough
-        case -3: {
+        case 1: {
             tmp = PyTuple_GET_ITEM(pargs, 0);
             if (obj2imm_arguments(state, tmp, &args) < 0) {
                 goto fail;
@@ -15523,7 +15527,7 @@ IfExp_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
     PyObject *tmp;
     struct ast_state *state = get_ast_state();
     switch (posargs) {
-        case 3: {
+        case 7: {
             tmp = PyTuple_GET_ITEM(pargs, 6);
             if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
                 goto fail;
@@ -15531,7 +15535,7 @@ IfExp_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_end_col_offset = true;
         }
         // fallthrough
-        case 2: {
+        case 6: {
             tmp = PyTuple_GET_ITEM(pargs, 5);
             if (obj2imm_int(state, tmp, &end_lineno) < 0) {
                 goto fail;
@@ -15539,7 +15543,7 @@ IfExp_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_end_lineno = true;
         }
         // fallthrough
-        case 1: {
+        case 5: {
             tmp = PyTuple_GET_ITEM(pargs, 4);
             if (obj2imm_int(state, tmp, &col_offset) < 0) {
                 goto fail;
@@ -15547,7 +15551,7 @@ IfExp_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_col_offset = true;
         }
         // fallthrough
-        case 0: {
+        case 4: {
             tmp = PyTuple_GET_ITEM(pargs, 3);
             if (obj2imm_int(state, tmp, &lineno) < 0) {
                 goto fail;
@@ -15555,21 +15559,21 @@ IfExp_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_lineno = true;
         }
         // fallthrough
-        case -1: {
+        case 3: {
             tmp = PyTuple_GET_ITEM(pargs, 2);
             if (obj2imm_expr(state, tmp, &orelse) < 0) {
                 goto fail;
             }
         }
         // fallthrough
-        case -2: {
+        case 2: {
             tmp = PyTuple_GET_ITEM(pargs, 1);
             if (obj2imm_expr(state, tmp, &body) < 0) {
                 goto fail;
             }
         }
         // fallthrough
-        case -3: {
+        case 1: {
             tmp = PyTuple_GET_ITEM(pargs, 0);
             if (obj2imm_expr(state, tmp, &test) < 0) {
                 goto fail;
@@ -15764,7 +15768,7 @@ Dict_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
     PyObject *tmp;
     struct ast_state *state = get_ast_state();
     switch (posargs) {
-        case 2: {
+        case 6: {
             tmp = PyTuple_GET_ITEM(pargs, 5);
             if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
                 goto fail;
@@ -15772,7 +15776,7 @@ Dict_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_end_col_offset = true;
         }
         // fallthrough
-        case 1: {
+        case 5: {
             tmp = PyTuple_GET_ITEM(pargs, 4);
             if (obj2imm_int(state, tmp, &end_lineno) < 0) {
                 goto fail;
@@ -15780,7 +15784,7 @@ Dict_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_end_lineno = true;
         }
         // fallthrough
-        case 0: {
+        case 4: {
             tmp = PyTuple_GET_ITEM(pargs, 3);
             if (obj2imm_int(state, tmp, &col_offset) < 0) {
                 goto fail;
@@ -15788,7 +15792,7 @@ Dict_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_col_offset = true;
         }
         // fallthrough
-        case -1: {
+        case 3: {
             tmp = PyTuple_GET_ITEM(pargs, 2);
             if (obj2imm_int(state, tmp, &lineno) < 0) {
                 goto fail;
@@ -15796,14 +15800,14 @@ Dict_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_lineno = true;
         }
         // fallthrough
-        case -2: {
+        case 2: {
             tmp = PyTuple_GET_ITEM(pargs, 1);
             if (obj2imm_expr_seq(state, tmp, "Dict", "values", &values) < 0) {
                 goto fail;
             }
         }
         // fallthrough
-        case -3: {
+        case 1: {
             tmp = PyTuple_GET_ITEM(pargs, 0);
             if (obj2imm_expr_seq(state, tmp, "Dict", "keys", &keys) < 0) {
                 goto fail;
@@ -15977,7 +15981,7 @@ Set_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
     PyObject *tmp;
     struct ast_state *state = get_ast_state();
     switch (posargs) {
-        case 1: {
+        case 5: {
             tmp = PyTuple_GET_ITEM(pargs, 4);
             if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
                 goto fail;
@@ -15985,7 +15989,7 @@ Set_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_end_col_offset = true;
         }
         // fallthrough
-        case 0: {
+        case 4: {
             tmp = PyTuple_GET_ITEM(pargs, 3);
             if (obj2imm_int(state, tmp, &end_lineno) < 0) {
                 goto fail;
@@ -15993,7 +15997,7 @@ Set_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_end_lineno = true;
         }
         // fallthrough
-        case -1: {
+        case 3: {
             tmp = PyTuple_GET_ITEM(pargs, 2);
             if (obj2imm_int(state, tmp, &col_offset) < 0) {
                 goto fail;
@@ -16001,7 +16005,7 @@ Set_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_col_offset = true;
         }
         // fallthrough
-        case -2: {
+        case 2: {
             tmp = PyTuple_GET_ITEM(pargs, 1);
             if (obj2imm_int(state, tmp, &lineno) < 0) {
                 goto fail;
@@ -16009,7 +16013,7 @@ Set_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_lineno = true;
         }
         // fallthrough
-        case -3: {
+        case 1: {
             tmp = PyTuple_GET_ITEM(pargs, 0);
             if (obj2imm_expr_seq(state, tmp, "Set", "elts", &elts) < 0) {
                 goto fail;
@@ -16163,7 +16167,7 @@ ListComp_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
     PyObject *tmp;
     struct ast_state *state = get_ast_state();
     switch (posargs) {
-        case 2: {
+        case 6: {
             tmp = PyTuple_GET_ITEM(pargs, 5);
             if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
                 goto fail;
@@ -16171,7 +16175,7 @@ ListComp_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_end_col_offset = true;
         }
         // fallthrough
-        case 1: {
+        case 5: {
             tmp = PyTuple_GET_ITEM(pargs, 4);
             if (obj2imm_int(state, tmp, &end_lineno) < 0) {
                 goto fail;
@@ -16179,7 +16183,7 @@ ListComp_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_end_lineno = true;
         }
         // fallthrough
-        case 0: {
+        case 4: {
             tmp = PyTuple_GET_ITEM(pargs, 3);
             if (obj2imm_int(state, tmp, &col_offset) < 0) {
                 goto fail;
@@ -16187,7 +16191,7 @@ ListComp_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_col_offset = true;
         }
         // fallthrough
-        case -1: {
+        case 3: {
             tmp = PyTuple_GET_ITEM(pargs, 2);
             if (obj2imm_int(state, tmp, &lineno) < 0) {
                 goto fail;
@@ -16195,7 +16199,7 @@ ListComp_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_lineno = true;
         }
         // fallthrough
-        case -2: {
+        case 2: {
             tmp = PyTuple_GET_ITEM(pargs, 1);
             if (obj2imm_comprehension_seq(state, tmp, "ListComp", "generators",
                 &generators) < 0) {
@@ -16203,7 +16207,7 @@ ListComp_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             }
         }
         // fallthrough
-        case -3: {
+        case 1: {
             tmp = PyTuple_GET_ITEM(pargs, 0);
             if (obj2imm_expr(state, tmp, &elt) < 0) {
                 goto fail;
@@ -16380,7 +16384,7 @@ SetComp_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
     PyObject *tmp;
     struct ast_state *state = get_ast_state();
     switch (posargs) {
-        case 2: {
+        case 6: {
             tmp = PyTuple_GET_ITEM(pargs, 5);
             if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
                 goto fail;
@@ -16388,7 +16392,7 @@ SetComp_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_end_col_offset = true;
         }
         // fallthrough
-        case 1: {
+        case 5: {
             tmp = PyTuple_GET_ITEM(pargs, 4);
             if (obj2imm_int(state, tmp, &end_lineno) < 0) {
                 goto fail;
@@ -16396,7 +16400,7 @@ SetComp_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_end_lineno = true;
         }
         // fallthrough
-        case 0: {
+        case 4: {
             tmp = PyTuple_GET_ITEM(pargs, 3);
             if (obj2imm_int(state, tmp, &col_offset) < 0) {
                 goto fail;
@@ -16404,7 +16408,7 @@ SetComp_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_col_offset = true;
         }
         // fallthrough
-        case -1: {
+        case 3: {
             tmp = PyTuple_GET_ITEM(pargs, 2);
             if (obj2imm_int(state, tmp, &lineno) < 0) {
                 goto fail;
@@ -16412,7 +16416,7 @@ SetComp_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_lineno = true;
         }
         // fallthrough
-        case -2: {
+        case 2: {
             tmp = PyTuple_GET_ITEM(pargs, 1);
             if (obj2imm_comprehension_seq(state, tmp, "SetComp", "generators",
                 &generators) < 0) {
@@ -16420,7 +16424,7 @@ SetComp_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             }
         }
         // fallthrough
-        case -3: {
+        case 1: {
             tmp = PyTuple_GET_ITEM(pargs, 0);
             if (obj2imm_expr(state, tmp, &elt) < 0) {
                 goto fail;
@@ -16598,7 +16602,7 @@ DictComp_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
     PyObject *tmp;
     struct ast_state *state = get_ast_state();
     switch (posargs) {
-        case 3: {
+        case 7: {
             tmp = PyTuple_GET_ITEM(pargs, 6);
             if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
                 goto fail;
@@ -16606,7 +16610,7 @@ DictComp_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_end_col_offset = true;
         }
         // fallthrough
-        case 2: {
+        case 6: {
             tmp = PyTuple_GET_ITEM(pargs, 5);
             if (obj2imm_int(state, tmp, &end_lineno) < 0) {
                 goto fail;
@@ -16614,7 +16618,7 @@ DictComp_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_end_lineno = true;
         }
         // fallthrough
-        case 1: {
+        case 5: {
             tmp = PyTuple_GET_ITEM(pargs, 4);
             if (obj2imm_int(state, tmp, &col_offset) < 0) {
                 goto fail;
@@ -16622,7 +16626,7 @@ DictComp_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_col_offset = true;
         }
         // fallthrough
-        case 0: {
+        case 4: {
             tmp = PyTuple_GET_ITEM(pargs, 3);
             if (obj2imm_int(state, tmp, &lineno) < 0) {
                 goto fail;
@@ -16630,7 +16634,7 @@ DictComp_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_lineno = true;
         }
         // fallthrough
-        case -1: {
+        case 3: {
             tmp = PyTuple_GET_ITEM(pargs, 2);
             if (obj2imm_comprehension_seq(state, tmp, "DictComp", "generators",
                 &generators) < 0) {
@@ -16638,14 +16642,14 @@ DictComp_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             }
         }
         // fallthrough
-        case -2: {
+        case 2: {
             tmp = PyTuple_GET_ITEM(pargs, 1);
             if (obj2imm_expr(state, tmp, &value) < 0) {
                 goto fail;
             }
         }
         // fallthrough
-        case -3: {
+        case 1: {
             tmp = PyTuple_GET_ITEM(pargs, 0);
             if (obj2imm_expr(state, tmp, &key) < 0) {
                 goto fail;
@@ -16842,7 +16846,7 @@ GeneratorExp_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
     PyObject *tmp;
     struct ast_state *state = get_ast_state();
     switch (posargs) {
-        case 2: {
+        case 6: {
             tmp = PyTuple_GET_ITEM(pargs, 5);
             if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
                 goto fail;
@@ -16850,7 +16854,7 @@ GeneratorExp_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_end_col_offset = true;
         }
         // fallthrough
-        case 1: {
+        case 5: {
             tmp = PyTuple_GET_ITEM(pargs, 4);
             if (obj2imm_int(state, tmp, &end_lineno) < 0) {
                 goto fail;
@@ -16858,7 +16862,7 @@ GeneratorExp_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_end_lineno = true;
         }
         // fallthrough
-        case 0: {
+        case 4: {
             tmp = PyTuple_GET_ITEM(pargs, 3);
             if (obj2imm_int(state, tmp, &col_offset) < 0) {
                 goto fail;
@@ -16866,7 +16870,7 @@ GeneratorExp_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_col_offset = true;
         }
         // fallthrough
-        case -1: {
+        case 3: {
             tmp = PyTuple_GET_ITEM(pargs, 2);
             if (obj2imm_int(state, tmp, &lineno) < 0) {
                 goto fail;
@@ -16874,7 +16878,7 @@ GeneratorExp_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_lineno = true;
         }
         // fallthrough
-        case -2: {
+        case 2: {
             tmp = PyTuple_GET_ITEM(pargs, 1);
             if (obj2imm_comprehension_seq(state, tmp, "GeneratorExp",
                 "generators", &generators) < 0) {
@@ -16882,7 +16886,7 @@ GeneratorExp_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             }
         }
         // fallthrough
-        case -3: {
+        case 1: {
             tmp = PyTuple_GET_ITEM(pargs, 0);
             if (obj2imm_expr(state, tmp, &elt) < 0) {
                 goto fail;
@@ -17058,7 +17062,7 @@ Await_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
     PyObject *tmp;
     struct ast_state *state = get_ast_state();
     switch (posargs) {
-        case 1: {
+        case 5: {
             tmp = PyTuple_GET_ITEM(pargs, 4);
             if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
                 goto fail;
@@ -17066,7 +17070,7 @@ Await_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_end_col_offset = true;
         }
         // fallthrough
-        case 0: {
+        case 4: {
             tmp = PyTuple_GET_ITEM(pargs, 3);
             if (obj2imm_int(state, tmp, &end_lineno) < 0) {
                 goto fail;
@@ -17074,7 +17078,7 @@ Await_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_end_lineno = true;
         }
         // fallthrough
-        case -1: {
+        case 3: {
             tmp = PyTuple_GET_ITEM(pargs, 2);
             if (obj2imm_int(state, tmp, &col_offset) < 0) {
                 goto fail;
@@ -17082,7 +17086,7 @@ Await_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_col_offset = true;
         }
         // fallthrough
-        case -2: {
+        case 2: {
             tmp = PyTuple_GET_ITEM(pargs, 1);
             if (obj2imm_int(state, tmp, &lineno) < 0) {
                 goto fail;
@@ -17090,7 +17094,7 @@ Await_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_lineno = true;
         }
         // fallthrough
-        case -3: {
+        case 1: {
             tmp = PyTuple_GET_ITEM(pargs, 0);
             if (obj2imm_expr(state, tmp, &value) < 0) {
                 goto fail;
@@ -17244,7 +17248,7 @@ Yield_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
     PyObject *tmp;
     struct ast_state *state = get_ast_state();
     switch (posargs) {
-        case 1: {
+        case 5: {
             tmp = PyTuple_GET_ITEM(pargs, 4);
             if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
                 goto fail;
@@ -17252,7 +17256,7 @@ Yield_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_end_col_offset = true;
         }
         // fallthrough
-        case 0: {
+        case 4: {
             tmp = PyTuple_GET_ITEM(pargs, 3);
             if (obj2imm_int(state, tmp, &end_lineno) < 0) {
                 goto fail;
@@ -17260,7 +17264,7 @@ Yield_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_end_lineno = true;
         }
         // fallthrough
-        case -1: {
+        case 3: {
             tmp = PyTuple_GET_ITEM(pargs, 2);
             if (obj2imm_int(state, tmp, &col_offset) < 0) {
                 goto fail;
@@ -17268,7 +17272,7 @@ Yield_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_col_offset = true;
         }
         // fallthrough
-        case -2: {
+        case 2: {
             tmp = PyTuple_GET_ITEM(pargs, 1);
             if (obj2imm_int(state, tmp, &lineno) < 0) {
                 goto fail;
@@ -17276,7 +17280,7 @@ Yield_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_lineno = true;
         }
         // fallthrough
-        case -3: {
+        case 1: {
             tmp = PyTuple_GET_ITEM(pargs, 0);
             if (obj2imm_expr(state, tmp, &value) < 0) {
                 goto fail;
@@ -17430,7 +17434,7 @@ YieldFrom_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
     PyObject *tmp;
     struct ast_state *state = get_ast_state();
     switch (posargs) {
-        case 1: {
+        case 5: {
             tmp = PyTuple_GET_ITEM(pargs, 4);
             if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
                 goto fail;
@@ -17438,7 +17442,7 @@ YieldFrom_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_end_col_offset = true;
         }
         // fallthrough
-        case 0: {
+        case 4: {
             tmp = PyTuple_GET_ITEM(pargs, 3);
             if (obj2imm_int(state, tmp, &end_lineno) < 0) {
                 goto fail;
@@ -17446,7 +17450,7 @@ YieldFrom_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_end_lineno = true;
         }
         // fallthrough
-        case -1: {
+        case 3: {
             tmp = PyTuple_GET_ITEM(pargs, 2);
             if (obj2imm_int(state, tmp, &col_offset) < 0) {
                 goto fail;
@@ -17454,7 +17458,7 @@ YieldFrom_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_col_offset = true;
         }
         // fallthrough
-        case -2: {
+        case 2: {
             tmp = PyTuple_GET_ITEM(pargs, 1);
             if (obj2imm_int(state, tmp, &lineno) < 0) {
                 goto fail;
@@ -17462,7 +17466,7 @@ YieldFrom_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_lineno = true;
         }
         // fallthrough
-        case -3: {
+        case 1: {
             tmp = PyTuple_GET_ITEM(pargs, 0);
             if (obj2imm_expr(state, tmp, &value) < 0) {
                 goto fail;
@@ -17619,7 +17623,7 @@ Compare_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
     PyObject *tmp;
     struct ast_state *state = get_ast_state();
     switch (posargs) {
-        case 3: {
+        case 7: {
             tmp = PyTuple_GET_ITEM(pargs, 6);
             if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
                 goto fail;
@@ -17627,7 +17631,7 @@ Compare_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_end_col_offset = true;
         }
         // fallthrough
-        case 2: {
+        case 6: {
             tmp = PyTuple_GET_ITEM(pargs, 5);
             if (obj2imm_int(state, tmp, &end_lineno) < 0) {
                 goto fail;
@@ -17635,7 +17639,7 @@ Compare_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_end_lineno = true;
         }
         // fallthrough
-        case 1: {
+        case 5: {
             tmp = PyTuple_GET_ITEM(pargs, 4);
             if (obj2imm_int(state, tmp, &col_offset) < 0) {
                 goto fail;
@@ -17643,7 +17647,7 @@ Compare_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_col_offset = true;
         }
         // fallthrough
-        case 0: {
+        case 4: {
             tmp = PyTuple_GET_ITEM(pargs, 3);
             if (obj2imm_int(state, tmp, &lineno) < 0) {
                 goto fail;
@@ -17651,7 +17655,7 @@ Compare_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_lineno = true;
         }
         // fallthrough
-        case -1: {
+        case 3: {
             tmp = PyTuple_GET_ITEM(pargs, 2);
             if (obj2imm_expr_seq(state, tmp, "Compare", "comparators",
                 &comparators) < 0) {
@@ -17659,7 +17663,7 @@ Compare_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             }
         }
         // fallthrough
-        case -2: {
+        case 2: {
             tmp = PyTuple_GET_ITEM(pargs, 1);
             if (obj2imm_cmpop_seq(state, tmp, "Compare", "ops", &ops) < 0) {
                 goto fail;
@@ -17667,7 +17671,7 @@ Compare_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_ops = true;
         }
         // fallthrough
-        case -3: {
+        case 1: {
             tmp = PyTuple_GET_ITEM(pargs, 0);
             if (obj2imm_expr(state, tmp, &left) < 0) {
                 goto fail;
@@ -17862,7 +17866,7 @@ Call_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
     PyObject *tmp;
     struct ast_state *state = get_ast_state();
     switch (posargs) {
-        case 3: {
+        case 7: {
             tmp = PyTuple_GET_ITEM(pargs, 6);
             if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
                 goto fail;
@@ -17870,7 +17874,7 @@ Call_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_end_col_offset = true;
         }
         // fallthrough
-        case 2: {
+        case 6: {
             tmp = PyTuple_GET_ITEM(pargs, 5);
             if (obj2imm_int(state, tmp, &end_lineno) < 0) {
                 goto fail;
@@ -17878,7 +17882,7 @@ Call_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_end_lineno = true;
         }
         // fallthrough
-        case 1: {
+        case 5: {
             tmp = PyTuple_GET_ITEM(pargs, 4);
             if (obj2imm_int(state, tmp, &col_offset) < 0) {
                 goto fail;
@@ -17886,7 +17890,7 @@ Call_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_col_offset = true;
         }
         // fallthrough
-        case 0: {
+        case 4: {
             tmp = PyTuple_GET_ITEM(pargs, 3);
             if (obj2imm_int(state, tmp, &lineno) < 0) {
                 goto fail;
@@ -17894,7 +17898,7 @@ Call_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_lineno = true;
         }
         // fallthrough
-        case -1: {
+        case 3: {
             tmp = PyTuple_GET_ITEM(pargs, 2);
             if (obj2imm_keyword_seq(state, tmp, "Call", "keywords", &keywords)
                 < 0) {
@@ -17902,14 +17906,14 @@ Call_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             }
         }
         // fallthrough
-        case -2: {
+        case 2: {
             tmp = PyTuple_GET_ITEM(pargs, 1);
             if (obj2imm_expr_seq(state, tmp, "Call", "args", &args) < 0) {
                 goto fail;
             }
         }
         // fallthrough
-        case -3: {
+        case 1: {
             tmp = PyTuple_GET_ITEM(pargs, 0);
             if (obj2imm_expr(state, tmp, &func) < 0) {
                 goto fail;
@@ -18106,7 +18110,7 @@ FormattedValue_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
     PyObject *tmp;
     struct ast_state *state = get_ast_state();
     switch (posargs) {
-        case 3: {
+        case 7: {
             tmp = PyTuple_GET_ITEM(pargs, 6);
             if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
                 goto fail;
@@ -18114,7 +18118,7 @@ FormattedValue_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_end_col_offset = true;
         }
         // fallthrough
-        case 2: {
+        case 6: {
             tmp = PyTuple_GET_ITEM(pargs, 5);
             if (obj2imm_int(state, tmp, &end_lineno) < 0) {
                 goto fail;
@@ -18122,7 +18126,7 @@ FormattedValue_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_end_lineno = true;
         }
         // fallthrough
-        case 1: {
+        case 5: {
             tmp = PyTuple_GET_ITEM(pargs, 4);
             if (obj2imm_int(state, tmp, &col_offset) < 0) {
                 goto fail;
@@ -18130,7 +18134,7 @@ FormattedValue_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_col_offset = true;
         }
         // fallthrough
-        case 0: {
+        case 4: {
             tmp = PyTuple_GET_ITEM(pargs, 3);
             if (obj2imm_int(state, tmp, &lineno) < 0) {
                 goto fail;
@@ -18138,14 +18142,14 @@ FormattedValue_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_lineno = true;
         }
         // fallthrough
-        case -1: {
+        case 3: {
             tmp = PyTuple_GET_ITEM(pargs, 2);
             if (obj2imm_expr(state, tmp, &format_spec) < 0) {
                 goto fail;
             }
         }
         // fallthrough
-        case -2: {
+        case 2: {
             tmp = PyTuple_GET_ITEM(pargs, 1);
             if (obj2imm_int(state, tmp, &conversion) < 0) {
                 goto fail;
@@ -18153,7 +18157,7 @@ FormattedValue_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_conversion = true;
         }
         // fallthrough
-        case -3: {
+        case 1: {
             tmp = PyTuple_GET_ITEM(pargs, 0);
             if (obj2imm_expr(state, tmp, &value) < 0) {
                 goto fail;
@@ -18346,7 +18350,7 @@ Interpolation_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
     PyObject *tmp;
     struct ast_state *state = get_ast_state();
     switch (posargs) {
-        case 4: {
+        case 8: {
             tmp = PyTuple_GET_ITEM(pargs, 7);
             if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
                 goto fail;
@@ -18354,7 +18358,7 @@ Interpolation_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_end_col_offset = true;
         }
         // fallthrough
-        case 3: {
+        case 7: {
             tmp = PyTuple_GET_ITEM(pargs, 6);
             if (obj2imm_int(state, tmp, &end_lineno) < 0) {
                 goto fail;
@@ -18362,7 +18366,7 @@ Interpolation_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_end_lineno = true;
         }
         // fallthrough
-        case 2: {
+        case 6: {
             tmp = PyTuple_GET_ITEM(pargs, 5);
             if (obj2imm_int(state, tmp, &col_offset) < 0) {
                 goto fail;
@@ -18370,7 +18374,7 @@ Interpolation_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_col_offset = true;
         }
         // fallthrough
-        case 1: {
+        case 5: {
             tmp = PyTuple_GET_ITEM(pargs, 4);
             if (obj2imm_int(state, tmp, &lineno) < 0) {
                 goto fail;
@@ -18378,14 +18382,14 @@ Interpolation_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_lineno = true;
         }
         // fallthrough
-        case 0: {
+        case 4: {
             tmp = PyTuple_GET_ITEM(pargs, 3);
             if (obj2imm_expr(state, tmp, &format_spec) < 0) {
                 goto fail;
             }
         }
         // fallthrough
-        case -1: {
+        case 3: {
             tmp = PyTuple_GET_ITEM(pargs, 2);
             if (obj2imm_int(state, tmp, &conversion) < 0) {
                 goto fail;
@@ -18393,14 +18397,14 @@ Interpolation_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_conversion = true;
         }
         // fallthrough
-        case -2: {
+        case 2: {
             tmp = PyTuple_GET_ITEM(pargs, 1);
             if (obj2imm_constant(state, tmp, &str) < 0) {
                 goto fail;
             }
         }
         // fallthrough
-        case -3: {
+        case 1: {
             tmp = PyTuple_GET_ITEM(pargs, 0);
             if (obj2imm_expr(state, tmp, &value) < 0) {
                 goto fail;
@@ -18609,7 +18613,7 @@ JoinedStr_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
     PyObject *tmp;
     struct ast_state *state = get_ast_state();
     switch (posargs) {
-        case 1: {
+        case 5: {
             tmp = PyTuple_GET_ITEM(pargs, 4);
             if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
                 goto fail;
@@ -18617,7 +18621,7 @@ JoinedStr_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_end_col_offset = true;
         }
         // fallthrough
-        case 0: {
+        case 4: {
             tmp = PyTuple_GET_ITEM(pargs, 3);
             if (obj2imm_int(state, tmp, &end_lineno) < 0) {
                 goto fail;
@@ -18625,7 +18629,7 @@ JoinedStr_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_end_lineno = true;
         }
         // fallthrough
-        case -1: {
+        case 3: {
             tmp = PyTuple_GET_ITEM(pargs, 2);
             if (obj2imm_int(state, tmp, &col_offset) < 0) {
                 goto fail;
@@ -18633,7 +18637,7 @@ JoinedStr_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_col_offset = true;
         }
         // fallthrough
-        case -2: {
+        case 2: {
             tmp = PyTuple_GET_ITEM(pargs, 1);
             if (obj2imm_int(state, tmp, &lineno) < 0) {
                 goto fail;
@@ -18641,7 +18645,7 @@ JoinedStr_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_lineno = true;
         }
         // fallthrough
-        case -3: {
+        case 1: {
             tmp = PyTuple_GET_ITEM(pargs, 0);
             if (obj2imm_expr_seq(state, tmp, "JoinedStr", "values", &values) <
                 0) {
@@ -18798,7 +18802,7 @@ TemplateStr_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
     PyObject *tmp;
     struct ast_state *state = get_ast_state();
     switch (posargs) {
-        case 1: {
+        case 5: {
             tmp = PyTuple_GET_ITEM(pargs, 4);
             if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
                 goto fail;
@@ -18806,7 +18810,7 @@ TemplateStr_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_end_col_offset = true;
         }
         // fallthrough
-        case 0: {
+        case 4: {
             tmp = PyTuple_GET_ITEM(pargs, 3);
             if (obj2imm_int(state, tmp, &end_lineno) < 0) {
                 goto fail;
@@ -18814,7 +18818,7 @@ TemplateStr_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_end_lineno = true;
         }
         // fallthrough
-        case -1: {
+        case 3: {
             tmp = PyTuple_GET_ITEM(pargs, 2);
             if (obj2imm_int(state, tmp, &col_offset) < 0) {
                 goto fail;
@@ -18822,7 +18826,7 @@ TemplateStr_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_col_offset = true;
         }
         // fallthrough
-        case -2: {
+        case 2: {
             tmp = PyTuple_GET_ITEM(pargs, 1);
             if (obj2imm_int(state, tmp, &lineno) < 0) {
                 goto fail;
@@ -18830,7 +18834,7 @@ TemplateStr_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_lineno = true;
         }
         // fallthrough
-        case -3: {
+        case 1: {
             tmp = PyTuple_GET_ITEM(pargs, 0);
             if (obj2imm_expr_seq(state, tmp, "TemplateStr", "values", &values)
                 < 0) {
@@ -18988,7 +18992,7 @@ Constant_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
     PyObject *tmp;
     struct ast_state *state = get_ast_state();
     switch (posargs) {
-        case 2: {
+        case 6: {
             tmp = PyTuple_GET_ITEM(pargs, 5);
             if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
                 goto fail;
@@ -18996,7 +19000,7 @@ Constant_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_end_col_offset = true;
         }
         // fallthrough
-        case 1: {
+        case 5: {
             tmp = PyTuple_GET_ITEM(pargs, 4);
             if (obj2imm_int(state, tmp, &end_lineno) < 0) {
                 goto fail;
@@ -19004,7 +19008,7 @@ Constant_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_end_lineno = true;
         }
         // fallthrough
-        case 0: {
+        case 4: {
             tmp = PyTuple_GET_ITEM(pargs, 3);
             if (obj2imm_int(state, tmp, &col_offset) < 0) {
                 goto fail;
@@ -19012,7 +19016,7 @@ Constant_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_col_offset = true;
         }
         // fallthrough
-        case -1: {
+        case 3: {
             tmp = PyTuple_GET_ITEM(pargs, 2);
             if (obj2imm_int(state, tmp, &lineno) < 0) {
                 goto fail;
@@ -19020,14 +19024,14 @@ Constant_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_lineno = true;
         }
         // fallthrough
-        case -2: {
+        case 2: {
             tmp = PyTuple_GET_ITEM(pargs, 1);
             if (obj2imm_string(state, tmp, &kind) < 0) {
                 goto fail;
             }
         }
         // fallthrough
-        case -3: {
+        case 1: {
             tmp = PyTuple_GET_ITEM(pargs, 0);
             if (obj2imm_constant(state, tmp, &value) < 0) {
                 goto fail;
@@ -19204,7 +19208,7 @@ Attribute_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
     PyObject *tmp;
     struct ast_state *state = get_ast_state();
     switch (posargs) {
-        case 3: {
+        case 7: {
             tmp = PyTuple_GET_ITEM(pargs, 6);
             if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
                 goto fail;
@@ -19212,7 +19216,7 @@ Attribute_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_end_col_offset = true;
         }
         // fallthrough
-        case 2: {
+        case 6: {
             tmp = PyTuple_GET_ITEM(pargs, 5);
             if (obj2imm_int(state, tmp, &end_lineno) < 0) {
                 goto fail;
@@ -19220,7 +19224,7 @@ Attribute_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_end_lineno = true;
         }
         // fallthrough
-        case 1: {
+        case 5: {
             tmp = PyTuple_GET_ITEM(pargs, 4);
             if (obj2imm_int(state, tmp, &col_offset) < 0) {
                 goto fail;
@@ -19228,7 +19232,7 @@ Attribute_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_col_offset = true;
         }
         // fallthrough
-        case 0: {
+        case 4: {
             tmp = PyTuple_GET_ITEM(pargs, 3);
             if (obj2imm_int(state, tmp, &lineno) < 0) {
                 goto fail;
@@ -19236,7 +19240,7 @@ Attribute_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_lineno = true;
         }
         // fallthrough
-        case -1: {
+        case 3: {
             tmp = PyTuple_GET_ITEM(pargs, 2);
             if (obj2imm_expr_context(state, tmp, &ctx) < 0) {
                 goto fail;
@@ -19244,14 +19248,14 @@ Attribute_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_ctx = true;
         }
         // fallthrough
-        case -2: {
+        case 2: {
             tmp = PyTuple_GET_ITEM(pargs, 1);
             if (obj2imm_identifier(state, tmp, &attr) < 0) {
                 goto fail;
             }
         }
         // fallthrough
-        case -3: {
+        case 1: {
             tmp = PyTuple_GET_ITEM(pargs, 0);
             if (obj2imm_expr(state, tmp, &value) < 0) {
                 goto fail;
@@ -19441,7 +19445,7 @@ Subscript_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
     PyObject *tmp;
     struct ast_state *state = get_ast_state();
     switch (posargs) {
-        case 3: {
+        case 7: {
             tmp = PyTuple_GET_ITEM(pargs, 6);
             if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
                 goto fail;
@@ -19449,7 +19453,7 @@ Subscript_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_end_col_offset = true;
         }
         // fallthrough
-        case 2: {
+        case 6: {
             tmp = PyTuple_GET_ITEM(pargs, 5);
             if (obj2imm_int(state, tmp, &end_lineno) < 0) {
                 goto fail;
@@ -19457,7 +19461,7 @@ Subscript_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_end_lineno = true;
         }
         // fallthrough
-        case 1: {
+        case 5: {
             tmp = PyTuple_GET_ITEM(pargs, 4);
             if (obj2imm_int(state, tmp, &col_offset) < 0) {
                 goto fail;
@@ -19465,7 +19469,7 @@ Subscript_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_col_offset = true;
         }
         // fallthrough
-        case 0: {
+        case 4: {
             tmp = PyTuple_GET_ITEM(pargs, 3);
             if (obj2imm_int(state, tmp, &lineno) < 0) {
                 goto fail;
@@ -19473,7 +19477,7 @@ Subscript_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_lineno = true;
         }
         // fallthrough
-        case -1: {
+        case 3: {
             tmp = PyTuple_GET_ITEM(pargs, 2);
             if (obj2imm_expr_context(state, tmp, &ctx) < 0) {
                 goto fail;
@@ -19481,14 +19485,14 @@ Subscript_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_ctx = true;
         }
         // fallthrough
-        case -2: {
+        case 2: {
             tmp = PyTuple_GET_ITEM(pargs, 1);
             if (obj2imm_expr(state, tmp, &slice) < 0) {
                 goto fail;
             }
         }
         // fallthrough
-        case -3: {
+        case 1: {
             tmp = PyTuple_GET_ITEM(pargs, 0);
             if (obj2imm_expr(state, tmp, &value) < 0) {
                 goto fail;
@@ -19677,7 +19681,7 @@ Starred_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
     PyObject *tmp;
     struct ast_state *state = get_ast_state();
     switch (posargs) {
-        case 2: {
+        case 6: {
             tmp = PyTuple_GET_ITEM(pargs, 5);
             if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
                 goto fail;
@@ -19685,7 +19689,7 @@ Starred_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_end_col_offset = true;
         }
         // fallthrough
-        case 1: {
+        case 5: {
             tmp = PyTuple_GET_ITEM(pargs, 4);
             if (obj2imm_int(state, tmp, &end_lineno) < 0) {
                 goto fail;
@@ -19693,7 +19697,7 @@ Starred_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_end_lineno = true;
         }
         // fallthrough
-        case 0: {
+        case 4: {
             tmp = PyTuple_GET_ITEM(pargs, 3);
             if (obj2imm_int(state, tmp, &col_offset) < 0) {
                 goto fail;
@@ -19701,7 +19705,7 @@ Starred_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_col_offset = true;
         }
         // fallthrough
-        case -1: {
+        case 3: {
             tmp = PyTuple_GET_ITEM(pargs, 2);
             if (obj2imm_int(state, tmp, &lineno) < 0) {
                 goto fail;
@@ -19709,7 +19713,7 @@ Starred_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_lineno = true;
         }
         // fallthrough
-        case -2: {
+        case 2: {
             tmp = PyTuple_GET_ITEM(pargs, 1);
             if (obj2imm_expr_context(state, tmp, &ctx) < 0) {
                 goto fail;
@@ -19717,7 +19721,7 @@ Starred_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_ctx = true;
         }
         // fallthrough
-        case -3: {
+        case 1: {
             tmp = PyTuple_GET_ITEM(pargs, 0);
             if (obj2imm_expr(state, tmp, &value) < 0) {
                 goto fail;
@@ -19885,7 +19889,7 @@ Name_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
     PyObject *tmp;
     struct ast_state *state = get_ast_state();
     switch (posargs) {
-        case 2: {
+        case 6: {
             tmp = PyTuple_GET_ITEM(pargs, 5);
             if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
                 goto fail;
@@ -19893,7 +19897,7 @@ Name_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_end_col_offset = true;
         }
         // fallthrough
-        case 1: {
+        case 5: {
             tmp = PyTuple_GET_ITEM(pargs, 4);
             if (obj2imm_int(state, tmp, &end_lineno) < 0) {
                 goto fail;
@@ -19901,7 +19905,7 @@ Name_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_end_lineno = true;
         }
         // fallthrough
-        case 0: {
+        case 4: {
             tmp = PyTuple_GET_ITEM(pargs, 3);
             if (obj2imm_int(state, tmp, &col_offset) < 0) {
                 goto fail;
@@ -19909,7 +19913,7 @@ Name_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_col_offset = true;
         }
         // fallthrough
-        case -1: {
+        case 3: {
             tmp = PyTuple_GET_ITEM(pargs, 2);
             if (obj2imm_int(state, tmp, &lineno) < 0) {
                 goto fail;
@@ -19917,7 +19921,7 @@ Name_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_lineno = true;
         }
         // fallthrough
-        case -2: {
+        case 2: {
             tmp = PyTuple_GET_ITEM(pargs, 1);
             if (obj2imm_expr_context(state, tmp, &ctx) < 0) {
                 goto fail;
@@ -19925,7 +19929,7 @@ Name_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_ctx = true;
         }
         // fallthrough
-        case -3: {
+        case 1: {
             tmp = PyTuple_GET_ITEM(pargs, 0);
             if (obj2imm_identifier(state, tmp, &id) < 0) {
                 goto fail;
@@ -20091,7 +20095,7 @@ List_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
     PyObject *tmp;
     struct ast_state *state = get_ast_state();
     switch (posargs) {
-        case 2: {
+        case 6: {
             tmp = PyTuple_GET_ITEM(pargs, 5);
             if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
                 goto fail;
@@ -20099,7 +20103,7 @@ List_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_end_col_offset = true;
         }
         // fallthrough
-        case 1: {
+        case 5: {
             tmp = PyTuple_GET_ITEM(pargs, 4);
             if (obj2imm_int(state, tmp, &end_lineno) < 0) {
                 goto fail;
@@ -20107,7 +20111,7 @@ List_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_end_lineno = true;
         }
         // fallthrough
-        case 0: {
+        case 4: {
             tmp = PyTuple_GET_ITEM(pargs, 3);
             if (obj2imm_int(state, tmp, &col_offset) < 0) {
                 goto fail;
@@ -20115,7 +20119,7 @@ List_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_col_offset = true;
         }
         // fallthrough
-        case -1: {
+        case 3: {
             tmp = PyTuple_GET_ITEM(pargs, 2);
             if (obj2imm_int(state, tmp, &lineno) < 0) {
                 goto fail;
@@ -20123,7 +20127,7 @@ List_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_lineno = true;
         }
         // fallthrough
-        case -2: {
+        case 2: {
             tmp = PyTuple_GET_ITEM(pargs, 1);
             if (obj2imm_expr_context(state, tmp, &ctx) < 0) {
                 goto fail;
@@ -20131,7 +20135,7 @@ List_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_ctx = true;
         }
         // fallthrough
-        case -3: {
+        case 1: {
             tmp = PyTuple_GET_ITEM(pargs, 0);
             if (obj2imm_expr_seq(state, tmp, "List", "elts", &elts) < 0) {
                 goto fail;
@@ -20298,7 +20302,7 @@ Tuple_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
     PyObject *tmp;
     struct ast_state *state = get_ast_state();
     switch (posargs) {
-        case 2: {
+        case 6: {
             tmp = PyTuple_GET_ITEM(pargs, 5);
             if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
                 goto fail;
@@ -20306,7 +20310,7 @@ Tuple_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_end_col_offset = true;
         }
         // fallthrough
-        case 1: {
+        case 5: {
             tmp = PyTuple_GET_ITEM(pargs, 4);
             if (obj2imm_int(state, tmp, &end_lineno) < 0) {
                 goto fail;
@@ -20314,7 +20318,7 @@ Tuple_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_end_lineno = true;
         }
         // fallthrough
-        case 0: {
+        case 4: {
             tmp = PyTuple_GET_ITEM(pargs, 3);
             if (obj2imm_int(state, tmp, &col_offset) < 0) {
                 goto fail;
@@ -20322,7 +20326,7 @@ Tuple_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_col_offset = true;
         }
         // fallthrough
-        case -1: {
+        case 3: {
             tmp = PyTuple_GET_ITEM(pargs, 2);
             if (obj2imm_int(state, tmp, &lineno) < 0) {
                 goto fail;
@@ -20330,7 +20334,7 @@ Tuple_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_lineno = true;
         }
         // fallthrough
-        case -2: {
+        case 2: {
             tmp = PyTuple_GET_ITEM(pargs, 1);
             if (obj2imm_expr_context(state, tmp, &ctx) < 0) {
                 goto fail;
@@ -20338,7 +20342,7 @@ Tuple_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_ctx = true;
         }
         // fallthrough
-        case -3: {
+        case 1: {
             tmp = PyTuple_GET_ITEM(pargs, 0);
             if (obj2imm_expr_seq(state, tmp, "Tuple", "elts", &elts) < 0) {
                 goto fail;
@@ -20506,7 +20510,7 @@ Slice_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
     PyObject *tmp;
     struct ast_state *state = get_ast_state();
     switch (posargs) {
-        case 3: {
+        case 7: {
             tmp = PyTuple_GET_ITEM(pargs, 6);
             if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
                 goto fail;
@@ -20514,7 +20518,7 @@ Slice_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_end_col_offset = true;
         }
         // fallthrough
-        case 2: {
+        case 6: {
             tmp = PyTuple_GET_ITEM(pargs, 5);
             if (obj2imm_int(state, tmp, &end_lineno) < 0) {
                 goto fail;
@@ -20522,7 +20526,7 @@ Slice_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_end_lineno = true;
         }
         // fallthrough
-        case 1: {
+        case 5: {
             tmp = PyTuple_GET_ITEM(pargs, 4);
             if (obj2imm_int(state, tmp, &col_offset) < 0) {
                 goto fail;
@@ -20530,7 +20534,7 @@ Slice_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_col_offset = true;
         }
         // fallthrough
-        case 0: {
+        case 4: {
             tmp = PyTuple_GET_ITEM(pargs, 3);
             if (obj2imm_int(state, tmp, &lineno) < 0) {
                 goto fail;
@@ -20538,21 +20542,21 @@ Slice_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_lineno = true;
         }
         // fallthrough
-        case -1: {
+        case 3: {
             tmp = PyTuple_GET_ITEM(pargs, 2);
             if (obj2imm_expr(state, tmp, &step) < 0) {
                 goto fail;
             }
         }
         // fallthrough
-        case -2: {
+        case 2: {
             tmp = PyTuple_GET_ITEM(pargs, 1);
             if (obj2imm_expr(state, tmp, &upper) < 0) {
                 goto fail;
             }
         }
         // fallthrough
-        case -3: {
+        case 1: {
             tmp = PyTuple_GET_ITEM(pargs, 0);
             if (obj2imm_expr(state, tmp, &lower) < 0) {
                 goto fail;
@@ -23308,7 +23312,7 @@ ExceptHandler_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
     PyObject *tmp;
     struct ast_state *state = get_ast_state();
     switch (posargs) {
-        case 3: {
+        case 7: {
             tmp = PyTuple_GET_ITEM(pargs, 6);
             if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
                 goto fail;
@@ -23316,7 +23320,7 @@ ExceptHandler_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_end_col_offset = true;
         }
         // fallthrough
-        case 2: {
+        case 6: {
             tmp = PyTuple_GET_ITEM(pargs, 5);
             if (obj2imm_int(state, tmp, &end_lineno) < 0) {
                 goto fail;
@@ -23324,7 +23328,7 @@ ExceptHandler_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_end_lineno = true;
         }
         // fallthrough
-        case 1: {
+        case 5: {
             tmp = PyTuple_GET_ITEM(pargs, 4);
             if (obj2imm_int(state, tmp, &col_offset) < 0) {
                 goto fail;
@@ -23332,7 +23336,7 @@ ExceptHandler_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_col_offset = true;
         }
         // fallthrough
-        case 0: {
+        case 4: {
             tmp = PyTuple_GET_ITEM(pargs, 3);
             if (obj2imm_int(state, tmp, &lineno) < 0) {
                 goto fail;
@@ -23340,7 +23344,7 @@ ExceptHandler_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_lineno = true;
         }
         // fallthrough
-        case -1: {
+        case 3: {
             tmp = PyTuple_GET_ITEM(pargs, 2);
             if (obj2imm_stmt_seq(state, tmp, "ExceptHandler", "body", &body) <
                 0) {
@@ -23348,14 +23352,14 @@ ExceptHandler_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             }
         }
         // fallthrough
-        case -2: {
+        case 2: {
             tmp = PyTuple_GET_ITEM(pargs, 1);
             if (obj2imm_identifier(state, tmp, &name) < 0) {
                 goto fail;
             }
         }
         // fallthrough
-        case -3: {
+        case 1: {
             tmp = PyTuple_GET_ITEM(pargs, 0);
             if (obj2imm_expr(state, tmp, &type) < 0) {
                 goto fail;
@@ -25033,7 +25037,7 @@ MatchValue_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
     PyObject *tmp;
     struct ast_state *state = get_ast_state();
     switch (posargs) {
-        case 1: {
+        case 5: {
             tmp = PyTuple_GET_ITEM(pargs, 4);
             if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
                 goto fail;
@@ -25041,7 +25045,7 @@ MatchValue_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_end_col_offset = true;
         }
         // fallthrough
-        case 0: {
+        case 4: {
             tmp = PyTuple_GET_ITEM(pargs, 3);
             if (obj2imm_int(state, tmp, &end_lineno) < 0) {
                 goto fail;
@@ -25049,7 +25053,7 @@ MatchValue_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_end_lineno = true;
         }
         // fallthrough
-        case -1: {
+        case 3: {
             tmp = PyTuple_GET_ITEM(pargs, 2);
             if (obj2imm_int(state, tmp, &col_offset) < 0) {
                 goto fail;
@@ -25057,7 +25061,7 @@ MatchValue_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_col_offset = true;
         }
         // fallthrough
-        case -2: {
+        case 2: {
             tmp = PyTuple_GET_ITEM(pargs, 1);
             if (obj2imm_int(state, tmp, &lineno) < 0) {
                 goto fail;
@@ -25065,7 +25069,7 @@ MatchValue_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_lineno = true;
         }
         // fallthrough
-        case -3: {
+        case 1: {
             tmp = PyTuple_GET_ITEM(pargs, 0);
             if (obj2imm_expr(state, tmp, &value) < 0) {
                 goto fail;
@@ -25219,7 +25223,7 @@ MatchSingleton_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
     PyObject *tmp;
     struct ast_state *state = get_ast_state();
     switch (posargs) {
-        case 1: {
+        case 5: {
             tmp = PyTuple_GET_ITEM(pargs, 4);
             if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
                 goto fail;
@@ -25227,7 +25231,7 @@ MatchSingleton_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_end_col_offset = true;
         }
         // fallthrough
-        case 0: {
+        case 4: {
             tmp = PyTuple_GET_ITEM(pargs, 3);
             if (obj2imm_int(state, tmp, &end_lineno) < 0) {
                 goto fail;
@@ -25235,7 +25239,7 @@ MatchSingleton_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_end_lineno = true;
         }
         // fallthrough
-        case -1: {
+        case 3: {
             tmp = PyTuple_GET_ITEM(pargs, 2);
             if (obj2imm_int(state, tmp, &col_offset) < 0) {
                 goto fail;
@@ -25243,7 +25247,7 @@ MatchSingleton_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_col_offset = true;
         }
         // fallthrough
-        case -2: {
+        case 2: {
             tmp = PyTuple_GET_ITEM(pargs, 1);
             if (obj2imm_int(state, tmp, &lineno) < 0) {
                 goto fail;
@@ -25251,7 +25255,7 @@ MatchSingleton_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_lineno = true;
         }
         // fallthrough
-        case -3: {
+        case 1: {
             tmp = PyTuple_GET_ITEM(pargs, 0);
             if (obj2imm_constant(state, tmp, &value) < 0) {
                 goto fail;
@@ -25405,7 +25409,7 @@ MatchSequence_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
     PyObject *tmp;
     struct ast_state *state = get_ast_state();
     switch (posargs) {
-        case 1: {
+        case 5: {
             tmp = PyTuple_GET_ITEM(pargs, 4);
             if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
                 goto fail;
@@ -25413,7 +25417,7 @@ MatchSequence_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_end_col_offset = true;
         }
         // fallthrough
-        case 0: {
+        case 4: {
             tmp = PyTuple_GET_ITEM(pargs, 3);
             if (obj2imm_int(state, tmp, &end_lineno) < 0) {
                 goto fail;
@@ -25421,7 +25425,7 @@ MatchSequence_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_end_lineno = true;
         }
         // fallthrough
-        case -1: {
+        case 3: {
             tmp = PyTuple_GET_ITEM(pargs, 2);
             if (obj2imm_int(state, tmp, &col_offset) < 0) {
                 goto fail;
@@ -25429,7 +25433,7 @@ MatchSequence_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_col_offset = true;
         }
         // fallthrough
-        case -2: {
+        case 2: {
             tmp = PyTuple_GET_ITEM(pargs, 1);
             if (obj2imm_int(state, tmp, &lineno) < 0) {
                 goto fail;
@@ -25437,7 +25441,7 @@ MatchSequence_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_lineno = true;
         }
         // fallthrough
-        case -3: {
+        case 1: {
             tmp = PyTuple_GET_ITEM(pargs, 0);
             if (obj2imm_pattern_seq(state, tmp, "MatchSequence", "patterns",
                 &patterns) < 0) {
@@ -25596,7 +25600,7 @@ MatchMapping_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
     PyObject *tmp;
     struct ast_state *state = get_ast_state();
     switch (posargs) {
-        case 3: {
+        case 7: {
             tmp = PyTuple_GET_ITEM(pargs, 6);
             if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
                 goto fail;
@@ -25604,7 +25608,7 @@ MatchMapping_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_end_col_offset = true;
         }
         // fallthrough
-        case 2: {
+        case 6: {
             tmp = PyTuple_GET_ITEM(pargs, 5);
             if (obj2imm_int(state, tmp, &end_lineno) < 0) {
                 goto fail;
@@ -25612,7 +25616,7 @@ MatchMapping_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_end_lineno = true;
         }
         // fallthrough
-        case 1: {
+        case 5: {
             tmp = PyTuple_GET_ITEM(pargs, 4);
             if (obj2imm_int(state, tmp, &col_offset) < 0) {
                 goto fail;
@@ -25620,7 +25624,7 @@ MatchMapping_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_col_offset = true;
         }
         // fallthrough
-        case 0: {
+        case 4: {
             tmp = PyTuple_GET_ITEM(pargs, 3);
             if (obj2imm_int(state, tmp, &lineno) < 0) {
                 goto fail;
@@ -25628,14 +25632,14 @@ MatchMapping_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_lineno = true;
         }
         // fallthrough
-        case -1: {
+        case 3: {
             tmp = PyTuple_GET_ITEM(pargs, 2);
             if (obj2imm_identifier(state, tmp, &rest) < 0) {
                 goto fail;
             }
         }
         // fallthrough
-        case -2: {
+        case 2: {
             tmp = PyTuple_GET_ITEM(pargs, 1);
             if (obj2imm_pattern_seq(state, tmp, "MatchMapping", "patterns",
                 &patterns) < 0) {
@@ -25643,7 +25647,7 @@ MatchMapping_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             }
         }
         // fallthrough
-        case -3: {
+        case 1: {
             tmp = PyTuple_GET_ITEM(pargs, 0);
             if (obj2imm_expr_seq(state, tmp, "MatchMapping", "keys", &keys) <
                 0) {
@@ -25845,7 +25849,7 @@ MatchClass_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
     PyObject *tmp;
     struct ast_state *state = get_ast_state();
     switch (posargs) {
-        case 4: {
+        case 8: {
             tmp = PyTuple_GET_ITEM(pargs, 7);
             if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
                 goto fail;
@@ -25853,7 +25857,7 @@ MatchClass_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_end_col_offset = true;
         }
         // fallthrough
-        case 3: {
+        case 7: {
             tmp = PyTuple_GET_ITEM(pargs, 6);
             if (obj2imm_int(state, tmp, &end_lineno) < 0) {
                 goto fail;
@@ -25861,7 +25865,7 @@ MatchClass_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_end_lineno = true;
         }
         // fallthrough
-        case 2: {
+        case 6: {
             tmp = PyTuple_GET_ITEM(pargs, 5);
             if (obj2imm_int(state, tmp, &col_offset) < 0) {
                 goto fail;
@@ -25869,7 +25873,7 @@ MatchClass_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_col_offset = true;
         }
         // fallthrough
-        case 1: {
+        case 5: {
             tmp = PyTuple_GET_ITEM(pargs, 4);
             if (obj2imm_int(state, tmp, &lineno) < 0) {
                 goto fail;
@@ -25877,7 +25881,7 @@ MatchClass_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_lineno = true;
         }
         // fallthrough
-        case 0: {
+        case 4: {
             tmp = PyTuple_GET_ITEM(pargs, 3);
             if (obj2imm_pattern_seq(state, tmp, "MatchClass", "kwd_patterns",
                 &kwd_patterns) < 0) {
@@ -25885,7 +25889,7 @@ MatchClass_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             }
         }
         // fallthrough
-        case -1: {
+        case 3: {
             tmp = PyTuple_GET_ITEM(pargs, 2);
             if (obj2imm_identifier_seq(state, tmp, "MatchClass", "kwd_attrs",
                 &kwd_attrs) < 0) {
@@ -25893,7 +25897,7 @@ MatchClass_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             }
         }
         // fallthrough
-        case -2: {
+        case 2: {
             tmp = PyTuple_GET_ITEM(pargs, 1);
             if (obj2imm_pattern_seq(state, tmp, "MatchClass", "patterns",
                 &patterns) < 0) {
@@ -25901,7 +25905,7 @@ MatchClass_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             }
         }
         // fallthrough
-        case -3: {
+        case 1: {
             tmp = PyTuple_GET_ITEM(pargs, 0);
             if (obj2imm_expr(state, tmp, &cls) < 0) {
                 goto fail;
@@ -26121,7 +26125,7 @@ MatchStar_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
     PyObject *tmp;
     struct ast_state *state = get_ast_state();
     switch (posargs) {
-        case 1: {
+        case 5: {
             tmp = PyTuple_GET_ITEM(pargs, 4);
             if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
                 goto fail;
@@ -26129,7 +26133,7 @@ MatchStar_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_end_col_offset = true;
         }
         // fallthrough
-        case 0: {
+        case 4: {
             tmp = PyTuple_GET_ITEM(pargs, 3);
             if (obj2imm_int(state, tmp, &end_lineno) < 0) {
                 goto fail;
@@ -26137,7 +26141,7 @@ MatchStar_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_end_lineno = true;
         }
         // fallthrough
-        case -1: {
+        case 3: {
             tmp = PyTuple_GET_ITEM(pargs, 2);
             if (obj2imm_int(state, tmp, &col_offset) < 0) {
                 goto fail;
@@ -26145,7 +26149,7 @@ MatchStar_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_col_offset = true;
         }
         // fallthrough
-        case -2: {
+        case 2: {
             tmp = PyTuple_GET_ITEM(pargs, 1);
             if (obj2imm_int(state, tmp, &lineno) < 0) {
                 goto fail;
@@ -26153,7 +26157,7 @@ MatchStar_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_lineno = true;
         }
         // fallthrough
-        case -3: {
+        case 1: {
             tmp = PyTuple_GET_ITEM(pargs, 0);
             if (obj2imm_identifier(state, tmp, &name) < 0) {
                 goto fail;
@@ -26308,7 +26312,7 @@ MatchAs_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
     PyObject *tmp;
     struct ast_state *state = get_ast_state();
     switch (posargs) {
-        case 2: {
+        case 6: {
             tmp = PyTuple_GET_ITEM(pargs, 5);
             if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
                 goto fail;
@@ -26316,7 +26320,7 @@ MatchAs_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_end_col_offset = true;
         }
         // fallthrough
-        case 1: {
+        case 5: {
             tmp = PyTuple_GET_ITEM(pargs, 4);
             if (obj2imm_int(state, tmp, &end_lineno) < 0) {
                 goto fail;
@@ -26324,7 +26328,7 @@ MatchAs_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_end_lineno = true;
         }
         // fallthrough
-        case 0: {
+        case 4: {
             tmp = PyTuple_GET_ITEM(pargs, 3);
             if (obj2imm_int(state, tmp, &col_offset) < 0) {
                 goto fail;
@@ -26332,7 +26336,7 @@ MatchAs_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_col_offset = true;
         }
         // fallthrough
-        case -1: {
+        case 3: {
             tmp = PyTuple_GET_ITEM(pargs, 2);
             if (obj2imm_int(state, tmp, &lineno) < 0) {
                 goto fail;
@@ -26340,14 +26344,14 @@ MatchAs_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_lineno = true;
         }
         // fallthrough
-        case -2: {
+        case 2: {
             tmp = PyTuple_GET_ITEM(pargs, 1);
             if (obj2imm_identifier(state, tmp, &name) < 0) {
                 goto fail;
             }
         }
         // fallthrough
-        case -3: {
+        case 1: {
             tmp = PyTuple_GET_ITEM(pargs, 0);
             if (obj2imm_pattern(state, tmp, &pattern) < 0) {
                 goto fail;
@@ -26521,7 +26525,7 @@ MatchOr_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
     PyObject *tmp;
     struct ast_state *state = get_ast_state();
     switch (posargs) {
-        case 1: {
+        case 5: {
             tmp = PyTuple_GET_ITEM(pargs, 4);
             if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
                 goto fail;
@@ -26529,7 +26533,7 @@ MatchOr_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_end_col_offset = true;
         }
         // fallthrough
-        case 0: {
+        case 4: {
             tmp = PyTuple_GET_ITEM(pargs, 3);
             if (obj2imm_int(state, tmp, &end_lineno) < 0) {
                 goto fail;
@@ -26537,7 +26541,7 @@ MatchOr_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_end_lineno = true;
         }
         // fallthrough
-        case -1: {
+        case 3: {
             tmp = PyTuple_GET_ITEM(pargs, 2);
             if (obj2imm_int(state, tmp, &col_offset) < 0) {
                 goto fail;
@@ -26545,7 +26549,7 @@ MatchOr_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_col_offset = true;
         }
         // fallthrough
-        case -2: {
+        case 2: {
             tmp = PyTuple_GET_ITEM(pargs, 1);
             if (obj2imm_int(state, tmp, &lineno) < 0) {
                 goto fail;
@@ -26553,7 +26557,7 @@ MatchOr_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_lineno = true;
         }
         // fallthrough
-        case -3: {
+        case 1: {
             tmp = PyTuple_GET_ITEM(pargs, 0);
             if (obj2imm_pattern_seq(state, tmp, "MatchOr", "patterns",
                 &patterns) < 0) {
@@ -27159,7 +27163,7 @@ TypeVar_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
     PyObject *tmp;
     struct ast_state *state = get_ast_state();
     switch (posargs) {
-        case 3: {
+        case 7: {
             tmp = PyTuple_GET_ITEM(pargs, 6);
             if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
                 goto fail;
@@ -27167,7 +27171,7 @@ TypeVar_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_end_col_offset = true;
         }
         // fallthrough
-        case 2: {
+        case 6: {
             tmp = PyTuple_GET_ITEM(pargs, 5);
             if (obj2imm_int(state, tmp, &end_lineno) < 0) {
                 goto fail;
@@ -27175,7 +27179,7 @@ TypeVar_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_end_lineno = true;
         }
         // fallthrough
-        case 1: {
+        case 5: {
             tmp = PyTuple_GET_ITEM(pargs, 4);
             if (obj2imm_int(state, tmp, &col_offset) < 0) {
                 goto fail;
@@ -27183,7 +27187,7 @@ TypeVar_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_col_offset = true;
         }
         // fallthrough
-        case 0: {
+        case 4: {
             tmp = PyTuple_GET_ITEM(pargs, 3);
             if (obj2imm_int(state, tmp, &lineno) < 0) {
                 goto fail;
@@ -27191,21 +27195,21 @@ TypeVar_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_lineno = true;
         }
         // fallthrough
-        case -1: {
+        case 3: {
             tmp = PyTuple_GET_ITEM(pargs, 2);
             if (obj2imm_expr(state, tmp, &default_value) < 0) {
                 goto fail;
             }
         }
         // fallthrough
-        case -2: {
+        case 2: {
             tmp = PyTuple_GET_ITEM(pargs, 1);
             if (obj2imm_expr(state, tmp, &bound) < 0) {
                 goto fail;
             }
         }
         // fallthrough
-        case -3: {
+        case 1: {
             tmp = PyTuple_GET_ITEM(pargs, 0);
             if (obj2imm_identifier(state, tmp, &name) < 0) {
                 goto fail;
@@ -27401,7 +27405,7 @@ ParamSpec_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
     PyObject *tmp;
     struct ast_state *state = get_ast_state();
     switch (posargs) {
-        case 2: {
+        case 6: {
             tmp = PyTuple_GET_ITEM(pargs, 5);
             if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
                 goto fail;
@@ -27409,7 +27413,7 @@ ParamSpec_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_end_col_offset = true;
         }
         // fallthrough
-        case 1: {
+        case 5: {
             tmp = PyTuple_GET_ITEM(pargs, 4);
             if (obj2imm_int(state, tmp, &end_lineno) < 0) {
                 goto fail;
@@ -27417,7 +27421,7 @@ ParamSpec_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_end_lineno = true;
         }
         // fallthrough
-        case 0: {
+        case 4: {
             tmp = PyTuple_GET_ITEM(pargs, 3);
             if (obj2imm_int(state, tmp, &col_offset) < 0) {
                 goto fail;
@@ -27425,7 +27429,7 @@ ParamSpec_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_col_offset = true;
         }
         // fallthrough
-        case -1: {
+        case 3: {
             tmp = PyTuple_GET_ITEM(pargs, 2);
             if (obj2imm_int(state, tmp, &lineno) < 0) {
                 goto fail;
@@ -27433,14 +27437,14 @@ ParamSpec_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_lineno = true;
         }
         // fallthrough
-        case -2: {
+        case 2: {
             tmp = PyTuple_GET_ITEM(pargs, 1);
             if (obj2imm_expr(state, tmp, &default_value) < 0) {
                 goto fail;
             }
         }
         // fallthrough
-        case -3: {
+        case 1: {
             tmp = PyTuple_GET_ITEM(pargs, 0);
             if (obj2imm_identifier(state, tmp, &name) < 0) {
                 goto fail;
@@ -27616,7 +27620,7 @@ TypeVarTuple_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
     PyObject *tmp;
     struct ast_state *state = get_ast_state();
     switch (posargs) {
-        case 2: {
+        case 6: {
             tmp = PyTuple_GET_ITEM(pargs, 5);
             if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
                 goto fail;
@@ -27624,7 +27628,7 @@ TypeVarTuple_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_end_col_offset = true;
         }
         // fallthrough
-        case 1: {
+        case 5: {
             tmp = PyTuple_GET_ITEM(pargs, 4);
             if (obj2imm_int(state, tmp, &end_lineno) < 0) {
                 goto fail;
@@ -27632,7 +27636,7 @@ TypeVarTuple_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_end_lineno = true;
         }
         // fallthrough
-        case 0: {
+        case 4: {
             tmp = PyTuple_GET_ITEM(pargs, 3);
             if (obj2imm_int(state, tmp, &col_offset) < 0) {
                 goto fail;
@@ -27640,7 +27644,7 @@ TypeVarTuple_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_col_offset = true;
         }
         // fallthrough
-        case -1: {
+        case 3: {
             tmp = PyTuple_GET_ITEM(pargs, 2);
             if (obj2imm_int(state, tmp, &lineno) < 0) {
                 goto fail;
@@ -27648,14 +27652,14 @@ TypeVarTuple_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
             got_lineno = true;
         }
         // fallthrough
-        case -2: {
+        case 2: {
             tmp = PyTuple_GET_ITEM(pargs, 1);
             if (obj2imm_expr(state, tmp, &default_value) < 0) {
                 goto fail;
             }
         }
         // fallthrough
-        case -3: {
+        case 1: {
             tmp = PyTuple_GET_ITEM(pargs, 0);
             if (obj2imm_identifier(state, tmp, &name) < 0) {
                 goto fail;
@@ -28617,7 +28621,7 @@ static PyGetSetDef ast_type_getsets[] = {
 };
 
 static PyObject *
-ast_repr_max_depth(AST_object *self, int depth);
+ast_repr_max_depth(PyObject *self, int depth);
 
 /* Format list and tuple properties of AST nodes.
    Note that, only the first and last elements are shown.
@@ -28627,7 +28631,7 @@ ast_repr_max_depth(AST_object *self, int depth);
 static PyObject *
 ast_repr_list(PyObject *list, int depth)
 {
-    assert(PyList_Check(list) || PyTuple_Check(list));
+    assert(PySequence_Check(list));
 
     struct ast_state *state = get_ast_state();
     if (state == NULL) {
@@ -28659,7 +28663,7 @@ ast_repr_list(PyObject *list, int depth)
         }
     }
 
-    bool is_list = PyList_Check(list);
+    bool is_list = !PyTuple_Check(list);
     if (PyUnicodeWriter_WriteChar(writer, is_list ? '[' : '(') < 0) {
         goto error;
     }
@@ -28674,7 +28678,7 @@ ast_repr_list(PyObject *list, int depth)
         PyObject *item = items[i];
         if (PyType_IsSubtype(Py_TYPE(item), (PyTypeObject *)state->AST_type)) {
             PyObject *item_repr;
-            item_repr = ast_repr_max_depth((AST_object*)item, depth - 1);
+            item_repr = ast_repr_max_depth(item, depth - 1);
             if (!item_repr) {
                 goto error;
             }
@@ -28695,7 +28699,10 @@ ast_repr_list(PyObject *list, int depth)
             }
         }
     }
-
+    //if (!is_list && length == 1 &&
+    //    PyUnicodeWriter_WriteChar(writer, is_list ? ']' : ')') < 0) {
+    //    goto error;
+    //}
     if (PyUnicodeWriter_WriteChar(writer, is_list ? ']' : ')') < 0) {
         goto error;
     }
@@ -28712,7 +28719,7 @@ error:
 }
 
 static PyObject *
-ast_repr_max_depth(AST_object *self, int depth)
+ast_repr_max_depth(PyObject *self, int depth)
 {
     struct ast_state *state = get_ast_state();
     if (state == NULL) {
@@ -28731,8 +28738,8 @@ ast_repr_max_depth(AST_object *self, int depth)
         return PyUnicode_FromFormat("%s(...)", Py_TYPE(self)->tp_name);
     }
 
-    PyObject *fields;
-    if (PyObject_GetOptionalAttr((PyObject *)Py_TYPE(self), state->_fields, &fields) < 0) {
+    PyObject *fields = PyObject_GetAttr((PyObject *)Py_TYPE(self), state->_fields);
+    if (!fields) {
         Py_ReprLeave((PyObject *)self);
         return NULL;
     }
@@ -28779,8 +28786,8 @@ ast_repr_max_depth(AST_object *self, int depth)
         if (PyList_Check(value) || PyTuple_Check(value)) {
             value_repr = ast_repr_list(value, depth);
         }
-        else if (PyType_IsSubtype(Py_TYPE(value), (PyTypeObject *)state->AST_type)) {
-            value_repr = ast_repr_max_depth((AST_object*)value, depth - 1);
+        else if (PyObject_HasAttrString((PyObject *)Py_TYPE(value), "_fields")) {
+            value_repr = ast_repr_max_depth(value, depth - 1);
         }
         else {
             value_repr = PyObject_Repr(value);
@@ -28837,7 +28844,13 @@ error:
 static PyObject *
 ast_repr(PyObject *self)
 {
-    return ast_repr_max_depth((AST_object*)self, 3);
+    return ast_repr_max_depth(self, 3);
+}
+
+static PyObject *
+ast_repr_generic(PyObject *self, PyObject *Py_UNUSED(b))
+{
+    return ast_repr_max_depth(self, 3);
 }
 
 static PyType_Slot AST_type_slots[] = {
@@ -50711,6 +50724,17 @@ astmodule_exec(PyObject *m)
     if (PyModule_AddIntMacro(m, PyCF_OPTIMIZED_AST) < 0) {
         return -1;
     }
+    static PyMethodDef repr_def = {"__repr__", ast_repr_generic, METH_NOARGS,
+                                    NULL};
+    PyObject *repr = PyDescr_NewMethod(&PyBaseObject_Type, &repr_def);
+    if (repr == NULL) {
+        return -1;
+    }
+    if (PyModule_AddObjectRef(m, "_repr", repr) < 0) {
+        Py_DECREF(repr);
+        return -1;
+    }
+    Py_DECREF(repr);
     if (PyModule_AddObjectRef(m, "mod", state->mod_type) < 0) {
         return -1;
     }

@@ -1806,7 +1806,7 @@ static PyGetSetDef ast_type_getsets[] = {
 };
 
 static PyObject *
-ast_repr_max_depth(AST_object *self, int depth);
+ast_repr_max_depth(PyObject *self, int depth);
 
 /* Format list and tuple properties of AST nodes.
    Note that, only the first and last elements are shown.
@@ -1816,7 +1816,7 @@ ast_repr_max_depth(AST_object *self, int depth);
 static PyObject *
 ast_repr_list(PyObject *list, int depth)
 {
-    assert(PyList_Check(list) || PyTuple_Check(list));
+    assert(PySequence_Check(list));
 
     struct ast_state *state = get_ast_state();
     if (state == NULL) {
@@ -1848,7 +1848,7 @@ ast_repr_list(PyObject *list, int depth)
         }
     }
 
-    bool is_list = PyList_Check(list);
+    bool is_list = !PyTuple_Check(list);
     if (PyUnicodeWriter_WriteChar(writer, is_list ? '[' : '(') < 0) {
         goto error;
     }
@@ -1863,7 +1863,7 @@ ast_repr_list(PyObject *list, int depth)
         PyObject *item = items[i];
         if (PyType_IsSubtype(Py_TYPE(item), (PyTypeObject *)state->AST_type)) {
             PyObject *item_repr;
-            item_repr = ast_repr_max_depth((AST_object*)item, depth - 1);
+            item_repr = ast_repr_max_depth(item, depth - 1);
             if (!item_repr) {
                 goto error;
             }
@@ -1884,7 +1884,10 @@ ast_repr_list(PyObject *list, int depth)
             }
         }
     }
-
+    //if (!is_list && length == 1 &&
+    //    PyUnicodeWriter_WriteChar(writer, is_list ? ']' : ')') < 0) {
+    //    goto error;
+    //}
     if (PyUnicodeWriter_WriteChar(writer, is_list ? ']' : ')') < 0) {
         goto error;
     }
@@ -1901,7 +1904,7 @@ error:
 }
 
 static PyObject *
-ast_repr_max_depth(AST_object *self, int depth)
+ast_repr_max_depth(PyObject *self, int depth)
 {
     struct ast_state *state = get_ast_state();
     if (state == NULL) {
@@ -1920,8 +1923,8 @@ ast_repr_max_depth(AST_object *self, int depth)
         return PyUnicode_FromFormat("%s(...)", Py_TYPE(self)->tp_name);
     }
 
-    PyObject *fields;
-    if (PyObject_GetOptionalAttr((PyObject *)Py_TYPE(self), state->_fields, &fields) < 0) {
+    PyObject *fields = PyObject_GetAttr((PyObject *)Py_TYPE(self), state->_fields);
+    if (!fields) {
         Py_ReprLeave((PyObject *)self);
         return NULL;
     }
@@ -1968,8 +1971,8 @@ ast_repr_max_depth(AST_object *self, int depth)
         if (PyList_Check(value) || PyTuple_Check(value)) {
             value_repr = ast_repr_list(value, depth);
         }
-        else if (PyType_IsSubtype(Py_TYPE(value), (PyTypeObject *)state->AST_type)) {
-            value_repr = ast_repr_max_depth((AST_object*)value, depth - 1);
+        else if (PyObject_HasAttrString((PyObject *)Py_TYPE(value), "_fields")) {
+            value_repr = ast_repr_max_depth(value, depth - 1);
         }
         else {
             value_repr = PyObject_Repr(value);
@@ -2026,7 +2029,13 @@ error:
 static PyObject *
 ast_repr(PyObject *self)
 {
-    return ast_repr_max_depth((AST_object*)self, 3);
+    return ast_repr_max_depth(self, 3);
+}
+
+static PyObject *
+ast_repr_generic(PyObject *self, PyObject *Py_UNUSED(b))
+{
+    return ast_repr_max_depth(self, 3);
 }
 
 static PyType_Slot AST_type_slots[] = {
@@ -2405,12 +2414,23 @@ class ASTModuleVisitor(PickleVisitor):
         self.emit('if (PyModule_AddIntMacro(m, PyCF_OPTIMIZED_AST) < 0) {', 1)
         self.emit("return -1;", 2)
         self.emit('}', 1)
+        self.emit('static PyMethodDef repr_def = {"__repr__", ast_repr_generic, METH_NOARGS, NULL};', 1)
+        self.emit("PyObject *repr = PyDescr_NewMethod(&PyBaseObject_Type, &repr_def);", 1)
+        self.emit('if (repr == NULL) {', 1)
+        self.emit('return -1;', 2)
+        self.emit('}', 1)
+        self.emit('if (PyModule_AddObjectRef(m, "_repr", repr) < 0) {', 1)
+        self.emit('Py_DECREF(repr);', 2)
+        self.emit("return -1;", 2)
+        self.emit("}", 1)
+        self.emit('Py_DECREF(repr);', 1)
         for dfn in mod.dfns:
             self.visit(dfn)
         self.emit("return 0;", 1)
         self.emit("}", 0)
         self.emit("", 0)
         self.emit("""
+
 static PyModuleDef_Slot astmodule_slots[] = {
     {Py_mod_exec, astmodule_exec},
     {Py_mod_multiple_interpreters, Py_MOD_PER_INTERPRETER_GIL_SUPPORTED},
@@ -2923,7 +2943,13 @@ class NodesVisitor(EmitVisitor):
 
         self.emit("static PyObject *ast_seq_get(asdl_seq *seq, Py_ssize_t i) {",
                   0)
-        self.emit("return (PyObject *)asdl_seq_GET_UNTYPED(seq, i);", 1)
+
+        self.emit("if (i >= asdl_seq_LEN(seq) || i < 0) {", 0)
+        self.emit('PyErr_SetString(PyExc_IndexError, "index out of range");', 1)
+        self.emit("return NULL;", 1)
+        self.emit("}", 0)
+
+        self.emit("return Py_NewRef((PyObject *)asdl_seq_GET_UNTYPED(seq, i));", 1)
         self.emit("}", 0)
         self.emit("", 0)
 
@@ -3061,7 +3087,7 @@ class NodesVisitor(EmitVisitor):
         if fields:
             self.emit("switch (posargs) {", 1)
             for i, field in enumerate(reversed(all_mems)):
-                self.emit(f"case {len(fields)-i}: {{", 2)
+                self.emit(f"case {len(all_mems)-i}: {{", 2)
                 self.emit(f"tmp = PyTuple_GET_ITEM(pargs, {len(all_mems) - i - 1});", 3)
                 self.emit_field_new(field, name, 3)
                 if self.isSimpleType(field):

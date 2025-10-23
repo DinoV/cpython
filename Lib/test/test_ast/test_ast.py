@@ -3799,7 +3799,7 @@ class ASTOptimizationTests(unittest.TestCase):
 
 class Immutable_AST_Tests(unittest.TestCase):
     def parse(self, code, filename="filename.py"):
-        _testinternalcapi.compile_ast(code, filename)
+        return _testinternalcapi.compile_ast(code, filename)
 
     def test_repr(self):
         pass
@@ -3811,6 +3811,15 @@ class Immutable_AST_Tests(unittest.TestCase):
         x = _ast._Yield(ast.Constant(42, lineno=1, col_offset=0))
         self.assertIsInstance(x.value, _ast._Constant)
         #code = self.parse("x = 42")
+
+    def test_mut_type(self):
+        from ast import _to_mut
+        tree = self.parse("x = 42")
+        print()
+        print('imm', tree)
+        mut = _to_mut(tree)
+        print(mut)
+        #ast._MUT_TYPES["Yield"]]
 
 
 
