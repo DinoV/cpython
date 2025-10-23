@@ -3232,7 +3232,7 @@ static PyType_Slot _{node_name}_type_slots[] = {{
 }};
 
 static PyType_Spec _{node_name}_type_spec = {{
-    "ast._{node_name}",
+    "ast.{node_name}",
     sizeof(struct _{type_name}),
     0,
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,

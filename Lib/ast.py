@@ -701,7 +701,7 @@ def _to_mut(immutable):
     return res
     
 def _make_mut_type(cur_type, base_type):
-    new_name = cur_type.__name__[1:]
+    new_name = cur_type.__name__
     members = dict(cur_type.__dict__)
     if new_name == "AST":
         members["__repr__"] = _ast._repr
@@ -709,7 +709,9 @@ def _make_mut_type(cur_type, base_type):
         del members["__new__"]
     members["_imm_type"] = cur_type
     
-    for field in cur_type._fields:
+    fields = cur_type.__dict__.get('_fields', ())
+    attributes = cur_type.__dict__.get('_attributes', ())
+    for field in fields + attributes:
         def make_prop(field):
             def getter(self):
                 if field in self.__dict__:
@@ -732,17 +734,13 @@ def _make_mut_type(cur_type, base_type):
 
 def _make_mutable_types(cur_type, base_type, res):
     name = cur_type.__name__
-    if not name.startswith("_"):
-        # we see one of the newly created mutable types
-        return
-    
     if name.endswith("_seq"):
         new_type = list
     else:
         new_type = _make_mut_type(cur_type, base_type)
         res[new_type.__name__] = new_type
+
     cur_type._mut_type = new_type
-    #globals()[new_name] = new_type
     for base in cur_type.__subclasses__():
         _make_mutable_types(base, new_type, res)
     return res
