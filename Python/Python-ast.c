@@ -6790,28 +6790,32 @@ static int obj2ast_type_param(struct ast_state *state, PyObject* obj,
 static int obj2imm_type_param(struct ast_state *state, PyObject* obj,
                               type_param_ty* out);
 
+
 static PyObject *ast_repr(PyObject *self);
 
-static int obj2imm_constant(struct ast_state *Py_UNUSED(state), PyObject* obj,
-                            PyObject **out)
+static int
+obj2imm_constant(struct ast_state *Py_UNUSED(state), PyObject* obj, PyObject **out)
 {
     *out = Py_NewRef(obj);
     return 0;
 }
-static int obj2imm_identifier(struct ast_state *Py_UNUSED(state), PyObject*
-                              obj, PyObject **out)
+
+static int
+obj2imm_identifier(struct ast_state *Py_UNUSED(state), PyObject* obj, PyObject **out)
 {
     *out = Py_NewRef(obj);
     return 0;
 }
-static int obj2imm_string(struct ast_state *Py_UNUSED(state), PyObject* obj,
-                          PyObject **out)
+
+static int
+obj2imm_string(struct ast_state *Py_UNUSED(state), PyObject* obj, PyObject **out)
 {
     *out = Py_NewRef(obj);
     return 0;
 }
-static int obj2imm_int(struct ast_state *Py_UNUSED(state), PyObject* obj, int
-                       *i)
+
+static int
+obj2imm_int(struct ast_state *Py_UNUSED(state), PyObject* obj, int *i)
 {
     *i = PyLong_AsLong(obj);
     if (*i == -1 && PyErr_Occurred()) {
@@ -6819,21 +6823,28 @@ static int obj2imm_int(struct ast_state *Py_UNUSED(state), PyObject* obj, int
     }
     return 0;
 }
+
 #define ERROR_IF_NULL(x) if (x == NULL) goto error
 
-static Py_ssize_t ast_seq_len(asdl_seq *seq) {
+static Py_ssize_t
+ast_seq_len(asdl_seq *seq)
+{
     return asdl_seq_LEN(seq);
 }
 
-static PyObject *ast_seq_get(asdl_seq *seq, Py_ssize_t i) {
-if (i >= asdl_seq_LEN(seq) || i < 0) {
-    PyErr_SetString(PyExc_IndexError, "index out of range");
-    return NULL;
-}
+static PyObject *
+ast_seq_get(asdl_seq *seq, Py_ssize_t i)
+{
+    if (i >= asdl_seq_LEN(seq) || i < 0) {
+        PyErr_SetString(PyExc_IndexError, "index out of range");
+        return NULL;
+    }
+
     return Py_NewRef((PyObject *)asdl_seq_GET_UNTYPED(seq, i));
 }
 
-static int ast_seq_contains(asdl_seq *seq, PyObject *el) {
+static int ast_seq_contains(asdl_seq *seq, PyObject *el)
+{
     for (Py_ssize_t i = 0; i < seq->size; i++) {
         PyObject *item = asdl_seq_GET_UNTYPED(seq, i);
         if (item == el) {
@@ -6844,8 +6855,23 @@ static int ast_seq_contains(asdl_seq *seq, PyObject *el) {
             return cmp;
         }
     }
+
     return 0;
 }
+
+static PyObject *
+ast_class(PyObject *self, void* Py_UNUSED(unused))
+{
+    PyObject *res = PyObject_GetAttrString(self, "_mut_type");
+    if (res != NULL) {
+        return res;
+    }
+    return (PyObject *)Py_NewRef(Py_TYPE(self));
+}
+
+static PyGetSetDef ast_getsets[] = {
+    {"__class__", ast_class, NULL, "Proxy for mutable __class__."}
+};
 
 static void int_seq_dealloc(PyObject *self) {
     PyTypeObject *type = Py_TYPE(self);
@@ -6978,7 +7004,8 @@ static PyMemberDef AST_members[] = {
 
 static PyType_Slot _AST_type_slots[] = {
     {Py_tp_dealloc, &AST_dealloc},
-{Py_tp_repr, ast_repr},
+    {Py_tp_repr, ast_repr},
+    {Py_tp_getset, ast_getsets},
     {Py_tp_members, AST_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, ""},

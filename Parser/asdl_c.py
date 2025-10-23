@@ -2904,72 +2904,89 @@ class NodesDeclVisitor(EmitVisitor):
 
 class NodesVisitor(EmitVisitor):
     def visitModule(self, mod):
-        self.emit("static PyObject *ast_repr(PyObject *self);", 0)
-        self.emit("", 0)
-        self.emit("static int obj2imm_constant(struct ast_state *Py_UNUSED(state), PyObject* obj, PyObject **out)", 0)
-        self.emit("{", 0)
-        self.emit("*out = Py_NewRef(obj);", 1)
-        self.emit("return 0;", 1)
-        self.emit("}", 0)
+        self.emit(textwrap.dedent("""
+        static PyObject *ast_repr(PyObject *self);
 
-        self.emit("static int obj2imm_identifier(struct ast_state *Py_UNUSED(state), PyObject* obj, PyObject **out)", 0)
-        self.emit("{", 0)
-        self.emit("*out = Py_NewRef(obj);", 1)
-        self.emit("return 0;", 1)
-        self.emit("}", 0)
+        static int
+        obj2imm_constant(struct ast_state *Py_UNUSED(state), PyObject* obj, PyObject **out)
+        {
+            *out = Py_NewRef(obj);
+            return 0;
+        }
 
-        self.emit("static int obj2imm_string(struct ast_state *Py_UNUSED(state), PyObject* obj, PyObject **out)", 0)
-        self.emit("{", 0)
-        self.emit("*out = Py_NewRef(obj);", 1)
-        self.emit("return 0;", 1)
-        self.emit("}", 0)
+        static int
+        obj2imm_identifier(struct ast_state *Py_UNUSED(state), PyObject* obj, PyObject **out)
+        {
+            *out = Py_NewRef(obj);
+            return 0;
+        }
 
-        self.emit("static int obj2imm_int(struct ast_state *Py_UNUSED(state), PyObject* obj, int *i)", 0)
-        self.emit("{", 0)
-        self.emit(f"*i = PyLong_AsLong(obj);", 1)
-        self.emit("if (*i == -1 && PyErr_Occurred()) {", 1)
-        self.emit("return -1;", 2)
-        self.emit("}", 1)
-        self.emit("return 0;", 1)
-        self.emit("}", 0)
+        static int
+        obj2imm_string(struct ast_state *Py_UNUSED(state), PyObject* obj, PyObject **out)
+        {
+            *out = Py_NewRef(obj);
+            return 0;
+        }
 
-        self.emit("#define ERROR_IF_NULL(x) if (x == NULL) goto error", 0)
-        self.emit("", 0)
+        static int
+        obj2imm_int(struct ast_state *Py_UNUSED(state), PyObject* obj, int *i)
+        {
+            *i = PyLong_AsLong(obj);
+            if (*i == -1 && PyErr_Occurred()) {
+                return -1;
+            }
+            return 0;
+        }
 
-        self.emit("static Py_ssize_t ast_seq_len(asdl_seq *seq) {", 0)
-        self.emit("return asdl_seq_LEN(seq);", 1)
-        self.emit("}", 0)
-        self.emit("", 0)
+        #define ERROR_IF_NULL(x) if (x == NULL) goto error
 
-        self.emit("static PyObject *ast_seq_get(asdl_seq *seq, Py_ssize_t i) {",
-                  0)
+        static Py_ssize_t
+        ast_seq_len(asdl_seq *seq)
+        {
+            return asdl_seq_LEN(seq);
+        }
 
-        self.emit("if (i >= asdl_seq_LEN(seq) || i < 0) {", 0)
-        self.emit('PyErr_SetString(PyExc_IndexError, "index out of range");', 1)
-        self.emit("return NULL;", 1)
-        self.emit("}", 0)
+        static PyObject *
+        ast_seq_get(asdl_seq *seq, Py_ssize_t i)
+        {
+            if (i >= asdl_seq_LEN(seq) || i < 0) {
+                PyErr_SetString(PyExc_IndexError, "index out of range");
+                return NULL;
+            }
 
-        self.emit("return Py_NewRef((PyObject *)asdl_seq_GET_UNTYPED(seq, i));", 1)
-        self.emit("}", 0)
-        self.emit("", 0)
+            return Py_NewRef((PyObject *)asdl_seq_GET_UNTYPED(seq, i));
+        }
 
-        self.emit("static int ast_seq_contains(asdl_seq *seq, PyObject *el) {",
-                  0)
-        self.emit("for (Py_ssize_t i = 0; i < seq->size; i++) {", 1)
-        self.emit("PyObject *item = asdl_seq_GET_UNTYPED(seq, i);", 2)
-        self.emit("if (item == el) {", 2)
-        self.emit("return 1;", 3)
-        self.emit("}", 2)
+        static int ast_seq_contains(asdl_seq *seq, PyObject *el)
+        {
+            for (Py_ssize_t i = 0; i < seq->size; i++) {
+                PyObject *item = asdl_seq_GET_UNTYPED(seq, i);
+                if (item == el) {
+                    return 1;
+                }
+                int cmp = PyObject_RichCompareBool(item, el, Py_EQ);
+                if (cmp != 0) {
+                    return cmp;
+                }
+            }
+        
+            return 0;
+        }
 
-        self.emit("int cmp = PyObject_RichCompareBool(item, el, Py_EQ);", 2)
-        self.emit("if (cmp != 0) {", 2)
-        self.emit("return cmp;", 3)
-        self.emit("}", 2)
+        static PyObject *
+        ast_class(PyObject *self, void* Py_UNUSED(unused))
+        {
+            PyObject *res = PyObject_GetAttrString(self, "_mut_type");
+            if (res != NULL) {
+                return res;
+            }
+            return (PyObject *)Py_NewRef(Py_TYPE(self));
+        }
 
-        self.emit("}", 1)
-        self.emit("return 0;", 1)
-        self.emit("}", 0)
-        self.emit("", 0)
+        static PyGetSetDef ast_getsets[] = {
+            {"__class__", ast_class, NULL, "Proxy for mutable __class__."}
+        };
+        """), 0, reflow=False)
 
         self.seq_type("int", "int", dealloc_elems=False)
         self.seq_type("identifier", "identifier")
@@ -3201,7 +3218,8 @@ class NodesVisitor(EmitVisitor):
 static PyType_Slot _{node_name}_type_slots[] = {{
     {{Py_tp_dealloc, &{node_name}_dealloc}},""", 0, reflow=False)
         if node_name == "AST":
-            self.emit("{Py_tp_repr, ast_repr},", 0)
+            self.emit("{Py_tp_repr, ast_repr},", 1)
+            self.emit("{Py_tp_getset, ast_getsets},", 1)
         self.emit(
             f"""    {{Py_tp_members, {node_name}_members}},
     {{Py_tp_free, PyObject_Free}},
