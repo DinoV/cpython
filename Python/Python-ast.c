@@ -6941,13 +6941,31 @@ static void AST_dealloc(PyObject *self) {
     Py_TYPE(self)->tp_free(self);
 }
 static PyObject *
-AST_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+AST_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
 {
-    PyObject *res = type->tp_alloc(type, 0);
-    if (!res) {
+    Py_ssize_t posargs = PyTuple_GET_SIZE(pargs);
+    if (posargs > 0) {
+        PyErr_SetString(PyExc_TypeError,
+                        "AST takes at most 0 positional arguments");
         return NULL;
     }
-    return res;
+    if (kwargs != NULL && PyDict_Size(kwargs)) {
+        if (PyDict_Size(kwargs)) {
+            Py_ssize_t pos = 0;
+            PyObject *key;
+            while (PyDict_Next(kwargs, &pos, &key, NULL)) {
+                PyErr_Format(PyExc_TypeError,
+                                "%.400s.__replace__ got an unexpected keyword "
+                                "argument '%U'.", pytype->tp_name, key);
+                goto fail;
+            }
+        }
+    }
+    struct _object *res = (struct _object*)pytype->tp_alloc(pytype, 0);
+    if (!res) goto fail;
+    return (PyObject *)res;
+fail:
+    return NULL;
 }
 
 static PyMemberDef AST_members[] = {
@@ -6975,38 +6993,78 @@ static PyType_Spec _AST_type_spec = {
 
 
 static PyObject *
-Module_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+Module_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
 {
-    PyObject *res = type->tp_alloc(type, 0);
-    if (!res) {
+    Py_ssize_t posargs = PyTuple_GET_SIZE(pargs);
+    if (posargs > 2) {
+        PyErr_SetString(PyExc_TypeError,
+                        "Module takes at most 2 positional arguments");
         return NULL;
     }
+    asdl_stmt_seq* body = NULL;
+    asdl_type_ignore_seq* type_ignores = NULL;
+    PyObject *tmp;
     struct ast_state *state = get_ast_state();
-    struct _mod *self = (struct _mod*)res;
-    Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     switch (posargs) {
         case 2: {
-            PyObject *value = PyTuple_GET_ITEM(args, 1);
-            if (obj2imm_type_ignore_seq(state, value, "", "type_ignores",
-                &self->v.Module.type_ignores) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 1);
+            if (obj2imm_type_ignore_seq(state, tmp, "Module", "type_ignores",
+                &type_ignores) < 0) {
+                goto fail;
             }
         }
         // fallthrough
         case 1: {
-            PyObject *value = PyTuple_GET_ITEM(args, 0);
-            if (obj2imm_stmt_seq(state, value, "", "body",
-                &self->v.Module.body) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 0);
+            if (obj2imm_stmt_seq(state, tmp, "Module", "body", &body) < 0) {
+                goto fail;
             }
         }
         // fallthrough
         default:
             break;
     }
-    return res;
+    if (kwargs != NULL && PyDict_Size(kwargs)) {
+        int err;
+        if (body != NULL) {
+            err = PyDict_PopString(kwargs, "body", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_stmt_seq(state, tmp, "Module", "body", &body) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (type_ignores != NULL) {
+            err = PyDict_PopString(kwargs, "type_ignores", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_type_ignore_seq(state, tmp, "Module",
+                    "type_ignores", &type_ignores) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (PyDict_Size(kwargs)) {
+            Py_ssize_t pos = 0;
+            PyObject *key;
+            while (PyDict_Next(kwargs, &pos, &key, NULL)) {
+                PyErr_Format(PyExc_TypeError,
+                                "%.400s.__replace__ got an unexpected keyword "
+                                "argument '%U'.", pytype->tp_name, key);
+                goto fail;
+            }
+        }
+    }
+    struct _mod *res = (struct _mod*)pytype->tp_alloc(pytype, 0);
+    if (!res) goto fail;
+    res->v.Module.body = body;
+    res->v.Module.type_ignores = type_ignores;
+    return (PyObject *)res;
+fail:
+    Py_XDECREF(body);
+    Py_XDECREF(type_ignores);
+    return NULL;
 }
 
 static void Module_dealloc(PyObject *self) {
@@ -7071,29 +7129,59 @@ error:
 }
 
 static PyObject *
-Interactive_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+Interactive_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
 {
-    PyObject *res = type->tp_alloc(type, 0);
-    if (!res) {
+    Py_ssize_t posargs = PyTuple_GET_SIZE(pargs);
+    if (posargs > 1) {
+        PyErr_SetString(PyExc_TypeError,
+                        "Interactive takes at most 1 positional argument");
         return NULL;
     }
+    asdl_stmt_seq* body = NULL;
+    PyObject *tmp;
     struct ast_state *state = get_ast_state();
-    struct _mod *self = (struct _mod*)res;
-    Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     switch (posargs) {
         case 1: {
-            PyObject *value = PyTuple_GET_ITEM(args, 0);
-            if (obj2imm_stmt_seq(state, value, "", "body",
-                &self->v.Interactive.body) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 0);
+            if (obj2imm_stmt_seq(state, tmp, "Interactive", "body", &body) < 0)
+                {
+                goto fail;
             }
         }
         // fallthrough
         default:
             break;
     }
-    return res;
+    if (kwargs != NULL && PyDict_Size(kwargs)) {
+        int err;
+        if (body != NULL) {
+            err = PyDict_PopString(kwargs, "body", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_stmt_seq(state, tmp, "Interactive", "body", &body)
+                    < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (PyDict_Size(kwargs)) {
+            Py_ssize_t pos = 0;
+            PyObject *key;
+            while (PyDict_Next(kwargs, &pos, &key, NULL)) {
+                PyErr_Format(PyExc_TypeError,
+                                "%.400s.__replace__ got an unexpected keyword "
+                                "argument '%U'.", pytype->tp_name, key);
+                goto fail;
+            }
+        }
+    }
+    struct _mod *res = (struct _mod*)pytype->tp_alloc(pytype, 0);
+    if (!res) goto fail;
+    res->v.Interactive.body = body;
+    return (PyObject *)res;
+fail:
+    Py_XDECREF(body);
+    return NULL;
 }
 
 static void Interactive_dealloc(PyObject *self) {
@@ -7150,28 +7238,57 @@ error:
 }
 
 static PyObject *
-Expression_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+Expression_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
 {
-    PyObject *res = type->tp_alloc(type, 0);
-    if (!res) {
+    Py_ssize_t posargs = PyTuple_GET_SIZE(pargs);
+    if (posargs > 1) {
+        PyErr_SetString(PyExc_TypeError,
+                        "Expression takes at most 1 positional argument");
         return NULL;
     }
+    expr_ty body = NULL;
+    PyObject *tmp;
     struct ast_state *state = get_ast_state();
-    struct _mod *self = (struct _mod*)res;
-    Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     switch (posargs) {
         case 1: {
-            PyObject *value = PyTuple_GET_ITEM(args, 0);
-            if (obj2imm_expr(state, value, &self->v.Expression.body) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 0);
+            if (obj2imm_expr(state, tmp, &body) < 0) {
+                goto fail;
             }
         }
         // fallthrough
         default:
             break;
     }
-    return res;
+    if (kwargs != NULL && PyDict_Size(kwargs)) {
+        int err;
+        if (body != NULL) {
+            err = PyDict_PopString(kwargs, "body", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_expr(state, tmp, &body) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (PyDict_Size(kwargs)) {
+            Py_ssize_t pos = 0;
+            PyObject *key;
+            while (PyDict_Next(kwargs, &pos, &key, NULL)) {
+                PyErr_Format(PyExc_TypeError,
+                                "%.400s.__replace__ got an unexpected keyword "
+                                "argument '%U'.", pytype->tp_name, key);
+                goto fail;
+            }
+        }
+    }
+    struct _mod *res = (struct _mod*)pytype->tp_alloc(pytype, 0);
+    if (!res) goto fail;
+    res->v.Expression.body = body;
+    return (PyObject *)res;
+fail:
+    Py_XDECREF(body);
+    return NULL;
 }
 
 static void Expression_dealloc(PyObject *self) {
@@ -7227,37 +7344,78 @@ error:
 }
 
 static PyObject *
-FunctionType_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+FunctionType_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
 {
-    PyObject *res = type->tp_alloc(type, 0);
-    if (!res) {
+    Py_ssize_t posargs = PyTuple_GET_SIZE(pargs);
+    if (posargs > 2) {
+        PyErr_SetString(PyExc_TypeError,
+                        "FunctionType takes at most 2 positional arguments");
         return NULL;
     }
+    asdl_expr_seq* argtypes = NULL;
+    expr_ty returns = NULL;
+    PyObject *tmp;
     struct ast_state *state = get_ast_state();
-    struct _mod *self = (struct _mod*)res;
-    Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     switch (posargs) {
         case 2: {
-            PyObject *value = PyTuple_GET_ITEM(args, 1);
-            if (obj2imm_expr(state, value, &self->v.FunctionType.returns) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 1);
+            if (obj2imm_expr(state, tmp, &returns) < 0) {
+                goto fail;
             }
         }
         // fallthrough
         case 1: {
-            PyObject *value = PyTuple_GET_ITEM(args, 0);
-            if (obj2imm_expr_seq(state, value, "", "argtypes",
-                &self->v.FunctionType.argtypes) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 0);
+            if (obj2imm_expr_seq(state, tmp, "FunctionType", "argtypes",
+                &argtypes) < 0) {
+                goto fail;
             }
         }
         // fallthrough
         default:
             break;
     }
-    return res;
+    if (kwargs != NULL && PyDict_Size(kwargs)) {
+        int err;
+        if (argtypes != NULL) {
+            err = PyDict_PopString(kwargs, "argtypes", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_expr_seq(state, tmp, "FunctionType", "argtypes",
+                    &argtypes) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (returns != NULL) {
+            err = PyDict_PopString(kwargs, "returns", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_expr(state, tmp, &returns) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (PyDict_Size(kwargs)) {
+            Py_ssize_t pos = 0;
+            PyObject *key;
+            while (PyDict_Next(kwargs, &pos, &key, NULL)) {
+                PyErr_Format(PyExc_TypeError,
+                                "%.400s.__replace__ got an unexpected keyword "
+                                "argument '%U'.", pytype->tp_name, key);
+                goto fail;
+            }
+        }
+    }
+    struct _mod *res = (struct _mod*)pytype->tp_alloc(pytype, 0);
+    if (!res) goto fail;
+    res->v.FunctionType.argtypes = argtypes;
+    res->v.FunctionType.returns = returns;
+    return (PyObject *)res;
+fail:
+    Py_XDECREF(argtypes);
+    Py_XDECREF(returns);
+    return NULL;
 }
 
 static void FunctionType_dealloc(PyObject *self) {
@@ -7339,13 +7497,31 @@ mod_ty _PyAst_mod_Copy(mod_ty node) {
 }
 
 static PyObject *
-mod_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+mod_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
 {
-    PyObject *res = type->tp_alloc(type, 0);
-    if (!res) {
+    Py_ssize_t posargs = PyTuple_GET_SIZE(pargs);
+    if (posargs > 0) {
+        PyErr_SetString(PyExc_TypeError,
+                        "mod takes at most 0 positional arguments");
         return NULL;
     }
-    return res;
+    if (kwargs != NULL && PyDict_Size(kwargs)) {
+        if (PyDict_Size(kwargs)) {
+            Py_ssize_t pos = 0;
+            PyObject *key;
+            while (PyDict_Next(kwargs, &pos, &key, NULL)) {
+                PyErr_Format(PyExc_TypeError,
+                                "%.400s.__replace__ got an unexpected keyword "
+                                "argument '%U'.", pytype->tp_name, key);
+                goto fail;
+            }
+        }
+    }
+    struct _mod *res = (struct _mod*)pytype->tp_alloc(pytype, 0);
+    if (!res) goto fail;
+    return (PyObject *)res;
+fail:
+    return NULL;
 }
 
 static void mod_dealloc(PyObject *self) {
@@ -7436,82 +7612,257 @@ asdl_mod_seq *_PyAst_mod_seq_Copy(asdl_mod_seq *seq) {
 }
 
 static PyObject *
-FunctionDef_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+FunctionDef_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
 {
-    PyObject *res = type->tp_alloc(type, 0);
-    if (!res) {
+    Py_ssize_t posargs = PyTuple_GET_SIZE(pargs);
+    if (posargs > 7) {
+        PyErr_SetString(PyExc_TypeError,
+                        "FunctionDef takes at most 7 positional arguments");
         return NULL;
     }
+    identifier name = NULL;
+    arguments_ty args = NULL;
+    asdl_stmt_seq* body = NULL;
+    asdl_expr_seq* decorator_list = NULL;
+    expr_ty returns = NULL;
+    string type_comment = 0;
+    asdl_type_param_seq* type_params = NULL;
+    int lineno = 0;
+    bool got_lineno = false;
+    int col_offset = 0;
+    bool got_col_offset = false;
+    int end_lineno = 0;
+    bool got_end_lineno = false;
+    int end_col_offset = 0;
+    bool got_end_col_offset = false;
+    PyObject *tmp;
     struct ast_state *state = get_ast_state();
-    struct _stmt *self = (struct _stmt*)res;
-    Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     switch (posargs) {
         case 7: {
-            PyObject *value = PyTuple_GET_ITEM(args, 6);
-            if (obj2imm_type_param_seq(state, value, "", "type_params",
-                &self->v.FunctionDef.type_params) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 10);
+            if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                goto fail;
             }
+            got_end_col_offset = true;
         }
         // fallthrough
         case 6: {
-            PyObject *value = PyTuple_GET_ITEM(args, 5);
-            if (obj2imm_string(state, value, &self->v.FunctionDef.type_comment)
-                < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 9);
+            if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                goto fail;
             }
+            got_end_lineno = true;
         }
         // fallthrough
         case 5: {
-            PyObject *value = PyTuple_GET_ITEM(args, 4);
-            if (obj2imm_expr(state, value, &self->v.FunctionDef.returns) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 8);
+            if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                goto fail;
             }
+            got_col_offset = true;
         }
         // fallthrough
         case 4: {
-            PyObject *value = PyTuple_GET_ITEM(args, 3);
-            if (obj2imm_expr_seq(state, value, "", "decorator_list",
-                &self->v.FunctionDef.decorator_list) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 7);
+            if (obj2imm_int(state, tmp, &lineno) < 0) {
+                goto fail;
             }
+            got_lineno = true;
         }
         // fallthrough
         case 3: {
-            PyObject *value = PyTuple_GET_ITEM(args, 2);
-            if (obj2imm_stmt_seq(state, value, "", "body",
-                &self->v.FunctionDef.body) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 6);
+            if (obj2imm_type_param_seq(state, tmp, "FunctionDef",
+                "type_params", &type_params) < 0) {
+                goto fail;
             }
         }
         // fallthrough
         case 2: {
-            PyObject *value = PyTuple_GET_ITEM(args, 1);
-            if (obj2imm_arguments(state, value, &self->v.FunctionDef.args) < 0)
-                {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 5);
+            if (obj2imm_string(state, tmp, &type_comment) < 0) {
+                goto fail;
             }
         }
         // fallthrough
         case 1: {
-            PyObject *value = PyTuple_GET_ITEM(args, 0);
-            if (obj2imm_identifier(state, value, &self->v.FunctionDef.name) <
-                0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 4);
+            if (obj2imm_expr(state, tmp, &returns) < 0) {
+                goto fail;
+            }
+        }
+        // fallthrough
+        case 0: {
+            tmp = PyTuple_GET_ITEM(pargs, 3);
+            if (obj2imm_expr_seq(state, tmp, "FunctionDef", "decorator_list",
+                &decorator_list) < 0) {
+                goto fail;
+            }
+        }
+        // fallthrough
+        case -1: {
+            tmp = PyTuple_GET_ITEM(pargs, 2);
+            if (obj2imm_stmt_seq(state, tmp, "FunctionDef", "body", &body) < 0)
+                {
+                goto fail;
+            }
+        }
+        // fallthrough
+        case -2: {
+            tmp = PyTuple_GET_ITEM(pargs, 1);
+            if (obj2imm_arguments(state, tmp, &args) < 0) {
+                goto fail;
+            }
+        }
+        // fallthrough
+        case -3: {
+            tmp = PyTuple_GET_ITEM(pargs, 0);
+            if (obj2imm_identifier(state, tmp, &name) < 0) {
+                goto fail;
             }
         }
         // fallthrough
         default:
             break;
     }
-    return res;
+    if (kwargs != NULL && PyDict_Size(kwargs)) {
+        int err;
+        if (name != NULL) {
+            err = PyDict_PopString(kwargs, "name", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_identifier(state, tmp, &name) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (args != NULL) {
+            err = PyDict_PopString(kwargs, "args", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_arguments(state, tmp, &args) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (body != NULL) {
+            err = PyDict_PopString(kwargs, "body", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_stmt_seq(state, tmp, "FunctionDef", "body", &body)
+                    < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (decorator_list != NULL) {
+            err = PyDict_PopString(kwargs, "decorator_list", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_expr_seq(state, tmp, "FunctionDef",
+                    "decorator_list", &decorator_list) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (returns != NULL) {
+            err = PyDict_PopString(kwargs, "returns", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_expr(state, tmp, &returns) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (type_comment != NULL) {
+            err = PyDict_PopString(kwargs, "type_comment", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_string(state, tmp, &type_comment) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (type_params != NULL) {
+            err = PyDict_PopString(kwargs, "type_params", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_type_param_seq(state, tmp, "FunctionDef",
+                    "type_params", &type_params) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_lineno) {
+            err = PyDict_PopString(kwargs, "lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_col_offset) {
+            err = PyDict_PopString(kwargs, "col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_lineno) {
+            err = PyDict_PopString(kwargs, "end_lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_col_offset) {
+            err = PyDict_PopString(kwargs, "end_col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (PyDict_Size(kwargs)) {
+            Py_ssize_t pos = 0;
+            PyObject *key;
+            while (PyDict_Next(kwargs, &pos, &key, NULL)) {
+                PyErr_Format(PyExc_TypeError,
+                                "%.400s.__replace__ got an unexpected keyword "
+                                "argument '%U'.", pytype->tp_name, key);
+                goto fail;
+            }
+        }
+    }
+    struct _stmt *res = (struct _stmt*)pytype->tp_alloc(pytype, 0);
+    if (!res) goto fail;
+    res->v.FunctionDef.name = name;
+    res->v.FunctionDef.args = args;
+    res->v.FunctionDef.body = body;
+    res->v.FunctionDef.decorator_list = decorator_list;
+    res->v.FunctionDef.returns = returns;
+    res->v.FunctionDef.type_comment = type_comment;
+    res->v.FunctionDef.type_params = type_params;
+    res->lineno = lineno;
+    res->col_offset = col_offset;
+    res->end_lineno = end_lineno;
+    res->end_col_offset = end_col_offset;
+    return (PyObject *)res;
+fail:
+    Py_XDECREF(name);
+    Py_XDECREF(args);
+    Py_XDECREF(body);
+    Py_XDECREF(decorator_list);
+    Py_XDECREF(returns);
+    Py_XDECREF(type_comment);
+    Py_XDECREF(type_params);
+    return NULL;
 }
 
 static void FunctionDef_dealloc(PyObject *self) {
@@ -7627,83 +7978,257 @@ error:
 }
 
 static PyObject *
-AsyncFunctionDef_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+AsyncFunctionDef_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
 {
-    PyObject *res = type->tp_alloc(type, 0);
-    if (!res) {
+    Py_ssize_t posargs = PyTuple_GET_SIZE(pargs);
+    if (posargs > 7) {
+        PyErr_SetString(PyExc_TypeError,
+                        "AsyncFunctionDef takes at most 7 positional arguments");
         return NULL;
     }
+    identifier name = NULL;
+    arguments_ty args = NULL;
+    asdl_stmt_seq* body = NULL;
+    asdl_expr_seq* decorator_list = NULL;
+    expr_ty returns = NULL;
+    string type_comment = 0;
+    asdl_type_param_seq* type_params = NULL;
+    int lineno = 0;
+    bool got_lineno = false;
+    int col_offset = 0;
+    bool got_col_offset = false;
+    int end_lineno = 0;
+    bool got_end_lineno = false;
+    int end_col_offset = 0;
+    bool got_end_col_offset = false;
+    PyObject *tmp;
     struct ast_state *state = get_ast_state();
-    struct _stmt *self = (struct _stmt*)res;
-    Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     switch (posargs) {
         case 7: {
-            PyObject *value = PyTuple_GET_ITEM(args, 6);
-            if (obj2imm_type_param_seq(state, value, "", "type_params",
-                &self->v.AsyncFunctionDef.type_params) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 10);
+            if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                goto fail;
             }
+            got_end_col_offset = true;
         }
         // fallthrough
         case 6: {
-            PyObject *value = PyTuple_GET_ITEM(args, 5);
-            if (obj2imm_string(state, value,
-                &self->v.AsyncFunctionDef.type_comment) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 9);
+            if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                goto fail;
             }
+            got_end_lineno = true;
         }
         // fallthrough
         case 5: {
-            PyObject *value = PyTuple_GET_ITEM(args, 4);
-            if (obj2imm_expr(state, value, &self->v.AsyncFunctionDef.returns) <
-                0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 8);
+            if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                goto fail;
             }
+            got_col_offset = true;
         }
         // fallthrough
         case 4: {
-            PyObject *value = PyTuple_GET_ITEM(args, 3);
-            if (obj2imm_expr_seq(state, value, "", "decorator_list",
-                &self->v.AsyncFunctionDef.decorator_list) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 7);
+            if (obj2imm_int(state, tmp, &lineno) < 0) {
+                goto fail;
             }
+            got_lineno = true;
         }
         // fallthrough
         case 3: {
-            PyObject *value = PyTuple_GET_ITEM(args, 2);
-            if (obj2imm_stmt_seq(state, value, "", "body",
-                &self->v.AsyncFunctionDef.body) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 6);
+            if (obj2imm_type_param_seq(state, tmp, "AsyncFunctionDef",
+                "type_params", &type_params) < 0) {
+                goto fail;
             }
         }
         // fallthrough
         case 2: {
-            PyObject *value = PyTuple_GET_ITEM(args, 1);
-            if (obj2imm_arguments(state, value, &self->v.AsyncFunctionDef.args)
-                < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 5);
+            if (obj2imm_string(state, tmp, &type_comment) < 0) {
+                goto fail;
             }
         }
         // fallthrough
         case 1: {
-            PyObject *value = PyTuple_GET_ITEM(args, 0);
-            if (obj2imm_identifier(state, value,
-                &self->v.AsyncFunctionDef.name) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 4);
+            if (obj2imm_expr(state, tmp, &returns) < 0) {
+                goto fail;
+            }
+        }
+        // fallthrough
+        case 0: {
+            tmp = PyTuple_GET_ITEM(pargs, 3);
+            if (obj2imm_expr_seq(state, tmp, "AsyncFunctionDef",
+                "decorator_list", &decorator_list) < 0) {
+                goto fail;
+            }
+        }
+        // fallthrough
+        case -1: {
+            tmp = PyTuple_GET_ITEM(pargs, 2);
+            if (obj2imm_stmt_seq(state, tmp, "AsyncFunctionDef", "body", &body)
+                < 0) {
+                goto fail;
+            }
+        }
+        // fallthrough
+        case -2: {
+            tmp = PyTuple_GET_ITEM(pargs, 1);
+            if (obj2imm_arguments(state, tmp, &args) < 0) {
+                goto fail;
+            }
+        }
+        // fallthrough
+        case -3: {
+            tmp = PyTuple_GET_ITEM(pargs, 0);
+            if (obj2imm_identifier(state, tmp, &name) < 0) {
+                goto fail;
             }
         }
         // fallthrough
         default:
             break;
     }
-    return res;
+    if (kwargs != NULL && PyDict_Size(kwargs)) {
+        int err;
+        if (name != NULL) {
+            err = PyDict_PopString(kwargs, "name", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_identifier(state, tmp, &name) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (args != NULL) {
+            err = PyDict_PopString(kwargs, "args", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_arguments(state, tmp, &args) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (body != NULL) {
+            err = PyDict_PopString(kwargs, "body", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_stmt_seq(state, tmp, "AsyncFunctionDef", "body",
+                    &body) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (decorator_list != NULL) {
+            err = PyDict_PopString(kwargs, "decorator_list", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_expr_seq(state, tmp, "AsyncFunctionDef",
+                    "decorator_list", &decorator_list) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (returns != NULL) {
+            err = PyDict_PopString(kwargs, "returns", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_expr(state, tmp, &returns) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (type_comment != NULL) {
+            err = PyDict_PopString(kwargs, "type_comment", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_string(state, tmp, &type_comment) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (type_params != NULL) {
+            err = PyDict_PopString(kwargs, "type_params", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_type_param_seq(state, tmp, "AsyncFunctionDef",
+                    "type_params", &type_params) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_lineno) {
+            err = PyDict_PopString(kwargs, "lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_col_offset) {
+            err = PyDict_PopString(kwargs, "col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_lineno) {
+            err = PyDict_PopString(kwargs, "end_lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_col_offset) {
+            err = PyDict_PopString(kwargs, "end_col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (PyDict_Size(kwargs)) {
+            Py_ssize_t pos = 0;
+            PyObject *key;
+            while (PyDict_Next(kwargs, &pos, &key, NULL)) {
+                PyErr_Format(PyExc_TypeError,
+                                "%.400s.__replace__ got an unexpected keyword "
+                                "argument '%U'.", pytype->tp_name, key);
+                goto fail;
+            }
+        }
+    }
+    struct _stmt *res = (struct _stmt*)pytype->tp_alloc(pytype, 0);
+    if (!res) goto fail;
+    res->v.AsyncFunctionDef.name = name;
+    res->v.AsyncFunctionDef.args = args;
+    res->v.AsyncFunctionDef.body = body;
+    res->v.AsyncFunctionDef.decorator_list = decorator_list;
+    res->v.AsyncFunctionDef.returns = returns;
+    res->v.AsyncFunctionDef.type_comment = type_comment;
+    res->v.AsyncFunctionDef.type_params = type_params;
+    res->lineno = lineno;
+    res->col_offset = col_offset;
+    res->end_lineno = end_lineno;
+    res->end_col_offset = end_col_offset;
+    return (PyObject *)res;
+fail:
+    Py_XDECREF(name);
+    Py_XDECREF(args);
+    Py_XDECREF(body);
+    Py_XDECREF(decorator_list);
+    Py_XDECREF(returns);
+    Py_XDECREF(type_comment);
+    Py_XDECREF(type_params);
+    return NULL;
 }
 
 static void AsyncFunctionDef_dealloc(PyObject *self) {
@@ -7819,73 +8344,240 @@ error:
 }
 
 static PyObject *
-ClassDef_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+ClassDef_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
 {
-    PyObject *res = type->tp_alloc(type, 0);
-    if (!res) {
+    Py_ssize_t posargs = PyTuple_GET_SIZE(pargs);
+    if (posargs > 6) {
+        PyErr_SetString(PyExc_TypeError,
+                        "ClassDef takes at most 6 positional arguments");
         return NULL;
     }
+    identifier name = NULL;
+    asdl_expr_seq* bases = NULL;
+    asdl_keyword_seq* keywords = NULL;
+    asdl_stmt_seq* body = NULL;
+    asdl_expr_seq* decorator_list = NULL;
+    asdl_type_param_seq* type_params = NULL;
+    int lineno = 0;
+    bool got_lineno = false;
+    int col_offset = 0;
+    bool got_col_offset = false;
+    int end_lineno = 0;
+    bool got_end_lineno = false;
+    int end_col_offset = 0;
+    bool got_end_col_offset = false;
+    PyObject *tmp;
     struct ast_state *state = get_ast_state();
-    struct _stmt *self = (struct _stmt*)res;
-    Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     switch (posargs) {
         case 6: {
-            PyObject *value = PyTuple_GET_ITEM(args, 5);
-            if (obj2imm_type_param_seq(state, value, "", "type_params",
-                &self->v.ClassDef.type_params) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 9);
+            if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                goto fail;
             }
+            got_end_col_offset = true;
         }
         // fallthrough
         case 5: {
-            PyObject *value = PyTuple_GET_ITEM(args, 4);
-            if (obj2imm_expr_seq(state, value, "", "decorator_list",
-                &self->v.ClassDef.decorator_list) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 8);
+            if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                goto fail;
             }
+            got_end_lineno = true;
         }
         // fallthrough
         case 4: {
-            PyObject *value = PyTuple_GET_ITEM(args, 3);
-            if (obj2imm_stmt_seq(state, value, "", "body",
-                &self->v.ClassDef.body) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 7);
+            if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                goto fail;
             }
+            got_col_offset = true;
         }
         // fallthrough
         case 3: {
-            PyObject *value = PyTuple_GET_ITEM(args, 2);
-            if (obj2imm_keyword_seq(state, value, "", "keywords",
-                &self->v.ClassDef.keywords) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 6);
+            if (obj2imm_int(state, tmp, &lineno) < 0) {
+                goto fail;
             }
+            got_lineno = true;
         }
         // fallthrough
         case 2: {
-            PyObject *value = PyTuple_GET_ITEM(args, 1);
-            if (obj2imm_expr_seq(state, value, "", "bases",
-                &self->v.ClassDef.bases) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 5);
+            if (obj2imm_type_param_seq(state, tmp, "ClassDef", "type_params",
+                &type_params) < 0) {
+                goto fail;
             }
         }
         // fallthrough
         case 1: {
-            PyObject *value = PyTuple_GET_ITEM(args, 0);
-            if (obj2imm_identifier(state, value, &self->v.ClassDef.name) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 4);
+            if (obj2imm_expr_seq(state, tmp, "ClassDef", "decorator_list",
+                &decorator_list) < 0) {
+                goto fail;
+            }
+        }
+        // fallthrough
+        case 0: {
+            tmp = PyTuple_GET_ITEM(pargs, 3);
+            if (obj2imm_stmt_seq(state, tmp, "ClassDef", "body", &body) < 0) {
+                goto fail;
+            }
+        }
+        // fallthrough
+        case -1: {
+            tmp = PyTuple_GET_ITEM(pargs, 2);
+            if (obj2imm_keyword_seq(state, tmp, "ClassDef", "keywords",
+                &keywords) < 0) {
+                goto fail;
+            }
+        }
+        // fallthrough
+        case -2: {
+            tmp = PyTuple_GET_ITEM(pargs, 1);
+            if (obj2imm_expr_seq(state, tmp, "ClassDef", "bases", &bases) < 0) {
+                goto fail;
+            }
+        }
+        // fallthrough
+        case -3: {
+            tmp = PyTuple_GET_ITEM(pargs, 0);
+            if (obj2imm_identifier(state, tmp, &name) < 0) {
+                goto fail;
             }
         }
         // fallthrough
         default:
             break;
     }
-    return res;
+    if (kwargs != NULL && PyDict_Size(kwargs)) {
+        int err;
+        if (name != NULL) {
+            err = PyDict_PopString(kwargs, "name", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_identifier(state, tmp, &name) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (bases != NULL) {
+            err = PyDict_PopString(kwargs, "bases", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_expr_seq(state, tmp, "ClassDef", "bases", &bases) <
+                    0) {
+                    goto fail;
+                }
+            }
+        }
+        if (keywords != NULL) {
+            err = PyDict_PopString(kwargs, "keywords", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_keyword_seq(state, tmp, "ClassDef", "keywords",
+                    &keywords) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (body != NULL) {
+            err = PyDict_PopString(kwargs, "body", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_stmt_seq(state, tmp, "ClassDef", "body", &body) <
+                    0) {
+                    goto fail;
+                }
+            }
+        }
+        if (decorator_list != NULL) {
+            err = PyDict_PopString(kwargs, "decorator_list", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_expr_seq(state, tmp, "ClassDef", "decorator_list",
+                    &decorator_list) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (type_params != NULL) {
+            err = PyDict_PopString(kwargs, "type_params", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_type_param_seq(state, tmp, "ClassDef",
+                    "type_params", &type_params) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_lineno) {
+            err = PyDict_PopString(kwargs, "lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_col_offset) {
+            err = PyDict_PopString(kwargs, "col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_lineno) {
+            err = PyDict_PopString(kwargs, "end_lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_col_offset) {
+            err = PyDict_PopString(kwargs, "end_col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (PyDict_Size(kwargs)) {
+            Py_ssize_t pos = 0;
+            PyObject *key;
+            while (PyDict_Next(kwargs, &pos, &key, NULL)) {
+                PyErr_Format(PyExc_TypeError,
+                                "%.400s.__replace__ got an unexpected keyword "
+                                "argument '%U'.", pytype->tp_name, key);
+                goto fail;
+            }
+        }
+    }
+    struct _stmt *res = (struct _stmt*)pytype->tp_alloc(pytype, 0);
+    if (!res) goto fail;
+    res->v.ClassDef.name = name;
+    res->v.ClassDef.bases = bases;
+    res->v.ClassDef.keywords = keywords;
+    res->v.ClassDef.body = body;
+    res->v.ClassDef.decorator_list = decorator_list;
+    res->v.ClassDef.type_params = type_params;
+    res->lineno = lineno;
+    res->col_offset = col_offset;
+    res->end_lineno = end_lineno;
+    res->end_col_offset = end_col_offset;
+    return (PyObject *)res;
+fail:
+    Py_XDECREF(name);
+    Py_XDECREF(bases);
+    Py_XDECREF(keywords);
+    Py_XDECREF(body);
+    Py_XDECREF(decorator_list);
+    Py_XDECREF(type_params);
+    return NULL;
 }
 
 static void ClassDef_dealloc(PyObject *self) {
@@ -7989,28 +8681,137 @@ error:
 }
 
 static PyObject *
-Return_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+Return_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
 {
-    PyObject *res = type->tp_alloc(type, 0);
-    if (!res) {
+    Py_ssize_t posargs = PyTuple_GET_SIZE(pargs);
+    if (posargs > 1) {
+        PyErr_SetString(PyExc_TypeError,
+                        "Return takes at most 1 positional argument");
         return NULL;
     }
+    expr_ty value = NULL;
+    int lineno = 0;
+    bool got_lineno = false;
+    int col_offset = 0;
+    bool got_col_offset = false;
+    int end_lineno = 0;
+    bool got_end_lineno = false;
+    int end_col_offset = 0;
+    bool got_end_col_offset = false;
+    PyObject *tmp;
     struct ast_state *state = get_ast_state();
-    struct _stmt *self = (struct _stmt*)res;
-    Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     switch (posargs) {
         case 1: {
-            PyObject *value = PyTuple_GET_ITEM(args, 0);
-            if (obj2imm_expr(state, value, &self->v.Return.value) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 4);
+            if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                goto fail;
+            }
+            got_end_col_offset = true;
+        }
+        // fallthrough
+        case 0: {
+            tmp = PyTuple_GET_ITEM(pargs, 3);
+            if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                goto fail;
+            }
+            got_end_lineno = true;
+        }
+        // fallthrough
+        case -1: {
+            tmp = PyTuple_GET_ITEM(pargs, 2);
+            if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                goto fail;
+            }
+            got_col_offset = true;
+        }
+        // fallthrough
+        case -2: {
+            tmp = PyTuple_GET_ITEM(pargs, 1);
+            if (obj2imm_int(state, tmp, &lineno) < 0) {
+                goto fail;
+            }
+            got_lineno = true;
+        }
+        // fallthrough
+        case -3: {
+            tmp = PyTuple_GET_ITEM(pargs, 0);
+            if (obj2imm_expr(state, tmp, &value) < 0) {
+                goto fail;
             }
         }
         // fallthrough
         default:
             break;
     }
-    return res;
+    if (kwargs != NULL && PyDict_Size(kwargs)) {
+        int err;
+        if (value != NULL) {
+            err = PyDict_PopString(kwargs, "value", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_expr(state, tmp, &value) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_lineno) {
+            err = PyDict_PopString(kwargs, "lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_col_offset) {
+            err = PyDict_PopString(kwargs, "col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_lineno) {
+            err = PyDict_PopString(kwargs, "end_lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_col_offset) {
+            err = PyDict_PopString(kwargs, "end_col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (PyDict_Size(kwargs)) {
+            Py_ssize_t pos = 0;
+            PyObject *key;
+            while (PyDict_Next(kwargs, &pos, &key, NULL)) {
+                PyErr_Format(PyExc_TypeError,
+                                "%.400s.__replace__ got an unexpected keyword "
+                                "argument '%U'.", pytype->tp_name, key);
+                goto fail;
+            }
+        }
+    }
+    struct _stmt *res = (struct _stmt*)pytype->tp_alloc(pytype, 0);
+    if (!res) goto fail;
+    res->v.Return.value = value;
+    res->lineno = lineno;
+    res->col_offset = col_offset;
+    res->end_lineno = end_lineno;
+    res->end_col_offset = end_col_offset;
+    return (PyObject *)res;
+fail:
+    Py_XDECREF(value);
+    return NULL;
 }
 
 static void Return_dealloc(PyObject *self) {
@@ -8066,29 +8867,139 @@ error:
 }
 
 static PyObject *
-Delete_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+Delete_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
 {
-    PyObject *res = type->tp_alloc(type, 0);
-    if (!res) {
+    Py_ssize_t posargs = PyTuple_GET_SIZE(pargs);
+    if (posargs > 1) {
+        PyErr_SetString(PyExc_TypeError,
+                        "Delete takes at most 1 positional argument");
         return NULL;
     }
+    asdl_expr_seq* targets = NULL;
+    int lineno = 0;
+    bool got_lineno = false;
+    int col_offset = 0;
+    bool got_col_offset = false;
+    int end_lineno = 0;
+    bool got_end_lineno = false;
+    int end_col_offset = 0;
+    bool got_end_col_offset = false;
+    PyObject *tmp;
     struct ast_state *state = get_ast_state();
-    struct _stmt *self = (struct _stmt*)res;
-    Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     switch (posargs) {
         case 1: {
-            PyObject *value = PyTuple_GET_ITEM(args, 0);
-            if (obj2imm_expr_seq(state, value, "", "targets",
-                &self->v.Delete.targets) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 4);
+            if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                goto fail;
+            }
+            got_end_col_offset = true;
+        }
+        // fallthrough
+        case 0: {
+            tmp = PyTuple_GET_ITEM(pargs, 3);
+            if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                goto fail;
+            }
+            got_end_lineno = true;
+        }
+        // fallthrough
+        case -1: {
+            tmp = PyTuple_GET_ITEM(pargs, 2);
+            if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                goto fail;
+            }
+            got_col_offset = true;
+        }
+        // fallthrough
+        case -2: {
+            tmp = PyTuple_GET_ITEM(pargs, 1);
+            if (obj2imm_int(state, tmp, &lineno) < 0) {
+                goto fail;
+            }
+            got_lineno = true;
+        }
+        // fallthrough
+        case -3: {
+            tmp = PyTuple_GET_ITEM(pargs, 0);
+            if (obj2imm_expr_seq(state, tmp, "Delete", "targets", &targets) <
+                0) {
+                goto fail;
             }
         }
         // fallthrough
         default:
             break;
     }
-    return res;
+    if (kwargs != NULL && PyDict_Size(kwargs)) {
+        int err;
+        if (targets != NULL) {
+            err = PyDict_PopString(kwargs, "targets", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_expr_seq(state, tmp, "Delete", "targets", &targets)
+                    < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_lineno) {
+            err = PyDict_PopString(kwargs, "lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_col_offset) {
+            err = PyDict_PopString(kwargs, "col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_lineno) {
+            err = PyDict_PopString(kwargs, "end_lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_col_offset) {
+            err = PyDict_PopString(kwargs, "end_col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (PyDict_Size(kwargs)) {
+            Py_ssize_t pos = 0;
+            PyObject *key;
+            while (PyDict_Next(kwargs, &pos, &key, NULL)) {
+                PyErr_Format(PyExc_TypeError,
+                                "%.400s.__replace__ got an unexpected keyword "
+                                "argument '%U'.", pytype->tp_name, key);
+                goto fail;
+            }
+        }
+    }
+    struct _stmt *res = (struct _stmt*)pytype->tp_alloc(pytype, 0);
+    if (!res) goto fail;
+    res->v.Delete.targets = targets;
+    res->lineno = lineno;
+    res->col_offset = col_offset;
+    res->end_lineno = end_lineno;
+    res->end_col_offset = end_col_offset;
+    return (PyObject *)res;
+fail:
+    Py_XDECREF(targets);
+    return NULL;
 }
 
 static void Delete_dealloc(PyObject *self) {
@@ -8144,46 +9055,177 @@ error:
 }
 
 static PyObject *
-Assign_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+Assign_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
 {
-    PyObject *res = type->tp_alloc(type, 0);
-    if (!res) {
+    Py_ssize_t posargs = PyTuple_GET_SIZE(pargs);
+    if (posargs > 3) {
+        PyErr_SetString(PyExc_TypeError,
+                        "Assign takes at most 3 positional arguments");
         return NULL;
     }
+    asdl_expr_seq* targets = NULL;
+    expr_ty value = NULL;
+    string type_comment = 0;
+    int lineno = 0;
+    bool got_lineno = false;
+    int col_offset = 0;
+    bool got_col_offset = false;
+    int end_lineno = 0;
+    bool got_end_lineno = false;
+    int end_col_offset = 0;
+    bool got_end_col_offset = false;
+    PyObject *tmp;
     struct ast_state *state = get_ast_state();
-    struct _stmt *self = (struct _stmt*)res;
-    Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     switch (posargs) {
         case 3: {
-            PyObject *value = PyTuple_GET_ITEM(args, 2);
-            if (obj2imm_string(state, value, &self->v.Assign.type_comment) < 0)
-                {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 6);
+            if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                goto fail;
             }
+            got_end_col_offset = true;
         }
         // fallthrough
         case 2: {
-            PyObject *value = PyTuple_GET_ITEM(args, 1);
-            if (obj2imm_expr(state, value, &self->v.Assign.value) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 5);
+            if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                goto fail;
             }
+            got_end_lineno = true;
         }
         // fallthrough
         case 1: {
-            PyObject *value = PyTuple_GET_ITEM(args, 0);
-            if (obj2imm_expr_seq(state, value, "", "targets",
-                &self->v.Assign.targets) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 4);
+            if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                goto fail;
+            }
+            got_col_offset = true;
+        }
+        // fallthrough
+        case 0: {
+            tmp = PyTuple_GET_ITEM(pargs, 3);
+            if (obj2imm_int(state, tmp, &lineno) < 0) {
+                goto fail;
+            }
+            got_lineno = true;
+        }
+        // fallthrough
+        case -1: {
+            tmp = PyTuple_GET_ITEM(pargs, 2);
+            if (obj2imm_string(state, tmp, &type_comment) < 0) {
+                goto fail;
+            }
+        }
+        // fallthrough
+        case -2: {
+            tmp = PyTuple_GET_ITEM(pargs, 1);
+            if (obj2imm_expr(state, tmp, &value) < 0) {
+                goto fail;
+            }
+        }
+        // fallthrough
+        case -3: {
+            tmp = PyTuple_GET_ITEM(pargs, 0);
+            if (obj2imm_expr_seq(state, tmp, "Assign", "targets", &targets) <
+                0) {
+                goto fail;
             }
         }
         // fallthrough
         default:
             break;
     }
-    return res;
+    if (kwargs != NULL && PyDict_Size(kwargs)) {
+        int err;
+        if (targets != NULL) {
+            err = PyDict_PopString(kwargs, "targets", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_expr_seq(state, tmp, "Assign", "targets", &targets)
+                    < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (value != NULL) {
+            err = PyDict_PopString(kwargs, "value", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_expr(state, tmp, &value) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (type_comment != NULL) {
+            err = PyDict_PopString(kwargs, "type_comment", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_string(state, tmp, &type_comment) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_lineno) {
+            err = PyDict_PopString(kwargs, "lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_col_offset) {
+            err = PyDict_PopString(kwargs, "col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_lineno) {
+            err = PyDict_PopString(kwargs, "end_lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_col_offset) {
+            err = PyDict_PopString(kwargs, "end_col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (PyDict_Size(kwargs)) {
+            Py_ssize_t pos = 0;
+            PyObject *key;
+            while (PyDict_Next(kwargs, &pos, &key, NULL)) {
+                PyErr_Format(PyExc_TypeError,
+                                "%.400s.__replace__ got an unexpected keyword "
+                                "argument '%U'.", pytype->tp_name, key);
+                goto fail;
+            }
+        }
+    }
+    struct _stmt *res = (struct _stmt*)pytype->tp_alloc(pytype, 0);
+    if (!res) goto fail;
+    res->v.Assign.targets = targets;
+    res->v.Assign.value = value;
+    res->v.Assign.type_comment = type_comment;
+    res->lineno = lineno;
+    res->col_offset = col_offset;
+    res->end_lineno = end_lineno;
+    res->end_col_offset = end_col_offset;
+    return (PyObject *)res;
+fail:
+    Py_XDECREF(targets);
+    Py_XDECREF(value);
+    Py_XDECREF(type_comment);
+    return NULL;
 }
 
 static void Assign_dealloc(PyObject *self) {
@@ -8257,45 +9299,177 @@ error:
 }
 
 static PyObject *
-TypeAlias_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+TypeAlias_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
 {
-    PyObject *res = type->tp_alloc(type, 0);
-    if (!res) {
+    Py_ssize_t posargs = PyTuple_GET_SIZE(pargs);
+    if (posargs > 3) {
+        PyErr_SetString(PyExc_TypeError,
+                        "TypeAlias takes at most 3 positional arguments");
         return NULL;
     }
+    expr_ty name = NULL;
+    asdl_type_param_seq* type_params = NULL;
+    expr_ty value = NULL;
+    int lineno = 0;
+    bool got_lineno = false;
+    int col_offset = 0;
+    bool got_col_offset = false;
+    int end_lineno = 0;
+    bool got_end_lineno = false;
+    int end_col_offset = 0;
+    bool got_end_col_offset = false;
+    PyObject *tmp;
     struct ast_state *state = get_ast_state();
-    struct _stmt *self = (struct _stmt*)res;
-    Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     switch (posargs) {
         case 3: {
-            PyObject *value = PyTuple_GET_ITEM(args, 2);
-            if (obj2imm_expr(state, value, &self->v.TypeAlias.value) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 6);
+            if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                goto fail;
             }
+            got_end_col_offset = true;
         }
         // fallthrough
         case 2: {
-            PyObject *value = PyTuple_GET_ITEM(args, 1);
-            if (obj2imm_type_param_seq(state, value, "", "type_params",
-                &self->v.TypeAlias.type_params) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 5);
+            if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                goto fail;
             }
+            got_end_lineno = true;
         }
         // fallthrough
         case 1: {
-            PyObject *value = PyTuple_GET_ITEM(args, 0);
-            if (obj2imm_expr(state, value, &self->v.TypeAlias.name) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 4);
+            if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                goto fail;
+            }
+            got_col_offset = true;
+        }
+        // fallthrough
+        case 0: {
+            tmp = PyTuple_GET_ITEM(pargs, 3);
+            if (obj2imm_int(state, tmp, &lineno) < 0) {
+                goto fail;
+            }
+            got_lineno = true;
+        }
+        // fallthrough
+        case -1: {
+            tmp = PyTuple_GET_ITEM(pargs, 2);
+            if (obj2imm_expr(state, tmp, &value) < 0) {
+                goto fail;
+            }
+        }
+        // fallthrough
+        case -2: {
+            tmp = PyTuple_GET_ITEM(pargs, 1);
+            if (obj2imm_type_param_seq(state, tmp, "TypeAlias", "type_params",
+                &type_params) < 0) {
+                goto fail;
+            }
+        }
+        // fallthrough
+        case -3: {
+            tmp = PyTuple_GET_ITEM(pargs, 0);
+            if (obj2imm_expr(state, tmp, &name) < 0) {
+                goto fail;
             }
         }
         // fallthrough
         default:
             break;
     }
-    return res;
+    if (kwargs != NULL && PyDict_Size(kwargs)) {
+        int err;
+        if (name != NULL) {
+            err = PyDict_PopString(kwargs, "name", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_expr(state, tmp, &name) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (type_params != NULL) {
+            err = PyDict_PopString(kwargs, "type_params", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_type_param_seq(state, tmp, "TypeAlias",
+                    "type_params", &type_params) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (value != NULL) {
+            err = PyDict_PopString(kwargs, "value", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_expr(state, tmp, &value) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_lineno) {
+            err = PyDict_PopString(kwargs, "lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_col_offset) {
+            err = PyDict_PopString(kwargs, "col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_lineno) {
+            err = PyDict_PopString(kwargs, "end_lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_col_offset) {
+            err = PyDict_PopString(kwargs, "end_col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (PyDict_Size(kwargs)) {
+            Py_ssize_t pos = 0;
+            PyObject *key;
+            while (PyDict_Next(kwargs, &pos, &key, NULL)) {
+                PyErr_Format(PyExc_TypeError,
+                                "%.400s.__replace__ got an unexpected keyword "
+                                "argument '%U'.", pytype->tp_name, key);
+                goto fail;
+            }
+        }
+    }
+    struct _stmt *res = (struct _stmt*)pytype->tp_alloc(pytype, 0);
+    if (!res) goto fail;
+    res->v.TypeAlias.name = name;
+    res->v.TypeAlias.type_params = type_params;
+    res->v.TypeAlias.value = value;
+    res->lineno = lineno;
+    res->col_offset = col_offset;
+    res->end_lineno = end_lineno;
+    res->end_col_offset = end_col_offset;
+    return (PyObject *)res;
+fail:
+    Py_XDECREF(name);
+    Py_XDECREF(type_params);
+    Py_XDECREF(value);
+    return NULL;
 }
 
 static void TypeAlias_dealloc(PyObject *self) {
@@ -8370,46 +9544,176 @@ error:
 }
 
 static PyObject *
-AugAssign_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+AugAssign_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
 {
-    PyObject *res = type->tp_alloc(type, 0);
-    if (!res) {
+    Py_ssize_t posargs = PyTuple_GET_SIZE(pargs);
+    if (posargs > 3) {
+        PyErr_SetString(PyExc_TypeError,
+                        "AugAssign takes at most 3 positional arguments");
         return NULL;
     }
+    expr_ty target = NULL;
+    operator_ty op = 0;
+    bool got_op = false;
+    expr_ty value = NULL;
+    int lineno = 0;
+    bool got_lineno = false;
+    int col_offset = 0;
+    bool got_col_offset = false;
+    int end_lineno = 0;
+    bool got_end_lineno = false;
+    int end_col_offset = 0;
+    bool got_end_col_offset = false;
+    PyObject *tmp;
     struct ast_state *state = get_ast_state();
-    struct _stmt *self = (struct _stmt*)res;
-    Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     switch (posargs) {
         case 3: {
-            PyObject *value = PyTuple_GET_ITEM(args, 2);
-            if (obj2imm_expr(state, value, &self->v.AugAssign.value) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 6);
+            if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                goto fail;
             }
+            got_end_col_offset = true;
         }
         // fallthrough
         case 2: {
-            PyObject *value = PyTuple_GET_ITEM(args, 1);
-            operator_ty out;
-            if (obj2imm_operator(state, value, &out) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 5);
+            if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                goto fail;
             }
-            self->v.AugAssign.op = out;
+            got_end_lineno = true;
         }
         // fallthrough
         case 1: {
-            PyObject *value = PyTuple_GET_ITEM(args, 0);
-            if (obj2imm_expr(state, value, &self->v.AugAssign.target) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 4);
+            if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                goto fail;
+            }
+            got_col_offset = true;
+        }
+        // fallthrough
+        case 0: {
+            tmp = PyTuple_GET_ITEM(pargs, 3);
+            if (obj2imm_int(state, tmp, &lineno) < 0) {
+                goto fail;
+            }
+            got_lineno = true;
+        }
+        // fallthrough
+        case -1: {
+            tmp = PyTuple_GET_ITEM(pargs, 2);
+            if (obj2imm_expr(state, tmp, &value) < 0) {
+                goto fail;
+            }
+        }
+        // fallthrough
+        case -2: {
+            tmp = PyTuple_GET_ITEM(pargs, 1);
+            if (obj2imm_operator(state, tmp, &op) < 0) {
+                goto fail;
+            }
+            got_op = true;
+        }
+        // fallthrough
+        case -3: {
+            tmp = PyTuple_GET_ITEM(pargs, 0);
+            if (obj2imm_expr(state, tmp, &target) < 0) {
+                goto fail;
             }
         }
         // fallthrough
         default:
             break;
     }
-    return res;
+    if (kwargs != NULL && PyDict_Size(kwargs)) {
+        int err;
+        if (target != NULL) {
+            err = PyDict_PopString(kwargs, "target", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_expr(state, tmp, &target) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_op) {
+            err = PyDict_PopString(kwargs, "op", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_operator(state, tmp, &op) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (value != NULL) {
+            err = PyDict_PopString(kwargs, "value", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_expr(state, tmp, &value) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_lineno) {
+            err = PyDict_PopString(kwargs, "lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_col_offset) {
+            err = PyDict_PopString(kwargs, "col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_lineno) {
+            err = PyDict_PopString(kwargs, "end_lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_col_offset) {
+            err = PyDict_PopString(kwargs, "end_col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (PyDict_Size(kwargs)) {
+            Py_ssize_t pos = 0;
+            PyObject *key;
+            while (PyDict_Next(kwargs, &pos, &key, NULL)) {
+                PyErr_Format(PyExc_TypeError,
+                                "%.400s.__replace__ got an unexpected keyword "
+                                "argument '%U'.", pytype->tp_name, key);
+                goto fail;
+            }
+        }
+    }
+    struct _stmt *res = (struct _stmt*)pytype->tp_alloc(pytype, 0);
+    if (!res) goto fail;
+    res->v.AugAssign.target = target;
+    res->v.AugAssign.op = op;
+    res->v.AugAssign.value = value;
+    res->lineno = lineno;
+    res->col_offset = col_offset;
+    res->end_lineno = end_lineno;
+    res->end_col_offset = end_col_offset;
+    return (PyObject *)res;
+fail:
+    Py_XDECREF(target);
+    Py_XDECREF(value);
+    return NULL;
 }
 
 static void AugAssign_dealloc(PyObject *self) {
@@ -8476,54 +9780,195 @@ error:
 }
 
 static PyObject *
-AnnAssign_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+AnnAssign_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
 {
-    PyObject *res = type->tp_alloc(type, 0);
-    if (!res) {
+    Py_ssize_t posargs = PyTuple_GET_SIZE(pargs);
+    if (posargs > 4) {
+        PyErr_SetString(PyExc_TypeError,
+                        "AnnAssign takes at most 4 positional arguments");
         return NULL;
     }
+    expr_ty target = NULL;
+    expr_ty annotation = NULL;
+    expr_ty value = NULL;
+    int simple = 0;
+    bool got_simple = false;
+    int lineno = 0;
+    bool got_lineno = false;
+    int col_offset = 0;
+    bool got_col_offset = false;
+    int end_lineno = 0;
+    bool got_end_lineno = false;
+    int end_col_offset = 0;
+    bool got_end_col_offset = false;
+    PyObject *tmp;
     struct ast_state *state = get_ast_state();
-    struct _stmt *self = (struct _stmt*)res;
-    Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     switch (posargs) {
         case 4: {
-            PyObject *value = PyTuple_GET_ITEM(args, 3);
-            int out;
-            if (obj2imm_int(state, value, &out) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 7);
+            if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                goto fail;
             }
-            self->v.AnnAssign.simple = out;
+            got_end_col_offset = true;
         }
         // fallthrough
         case 3: {
-            PyObject *value = PyTuple_GET_ITEM(args, 2);
-            if (obj2imm_expr(state, value, &self->v.AnnAssign.value) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 6);
+            if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                goto fail;
             }
+            got_end_lineno = true;
         }
         // fallthrough
         case 2: {
-            PyObject *value = PyTuple_GET_ITEM(args, 1);
-            if (obj2imm_expr(state, value, &self->v.AnnAssign.annotation) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 5);
+            if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                goto fail;
             }
+            got_col_offset = true;
         }
         // fallthrough
         case 1: {
-            PyObject *value = PyTuple_GET_ITEM(args, 0);
-            if (obj2imm_expr(state, value, &self->v.AnnAssign.target) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 4);
+            if (obj2imm_int(state, tmp, &lineno) < 0) {
+                goto fail;
+            }
+            got_lineno = true;
+        }
+        // fallthrough
+        case 0: {
+            tmp = PyTuple_GET_ITEM(pargs, 3);
+            if (obj2imm_int(state, tmp, &simple) < 0) {
+                goto fail;
+            }
+            got_simple = true;
+        }
+        // fallthrough
+        case -1: {
+            tmp = PyTuple_GET_ITEM(pargs, 2);
+            if (obj2imm_expr(state, tmp, &value) < 0) {
+                goto fail;
+            }
+        }
+        // fallthrough
+        case -2: {
+            tmp = PyTuple_GET_ITEM(pargs, 1);
+            if (obj2imm_expr(state, tmp, &annotation) < 0) {
+                goto fail;
+            }
+        }
+        // fallthrough
+        case -3: {
+            tmp = PyTuple_GET_ITEM(pargs, 0);
+            if (obj2imm_expr(state, tmp, &target) < 0) {
+                goto fail;
             }
         }
         // fallthrough
         default:
             break;
     }
-    return res;
+    if (kwargs != NULL && PyDict_Size(kwargs)) {
+        int err;
+        if (target != NULL) {
+            err = PyDict_PopString(kwargs, "target", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_expr(state, tmp, &target) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (annotation != NULL) {
+            err = PyDict_PopString(kwargs, "annotation", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_expr(state, tmp, &annotation) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (value != NULL) {
+            err = PyDict_PopString(kwargs, "value", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_expr(state, tmp, &value) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_simple) {
+            err = PyDict_PopString(kwargs, "simple", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &simple) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_lineno) {
+            err = PyDict_PopString(kwargs, "lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_col_offset) {
+            err = PyDict_PopString(kwargs, "col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_lineno) {
+            err = PyDict_PopString(kwargs, "end_lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_col_offset) {
+            err = PyDict_PopString(kwargs, "end_col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (PyDict_Size(kwargs)) {
+            Py_ssize_t pos = 0;
+            PyObject *key;
+            while (PyDict_Next(kwargs, &pos, &key, NULL)) {
+                PyErr_Format(PyExc_TypeError,
+                                "%.400s.__replace__ got an unexpected keyword "
+                                "argument '%U'.", pytype->tp_name, key);
+                goto fail;
+            }
+        }
+    }
+    struct _stmt *res = (struct _stmt*)pytype->tp_alloc(pytype, 0);
+    if (!res) goto fail;
+    res->v.AnnAssign.target = target;
+    res->v.AnnAssign.annotation = annotation;
+    res->v.AnnAssign.value = value;
+    res->v.AnnAssign.simple = simple;
+    res->lineno = lineno;
+    res->col_offset = col_offset;
+    res->end_lineno = end_lineno;
+    res->end_col_offset = end_col_offset;
+    return (PyObject *)res;
+fail:
+    Py_XDECREF(target);
+    Py_XDECREF(annotation);
+    Py_XDECREF(value);
+    return NULL;
 }
 
 static void AnnAssign_dealloc(PyObject *self) {
@@ -8601,62 +10046,214 @@ error:
 }
 
 static PyObject *
-For_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+For_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
 {
-    PyObject *res = type->tp_alloc(type, 0);
-    if (!res) {
+    Py_ssize_t posargs = PyTuple_GET_SIZE(pargs);
+    if (posargs > 5) {
+        PyErr_SetString(PyExc_TypeError,
+                        "For takes at most 5 positional arguments");
         return NULL;
     }
+    expr_ty target = NULL;
+    expr_ty iter = NULL;
+    asdl_stmt_seq* body = NULL;
+    asdl_stmt_seq* orelse = NULL;
+    string type_comment = 0;
+    int lineno = 0;
+    bool got_lineno = false;
+    int col_offset = 0;
+    bool got_col_offset = false;
+    int end_lineno = 0;
+    bool got_end_lineno = false;
+    int end_col_offset = 0;
+    bool got_end_col_offset = false;
+    PyObject *tmp;
     struct ast_state *state = get_ast_state();
-    struct _stmt *self = (struct _stmt*)res;
-    Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     switch (posargs) {
         case 5: {
-            PyObject *value = PyTuple_GET_ITEM(args, 4);
-            if (obj2imm_string(state, value, &self->v.For.type_comment) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 8);
+            if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                goto fail;
             }
+            got_end_col_offset = true;
         }
         // fallthrough
         case 4: {
-            PyObject *value = PyTuple_GET_ITEM(args, 3);
-            if (obj2imm_stmt_seq(state, value, "", "orelse",
-                &self->v.For.orelse) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 7);
+            if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                goto fail;
             }
+            got_end_lineno = true;
         }
         // fallthrough
         case 3: {
-            PyObject *value = PyTuple_GET_ITEM(args, 2);
-            if (obj2imm_stmt_seq(state, value, "", "body", &self->v.For.body) <
-                0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 6);
+            if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                goto fail;
             }
+            got_col_offset = true;
         }
         // fallthrough
         case 2: {
-            PyObject *value = PyTuple_GET_ITEM(args, 1);
-            if (obj2imm_expr(state, value, &self->v.For.iter) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 5);
+            if (obj2imm_int(state, tmp, &lineno) < 0) {
+                goto fail;
             }
+            got_lineno = true;
         }
         // fallthrough
         case 1: {
-            PyObject *value = PyTuple_GET_ITEM(args, 0);
-            if (obj2imm_expr(state, value, &self->v.For.target) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 4);
+            if (obj2imm_string(state, tmp, &type_comment) < 0) {
+                goto fail;
+            }
+        }
+        // fallthrough
+        case 0: {
+            tmp = PyTuple_GET_ITEM(pargs, 3);
+            if (obj2imm_stmt_seq(state, tmp, "For", "orelse", &orelse) < 0) {
+                goto fail;
+            }
+        }
+        // fallthrough
+        case -1: {
+            tmp = PyTuple_GET_ITEM(pargs, 2);
+            if (obj2imm_stmt_seq(state, tmp, "For", "body", &body) < 0) {
+                goto fail;
+            }
+        }
+        // fallthrough
+        case -2: {
+            tmp = PyTuple_GET_ITEM(pargs, 1);
+            if (obj2imm_expr(state, tmp, &iter) < 0) {
+                goto fail;
+            }
+        }
+        // fallthrough
+        case -3: {
+            tmp = PyTuple_GET_ITEM(pargs, 0);
+            if (obj2imm_expr(state, tmp, &target) < 0) {
+                goto fail;
             }
         }
         // fallthrough
         default:
             break;
     }
-    return res;
+    if (kwargs != NULL && PyDict_Size(kwargs)) {
+        int err;
+        if (target != NULL) {
+            err = PyDict_PopString(kwargs, "target", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_expr(state, tmp, &target) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (iter != NULL) {
+            err = PyDict_PopString(kwargs, "iter", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_expr(state, tmp, &iter) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (body != NULL) {
+            err = PyDict_PopString(kwargs, "body", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_stmt_seq(state, tmp, "For", "body", &body) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (orelse != NULL) {
+            err = PyDict_PopString(kwargs, "orelse", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_stmt_seq(state, tmp, "For", "orelse", &orelse) < 0)
+                    {
+                    goto fail;
+                }
+            }
+        }
+        if (type_comment != NULL) {
+            err = PyDict_PopString(kwargs, "type_comment", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_string(state, tmp, &type_comment) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_lineno) {
+            err = PyDict_PopString(kwargs, "lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_col_offset) {
+            err = PyDict_PopString(kwargs, "col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_lineno) {
+            err = PyDict_PopString(kwargs, "end_lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_col_offset) {
+            err = PyDict_PopString(kwargs, "end_col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (PyDict_Size(kwargs)) {
+            Py_ssize_t pos = 0;
+            PyObject *key;
+            while (PyDict_Next(kwargs, &pos, &key, NULL)) {
+                PyErr_Format(PyExc_TypeError,
+                                "%.400s.__replace__ got an unexpected keyword "
+                                "argument '%U'.", pytype->tp_name, key);
+                goto fail;
+            }
+        }
+    }
+    struct _stmt *res = (struct _stmt*)pytype->tp_alloc(pytype, 0);
+    if (!res) goto fail;
+    res->v.For.target = target;
+    res->v.For.iter = iter;
+    res->v.For.body = body;
+    res->v.For.orelse = orelse;
+    res->v.For.type_comment = type_comment;
+    res->lineno = lineno;
+    res->col_offset = col_offset;
+    res->end_lineno = end_lineno;
+    res->end_col_offset = end_col_offset;
+    return (PyObject *)res;
+fail:
+    Py_XDECREF(target);
+    Py_XDECREF(iter);
+    Py_XDECREF(body);
+    Py_XDECREF(orelse);
+    Py_XDECREF(type_comment);
+    return NULL;
 }
 
 static void For_dealloc(PyObject *self) {
@@ -8747,63 +10344,216 @@ error:
 }
 
 static PyObject *
-AsyncFor_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+AsyncFor_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
 {
-    PyObject *res = type->tp_alloc(type, 0);
-    if (!res) {
+    Py_ssize_t posargs = PyTuple_GET_SIZE(pargs);
+    if (posargs > 5) {
+        PyErr_SetString(PyExc_TypeError,
+                        "AsyncFor takes at most 5 positional arguments");
         return NULL;
     }
+    expr_ty target = NULL;
+    expr_ty iter = NULL;
+    asdl_stmt_seq* body = NULL;
+    asdl_stmt_seq* orelse = NULL;
+    string type_comment = 0;
+    int lineno = 0;
+    bool got_lineno = false;
+    int col_offset = 0;
+    bool got_col_offset = false;
+    int end_lineno = 0;
+    bool got_end_lineno = false;
+    int end_col_offset = 0;
+    bool got_end_col_offset = false;
+    PyObject *tmp;
     struct ast_state *state = get_ast_state();
-    struct _stmt *self = (struct _stmt*)res;
-    Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     switch (posargs) {
         case 5: {
-            PyObject *value = PyTuple_GET_ITEM(args, 4);
-            if (obj2imm_string(state, value, &self->v.AsyncFor.type_comment) <
-                0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 8);
+            if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                goto fail;
             }
+            got_end_col_offset = true;
         }
         // fallthrough
         case 4: {
-            PyObject *value = PyTuple_GET_ITEM(args, 3);
-            if (obj2imm_stmt_seq(state, value, "", "orelse",
-                &self->v.AsyncFor.orelse) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 7);
+            if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                goto fail;
             }
+            got_end_lineno = true;
         }
         // fallthrough
         case 3: {
-            PyObject *value = PyTuple_GET_ITEM(args, 2);
-            if (obj2imm_stmt_seq(state, value, "", "body",
-                &self->v.AsyncFor.body) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 6);
+            if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                goto fail;
             }
+            got_col_offset = true;
         }
         // fallthrough
         case 2: {
-            PyObject *value = PyTuple_GET_ITEM(args, 1);
-            if (obj2imm_expr(state, value, &self->v.AsyncFor.iter) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 5);
+            if (obj2imm_int(state, tmp, &lineno) < 0) {
+                goto fail;
             }
+            got_lineno = true;
         }
         // fallthrough
         case 1: {
-            PyObject *value = PyTuple_GET_ITEM(args, 0);
-            if (obj2imm_expr(state, value, &self->v.AsyncFor.target) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 4);
+            if (obj2imm_string(state, tmp, &type_comment) < 0) {
+                goto fail;
+            }
+        }
+        // fallthrough
+        case 0: {
+            tmp = PyTuple_GET_ITEM(pargs, 3);
+            if (obj2imm_stmt_seq(state, tmp, "AsyncFor", "orelse", &orelse) <
+                0) {
+                goto fail;
+            }
+        }
+        // fallthrough
+        case -1: {
+            tmp = PyTuple_GET_ITEM(pargs, 2);
+            if (obj2imm_stmt_seq(state, tmp, "AsyncFor", "body", &body) < 0) {
+                goto fail;
+            }
+        }
+        // fallthrough
+        case -2: {
+            tmp = PyTuple_GET_ITEM(pargs, 1);
+            if (obj2imm_expr(state, tmp, &iter) < 0) {
+                goto fail;
+            }
+        }
+        // fallthrough
+        case -3: {
+            tmp = PyTuple_GET_ITEM(pargs, 0);
+            if (obj2imm_expr(state, tmp, &target) < 0) {
+                goto fail;
             }
         }
         // fallthrough
         default:
             break;
     }
-    return res;
+    if (kwargs != NULL && PyDict_Size(kwargs)) {
+        int err;
+        if (target != NULL) {
+            err = PyDict_PopString(kwargs, "target", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_expr(state, tmp, &target) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (iter != NULL) {
+            err = PyDict_PopString(kwargs, "iter", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_expr(state, tmp, &iter) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (body != NULL) {
+            err = PyDict_PopString(kwargs, "body", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_stmt_seq(state, tmp, "AsyncFor", "body", &body) <
+                    0) {
+                    goto fail;
+                }
+            }
+        }
+        if (orelse != NULL) {
+            err = PyDict_PopString(kwargs, "orelse", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_stmt_seq(state, tmp, "AsyncFor", "orelse", &orelse)
+                    < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (type_comment != NULL) {
+            err = PyDict_PopString(kwargs, "type_comment", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_string(state, tmp, &type_comment) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_lineno) {
+            err = PyDict_PopString(kwargs, "lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_col_offset) {
+            err = PyDict_PopString(kwargs, "col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_lineno) {
+            err = PyDict_PopString(kwargs, "end_lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_col_offset) {
+            err = PyDict_PopString(kwargs, "end_col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (PyDict_Size(kwargs)) {
+            Py_ssize_t pos = 0;
+            PyObject *key;
+            while (PyDict_Next(kwargs, &pos, &key, NULL)) {
+                PyErr_Format(PyExc_TypeError,
+                                "%.400s.__replace__ got an unexpected keyword "
+                                "argument '%U'.", pytype->tp_name, key);
+                goto fail;
+            }
+        }
+    }
+    struct _stmt *res = (struct _stmt*)pytype->tp_alloc(pytype, 0);
+    if (!res) goto fail;
+    res->v.AsyncFor.target = target;
+    res->v.AsyncFor.iter = iter;
+    res->v.AsyncFor.body = body;
+    res->v.AsyncFor.orelse = orelse;
+    res->v.AsyncFor.type_comment = type_comment;
+    res->lineno = lineno;
+    res->col_offset = col_offset;
+    res->end_lineno = end_lineno;
+    res->end_col_offset = end_col_offset;
+    return (PyObject *)res;
+fail:
+    Py_XDECREF(target);
+    Py_XDECREF(iter);
+    Py_XDECREF(body);
+    Py_XDECREF(orelse);
+    Py_XDECREF(type_comment);
+    return NULL;
 }
 
 static void AsyncFor_dealloc(PyObject *self) {
@@ -8895,46 +10645,176 @@ error:
 }
 
 static PyObject *
-While_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+While_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
 {
-    PyObject *res = type->tp_alloc(type, 0);
-    if (!res) {
+    Py_ssize_t posargs = PyTuple_GET_SIZE(pargs);
+    if (posargs > 3) {
+        PyErr_SetString(PyExc_TypeError,
+                        "While takes at most 3 positional arguments");
         return NULL;
     }
+    expr_ty test = NULL;
+    asdl_stmt_seq* body = NULL;
+    asdl_stmt_seq* orelse = NULL;
+    int lineno = 0;
+    bool got_lineno = false;
+    int col_offset = 0;
+    bool got_col_offset = false;
+    int end_lineno = 0;
+    bool got_end_lineno = false;
+    int end_col_offset = 0;
+    bool got_end_col_offset = false;
+    PyObject *tmp;
     struct ast_state *state = get_ast_state();
-    struct _stmt *self = (struct _stmt*)res;
-    Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     switch (posargs) {
         case 3: {
-            PyObject *value = PyTuple_GET_ITEM(args, 2);
-            if (obj2imm_stmt_seq(state, value, "", "orelse",
-                &self->v.While.orelse) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 6);
+            if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                goto fail;
             }
+            got_end_col_offset = true;
         }
         // fallthrough
         case 2: {
-            PyObject *value = PyTuple_GET_ITEM(args, 1);
-            if (obj2imm_stmt_seq(state, value, "", "body", &self->v.While.body)
-                < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 5);
+            if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                goto fail;
             }
+            got_end_lineno = true;
         }
         // fallthrough
         case 1: {
-            PyObject *value = PyTuple_GET_ITEM(args, 0);
-            if (obj2imm_expr(state, value, &self->v.While.test) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 4);
+            if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                goto fail;
+            }
+            got_col_offset = true;
+        }
+        // fallthrough
+        case 0: {
+            tmp = PyTuple_GET_ITEM(pargs, 3);
+            if (obj2imm_int(state, tmp, &lineno) < 0) {
+                goto fail;
+            }
+            got_lineno = true;
+        }
+        // fallthrough
+        case -1: {
+            tmp = PyTuple_GET_ITEM(pargs, 2);
+            if (obj2imm_stmt_seq(state, tmp, "While", "orelse", &orelse) < 0) {
+                goto fail;
+            }
+        }
+        // fallthrough
+        case -2: {
+            tmp = PyTuple_GET_ITEM(pargs, 1);
+            if (obj2imm_stmt_seq(state, tmp, "While", "body", &body) < 0) {
+                goto fail;
+            }
+        }
+        // fallthrough
+        case -3: {
+            tmp = PyTuple_GET_ITEM(pargs, 0);
+            if (obj2imm_expr(state, tmp, &test) < 0) {
+                goto fail;
             }
         }
         // fallthrough
         default:
             break;
     }
-    return res;
+    if (kwargs != NULL && PyDict_Size(kwargs)) {
+        int err;
+        if (test != NULL) {
+            err = PyDict_PopString(kwargs, "test", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_expr(state, tmp, &test) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (body != NULL) {
+            err = PyDict_PopString(kwargs, "body", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_stmt_seq(state, tmp, "While", "body", &body) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (orelse != NULL) {
+            err = PyDict_PopString(kwargs, "orelse", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_stmt_seq(state, tmp, "While", "orelse", &orelse) <
+                    0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_lineno) {
+            err = PyDict_PopString(kwargs, "lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_col_offset) {
+            err = PyDict_PopString(kwargs, "col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_lineno) {
+            err = PyDict_PopString(kwargs, "end_lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_col_offset) {
+            err = PyDict_PopString(kwargs, "end_col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (PyDict_Size(kwargs)) {
+            Py_ssize_t pos = 0;
+            PyObject *key;
+            while (PyDict_Next(kwargs, &pos, &key, NULL)) {
+                PyErr_Format(PyExc_TypeError,
+                                "%.400s.__replace__ got an unexpected keyword "
+                                "argument '%U'.", pytype->tp_name, key);
+                goto fail;
+            }
+        }
+    }
+    struct _stmt *res = (struct _stmt*)pytype->tp_alloc(pytype, 0);
+    if (!res) goto fail;
+    res->v.While.test = test;
+    res->v.While.body = body;
+    res->v.While.orelse = orelse;
+    res->lineno = lineno;
+    res->col_offset = col_offset;
+    res->end_lineno = end_lineno;
+    res->end_col_offset = end_col_offset;
+    return (PyObject *)res;
+fail:
+    Py_XDECREF(test);
+    Py_XDECREF(body);
+    Py_XDECREF(orelse);
+    return NULL;
 }
 
 static void While_dealloc(PyObject *self) {
@@ -9008,46 +10888,175 @@ error:
 }
 
 static PyObject *
-If_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+If_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
 {
-    PyObject *res = type->tp_alloc(type, 0);
-    if (!res) {
+    Py_ssize_t posargs = PyTuple_GET_SIZE(pargs);
+    if (posargs > 3) {
+        PyErr_SetString(PyExc_TypeError,
+                        "If takes at most 3 positional arguments");
         return NULL;
     }
+    expr_ty test = NULL;
+    asdl_stmt_seq* body = NULL;
+    asdl_stmt_seq* orelse = NULL;
+    int lineno = 0;
+    bool got_lineno = false;
+    int col_offset = 0;
+    bool got_col_offset = false;
+    int end_lineno = 0;
+    bool got_end_lineno = false;
+    int end_col_offset = 0;
+    bool got_end_col_offset = false;
+    PyObject *tmp;
     struct ast_state *state = get_ast_state();
-    struct _stmt *self = (struct _stmt*)res;
-    Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     switch (posargs) {
         case 3: {
-            PyObject *value = PyTuple_GET_ITEM(args, 2);
-            if (obj2imm_stmt_seq(state, value, "", "orelse",
-                &self->v.If.orelse) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 6);
+            if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                goto fail;
             }
+            got_end_col_offset = true;
         }
         // fallthrough
         case 2: {
-            PyObject *value = PyTuple_GET_ITEM(args, 1);
-            if (obj2imm_stmt_seq(state, value, "", "body", &self->v.If.body) <
-                0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 5);
+            if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                goto fail;
             }
+            got_end_lineno = true;
         }
         // fallthrough
         case 1: {
-            PyObject *value = PyTuple_GET_ITEM(args, 0);
-            if (obj2imm_expr(state, value, &self->v.If.test) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 4);
+            if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                goto fail;
+            }
+            got_col_offset = true;
+        }
+        // fallthrough
+        case 0: {
+            tmp = PyTuple_GET_ITEM(pargs, 3);
+            if (obj2imm_int(state, tmp, &lineno) < 0) {
+                goto fail;
+            }
+            got_lineno = true;
+        }
+        // fallthrough
+        case -1: {
+            tmp = PyTuple_GET_ITEM(pargs, 2);
+            if (obj2imm_stmt_seq(state, tmp, "If", "orelse", &orelse) < 0) {
+                goto fail;
+            }
+        }
+        // fallthrough
+        case -2: {
+            tmp = PyTuple_GET_ITEM(pargs, 1);
+            if (obj2imm_stmt_seq(state, tmp, "If", "body", &body) < 0) {
+                goto fail;
+            }
+        }
+        // fallthrough
+        case -3: {
+            tmp = PyTuple_GET_ITEM(pargs, 0);
+            if (obj2imm_expr(state, tmp, &test) < 0) {
+                goto fail;
             }
         }
         // fallthrough
         default:
             break;
     }
-    return res;
+    if (kwargs != NULL && PyDict_Size(kwargs)) {
+        int err;
+        if (test != NULL) {
+            err = PyDict_PopString(kwargs, "test", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_expr(state, tmp, &test) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (body != NULL) {
+            err = PyDict_PopString(kwargs, "body", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_stmt_seq(state, tmp, "If", "body", &body) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (orelse != NULL) {
+            err = PyDict_PopString(kwargs, "orelse", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_stmt_seq(state, tmp, "If", "orelse", &orelse) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_lineno) {
+            err = PyDict_PopString(kwargs, "lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_col_offset) {
+            err = PyDict_PopString(kwargs, "col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_lineno) {
+            err = PyDict_PopString(kwargs, "end_lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_col_offset) {
+            err = PyDict_PopString(kwargs, "end_col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (PyDict_Size(kwargs)) {
+            Py_ssize_t pos = 0;
+            PyObject *key;
+            while (PyDict_Next(kwargs, &pos, &key, NULL)) {
+                PyErr_Format(PyExc_TypeError,
+                                "%.400s.__replace__ got an unexpected keyword "
+                                "argument '%U'.", pytype->tp_name, key);
+                goto fail;
+            }
+        }
+    }
+    struct _stmt *res = (struct _stmt*)pytype->tp_alloc(pytype, 0);
+    if (!res) goto fail;
+    res->v.If.test = test;
+    res->v.If.body = body;
+    res->v.If.orelse = orelse;
+    res->lineno = lineno;
+    res->col_offset = col_offset;
+    res->end_lineno = end_lineno;
+    res->end_col_offset = end_col_offset;
+    return (PyObject *)res;
+fail:
+    Py_XDECREF(test);
+    Py_XDECREF(body);
+    Py_XDECREF(orelse);
+    return NULL;
 }
 
 static void If_dealloc(PyObject *self) {
@@ -9120,46 +11129,176 @@ error:
 }
 
 static PyObject *
-With_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+With_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
 {
-    PyObject *res = type->tp_alloc(type, 0);
-    if (!res) {
+    Py_ssize_t posargs = PyTuple_GET_SIZE(pargs);
+    if (posargs > 3) {
+        PyErr_SetString(PyExc_TypeError,
+                        "With takes at most 3 positional arguments");
         return NULL;
     }
+    asdl_withitem_seq* items = NULL;
+    asdl_stmt_seq* body = NULL;
+    string type_comment = 0;
+    int lineno = 0;
+    bool got_lineno = false;
+    int col_offset = 0;
+    bool got_col_offset = false;
+    int end_lineno = 0;
+    bool got_end_lineno = false;
+    int end_col_offset = 0;
+    bool got_end_col_offset = false;
+    PyObject *tmp;
     struct ast_state *state = get_ast_state();
-    struct _stmt *self = (struct _stmt*)res;
-    Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     switch (posargs) {
         case 3: {
-            PyObject *value = PyTuple_GET_ITEM(args, 2);
-            if (obj2imm_string(state, value, &self->v.With.type_comment) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 6);
+            if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                goto fail;
             }
+            got_end_col_offset = true;
         }
         // fallthrough
         case 2: {
-            PyObject *value = PyTuple_GET_ITEM(args, 1);
-            if (obj2imm_stmt_seq(state, value, "", "body", &self->v.With.body)
-                < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 5);
+            if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                goto fail;
             }
+            got_end_lineno = true;
         }
         // fallthrough
         case 1: {
-            PyObject *value = PyTuple_GET_ITEM(args, 0);
-            if (obj2imm_withitem_seq(state, value, "", "items",
-                &self->v.With.items) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 4);
+            if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                goto fail;
+            }
+            got_col_offset = true;
+        }
+        // fallthrough
+        case 0: {
+            tmp = PyTuple_GET_ITEM(pargs, 3);
+            if (obj2imm_int(state, tmp, &lineno) < 0) {
+                goto fail;
+            }
+            got_lineno = true;
+        }
+        // fallthrough
+        case -1: {
+            tmp = PyTuple_GET_ITEM(pargs, 2);
+            if (obj2imm_string(state, tmp, &type_comment) < 0) {
+                goto fail;
+            }
+        }
+        // fallthrough
+        case -2: {
+            tmp = PyTuple_GET_ITEM(pargs, 1);
+            if (obj2imm_stmt_seq(state, tmp, "With", "body", &body) < 0) {
+                goto fail;
+            }
+        }
+        // fallthrough
+        case -3: {
+            tmp = PyTuple_GET_ITEM(pargs, 0);
+            if (obj2imm_withitem_seq(state, tmp, "With", "items", &items) < 0) {
+                goto fail;
             }
         }
         // fallthrough
         default:
             break;
     }
-    return res;
+    if (kwargs != NULL && PyDict_Size(kwargs)) {
+        int err;
+        if (items != NULL) {
+            err = PyDict_PopString(kwargs, "items", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_withitem_seq(state, tmp, "With", "items", &items) <
+                    0) {
+                    goto fail;
+                }
+            }
+        }
+        if (body != NULL) {
+            err = PyDict_PopString(kwargs, "body", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_stmt_seq(state, tmp, "With", "body", &body) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (type_comment != NULL) {
+            err = PyDict_PopString(kwargs, "type_comment", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_string(state, tmp, &type_comment) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_lineno) {
+            err = PyDict_PopString(kwargs, "lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_col_offset) {
+            err = PyDict_PopString(kwargs, "col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_lineno) {
+            err = PyDict_PopString(kwargs, "end_lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_col_offset) {
+            err = PyDict_PopString(kwargs, "end_col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (PyDict_Size(kwargs)) {
+            Py_ssize_t pos = 0;
+            PyObject *key;
+            while (PyDict_Next(kwargs, &pos, &key, NULL)) {
+                PyErr_Format(PyExc_TypeError,
+                                "%.400s.__replace__ got an unexpected keyword "
+                                "argument '%U'.", pytype->tp_name, key);
+                goto fail;
+            }
+        }
+    }
+    struct _stmt *res = (struct _stmt*)pytype->tp_alloc(pytype, 0);
+    if (!res) goto fail;
+    res->v.With.items = items;
+    res->v.With.body = body;
+    res->v.With.type_comment = type_comment;
+    res->lineno = lineno;
+    res->col_offset = col_offset;
+    res->end_lineno = end_lineno;
+    res->end_col_offset = end_col_offset;
+    return (PyObject *)res;
+fail:
+    Py_XDECREF(items);
+    Py_XDECREF(body);
+    Py_XDECREF(type_comment);
+    return NULL;
 }
 
 static void With_dealloc(PyObject *self) {
@@ -9232,47 +11371,178 @@ error:
 }
 
 static PyObject *
-AsyncWith_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+AsyncWith_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
 {
-    PyObject *res = type->tp_alloc(type, 0);
-    if (!res) {
+    Py_ssize_t posargs = PyTuple_GET_SIZE(pargs);
+    if (posargs > 3) {
+        PyErr_SetString(PyExc_TypeError,
+                        "AsyncWith takes at most 3 positional arguments");
         return NULL;
     }
+    asdl_withitem_seq* items = NULL;
+    asdl_stmt_seq* body = NULL;
+    string type_comment = 0;
+    int lineno = 0;
+    bool got_lineno = false;
+    int col_offset = 0;
+    bool got_col_offset = false;
+    int end_lineno = 0;
+    bool got_end_lineno = false;
+    int end_col_offset = 0;
+    bool got_end_col_offset = false;
+    PyObject *tmp;
     struct ast_state *state = get_ast_state();
-    struct _stmt *self = (struct _stmt*)res;
-    Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     switch (posargs) {
         case 3: {
-            PyObject *value = PyTuple_GET_ITEM(args, 2);
-            if (obj2imm_string(state, value, &self->v.AsyncWith.type_comment) <
-                0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 6);
+            if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                goto fail;
             }
+            got_end_col_offset = true;
         }
         // fallthrough
         case 2: {
-            PyObject *value = PyTuple_GET_ITEM(args, 1);
-            if (obj2imm_stmt_seq(state, value, "", "body",
-                &self->v.AsyncWith.body) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 5);
+            if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                goto fail;
             }
+            got_end_lineno = true;
         }
         // fallthrough
         case 1: {
-            PyObject *value = PyTuple_GET_ITEM(args, 0);
-            if (obj2imm_withitem_seq(state, value, "", "items",
-                &self->v.AsyncWith.items) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 4);
+            if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                goto fail;
+            }
+            got_col_offset = true;
+        }
+        // fallthrough
+        case 0: {
+            tmp = PyTuple_GET_ITEM(pargs, 3);
+            if (obj2imm_int(state, tmp, &lineno) < 0) {
+                goto fail;
+            }
+            got_lineno = true;
+        }
+        // fallthrough
+        case -1: {
+            tmp = PyTuple_GET_ITEM(pargs, 2);
+            if (obj2imm_string(state, tmp, &type_comment) < 0) {
+                goto fail;
+            }
+        }
+        // fallthrough
+        case -2: {
+            tmp = PyTuple_GET_ITEM(pargs, 1);
+            if (obj2imm_stmt_seq(state, tmp, "AsyncWith", "body", &body) < 0) {
+                goto fail;
+            }
+        }
+        // fallthrough
+        case -3: {
+            tmp = PyTuple_GET_ITEM(pargs, 0);
+            if (obj2imm_withitem_seq(state, tmp, "AsyncWith", "items", &items)
+                < 0) {
+                goto fail;
             }
         }
         // fallthrough
         default:
             break;
     }
-    return res;
+    if (kwargs != NULL && PyDict_Size(kwargs)) {
+        int err;
+        if (items != NULL) {
+            err = PyDict_PopString(kwargs, "items", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_withitem_seq(state, tmp, "AsyncWith", "items",
+                    &items) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (body != NULL) {
+            err = PyDict_PopString(kwargs, "body", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_stmt_seq(state, tmp, "AsyncWith", "body", &body) <
+                    0) {
+                    goto fail;
+                }
+            }
+        }
+        if (type_comment != NULL) {
+            err = PyDict_PopString(kwargs, "type_comment", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_string(state, tmp, &type_comment) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_lineno) {
+            err = PyDict_PopString(kwargs, "lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_col_offset) {
+            err = PyDict_PopString(kwargs, "col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_lineno) {
+            err = PyDict_PopString(kwargs, "end_lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_col_offset) {
+            err = PyDict_PopString(kwargs, "end_col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (PyDict_Size(kwargs)) {
+            Py_ssize_t pos = 0;
+            PyObject *key;
+            while (PyDict_Next(kwargs, &pos, &key, NULL)) {
+                PyErr_Format(PyExc_TypeError,
+                                "%.400s.__replace__ got an unexpected keyword "
+                                "argument '%U'.", pytype->tp_name, key);
+                goto fail;
+            }
+        }
+    }
+    struct _stmt *res = (struct _stmt*)pytype->tp_alloc(pytype, 0);
+    if (!res) goto fail;
+    res->v.AsyncWith.items = items;
+    res->v.AsyncWith.body = body;
+    res->v.AsyncWith.type_comment = type_comment;
+    res->lineno = lineno;
+    res->col_offset = col_offset;
+    res->end_lineno = end_lineno;
+    res->end_col_offset = end_col_offset;
+    return (PyObject *)res;
+fail:
+    Py_XDECREF(items);
+    Py_XDECREF(body);
+    Py_XDECREF(type_comment);
+    return NULL;
 }
 
 static void AsyncWith_dealloc(PyObject *self) {
@@ -9348,37 +11618,158 @@ error:
 }
 
 static PyObject *
-Match_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+Match_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
 {
-    PyObject *res = type->tp_alloc(type, 0);
-    if (!res) {
+    Py_ssize_t posargs = PyTuple_GET_SIZE(pargs);
+    if (posargs > 2) {
+        PyErr_SetString(PyExc_TypeError,
+                        "Match takes at most 2 positional arguments");
         return NULL;
     }
+    expr_ty subject = NULL;
+    asdl_match_case_seq* cases = NULL;
+    int lineno = 0;
+    bool got_lineno = false;
+    int col_offset = 0;
+    bool got_col_offset = false;
+    int end_lineno = 0;
+    bool got_end_lineno = false;
+    int end_col_offset = 0;
+    bool got_end_col_offset = false;
+    PyObject *tmp;
     struct ast_state *state = get_ast_state();
-    struct _stmt *self = (struct _stmt*)res;
-    Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     switch (posargs) {
         case 2: {
-            PyObject *value = PyTuple_GET_ITEM(args, 1);
-            if (obj2imm_match_case_seq(state, value, "", "cases",
-                &self->v.Match.cases) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 5);
+            if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                goto fail;
             }
+            got_end_col_offset = true;
         }
         // fallthrough
         case 1: {
-            PyObject *value = PyTuple_GET_ITEM(args, 0);
-            if (obj2imm_expr(state, value, &self->v.Match.subject) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 4);
+            if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                goto fail;
+            }
+            got_end_lineno = true;
+        }
+        // fallthrough
+        case 0: {
+            tmp = PyTuple_GET_ITEM(pargs, 3);
+            if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                goto fail;
+            }
+            got_col_offset = true;
+        }
+        // fallthrough
+        case -1: {
+            tmp = PyTuple_GET_ITEM(pargs, 2);
+            if (obj2imm_int(state, tmp, &lineno) < 0) {
+                goto fail;
+            }
+            got_lineno = true;
+        }
+        // fallthrough
+        case -2: {
+            tmp = PyTuple_GET_ITEM(pargs, 1);
+            if (obj2imm_match_case_seq(state, tmp, "Match", "cases", &cases) <
+                0) {
+                goto fail;
+            }
+        }
+        // fallthrough
+        case -3: {
+            tmp = PyTuple_GET_ITEM(pargs, 0);
+            if (obj2imm_expr(state, tmp, &subject) < 0) {
+                goto fail;
             }
         }
         // fallthrough
         default:
             break;
     }
-    return res;
+    if (kwargs != NULL && PyDict_Size(kwargs)) {
+        int err;
+        if (subject != NULL) {
+            err = PyDict_PopString(kwargs, "subject", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_expr(state, tmp, &subject) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (cases != NULL) {
+            err = PyDict_PopString(kwargs, "cases", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_match_case_seq(state, tmp, "Match", "cases",
+                    &cases) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_lineno) {
+            err = PyDict_PopString(kwargs, "lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_col_offset) {
+            err = PyDict_PopString(kwargs, "col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_lineno) {
+            err = PyDict_PopString(kwargs, "end_lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_col_offset) {
+            err = PyDict_PopString(kwargs, "end_col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (PyDict_Size(kwargs)) {
+            Py_ssize_t pos = 0;
+            PyObject *key;
+            while (PyDict_Next(kwargs, &pos, &key, NULL)) {
+                PyErr_Format(PyExc_TypeError,
+                                "%.400s.__replace__ got an unexpected keyword "
+                                "argument '%U'.", pytype->tp_name, key);
+                goto fail;
+            }
+        }
+    }
+    struct _stmt *res = (struct _stmt*)pytype->tp_alloc(pytype, 0);
+    if (!res) goto fail;
+    res->v.Match.subject = subject;
+    res->v.Match.cases = cases;
+    res->lineno = lineno;
+    res->col_offset = col_offset;
+    res->end_lineno = end_lineno;
+    res->end_col_offset = end_col_offset;
+    return (PyObject *)res;
+fail:
+    Py_XDECREF(subject);
+    Py_XDECREF(cases);
+    return NULL;
 }
 
 static void Match_dealloc(PyObject *self) {
@@ -9443,36 +11834,156 @@ error:
 }
 
 static PyObject *
-Raise_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+Raise_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
 {
-    PyObject *res = type->tp_alloc(type, 0);
-    if (!res) {
+    Py_ssize_t posargs = PyTuple_GET_SIZE(pargs);
+    if (posargs > 2) {
+        PyErr_SetString(PyExc_TypeError,
+                        "Raise takes at most 2 positional arguments");
         return NULL;
     }
+    expr_ty exc = NULL;
+    expr_ty cause = NULL;
+    int lineno = 0;
+    bool got_lineno = false;
+    int col_offset = 0;
+    bool got_col_offset = false;
+    int end_lineno = 0;
+    bool got_end_lineno = false;
+    int end_col_offset = 0;
+    bool got_end_col_offset = false;
+    PyObject *tmp;
     struct ast_state *state = get_ast_state();
-    struct _stmt *self = (struct _stmt*)res;
-    Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     switch (posargs) {
         case 2: {
-            PyObject *value = PyTuple_GET_ITEM(args, 1);
-            if (obj2imm_expr(state, value, &self->v.Raise.cause) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 5);
+            if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                goto fail;
             }
+            got_end_col_offset = true;
         }
         // fallthrough
         case 1: {
-            PyObject *value = PyTuple_GET_ITEM(args, 0);
-            if (obj2imm_expr(state, value, &self->v.Raise.exc) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 4);
+            if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                goto fail;
+            }
+            got_end_lineno = true;
+        }
+        // fallthrough
+        case 0: {
+            tmp = PyTuple_GET_ITEM(pargs, 3);
+            if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                goto fail;
+            }
+            got_col_offset = true;
+        }
+        // fallthrough
+        case -1: {
+            tmp = PyTuple_GET_ITEM(pargs, 2);
+            if (obj2imm_int(state, tmp, &lineno) < 0) {
+                goto fail;
+            }
+            got_lineno = true;
+        }
+        // fallthrough
+        case -2: {
+            tmp = PyTuple_GET_ITEM(pargs, 1);
+            if (obj2imm_expr(state, tmp, &cause) < 0) {
+                goto fail;
+            }
+        }
+        // fallthrough
+        case -3: {
+            tmp = PyTuple_GET_ITEM(pargs, 0);
+            if (obj2imm_expr(state, tmp, &exc) < 0) {
+                goto fail;
             }
         }
         // fallthrough
         default:
             break;
     }
-    return res;
+    if (kwargs != NULL && PyDict_Size(kwargs)) {
+        int err;
+        if (exc != NULL) {
+            err = PyDict_PopString(kwargs, "exc", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_expr(state, tmp, &exc) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (cause != NULL) {
+            err = PyDict_PopString(kwargs, "cause", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_expr(state, tmp, &cause) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_lineno) {
+            err = PyDict_PopString(kwargs, "lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_col_offset) {
+            err = PyDict_PopString(kwargs, "col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_lineno) {
+            err = PyDict_PopString(kwargs, "end_lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_col_offset) {
+            err = PyDict_PopString(kwargs, "end_col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (PyDict_Size(kwargs)) {
+            Py_ssize_t pos = 0;
+            PyObject *key;
+            while (PyDict_Next(kwargs, &pos, &key, NULL)) {
+                PyErr_Format(PyExc_TypeError,
+                                "%.400s.__replace__ got an unexpected keyword "
+                                "argument '%U'.", pytype->tp_name, key);
+                goto fail;
+            }
+        }
+    }
+    struct _stmt *res = (struct _stmt*)pytype->tp_alloc(pytype, 0);
+    if (!res) goto fail;
+    res->v.Raise.exc = exc;
+    res->v.Raise.cause = cause;
+    res->lineno = lineno;
+    res->col_offset = col_offset;
+    res->end_lineno = end_lineno;
+    res->end_col_offset = end_col_offset;
+    return (PyObject *)res;
+fail:
+    Py_XDECREF(exc);
+    Py_XDECREF(cause);
+    return NULL;
 }
 
 static void Raise_dealloc(PyObject *self) {
@@ -9537,56 +12048,199 @@ error:
 }
 
 static PyObject *
-Try_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+Try_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
 {
-    PyObject *res = type->tp_alloc(type, 0);
-    if (!res) {
+    Py_ssize_t posargs = PyTuple_GET_SIZE(pargs);
+    if (posargs > 4) {
+        PyErr_SetString(PyExc_TypeError,
+                        "Try takes at most 4 positional arguments");
         return NULL;
     }
+    asdl_stmt_seq* body = NULL;
+    asdl_excepthandler_seq* handlers = NULL;
+    asdl_stmt_seq* orelse = NULL;
+    asdl_stmt_seq* finalbody = NULL;
+    int lineno = 0;
+    bool got_lineno = false;
+    int col_offset = 0;
+    bool got_col_offset = false;
+    int end_lineno = 0;
+    bool got_end_lineno = false;
+    int end_col_offset = 0;
+    bool got_end_col_offset = false;
+    PyObject *tmp;
     struct ast_state *state = get_ast_state();
-    struct _stmt *self = (struct _stmt*)res;
-    Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     switch (posargs) {
         case 4: {
-            PyObject *value = PyTuple_GET_ITEM(args, 3);
-            if (obj2imm_stmt_seq(state, value, "", "finalbody",
-                &self->v.Try.finalbody) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 7);
+            if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                goto fail;
             }
+            got_end_col_offset = true;
         }
         // fallthrough
         case 3: {
-            PyObject *value = PyTuple_GET_ITEM(args, 2);
-            if (obj2imm_stmt_seq(state, value, "", "orelse",
-                &self->v.Try.orelse) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 6);
+            if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                goto fail;
             }
+            got_end_lineno = true;
         }
         // fallthrough
         case 2: {
-            PyObject *value = PyTuple_GET_ITEM(args, 1);
-            if (obj2imm_excepthandler_seq(state, value, "", "handlers",
-                &self->v.Try.handlers) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 5);
+            if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                goto fail;
             }
+            got_col_offset = true;
         }
         // fallthrough
         case 1: {
-            PyObject *value = PyTuple_GET_ITEM(args, 0);
-            if (obj2imm_stmt_seq(state, value, "", "body", &self->v.Try.body) <
+            tmp = PyTuple_GET_ITEM(pargs, 4);
+            if (obj2imm_int(state, tmp, &lineno) < 0) {
+                goto fail;
+            }
+            got_lineno = true;
+        }
+        // fallthrough
+        case 0: {
+            tmp = PyTuple_GET_ITEM(pargs, 3);
+            if (obj2imm_stmt_seq(state, tmp, "Try", "finalbody", &finalbody) <
                 0) {
-                Py_DECREF(res);
-                return NULL;
+                goto fail;
+            }
+        }
+        // fallthrough
+        case -1: {
+            tmp = PyTuple_GET_ITEM(pargs, 2);
+            if (obj2imm_stmt_seq(state, tmp, "Try", "orelse", &orelse) < 0) {
+                goto fail;
+            }
+        }
+        // fallthrough
+        case -2: {
+            tmp = PyTuple_GET_ITEM(pargs, 1);
+            if (obj2imm_excepthandler_seq(state, tmp, "Try", "handlers",
+                &handlers) < 0) {
+                goto fail;
+            }
+        }
+        // fallthrough
+        case -3: {
+            tmp = PyTuple_GET_ITEM(pargs, 0);
+            if (obj2imm_stmt_seq(state, tmp, "Try", "body", &body) < 0) {
+                goto fail;
             }
         }
         // fallthrough
         default:
             break;
     }
-    return res;
+    if (kwargs != NULL && PyDict_Size(kwargs)) {
+        int err;
+        if (body != NULL) {
+            err = PyDict_PopString(kwargs, "body", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_stmt_seq(state, tmp, "Try", "body", &body) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (handlers != NULL) {
+            err = PyDict_PopString(kwargs, "handlers", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_excepthandler_seq(state, tmp, "Try", "handlers",
+                    &handlers) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (orelse != NULL) {
+            err = PyDict_PopString(kwargs, "orelse", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_stmt_seq(state, tmp, "Try", "orelse", &orelse) < 0)
+                    {
+                    goto fail;
+                }
+            }
+        }
+        if (finalbody != NULL) {
+            err = PyDict_PopString(kwargs, "finalbody", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_stmt_seq(state, tmp, "Try", "finalbody",
+                    &finalbody) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_lineno) {
+            err = PyDict_PopString(kwargs, "lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_col_offset) {
+            err = PyDict_PopString(kwargs, "col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_lineno) {
+            err = PyDict_PopString(kwargs, "end_lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_col_offset) {
+            err = PyDict_PopString(kwargs, "end_col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (PyDict_Size(kwargs)) {
+            Py_ssize_t pos = 0;
+            PyObject *key;
+            while (PyDict_Next(kwargs, &pos, &key, NULL)) {
+                PyErr_Format(PyExc_TypeError,
+                                "%.400s.__replace__ got an unexpected keyword "
+                                "argument '%U'.", pytype->tp_name, key);
+                goto fail;
+            }
+        }
+    }
+    struct _stmt *res = (struct _stmt*)pytype->tp_alloc(pytype, 0);
+    if (!res) goto fail;
+    res->v.Try.body = body;
+    res->v.Try.handlers = handlers;
+    res->v.Try.orelse = orelse;
+    res->v.Try.finalbody = finalbody;
+    res->lineno = lineno;
+    res->col_offset = col_offset;
+    res->end_lineno = end_lineno;
+    res->end_col_offset = end_col_offset;
+    return (PyObject *)res;
+fail:
+    Py_XDECREF(body);
+    Py_XDECREF(handlers);
+    Py_XDECREF(orelse);
+    Py_XDECREF(finalbody);
+    return NULL;
 }
 
 static void Try_dealloc(PyObject *self) {
@@ -9669,56 +12323,201 @@ error:
 }
 
 static PyObject *
-TryStar_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+TryStar_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
 {
-    PyObject *res = type->tp_alloc(type, 0);
-    if (!res) {
+    Py_ssize_t posargs = PyTuple_GET_SIZE(pargs);
+    if (posargs > 4) {
+        PyErr_SetString(PyExc_TypeError,
+                        "TryStar takes at most 4 positional arguments");
         return NULL;
     }
+    asdl_stmt_seq* body = NULL;
+    asdl_excepthandler_seq* handlers = NULL;
+    asdl_stmt_seq* orelse = NULL;
+    asdl_stmt_seq* finalbody = NULL;
+    int lineno = 0;
+    bool got_lineno = false;
+    int col_offset = 0;
+    bool got_col_offset = false;
+    int end_lineno = 0;
+    bool got_end_lineno = false;
+    int end_col_offset = 0;
+    bool got_end_col_offset = false;
+    PyObject *tmp;
     struct ast_state *state = get_ast_state();
-    struct _stmt *self = (struct _stmt*)res;
-    Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     switch (posargs) {
         case 4: {
-            PyObject *value = PyTuple_GET_ITEM(args, 3);
-            if (obj2imm_stmt_seq(state, value, "", "finalbody",
-                &self->v.TryStar.finalbody) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 7);
+            if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                goto fail;
             }
+            got_end_col_offset = true;
         }
         // fallthrough
         case 3: {
-            PyObject *value = PyTuple_GET_ITEM(args, 2);
-            if (obj2imm_stmt_seq(state, value, "", "orelse",
-                &self->v.TryStar.orelse) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 6);
+            if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                goto fail;
             }
+            got_end_lineno = true;
         }
         // fallthrough
         case 2: {
-            PyObject *value = PyTuple_GET_ITEM(args, 1);
-            if (obj2imm_excepthandler_seq(state, value, "", "handlers",
-                &self->v.TryStar.handlers) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 5);
+            if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                goto fail;
             }
+            got_col_offset = true;
         }
         // fallthrough
         case 1: {
-            PyObject *value = PyTuple_GET_ITEM(args, 0);
-            if (obj2imm_stmt_seq(state, value, "", "body",
-                &self->v.TryStar.body) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 4);
+            if (obj2imm_int(state, tmp, &lineno) < 0) {
+                goto fail;
+            }
+            got_lineno = true;
+        }
+        // fallthrough
+        case 0: {
+            tmp = PyTuple_GET_ITEM(pargs, 3);
+            if (obj2imm_stmt_seq(state, tmp, "TryStar", "finalbody",
+                &finalbody) < 0) {
+                goto fail;
+            }
+        }
+        // fallthrough
+        case -1: {
+            tmp = PyTuple_GET_ITEM(pargs, 2);
+            if (obj2imm_stmt_seq(state, tmp, "TryStar", "orelse", &orelse) < 0)
+                {
+                goto fail;
+            }
+        }
+        // fallthrough
+        case -2: {
+            tmp = PyTuple_GET_ITEM(pargs, 1);
+            if (obj2imm_excepthandler_seq(state, tmp, "TryStar", "handlers",
+                &handlers) < 0) {
+                goto fail;
+            }
+        }
+        // fallthrough
+        case -3: {
+            tmp = PyTuple_GET_ITEM(pargs, 0);
+            if (obj2imm_stmt_seq(state, tmp, "TryStar", "body", &body) < 0) {
+                goto fail;
             }
         }
         // fallthrough
         default:
             break;
     }
-    return res;
+    if (kwargs != NULL && PyDict_Size(kwargs)) {
+        int err;
+        if (body != NULL) {
+            err = PyDict_PopString(kwargs, "body", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_stmt_seq(state, tmp, "TryStar", "body", &body) < 0)
+                    {
+                    goto fail;
+                }
+            }
+        }
+        if (handlers != NULL) {
+            err = PyDict_PopString(kwargs, "handlers", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_excepthandler_seq(state, tmp, "TryStar",
+                    "handlers", &handlers) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (orelse != NULL) {
+            err = PyDict_PopString(kwargs, "orelse", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_stmt_seq(state, tmp, "TryStar", "orelse", &orelse)
+                    < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (finalbody != NULL) {
+            err = PyDict_PopString(kwargs, "finalbody", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_stmt_seq(state, tmp, "TryStar", "finalbody",
+                    &finalbody) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_lineno) {
+            err = PyDict_PopString(kwargs, "lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_col_offset) {
+            err = PyDict_PopString(kwargs, "col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_lineno) {
+            err = PyDict_PopString(kwargs, "end_lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_col_offset) {
+            err = PyDict_PopString(kwargs, "end_col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (PyDict_Size(kwargs)) {
+            Py_ssize_t pos = 0;
+            PyObject *key;
+            while (PyDict_Next(kwargs, &pos, &key, NULL)) {
+                PyErr_Format(PyExc_TypeError,
+                                "%.400s.__replace__ got an unexpected keyword "
+                                "argument '%U'.", pytype->tp_name, key);
+                goto fail;
+            }
+        }
+    }
+    struct _stmt *res = (struct _stmt*)pytype->tp_alloc(pytype, 0);
+    if (!res) goto fail;
+    res->v.TryStar.body = body;
+    res->v.TryStar.handlers = handlers;
+    res->v.TryStar.orelse = orelse;
+    res->v.TryStar.finalbody = finalbody;
+    res->lineno = lineno;
+    res->col_offset = col_offset;
+    res->end_lineno = end_lineno;
+    res->end_col_offset = end_col_offset;
+    return (PyObject *)res;
+fail:
+    Py_XDECREF(body);
+    Py_XDECREF(handlers);
+    Py_XDECREF(orelse);
+    Py_XDECREF(finalbody);
+    return NULL;
 }
 
 static void TryStar_dealloc(PyObject *self) {
@@ -9803,36 +12602,156 @@ error:
 }
 
 static PyObject *
-Assert_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+Assert_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
 {
-    PyObject *res = type->tp_alloc(type, 0);
-    if (!res) {
+    Py_ssize_t posargs = PyTuple_GET_SIZE(pargs);
+    if (posargs > 2) {
+        PyErr_SetString(PyExc_TypeError,
+                        "Assert takes at most 2 positional arguments");
         return NULL;
     }
+    expr_ty test = NULL;
+    expr_ty msg = NULL;
+    int lineno = 0;
+    bool got_lineno = false;
+    int col_offset = 0;
+    bool got_col_offset = false;
+    int end_lineno = 0;
+    bool got_end_lineno = false;
+    int end_col_offset = 0;
+    bool got_end_col_offset = false;
+    PyObject *tmp;
     struct ast_state *state = get_ast_state();
-    struct _stmt *self = (struct _stmt*)res;
-    Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     switch (posargs) {
         case 2: {
-            PyObject *value = PyTuple_GET_ITEM(args, 1);
-            if (obj2imm_expr(state, value, &self->v.Assert.msg) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 5);
+            if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                goto fail;
             }
+            got_end_col_offset = true;
         }
         // fallthrough
         case 1: {
-            PyObject *value = PyTuple_GET_ITEM(args, 0);
-            if (obj2imm_expr(state, value, &self->v.Assert.test) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 4);
+            if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                goto fail;
+            }
+            got_end_lineno = true;
+        }
+        // fallthrough
+        case 0: {
+            tmp = PyTuple_GET_ITEM(pargs, 3);
+            if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                goto fail;
+            }
+            got_col_offset = true;
+        }
+        // fallthrough
+        case -1: {
+            tmp = PyTuple_GET_ITEM(pargs, 2);
+            if (obj2imm_int(state, tmp, &lineno) < 0) {
+                goto fail;
+            }
+            got_lineno = true;
+        }
+        // fallthrough
+        case -2: {
+            tmp = PyTuple_GET_ITEM(pargs, 1);
+            if (obj2imm_expr(state, tmp, &msg) < 0) {
+                goto fail;
+            }
+        }
+        // fallthrough
+        case -3: {
+            tmp = PyTuple_GET_ITEM(pargs, 0);
+            if (obj2imm_expr(state, tmp, &test) < 0) {
+                goto fail;
             }
         }
         // fallthrough
         default:
             break;
     }
-    return res;
+    if (kwargs != NULL && PyDict_Size(kwargs)) {
+        int err;
+        if (test != NULL) {
+            err = PyDict_PopString(kwargs, "test", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_expr(state, tmp, &test) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (msg != NULL) {
+            err = PyDict_PopString(kwargs, "msg", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_expr(state, tmp, &msg) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_lineno) {
+            err = PyDict_PopString(kwargs, "lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_col_offset) {
+            err = PyDict_PopString(kwargs, "col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_lineno) {
+            err = PyDict_PopString(kwargs, "end_lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_col_offset) {
+            err = PyDict_PopString(kwargs, "end_col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (PyDict_Size(kwargs)) {
+            Py_ssize_t pos = 0;
+            PyObject *key;
+            while (PyDict_Next(kwargs, &pos, &key, NULL)) {
+                PyErr_Format(PyExc_TypeError,
+                                "%.400s.__replace__ got an unexpected keyword "
+                                "argument '%U'.", pytype->tp_name, key);
+                goto fail;
+            }
+        }
+    }
+    struct _stmt *res = (struct _stmt*)pytype->tp_alloc(pytype, 0);
+    if (!res) goto fail;
+    res->v.Assert.test = test;
+    res->v.Assert.msg = msg;
+    res->lineno = lineno;
+    res->col_offset = col_offset;
+    res->end_lineno = end_lineno;
+    res->end_col_offset = end_col_offset;
+    return (PyObject *)res;
+fail:
+    Py_XDECREF(test);
+    Py_XDECREF(msg);
+    return NULL;
 }
 
 static void Assert_dealloc(PyObject *self) {
@@ -9897,29 +12816,138 @@ error:
 }
 
 static PyObject *
-Import_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+Import_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
 {
-    PyObject *res = type->tp_alloc(type, 0);
-    if (!res) {
+    Py_ssize_t posargs = PyTuple_GET_SIZE(pargs);
+    if (posargs > 1) {
+        PyErr_SetString(PyExc_TypeError,
+                        "Import takes at most 1 positional argument");
         return NULL;
     }
+    asdl_alias_seq* names = NULL;
+    int lineno = 0;
+    bool got_lineno = false;
+    int col_offset = 0;
+    bool got_col_offset = false;
+    int end_lineno = 0;
+    bool got_end_lineno = false;
+    int end_col_offset = 0;
+    bool got_end_col_offset = false;
+    PyObject *tmp;
     struct ast_state *state = get_ast_state();
-    struct _stmt *self = (struct _stmt*)res;
-    Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     switch (posargs) {
         case 1: {
-            PyObject *value = PyTuple_GET_ITEM(args, 0);
-            if (obj2imm_alias_seq(state, value, "", "names",
-                &self->v.Import.names) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 4);
+            if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                goto fail;
+            }
+            got_end_col_offset = true;
+        }
+        // fallthrough
+        case 0: {
+            tmp = PyTuple_GET_ITEM(pargs, 3);
+            if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                goto fail;
+            }
+            got_end_lineno = true;
+        }
+        // fallthrough
+        case -1: {
+            tmp = PyTuple_GET_ITEM(pargs, 2);
+            if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                goto fail;
+            }
+            got_col_offset = true;
+        }
+        // fallthrough
+        case -2: {
+            tmp = PyTuple_GET_ITEM(pargs, 1);
+            if (obj2imm_int(state, tmp, &lineno) < 0) {
+                goto fail;
+            }
+            got_lineno = true;
+        }
+        // fallthrough
+        case -3: {
+            tmp = PyTuple_GET_ITEM(pargs, 0);
+            if (obj2imm_alias_seq(state, tmp, "Import", "names", &names) < 0) {
+                goto fail;
             }
         }
         // fallthrough
         default:
             break;
     }
-    return res;
+    if (kwargs != NULL && PyDict_Size(kwargs)) {
+        int err;
+        if (names != NULL) {
+            err = PyDict_PopString(kwargs, "names", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_alias_seq(state, tmp, "Import", "names", &names) <
+                    0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_lineno) {
+            err = PyDict_PopString(kwargs, "lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_col_offset) {
+            err = PyDict_PopString(kwargs, "col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_lineno) {
+            err = PyDict_PopString(kwargs, "end_lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_col_offset) {
+            err = PyDict_PopString(kwargs, "end_col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (PyDict_Size(kwargs)) {
+            Py_ssize_t pos = 0;
+            PyObject *key;
+            while (PyDict_Next(kwargs, &pos, &key, NULL)) {
+                PyErr_Format(PyExc_TypeError,
+                                "%.400s.__replace__ got an unexpected keyword "
+                                "argument '%U'.", pytype->tp_name, key);
+                goto fail;
+            }
+        }
+    }
+    struct _stmt *res = (struct _stmt*)pytype->tp_alloc(pytype, 0);
+    if (!res) goto fail;
+    res->v.Import.names = names;
+    res->lineno = lineno;
+    res->col_offset = col_offset;
+    res->end_lineno = end_lineno;
+    res->end_col_offset = end_col_offset;
+    return (PyObject *)res;
+fail:
+    Py_XDECREF(names);
+    return NULL;
 }
 
 static void Import_dealloc(PyObject *self) {
@@ -9975,48 +13003,178 @@ error:
 }
 
 static PyObject *
-ImportFrom_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+ImportFrom_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
 {
-    PyObject *res = type->tp_alloc(type, 0);
-    if (!res) {
+    Py_ssize_t posargs = PyTuple_GET_SIZE(pargs);
+    if (posargs > 3) {
+        PyErr_SetString(PyExc_TypeError,
+                        "ImportFrom takes at most 3 positional arguments");
         return NULL;
     }
+    identifier module = NULL;
+    asdl_alias_seq* names = NULL;
+    int level = 0;
+    bool got_level = false;
+    int lineno = 0;
+    bool got_lineno = false;
+    int col_offset = 0;
+    bool got_col_offset = false;
+    int end_lineno = 0;
+    bool got_end_lineno = false;
+    int end_col_offset = 0;
+    bool got_end_col_offset = false;
+    PyObject *tmp;
     struct ast_state *state = get_ast_state();
-    struct _stmt *self = (struct _stmt*)res;
-    Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     switch (posargs) {
         case 3: {
-            PyObject *value = PyTuple_GET_ITEM(args, 2);
-            int out;
-            if (obj2imm_int(state, value, &out) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 6);
+            if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                goto fail;
             }
-            self->v.ImportFrom.level = out;
+            got_end_col_offset = true;
         }
         // fallthrough
         case 2: {
-            PyObject *value = PyTuple_GET_ITEM(args, 1);
-            if (obj2imm_alias_seq(state, value, "", "names",
-                &self->v.ImportFrom.names) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 5);
+            if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                goto fail;
             }
+            got_end_lineno = true;
         }
         // fallthrough
         case 1: {
-            PyObject *value = PyTuple_GET_ITEM(args, 0);
-            if (obj2imm_identifier(state, value, &self->v.ImportFrom.module) <
+            tmp = PyTuple_GET_ITEM(pargs, 4);
+            if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                goto fail;
+            }
+            got_col_offset = true;
+        }
+        // fallthrough
+        case 0: {
+            tmp = PyTuple_GET_ITEM(pargs, 3);
+            if (obj2imm_int(state, tmp, &lineno) < 0) {
+                goto fail;
+            }
+            got_lineno = true;
+        }
+        // fallthrough
+        case -1: {
+            tmp = PyTuple_GET_ITEM(pargs, 2);
+            if (obj2imm_int(state, tmp, &level) < 0) {
+                goto fail;
+            }
+            got_level = true;
+        }
+        // fallthrough
+        case -2: {
+            tmp = PyTuple_GET_ITEM(pargs, 1);
+            if (obj2imm_alias_seq(state, tmp, "ImportFrom", "names", &names) <
                 0) {
-                Py_DECREF(res);
-                return NULL;
+                goto fail;
+            }
+        }
+        // fallthrough
+        case -3: {
+            tmp = PyTuple_GET_ITEM(pargs, 0);
+            if (obj2imm_identifier(state, tmp, &module) < 0) {
+                goto fail;
             }
         }
         // fallthrough
         default:
             break;
     }
-    return res;
+    if (kwargs != NULL && PyDict_Size(kwargs)) {
+        int err;
+        if (module != NULL) {
+            err = PyDict_PopString(kwargs, "module", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_identifier(state, tmp, &module) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (names != NULL) {
+            err = PyDict_PopString(kwargs, "names", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_alias_seq(state, tmp, "ImportFrom", "names",
+                    &names) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_level) {
+            err = PyDict_PopString(kwargs, "level", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &level) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_lineno) {
+            err = PyDict_PopString(kwargs, "lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_col_offset) {
+            err = PyDict_PopString(kwargs, "col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_lineno) {
+            err = PyDict_PopString(kwargs, "end_lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_col_offset) {
+            err = PyDict_PopString(kwargs, "end_col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (PyDict_Size(kwargs)) {
+            Py_ssize_t pos = 0;
+            PyObject *key;
+            while (PyDict_Next(kwargs, &pos, &key, NULL)) {
+                PyErr_Format(PyExc_TypeError,
+                                "%.400s.__replace__ got an unexpected keyword "
+                                "argument '%U'.", pytype->tp_name, key);
+                goto fail;
+            }
+        }
+    }
+    struct _stmt *res = (struct _stmt*)pytype->tp_alloc(pytype, 0);
+    if (!res) goto fail;
+    res->v.ImportFrom.module = module;
+    res->v.ImportFrom.names = names;
+    res->v.ImportFrom.level = level;
+    res->lineno = lineno;
+    res->col_offset = col_offset;
+    res->end_lineno = end_lineno;
+    res->end_col_offset = end_col_offset;
+    return (PyObject *)res;
+fail:
+    Py_XDECREF(module);
+    Py_XDECREF(names);
+    return NULL;
 }
 
 static void ImportFrom_dealloc(PyObject *self) {
@@ -10085,29 +13243,139 @@ error:
 }
 
 static PyObject *
-Global_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+Global_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
 {
-    PyObject *res = type->tp_alloc(type, 0);
-    if (!res) {
+    Py_ssize_t posargs = PyTuple_GET_SIZE(pargs);
+    if (posargs > 1) {
+        PyErr_SetString(PyExc_TypeError,
+                        "Global takes at most 1 positional argument");
         return NULL;
     }
+    asdl_identifier_seq* names = NULL;
+    int lineno = 0;
+    bool got_lineno = false;
+    int col_offset = 0;
+    bool got_col_offset = false;
+    int end_lineno = 0;
+    bool got_end_lineno = false;
+    int end_col_offset = 0;
+    bool got_end_col_offset = false;
+    PyObject *tmp;
     struct ast_state *state = get_ast_state();
-    struct _stmt *self = (struct _stmt*)res;
-    Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     switch (posargs) {
         case 1: {
-            PyObject *value = PyTuple_GET_ITEM(args, 0);
-            if (obj2imm_identifier_seq(state, value, "", "names",
-                &self->v.Global.names) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 4);
+            if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                goto fail;
+            }
+            got_end_col_offset = true;
+        }
+        // fallthrough
+        case 0: {
+            tmp = PyTuple_GET_ITEM(pargs, 3);
+            if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                goto fail;
+            }
+            got_end_lineno = true;
+        }
+        // fallthrough
+        case -1: {
+            tmp = PyTuple_GET_ITEM(pargs, 2);
+            if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                goto fail;
+            }
+            got_col_offset = true;
+        }
+        // fallthrough
+        case -2: {
+            tmp = PyTuple_GET_ITEM(pargs, 1);
+            if (obj2imm_int(state, tmp, &lineno) < 0) {
+                goto fail;
+            }
+            got_lineno = true;
+        }
+        // fallthrough
+        case -3: {
+            tmp = PyTuple_GET_ITEM(pargs, 0);
+            if (obj2imm_identifier_seq(state, tmp, "Global", "names", &names) <
+                0) {
+                goto fail;
             }
         }
         // fallthrough
         default:
             break;
     }
-    return res;
+    if (kwargs != NULL && PyDict_Size(kwargs)) {
+        int err;
+        if (names != NULL) {
+            err = PyDict_PopString(kwargs, "names", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_identifier_seq(state, tmp, "Global", "names",
+                    &names) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_lineno) {
+            err = PyDict_PopString(kwargs, "lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_col_offset) {
+            err = PyDict_PopString(kwargs, "col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_lineno) {
+            err = PyDict_PopString(kwargs, "end_lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_col_offset) {
+            err = PyDict_PopString(kwargs, "end_col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (PyDict_Size(kwargs)) {
+            Py_ssize_t pos = 0;
+            PyObject *key;
+            while (PyDict_Next(kwargs, &pos, &key, NULL)) {
+                PyErr_Format(PyExc_TypeError,
+                                "%.400s.__replace__ got an unexpected keyword "
+                                "argument '%U'.", pytype->tp_name, key);
+                goto fail;
+            }
+        }
+    }
+    struct _stmt *res = (struct _stmt*)pytype->tp_alloc(pytype, 0);
+    if (!res) goto fail;
+    res->v.Global.names = names;
+    res->lineno = lineno;
+    res->col_offset = col_offset;
+    res->end_lineno = end_lineno;
+    res->end_col_offset = end_col_offset;
+    return (PyObject *)res;
+fail:
+    Py_XDECREF(names);
+    return NULL;
 }
 
 static void Global_dealloc(PyObject *self) {
@@ -10163,29 +13431,139 @@ error:
 }
 
 static PyObject *
-Nonlocal_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+Nonlocal_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
 {
-    PyObject *res = type->tp_alloc(type, 0);
-    if (!res) {
+    Py_ssize_t posargs = PyTuple_GET_SIZE(pargs);
+    if (posargs > 1) {
+        PyErr_SetString(PyExc_TypeError,
+                        "Nonlocal takes at most 1 positional argument");
         return NULL;
     }
+    asdl_identifier_seq* names = NULL;
+    int lineno = 0;
+    bool got_lineno = false;
+    int col_offset = 0;
+    bool got_col_offset = false;
+    int end_lineno = 0;
+    bool got_end_lineno = false;
+    int end_col_offset = 0;
+    bool got_end_col_offset = false;
+    PyObject *tmp;
     struct ast_state *state = get_ast_state();
-    struct _stmt *self = (struct _stmt*)res;
-    Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     switch (posargs) {
         case 1: {
-            PyObject *value = PyTuple_GET_ITEM(args, 0);
-            if (obj2imm_identifier_seq(state, value, "", "names",
-                &self->v.Nonlocal.names) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 4);
+            if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                goto fail;
+            }
+            got_end_col_offset = true;
+        }
+        // fallthrough
+        case 0: {
+            tmp = PyTuple_GET_ITEM(pargs, 3);
+            if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                goto fail;
+            }
+            got_end_lineno = true;
+        }
+        // fallthrough
+        case -1: {
+            tmp = PyTuple_GET_ITEM(pargs, 2);
+            if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                goto fail;
+            }
+            got_col_offset = true;
+        }
+        // fallthrough
+        case -2: {
+            tmp = PyTuple_GET_ITEM(pargs, 1);
+            if (obj2imm_int(state, tmp, &lineno) < 0) {
+                goto fail;
+            }
+            got_lineno = true;
+        }
+        // fallthrough
+        case -3: {
+            tmp = PyTuple_GET_ITEM(pargs, 0);
+            if (obj2imm_identifier_seq(state, tmp, "Nonlocal", "names", &names)
+                < 0) {
+                goto fail;
             }
         }
         // fallthrough
         default:
             break;
     }
-    return res;
+    if (kwargs != NULL && PyDict_Size(kwargs)) {
+        int err;
+        if (names != NULL) {
+            err = PyDict_PopString(kwargs, "names", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_identifier_seq(state, tmp, "Nonlocal", "names",
+                    &names) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_lineno) {
+            err = PyDict_PopString(kwargs, "lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_col_offset) {
+            err = PyDict_PopString(kwargs, "col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_lineno) {
+            err = PyDict_PopString(kwargs, "end_lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_col_offset) {
+            err = PyDict_PopString(kwargs, "end_col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (PyDict_Size(kwargs)) {
+            Py_ssize_t pos = 0;
+            PyObject *key;
+            while (PyDict_Next(kwargs, &pos, &key, NULL)) {
+                PyErr_Format(PyExc_TypeError,
+                                "%.400s.__replace__ got an unexpected keyword "
+                                "argument '%U'.", pytype->tp_name, key);
+                goto fail;
+            }
+        }
+    }
+    struct _stmt *res = (struct _stmt*)pytype->tp_alloc(pytype, 0);
+    if (!res) goto fail;
+    res->v.Nonlocal.names = names;
+    res->lineno = lineno;
+    res->col_offset = col_offset;
+    res->end_lineno = end_lineno;
+    res->end_col_offset = end_col_offset;
+    return (PyObject *)res;
+fail:
+    Py_XDECREF(names);
+    return NULL;
 }
 
 static void Nonlocal_dealloc(PyObject *self) {
@@ -10242,28 +13620,137 @@ error:
 }
 
 static PyObject *
-Expr_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+Expr_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
 {
-    PyObject *res = type->tp_alloc(type, 0);
-    if (!res) {
+    Py_ssize_t posargs = PyTuple_GET_SIZE(pargs);
+    if (posargs > 1) {
+        PyErr_SetString(PyExc_TypeError,
+                        "Expr takes at most 1 positional argument");
         return NULL;
     }
+    expr_ty value = NULL;
+    int lineno = 0;
+    bool got_lineno = false;
+    int col_offset = 0;
+    bool got_col_offset = false;
+    int end_lineno = 0;
+    bool got_end_lineno = false;
+    int end_col_offset = 0;
+    bool got_end_col_offset = false;
+    PyObject *tmp;
     struct ast_state *state = get_ast_state();
-    struct _stmt *self = (struct _stmt*)res;
-    Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     switch (posargs) {
         case 1: {
-            PyObject *value = PyTuple_GET_ITEM(args, 0);
-            if (obj2imm_expr(state, value, &self->v.Expr.value) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 4);
+            if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                goto fail;
+            }
+            got_end_col_offset = true;
+        }
+        // fallthrough
+        case 0: {
+            tmp = PyTuple_GET_ITEM(pargs, 3);
+            if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                goto fail;
+            }
+            got_end_lineno = true;
+        }
+        // fallthrough
+        case -1: {
+            tmp = PyTuple_GET_ITEM(pargs, 2);
+            if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                goto fail;
+            }
+            got_col_offset = true;
+        }
+        // fallthrough
+        case -2: {
+            tmp = PyTuple_GET_ITEM(pargs, 1);
+            if (obj2imm_int(state, tmp, &lineno) < 0) {
+                goto fail;
+            }
+            got_lineno = true;
+        }
+        // fallthrough
+        case -3: {
+            tmp = PyTuple_GET_ITEM(pargs, 0);
+            if (obj2imm_expr(state, tmp, &value) < 0) {
+                goto fail;
             }
         }
         // fallthrough
         default:
             break;
     }
-    return res;
+    if (kwargs != NULL && PyDict_Size(kwargs)) {
+        int err;
+        if (value != NULL) {
+            err = PyDict_PopString(kwargs, "value", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_expr(state, tmp, &value) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_lineno) {
+            err = PyDict_PopString(kwargs, "lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_col_offset) {
+            err = PyDict_PopString(kwargs, "col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_lineno) {
+            err = PyDict_PopString(kwargs, "end_lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_col_offset) {
+            err = PyDict_PopString(kwargs, "end_col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (PyDict_Size(kwargs)) {
+            Py_ssize_t pos = 0;
+            PyObject *key;
+            while (PyDict_Next(kwargs, &pos, &key, NULL)) {
+                PyErr_Format(PyExc_TypeError,
+                                "%.400s.__replace__ got an unexpected keyword "
+                                "argument '%U'.", pytype->tp_name, key);
+                goto fail;
+            }
+        }
+    }
+    struct _stmt *res = (struct _stmt*)pytype->tp_alloc(pytype, 0);
+    if (!res) goto fail;
+    res->v.Expr.value = value;
+    res->lineno = lineno;
+    res->col_offset = col_offset;
+    res->end_lineno = end_lineno;
+    res->end_col_offset = end_col_offset;
+    return (PyObject *)res;
+fail:
+    Py_XDECREF(value);
+    return NULL;
 }
 
 static void Expr_dealloc(PyObject *self) {
@@ -10318,13 +13805,82 @@ error:
 }
 
 static PyObject *
-Pass_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+Pass_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
 {
-    PyObject *res = type->tp_alloc(type, 0);
-    if (!res) {
+    Py_ssize_t posargs = PyTuple_GET_SIZE(pargs);
+    if (posargs > 0) {
+        PyErr_SetString(PyExc_TypeError,
+                        "Pass takes at most 0 positional arguments");
         return NULL;
     }
-    return res;
+    int lineno = 0;
+    bool got_lineno = false;
+    int col_offset = 0;
+    bool got_col_offset = false;
+    int end_lineno = 0;
+    bool got_end_lineno = false;
+    int end_col_offset = 0;
+    bool got_end_col_offset = false;
+    PyObject *tmp;
+    struct ast_state *state = get_ast_state();
+    if (kwargs != NULL && PyDict_Size(kwargs)) {
+        int err;
+        if (!got_lineno) {
+            err = PyDict_PopString(kwargs, "lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_col_offset) {
+            err = PyDict_PopString(kwargs, "col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_lineno) {
+            err = PyDict_PopString(kwargs, "end_lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_col_offset) {
+            err = PyDict_PopString(kwargs, "end_col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (PyDict_Size(kwargs)) {
+            Py_ssize_t pos = 0;
+            PyObject *key;
+            while (PyDict_Next(kwargs, &pos, &key, NULL)) {
+                PyErr_Format(PyExc_TypeError,
+                                "%.400s.__replace__ got an unexpected keyword "
+                                "argument '%U'.", pytype->tp_name, key);
+                goto fail;
+            }
+        }
+    }
+    struct _stmt *res = (struct _stmt*)pytype->tp_alloc(pytype, 0);
+    if (!res) goto fail;
+    res->lineno = lineno;
+    res->col_offset = col_offset;
+    res->end_lineno = end_lineno;
+    res->end_col_offset = end_col_offset;
+    return (PyObject *)res;
+fail:
+    return NULL;
 }
 
 static void Pass_dealloc(PyObject *self) {
@@ -10369,13 +13925,82 @@ error:
 }
 
 static PyObject *
-Break_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+Break_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
 {
-    PyObject *res = type->tp_alloc(type, 0);
-    if (!res) {
+    Py_ssize_t posargs = PyTuple_GET_SIZE(pargs);
+    if (posargs > 0) {
+        PyErr_SetString(PyExc_TypeError,
+                        "Break takes at most 0 positional arguments");
         return NULL;
     }
-    return res;
+    int lineno = 0;
+    bool got_lineno = false;
+    int col_offset = 0;
+    bool got_col_offset = false;
+    int end_lineno = 0;
+    bool got_end_lineno = false;
+    int end_col_offset = 0;
+    bool got_end_col_offset = false;
+    PyObject *tmp;
+    struct ast_state *state = get_ast_state();
+    if (kwargs != NULL && PyDict_Size(kwargs)) {
+        int err;
+        if (!got_lineno) {
+            err = PyDict_PopString(kwargs, "lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_col_offset) {
+            err = PyDict_PopString(kwargs, "col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_lineno) {
+            err = PyDict_PopString(kwargs, "end_lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_col_offset) {
+            err = PyDict_PopString(kwargs, "end_col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (PyDict_Size(kwargs)) {
+            Py_ssize_t pos = 0;
+            PyObject *key;
+            while (PyDict_Next(kwargs, &pos, &key, NULL)) {
+                PyErr_Format(PyExc_TypeError,
+                                "%.400s.__replace__ got an unexpected keyword "
+                                "argument '%U'.", pytype->tp_name, key);
+                goto fail;
+            }
+        }
+    }
+    struct _stmt *res = (struct _stmt*)pytype->tp_alloc(pytype, 0);
+    if (!res) goto fail;
+    res->lineno = lineno;
+    res->col_offset = col_offset;
+    res->end_lineno = end_lineno;
+    res->end_col_offset = end_col_offset;
+    return (PyObject *)res;
+fail:
+    return NULL;
 }
 
 static void Break_dealloc(PyObject *self) {
@@ -10421,13 +14046,82 @@ error:
 }
 
 static PyObject *
-Continue_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+Continue_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
 {
-    PyObject *res = type->tp_alloc(type, 0);
-    if (!res) {
+    Py_ssize_t posargs = PyTuple_GET_SIZE(pargs);
+    if (posargs > 0) {
+        PyErr_SetString(PyExc_TypeError,
+                        "Continue takes at most 0 positional arguments");
         return NULL;
     }
-    return res;
+    int lineno = 0;
+    bool got_lineno = false;
+    int col_offset = 0;
+    bool got_col_offset = false;
+    int end_lineno = 0;
+    bool got_end_lineno = false;
+    int end_col_offset = 0;
+    bool got_end_col_offset = false;
+    PyObject *tmp;
+    struct ast_state *state = get_ast_state();
+    if (kwargs != NULL && PyDict_Size(kwargs)) {
+        int err;
+        if (!got_lineno) {
+            err = PyDict_PopString(kwargs, "lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_col_offset) {
+            err = PyDict_PopString(kwargs, "col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_lineno) {
+            err = PyDict_PopString(kwargs, "end_lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_col_offset) {
+            err = PyDict_PopString(kwargs, "end_col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (PyDict_Size(kwargs)) {
+            Py_ssize_t pos = 0;
+            PyObject *key;
+            while (PyDict_Next(kwargs, &pos, &key, NULL)) {
+                PyErr_Format(PyExc_TypeError,
+                                "%.400s.__replace__ got an unexpected keyword "
+                                "argument '%U'.", pytype->tp_name, key);
+                goto fail;
+            }
+        }
+    }
+    struct _stmt *res = (struct _stmt*)pytype->tp_alloc(pytype, 0);
+    if (!res) goto fail;
+    res->lineno = lineno;
+    res->col_offset = col_offset;
+    res->end_lineno = end_lineno;
+    res->end_col_offset = end_col_offset;
+    return (PyObject *)res;
+fail:
+    return NULL;
 }
 
 static void Continue_dealloc(PyObject *self) {
@@ -10536,13 +14230,82 @@ stmt_ty _PyAst_stmt_Copy(stmt_ty node) {
 }
 
 static PyObject *
-stmt_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+stmt_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
 {
-    PyObject *res = type->tp_alloc(type, 0);
-    if (!res) {
+    Py_ssize_t posargs = PyTuple_GET_SIZE(pargs);
+    if (posargs > 0) {
+        PyErr_SetString(PyExc_TypeError,
+                        "stmt takes at most 0 positional arguments");
         return NULL;
     }
-    return res;
+    int lineno = 0;
+    bool got_lineno = false;
+    int col_offset = 0;
+    bool got_col_offset = false;
+    int end_lineno = 0;
+    bool got_end_lineno = false;
+    int end_col_offset = 0;
+    bool got_end_col_offset = false;
+    PyObject *tmp;
+    struct ast_state *state = get_ast_state();
+    if (kwargs != NULL && PyDict_Size(kwargs)) {
+        int err;
+        if (!got_lineno) {
+            err = PyDict_PopString(kwargs, "lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_col_offset) {
+            err = PyDict_PopString(kwargs, "col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_lineno) {
+            err = PyDict_PopString(kwargs, "end_lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_col_offset) {
+            err = PyDict_PopString(kwargs, "end_col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (PyDict_Size(kwargs)) {
+            Py_ssize_t pos = 0;
+            PyObject *key;
+            while (PyDict_Next(kwargs, &pos, &key, NULL)) {
+                PyErr_Format(PyExc_TypeError,
+                                "%.400s.__replace__ got an unexpected keyword "
+                                "argument '%U'.", pytype->tp_name, key);
+                goto fail;
+            }
+        }
+    }
+    struct _stmt *res = (struct _stmt*)pytype->tp_alloc(pytype, 0);
+    if (!res) goto fail;
+    res->lineno = lineno;
+    res->col_offset = col_offset;
+    res->end_lineno = end_lineno;
+    res->end_col_offset = end_col_offset;
+    return (PyObject *)res;
+fail:
+    return NULL;
 }
 
 static void stmt_dealloc(PyObject *self) {
@@ -10657,39 +14420,158 @@ asdl_stmt_seq *_PyAst_stmt_seq_Copy(asdl_stmt_seq *seq) {
 }
 
 static PyObject *
-BoolOp_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+BoolOp_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
 {
-    PyObject *res = type->tp_alloc(type, 0);
-    if (!res) {
+    Py_ssize_t posargs = PyTuple_GET_SIZE(pargs);
+    if (posargs > 2) {
+        PyErr_SetString(PyExc_TypeError,
+                        "BoolOp takes at most 2 positional arguments");
         return NULL;
     }
+    boolop_ty op = 0;
+    bool got_op = false;
+    asdl_expr_seq* values = NULL;
+    int lineno = 0;
+    bool got_lineno = false;
+    int col_offset = 0;
+    bool got_col_offset = false;
+    int end_lineno = 0;
+    bool got_end_lineno = false;
+    int end_col_offset = 0;
+    bool got_end_col_offset = false;
+    PyObject *tmp;
     struct ast_state *state = get_ast_state();
-    struct _expr *self = (struct _expr*)res;
-    Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     switch (posargs) {
         case 2: {
-            PyObject *value = PyTuple_GET_ITEM(args, 1);
-            if (obj2imm_expr_seq(state, value, "", "values",
-                &self->v.BoolOp.values) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 5);
+            if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                goto fail;
             }
+            got_end_col_offset = true;
         }
         // fallthrough
         case 1: {
-            PyObject *value = PyTuple_GET_ITEM(args, 0);
-            boolop_ty out;
-            if (obj2imm_boolop(state, value, &out) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 4);
+            if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                goto fail;
             }
-            self->v.BoolOp.op = out;
+            got_end_lineno = true;
+        }
+        // fallthrough
+        case 0: {
+            tmp = PyTuple_GET_ITEM(pargs, 3);
+            if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                goto fail;
+            }
+            got_col_offset = true;
+        }
+        // fallthrough
+        case -1: {
+            tmp = PyTuple_GET_ITEM(pargs, 2);
+            if (obj2imm_int(state, tmp, &lineno) < 0) {
+                goto fail;
+            }
+            got_lineno = true;
+        }
+        // fallthrough
+        case -2: {
+            tmp = PyTuple_GET_ITEM(pargs, 1);
+            if (obj2imm_expr_seq(state, tmp, "BoolOp", "values", &values) < 0) {
+                goto fail;
+            }
+        }
+        // fallthrough
+        case -3: {
+            tmp = PyTuple_GET_ITEM(pargs, 0);
+            if (obj2imm_boolop(state, tmp, &op) < 0) {
+                goto fail;
+            }
+            got_op = true;
         }
         // fallthrough
         default:
             break;
     }
-    return res;
+    if (kwargs != NULL && PyDict_Size(kwargs)) {
+        int err;
+        if (!got_op) {
+            err = PyDict_PopString(kwargs, "op", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_boolop(state, tmp, &op) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (values != NULL) {
+            err = PyDict_PopString(kwargs, "values", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_expr_seq(state, tmp, "BoolOp", "values", &values) <
+                    0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_lineno) {
+            err = PyDict_PopString(kwargs, "lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_col_offset) {
+            err = PyDict_PopString(kwargs, "col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_lineno) {
+            err = PyDict_PopString(kwargs, "end_lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_col_offset) {
+            err = PyDict_PopString(kwargs, "end_col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (PyDict_Size(kwargs)) {
+            Py_ssize_t pos = 0;
+            PyObject *key;
+            while (PyDict_Next(kwargs, &pos, &key, NULL)) {
+                PyErr_Format(PyExc_TypeError,
+                                "%.400s.__replace__ got an unexpected keyword "
+                                "argument '%U'.", pytype->tp_name, key);
+                goto fail;
+            }
+        }
+    }
+    struct _expr *res = (struct _expr*)pytype->tp_alloc(pytype, 0);
+    if (!res) goto fail;
+    res->v.BoolOp.op = op;
+    res->v.BoolOp.values = values;
+    res->lineno = lineno;
+    res->col_offset = col_offset;
+    res->end_lineno = end_lineno;
+    res->end_col_offset = end_col_offset;
+    return (PyObject *)res;
+fail:
+    Py_XDECREF(values);
+    return NULL;
 }
 
 static void BoolOp_dealloc(PyObject *self) {
@@ -10747,36 +14629,156 @@ error:
 }
 
 static PyObject *
-NamedExpr_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+NamedExpr_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
 {
-    PyObject *res = type->tp_alloc(type, 0);
-    if (!res) {
+    Py_ssize_t posargs = PyTuple_GET_SIZE(pargs);
+    if (posargs > 2) {
+        PyErr_SetString(PyExc_TypeError,
+                        "NamedExpr takes at most 2 positional arguments");
         return NULL;
     }
+    expr_ty target = NULL;
+    expr_ty value = NULL;
+    int lineno = 0;
+    bool got_lineno = false;
+    int col_offset = 0;
+    bool got_col_offset = false;
+    int end_lineno = 0;
+    bool got_end_lineno = false;
+    int end_col_offset = 0;
+    bool got_end_col_offset = false;
+    PyObject *tmp;
     struct ast_state *state = get_ast_state();
-    struct _expr *self = (struct _expr*)res;
-    Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     switch (posargs) {
         case 2: {
-            PyObject *value = PyTuple_GET_ITEM(args, 1);
-            if (obj2imm_expr(state, value, &self->v.NamedExpr.value) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 5);
+            if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                goto fail;
             }
+            got_end_col_offset = true;
         }
         // fallthrough
         case 1: {
-            PyObject *value = PyTuple_GET_ITEM(args, 0);
-            if (obj2imm_expr(state, value, &self->v.NamedExpr.target) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 4);
+            if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                goto fail;
+            }
+            got_end_lineno = true;
+        }
+        // fallthrough
+        case 0: {
+            tmp = PyTuple_GET_ITEM(pargs, 3);
+            if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                goto fail;
+            }
+            got_col_offset = true;
+        }
+        // fallthrough
+        case -1: {
+            tmp = PyTuple_GET_ITEM(pargs, 2);
+            if (obj2imm_int(state, tmp, &lineno) < 0) {
+                goto fail;
+            }
+            got_lineno = true;
+        }
+        // fallthrough
+        case -2: {
+            tmp = PyTuple_GET_ITEM(pargs, 1);
+            if (obj2imm_expr(state, tmp, &value) < 0) {
+                goto fail;
+            }
+        }
+        // fallthrough
+        case -3: {
+            tmp = PyTuple_GET_ITEM(pargs, 0);
+            if (obj2imm_expr(state, tmp, &target) < 0) {
+                goto fail;
             }
         }
         // fallthrough
         default:
             break;
     }
-    return res;
+    if (kwargs != NULL && PyDict_Size(kwargs)) {
+        int err;
+        if (target != NULL) {
+            err = PyDict_PopString(kwargs, "target", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_expr(state, tmp, &target) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (value != NULL) {
+            err = PyDict_PopString(kwargs, "value", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_expr(state, tmp, &value) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_lineno) {
+            err = PyDict_PopString(kwargs, "lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_col_offset) {
+            err = PyDict_PopString(kwargs, "col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_lineno) {
+            err = PyDict_PopString(kwargs, "end_lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_col_offset) {
+            err = PyDict_PopString(kwargs, "end_col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (PyDict_Size(kwargs)) {
+            Py_ssize_t pos = 0;
+            PyObject *key;
+            while (PyDict_Next(kwargs, &pos, &key, NULL)) {
+                PyErr_Format(PyExc_TypeError,
+                                "%.400s.__replace__ got an unexpected keyword "
+                                "argument '%U'.", pytype->tp_name, key);
+                goto fail;
+            }
+        }
+    }
+    struct _expr *res = (struct _expr*)pytype->tp_alloc(pytype, 0);
+    if (!res) goto fail;
+    res->v.NamedExpr.target = target;
+    res->v.NamedExpr.value = value;
+    res->lineno = lineno;
+    res->col_offset = col_offset;
+    res->end_lineno = end_lineno;
+    res->end_col_offset = end_col_offset;
+    return (PyObject *)res;
+fail:
+    Py_XDECREF(target);
+    Py_XDECREF(value);
+    return NULL;
 }
 
 static void NamedExpr_dealloc(PyObject *self) {
@@ -10841,46 +14843,176 @@ error:
 }
 
 static PyObject *
-BinOp_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+BinOp_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
 {
-    PyObject *res = type->tp_alloc(type, 0);
-    if (!res) {
+    Py_ssize_t posargs = PyTuple_GET_SIZE(pargs);
+    if (posargs > 3) {
+        PyErr_SetString(PyExc_TypeError,
+                        "BinOp takes at most 3 positional arguments");
         return NULL;
     }
+    expr_ty left = NULL;
+    operator_ty op = 0;
+    bool got_op = false;
+    expr_ty right = NULL;
+    int lineno = 0;
+    bool got_lineno = false;
+    int col_offset = 0;
+    bool got_col_offset = false;
+    int end_lineno = 0;
+    bool got_end_lineno = false;
+    int end_col_offset = 0;
+    bool got_end_col_offset = false;
+    PyObject *tmp;
     struct ast_state *state = get_ast_state();
-    struct _expr *self = (struct _expr*)res;
-    Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     switch (posargs) {
         case 3: {
-            PyObject *value = PyTuple_GET_ITEM(args, 2);
-            if (obj2imm_expr(state, value, &self->v.BinOp.right) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 6);
+            if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                goto fail;
             }
+            got_end_col_offset = true;
         }
         // fallthrough
         case 2: {
-            PyObject *value = PyTuple_GET_ITEM(args, 1);
-            operator_ty out;
-            if (obj2imm_operator(state, value, &out) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 5);
+            if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                goto fail;
             }
-            self->v.BinOp.op = out;
+            got_end_lineno = true;
         }
         // fallthrough
         case 1: {
-            PyObject *value = PyTuple_GET_ITEM(args, 0);
-            if (obj2imm_expr(state, value, &self->v.BinOp.left) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 4);
+            if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                goto fail;
+            }
+            got_col_offset = true;
+        }
+        // fallthrough
+        case 0: {
+            tmp = PyTuple_GET_ITEM(pargs, 3);
+            if (obj2imm_int(state, tmp, &lineno) < 0) {
+                goto fail;
+            }
+            got_lineno = true;
+        }
+        // fallthrough
+        case -1: {
+            tmp = PyTuple_GET_ITEM(pargs, 2);
+            if (obj2imm_expr(state, tmp, &right) < 0) {
+                goto fail;
+            }
+        }
+        // fallthrough
+        case -2: {
+            tmp = PyTuple_GET_ITEM(pargs, 1);
+            if (obj2imm_operator(state, tmp, &op) < 0) {
+                goto fail;
+            }
+            got_op = true;
+        }
+        // fallthrough
+        case -3: {
+            tmp = PyTuple_GET_ITEM(pargs, 0);
+            if (obj2imm_expr(state, tmp, &left) < 0) {
+                goto fail;
             }
         }
         // fallthrough
         default:
             break;
     }
-    return res;
+    if (kwargs != NULL && PyDict_Size(kwargs)) {
+        int err;
+        if (left != NULL) {
+            err = PyDict_PopString(kwargs, "left", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_expr(state, tmp, &left) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_op) {
+            err = PyDict_PopString(kwargs, "op", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_operator(state, tmp, &op) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (right != NULL) {
+            err = PyDict_PopString(kwargs, "right", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_expr(state, tmp, &right) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_lineno) {
+            err = PyDict_PopString(kwargs, "lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_col_offset) {
+            err = PyDict_PopString(kwargs, "col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_lineno) {
+            err = PyDict_PopString(kwargs, "end_lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_col_offset) {
+            err = PyDict_PopString(kwargs, "end_col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (PyDict_Size(kwargs)) {
+            Py_ssize_t pos = 0;
+            PyObject *key;
+            while (PyDict_Next(kwargs, &pos, &key, NULL)) {
+                PyErr_Format(PyExc_TypeError,
+                                "%.400s.__replace__ got an unexpected keyword "
+                                "argument '%U'.", pytype->tp_name, key);
+                goto fail;
+            }
+        }
+    }
+    struct _expr *res = (struct _expr*)pytype->tp_alloc(pytype, 0);
+    if (!res) goto fail;
+    res->v.BinOp.left = left;
+    res->v.BinOp.op = op;
+    res->v.BinOp.right = right;
+    res->lineno = lineno;
+    res->col_offset = col_offset;
+    res->end_lineno = end_lineno;
+    res->end_col_offset = end_col_offset;
+    return (PyObject *)res;
+fail:
+    Py_XDECREF(left);
+    Py_XDECREF(right);
+    return NULL;
 }
 
 static void BinOp_dealloc(PyObject *self) {
@@ -10947,38 +15079,157 @@ error:
 }
 
 static PyObject *
-UnaryOp_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+UnaryOp_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
 {
-    PyObject *res = type->tp_alloc(type, 0);
-    if (!res) {
+    Py_ssize_t posargs = PyTuple_GET_SIZE(pargs);
+    if (posargs > 2) {
+        PyErr_SetString(PyExc_TypeError,
+                        "UnaryOp takes at most 2 positional arguments");
         return NULL;
     }
+    unaryop_ty op = 0;
+    bool got_op = false;
+    expr_ty operand = NULL;
+    int lineno = 0;
+    bool got_lineno = false;
+    int col_offset = 0;
+    bool got_col_offset = false;
+    int end_lineno = 0;
+    bool got_end_lineno = false;
+    int end_col_offset = 0;
+    bool got_end_col_offset = false;
+    PyObject *tmp;
     struct ast_state *state = get_ast_state();
-    struct _expr *self = (struct _expr*)res;
-    Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     switch (posargs) {
         case 2: {
-            PyObject *value = PyTuple_GET_ITEM(args, 1);
-            if (obj2imm_expr(state, value, &self->v.UnaryOp.operand) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 5);
+            if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                goto fail;
             }
+            got_end_col_offset = true;
         }
         // fallthrough
         case 1: {
-            PyObject *value = PyTuple_GET_ITEM(args, 0);
-            unaryop_ty out;
-            if (obj2imm_unaryop(state, value, &out) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 4);
+            if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                goto fail;
             }
-            self->v.UnaryOp.op = out;
+            got_end_lineno = true;
+        }
+        // fallthrough
+        case 0: {
+            tmp = PyTuple_GET_ITEM(pargs, 3);
+            if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                goto fail;
+            }
+            got_col_offset = true;
+        }
+        // fallthrough
+        case -1: {
+            tmp = PyTuple_GET_ITEM(pargs, 2);
+            if (obj2imm_int(state, tmp, &lineno) < 0) {
+                goto fail;
+            }
+            got_lineno = true;
+        }
+        // fallthrough
+        case -2: {
+            tmp = PyTuple_GET_ITEM(pargs, 1);
+            if (obj2imm_expr(state, tmp, &operand) < 0) {
+                goto fail;
+            }
+        }
+        // fallthrough
+        case -3: {
+            tmp = PyTuple_GET_ITEM(pargs, 0);
+            if (obj2imm_unaryop(state, tmp, &op) < 0) {
+                goto fail;
+            }
+            got_op = true;
         }
         // fallthrough
         default:
             break;
     }
-    return res;
+    if (kwargs != NULL && PyDict_Size(kwargs)) {
+        int err;
+        if (!got_op) {
+            err = PyDict_PopString(kwargs, "op", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_unaryop(state, tmp, &op) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (operand != NULL) {
+            err = PyDict_PopString(kwargs, "operand", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_expr(state, tmp, &operand) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_lineno) {
+            err = PyDict_PopString(kwargs, "lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_col_offset) {
+            err = PyDict_PopString(kwargs, "col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_lineno) {
+            err = PyDict_PopString(kwargs, "end_lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_col_offset) {
+            err = PyDict_PopString(kwargs, "end_col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (PyDict_Size(kwargs)) {
+            Py_ssize_t pos = 0;
+            PyObject *key;
+            while (PyDict_Next(kwargs, &pos, &key, NULL)) {
+                PyErr_Format(PyExc_TypeError,
+                                "%.400s.__replace__ got an unexpected keyword "
+                                "argument '%U'.", pytype->tp_name, key);
+                goto fail;
+            }
+        }
+    }
+    struct _expr *res = (struct _expr*)pytype->tp_alloc(pytype, 0);
+    if (!res) goto fail;
+    res->v.UnaryOp.op = op;
+    res->v.UnaryOp.operand = operand;
+    res->lineno = lineno;
+    res->col_offset = col_offset;
+    res->end_lineno = end_lineno;
+    res->end_col_offset = end_col_offset;
+    return (PyObject *)res;
+fail:
+    Py_XDECREF(operand);
+    return NULL;
 }
 
 static void UnaryOp_dealloc(PyObject *self) {
@@ -11036,36 +15287,156 @@ error:
 }
 
 static PyObject *
-Lambda_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+Lambda_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
 {
-    PyObject *res = type->tp_alloc(type, 0);
-    if (!res) {
+    Py_ssize_t posargs = PyTuple_GET_SIZE(pargs);
+    if (posargs > 2) {
+        PyErr_SetString(PyExc_TypeError,
+                        "Lambda takes at most 2 positional arguments");
         return NULL;
     }
+    arguments_ty args = NULL;
+    expr_ty body = NULL;
+    int lineno = 0;
+    bool got_lineno = false;
+    int col_offset = 0;
+    bool got_col_offset = false;
+    int end_lineno = 0;
+    bool got_end_lineno = false;
+    int end_col_offset = 0;
+    bool got_end_col_offset = false;
+    PyObject *tmp;
     struct ast_state *state = get_ast_state();
-    struct _expr *self = (struct _expr*)res;
-    Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     switch (posargs) {
         case 2: {
-            PyObject *value = PyTuple_GET_ITEM(args, 1);
-            if (obj2imm_expr(state, value, &self->v.Lambda.body) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 5);
+            if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                goto fail;
             }
+            got_end_col_offset = true;
         }
         // fallthrough
         case 1: {
-            PyObject *value = PyTuple_GET_ITEM(args, 0);
-            if (obj2imm_arguments(state, value, &self->v.Lambda.args) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 4);
+            if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                goto fail;
+            }
+            got_end_lineno = true;
+        }
+        // fallthrough
+        case 0: {
+            tmp = PyTuple_GET_ITEM(pargs, 3);
+            if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                goto fail;
+            }
+            got_col_offset = true;
+        }
+        // fallthrough
+        case -1: {
+            tmp = PyTuple_GET_ITEM(pargs, 2);
+            if (obj2imm_int(state, tmp, &lineno) < 0) {
+                goto fail;
+            }
+            got_lineno = true;
+        }
+        // fallthrough
+        case -2: {
+            tmp = PyTuple_GET_ITEM(pargs, 1);
+            if (obj2imm_expr(state, tmp, &body) < 0) {
+                goto fail;
+            }
+        }
+        // fallthrough
+        case -3: {
+            tmp = PyTuple_GET_ITEM(pargs, 0);
+            if (obj2imm_arguments(state, tmp, &args) < 0) {
+                goto fail;
             }
         }
         // fallthrough
         default:
             break;
     }
-    return res;
+    if (kwargs != NULL && PyDict_Size(kwargs)) {
+        int err;
+        if (args != NULL) {
+            err = PyDict_PopString(kwargs, "args", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_arguments(state, tmp, &args) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (body != NULL) {
+            err = PyDict_PopString(kwargs, "body", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_expr(state, tmp, &body) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_lineno) {
+            err = PyDict_PopString(kwargs, "lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_col_offset) {
+            err = PyDict_PopString(kwargs, "col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_lineno) {
+            err = PyDict_PopString(kwargs, "end_lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_col_offset) {
+            err = PyDict_PopString(kwargs, "end_col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (PyDict_Size(kwargs)) {
+            Py_ssize_t pos = 0;
+            PyObject *key;
+            while (PyDict_Next(kwargs, &pos, &key, NULL)) {
+                PyErr_Format(PyExc_TypeError,
+                                "%.400s.__replace__ got an unexpected keyword "
+                                "argument '%U'.", pytype->tp_name, key);
+                goto fail;
+            }
+        }
+    }
+    struct _expr *res = (struct _expr*)pytype->tp_alloc(pytype, 0);
+    if (!res) goto fail;
+    res->v.Lambda.args = args;
+    res->v.Lambda.body = body;
+    res->lineno = lineno;
+    res->col_offset = col_offset;
+    res->end_lineno = end_lineno;
+    res->end_col_offset = end_col_offset;
+    return (PyObject *)res;
+fail:
+    Py_XDECREF(args);
+    Py_XDECREF(body);
+    return NULL;
 }
 
 static void Lambda_dealloc(PyObject *self) {
@@ -11130,44 +15501,175 @@ error:
 }
 
 static PyObject *
-IfExp_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+IfExp_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
 {
-    PyObject *res = type->tp_alloc(type, 0);
-    if (!res) {
+    Py_ssize_t posargs = PyTuple_GET_SIZE(pargs);
+    if (posargs > 3) {
+        PyErr_SetString(PyExc_TypeError,
+                        "IfExp takes at most 3 positional arguments");
         return NULL;
     }
+    expr_ty test = NULL;
+    expr_ty body = NULL;
+    expr_ty orelse = NULL;
+    int lineno = 0;
+    bool got_lineno = false;
+    int col_offset = 0;
+    bool got_col_offset = false;
+    int end_lineno = 0;
+    bool got_end_lineno = false;
+    int end_col_offset = 0;
+    bool got_end_col_offset = false;
+    PyObject *tmp;
     struct ast_state *state = get_ast_state();
-    struct _expr *self = (struct _expr*)res;
-    Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     switch (posargs) {
         case 3: {
-            PyObject *value = PyTuple_GET_ITEM(args, 2);
-            if (obj2imm_expr(state, value, &self->v.IfExp.orelse) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 6);
+            if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                goto fail;
             }
+            got_end_col_offset = true;
         }
         // fallthrough
         case 2: {
-            PyObject *value = PyTuple_GET_ITEM(args, 1);
-            if (obj2imm_expr(state, value, &self->v.IfExp.body) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 5);
+            if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                goto fail;
             }
+            got_end_lineno = true;
         }
         // fallthrough
         case 1: {
-            PyObject *value = PyTuple_GET_ITEM(args, 0);
-            if (obj2imm_expr(state, value, &self->v.IfExp.test) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 4);
+            if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                goto fail;
+            }
+            got_col_offset = true;
+        }
+        // fallthrough
+        case 0: {
+            tmp = PyTuple_GET_ITEM(pargs, 3);
+            if (obj2imm_int(state, tmp, &lineno) < 0) {
+                goto fail;
+            }
+            got_lineno = true;
+        }
+        // fallthrough
+        case -1: {
+            tmp = PyTuple_GET_ITEM(pargs, 2);
+            if (obj2imm_expr(state, tmp, &orelse) < 0) {
+                goto fail;
+            }
+        }
+        // fallthrough
+        case -2: {
+            tmp = PyTuple_GET_ITEM(pargs, 1);
+            if (obj2imm_expr(state, tmp, &body) < 0) {
+                goto fail;
+            }
+        }
+        // fallthrough
+        case -3: {
+            tmp = PyTuple_GET_ITEM(pargs, 0);
+            if (obj2imm_expr(state, tmp, &test) < 0) {
+                goto fail;
             }
         }
         // fallthrough
         default:
             break;
     }
-    return res;
+    if (kwargs != NULL && PyDict_Size(kwargs)) {
+        int err;
+        if (test != NULL) {
+            err = PyDict_PopString(kwargs, "test", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_expr(state, tmp, &test) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (body != NULL) {
+            err = PyDict_PopString(kwargs, "body", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_expr(state, tmp, &body) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (orelse != NULL) {
+            err = PyDict_PopString(kwargs, "orelse", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_expr(state, tmp, &orelse) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_lineno) {
+            err = PyDict_PopString(kwargs, "lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_col_offset) {
+            err = PyDict_PopString(kwargs, "col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_lineno) {
+            err = PyDict_PopString(kwargs, "end_lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_col_offset) {
+            err = PyDict_PopString(kwargs, "end_col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (PyDict_Size(kwargs)) {
+            Py_ssize_t pos = 0;
+            PyObject *key;
+            while (PyDict_Next(kwargs, &pos, &key, NULL)) {
+                PyErr_Format(PyExc_TypeError,
+                                "%.400s.__replace__ got an unexpected keyword "
+                                "argument '%U'.", pytype->tp_name, key);
+                goto fail;
+            }
+        }
+    }
+    struct _expr *res = (struct _expr*)pytype->tp_alloc(pytype, 0);
+    if (!res) goto fail;
+    res->v.IfExp.test = test;
+    res->v.IfExp.body = body;
+    res->v.IfExp.orelse = orelse;
+    res->lineno = lineno;
+    res->col_offset = col_offset;
+    res->end_lineno = end_lineno;
+    res->end_col_offset = end_col_offset;
+    return (PyObject *)res;
+fail:
+    Py_XDECREF(test);
+    Py_XDECREF(body);
+    Py_XDECREF(orelse);
+    return NULL;
 }
 
 static void IfExp_dealloc(PyObject *self) {
@@ -11241,38 +15743,157 @@ error:
 }
 
 static PyObject *
-Dict_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+Dict_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
 {
-    PyObject *res = type->tp_alloc(type, 0);
-    if (!res) {
+    Py_ssize_t posargs = PyTuple_GET_SIZE(pargs);
+    if (posargs > 2) {
+        PyErr_SetString(PyExc_TypeError,
+                        "Dict takes at most 2 positional arguments");
         return NULL;
     }
+    asdl_expr_seq* keys = NULL;
+    asdl_expr_seq* values = NULL;
+    int lineno = 0;
+    bool got_lineno = false;
+    int col_offset = 0;
+    bool got_col_offset = false;
+    int end_lineno = 0;
+    bool got_end_lineno = false;
+    int end_col_offset = 0;
+    bool got_end_col_offset = false;
+    PyObject *tmp;
     struct ast_state *state = get_ast_state();
-    struct _expr *self = (struct _expr*)res;
-    Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     switch (posargs) {
         case 2: {
-            PyObject *value = PyTuple_GET_ITEM(args, 1);
-            if (obj2imm_expr_seq(state, value, "", "values",
-                &self->v.Dict.values) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 5);
+            if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                goto fail;
             }
+            got_end_col_offset = true;
         }
         // fallthrough
         case 1: {
-            PyObject *value = PyTuple_GET_ITEM(args, 0);
-            if (obj2imm_expr_seq(state, value, "", "keys", &self->v.Dict.keys)
-                < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 4);
+            if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                goto fail;
+            }
+            got_end_lineno = true;
+        }
+        // fallthrough
+        case 0: {
+            tmp = PyTuple_GET_ITEM(pargs, 3);
+            if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                goto fail;
+            }
+            got_col_offset = true;
+        }
+        // fallthrough
+        case -1: {
+            tmp = PyTuple_GET_ITEM(pargs, 2);
+            if (obj2imm_int(state, tmp, &lineno) < 0) {
+                goto fail;
+            }
+            got_lineno = true;
+        }
+        // fallthrough
+        case -2: {
+            tmp = PyTuple_GET_ITEM(pargs, 1);
+            if (obj2imm_expr_seq(state, tmp, "Dict", "values", &values) < 0) {
+                goto fail;
+            }
+        }
+        // fallthrough
+        case -3: {
+            tmp = PyTuple_GET_ITEM(pargs, 0);
+            if (obj2imm_expr_seq(state, tmp, "Dict", "keys", &keys) < 0) {
+                goto fail;
             }
         }
         // fallthrough
         default:
             break;
     }
-    return res;
+    if (kwargs != NULL && PyDict_Size(kwargs)) {
+        int err;
+        if (keys != NULL) {
+            err = PyDict_PopString(kwargs, "keys", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_expr_seq(state, tmp, "Dict", "keys", &keys) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (values != NULL) {
+            err = PyDict_PopString(kwargs, "values", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_expr_seq(state, tmp, "Dict", "values", &values) <
+                    0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_lineno) {
+            err = PyDict_PopString(kwargs, "lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_col_offset) {
+            err = PyDict_PopString(kwargs, "col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_lineno) {
+            err = PyDict_PopString(kwargs, "end_lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_col_offset) {
+            err = PyDict_PopString(kwargs, "end_col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (PyDict_Size(kwargs)) {
+            Py_ssize_t pos = 0;
+            PyObject *key;
+            while (PyDict_Next(kwargs, &pos, &key, NULL)) {
+                PyErr_Format(PyExc_TypeError,
+                                "%.400s.__replace__ got an unexpected keyword "
+                                "argument '%U'.", pytype->tp_name, key);
+                goto fail;
+            }
+        }
+    }
+    struct _expr *res = (struct _expr*)pytype->tp_alloc(pytype, 0);
+    if (!res) goto fail;
+    res->v.Dict.keys = keys;
+    res->v.Dict.values = values;
+    res->lineno = lineno;
+    res->col_offset = col_offset;
+    res->end_lineno = end_lineno;
+    res->end_col_offset = end_col_offset;
+    return (PyObject *)res;
+fail:
+    Py_XDECREF(keys);
+    Py_XDECREF(values);
+    return NULL;
 }
 
 static void Dict_dealloc(PyObject *self) {
@@ -11336,29 +15957,137 @@ error:
 }
 
 static PyObject *
-Set_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+Set_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
 {
-    PyObject *res = type->tp_alloc(type, 0);
-    if (!res) {
+    Py_ssize_t posargs = PyTuple_GET_SIZE(pargs);
+    if (posargs > 1) {
+        PyErr_SetString(PyExc_TypeError,
+                        "Set takes at most 1 positional argument");
         return NULL;
     }
+    asdl_expr_seq* elts = NULL;
+    int lineno = 0;
+    bool got_lineno = false;
+    int col_offset = 0;
+    bool got_col_offset = false;
+    int end_lineno = 0;
+    bool got_end_lineno = false;
+    int end_col_offset = 0;
+    bool got_end_col_offset = false;
+    PyObject *tmp;
     struct ast_state *state = get_ast_state();
-    struct _expr *self = (struct _expr*)res;
-    Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     switch (posargs) {
         case 1: {
-            PyObject *value = PyTuple_GET_ITEM(args, 0);
-            if (obj2imm_expr_seq(state, value, "", "elts", &self->v.Set.elts) <
-                0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 4);
+            if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                goto fail;
+            }
+            got_end_col_offset = true;
+        }
+        // fallthrough
+        case 0: {
+            tmp = PyTuple_GET_ITEM(pargs, 3);
+            if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                goto fail;
+            }
+            got_end_lineno = true;
+        }
+        // fallthrough
+        case -1: {
+            tmp = PyTuple_GET_ITEM(pargs, 2);
+            if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                goto fail;
+            }
+            got_col_offset = true;
+        }
+        // fallthrough
+        case -2: {
+            tmp = PyTuple_GET_ITEM(pargs, 1);
+            if (obj2imm_int(state, tmp, &lineno) < 0) {
+                goto fail;
+            }
+            got_lineno = true;
+        }
+        // fallthrough
+        case -3: {
+            tmp = PyTuple_GET_ITEM(pargs, 0);
+            if (obj2imm_expr_seq(state, tmp, "Set", "elts", &elts) < 0) {
+                goto fail;
             }
         }
         // fallthrough
         default:
             break;
     }
-    return res;
+    if (kwargs != NULL && PyDict_Size(kwargs)) {
+        int err;
+        if (elts != NULL) {
+            err = PyDict_PopString(kwargs, "elts", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_expr_seq(state, tmp, "Set", "elts", &elts) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_lineno) {
+            err = PyDict_PopString(kwargs, "lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_col_offset) {
+            err = PyDict_PopString(kwargs, "col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_lineno) {
+            err = PyDict_PopString(kwargs, "end_lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_col_offset) {
+            err = PyDict_PopString(kwargs, "end_col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (PyDict_Size(kwargs)) {
+            Py_ssize_t pos = 0;
+            PyObject *key;
+            while (PyDict_Next(kwargs, &pos, &key, NULL)) {
+                PyErr_Format(PyExc_TypeError,
+                                "%.400s.__replace__ got an unexpected keyword "
+                                "argument '%U'.", pytype->tp_name, key);
+                goto fail;
+            }
+        }
+    }
+    struct _expr *res = (struct _expr*)pytype->tp_alloc(pytype, 0);
+    if (!res) goto fail;
+    res->v.Set.elts = elts;
+    res->lineno = lineno;
+    res->col_offset = col_offset;
+    res->end_lineno = end_lineno;
+    res->end_col_offset = end_col_offset;
+    return (PyObject *)res;
+fail:
+    Py_XDECREF(elts);
+    return NULL;
 }
 
 static void Set_dealloc(PyObject *self) {
@@ -11413,37 +16142,158 @@ error:
 }
 
 static PyObject *
-ListComp_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+ListComp_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
 {
-    PyObject *res = type->tp_alloc(type, 0);
-    if (!res) {
+    Py_ssize_t posargs = PyTuple_GET_SIZE(pargs);
+    if (posargs > 2) {
+        PyErr_SetString(PyExc_TypeError,
+                        "ListComp takes at most 2 positional arguments");
         return NULL;
     }
+    expr_ty elt = NULL;
+    asdl_comprehension_seq* generators = NULL;
+    int lineno = 0;
+    bool got_lineno = false;
+    int col_offset = 0;
+    bool got_col_offset = false;
+    int end_lineno = 0;
+    bool got_end_lineno = false;
+    int end_col_offset = 0;
+    bool got_end_col_offset = false;
+    PyObject *tmp;
     struct ast_state *state = get_ast_state();
-    struct _expr *self = (struct _expr*)res;
-    Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     switch (posargs) {
         case 2: {
-            PyObject *value = PyTuple_GET_ITEM(args, 1);
-            if (obj2imm_comprehension_seq(state, value, "", "generators",
-                &self->v.ListComp.generators) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 5);
+            if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                goto fail;
             }
+            got_end_col_offset = true;
         }
         // fallthrough
         case 1: {
-            PyObject *value = PyTuple_GET_ITEM(args, 0);
-            if (obj2imm_expr(state, value, &self->v.ListComp.elt) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 4);
+            if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                goto fail;
+            }
+            got_end_lineno = true;
+        }
+        // fallthrough
+        case 0: {
+            tmp = PyTuple_GET_ITEM(pargs, 3);
+            if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                goto fail;
+            }
+            got_col_offset = true;
+        }
+        // fallthrough
+        case -1: {
+            tmp = PyTuple_GET_ITEM(pargs, 2);
+            if (obj2imm_int(state, tmp, &lineno) < 0) {
+                goto fail;
+            }
+            got_lineno = true;
+        }
+        // fallthrough
+        case -2: {
+            tmp = PyTuple_GET_ITEM(pargs, 1);
+            if (obj2imm_comprehension_seq(state, tmp, "ListComp", "generators",
+                &generators) < 0) {
+                goto fail;
+            }
+        }
+        // fallthrough
+        case -3: {
+            tmp = PyTuple_GET_ITEM(pargs, 0);
+            if (obj2imm_expr(state, tmp, &elt) < 0) {
+                goto fail;
             }
         }
         // fallthrough
         default:
             break;
     }
-    return res;
+    if (kwargs != NULL && PyDict_Size(kwargs)) {
+        int err;
+        if (elt != NULL) {
+            err = PyDict_PopString(kwargs, "elt", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_expr(state, tmp, &elt) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (generators != NULL) {
+            err = PyDict_PopString(kwargs, "generators", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_comprehension_seq(state, tmp, "ListComp",
+                    "generators", &generators) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_lineno) {
+            err = PyDict_PopString(kwargs, "lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_col_offset) {
+            err = PyDict_PopString(kwargs, "col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_lineno) {
+            err = PyDict_PopString(kwargs, "end_lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_col_offset) {
+            err = PyDict_PopString(kwargs, "end_col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (PyDict_Size(kwargs)) {
+            Py_ssize_t pos = 0;
+            PyObject *key;
+            while (PyDict_Next(kwargs, &pos, &key, NULL)) {
+                PyErr_Format(PyExc_TypeError,
+                                "%.400s.__replace__ got an unexpected keyword "
+                                "argument '%U'.", pytype->tp_name, key);
+                goto fail;
+            }
+        }
+    }
+    struct _expr *res = (struct _expr*)pytype->tp_alloc(pytype, 0);
+    if (!res) goto fail;
+    res->v.ListComp.elt = elt;
+    res->v.ListComp.generators = generators;
+    res->lineno = lineno;
+    res->col_offset = col_offset;
+    res->end_lineno = end_lineno;
+    res->end_col_offset = end_col_offset;
+    return (PyObject *)res;
+fail:
+    Py_XDECREF(elt);
+    Py_XDECREF(generators);
+    return NULL;
 }
 
 static void ListComp_dealloc(PyObject *self) {
@@ -11509,37 +16359,158 @@ error:
 }
 
 static PyObject *
-SetComp_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+SetComp_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
 {
-    PyObject *res = type->tp_alloc(type, 0);
-    if (!res) {
+    Py_ssize_t posargs = PyTuple_GET_SIZE(pargs);
+    if (posargs > 2) {
+        PyErr_SetString(PyExc_TypeError,
+                        "SetComp takes at most 2 positional arguments");
         return NULL;
     }
+    expr_ty elt = NULL;
+    asdl_comprehension_seq* generators = NULL;
+    int lineno = 0;
+    bool got_lineno = false;
+    int col_offset = 0;
+    bool got_col_offset = false;
+    int end_lineno = 0;
+    bool got_end_lineno = false;
+    int end_col_offset = 0;
+    bool got_end_col_offset = false;
+    PyObject *tmp;
     struct ast_state *state = get_ast_state();
-    struct _expr *self = (struct _expr*)res;
-    Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     switch (posargs) {
         case 2: {
-            PyObject *value = PyTuple_GET_ITEM(args, 1);
-            if (obj2imm_comprehension_seq(state, value, "", "generators",
-                &self->v.SetComp.generators) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 5);
+            if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                goto fail;
             }
+            got_end_col_offset = true;
         }
         // fallthrough
         case 1: {
-            PyObject *value = PyTuple_GET_ITEM(args, 0);
-            if (obj2imm_expr(state, value, &self->v.SetComp.elt) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 4);
+            if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                goto fail;
+            }
+            got_end_lineno = true;
+        }
+        // fallthrough
+        case 0: {
+            tmp = PyTuple_GET_ITEM(pargs, 3);
+            if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                goto fail;
+            }
+            got_col_offset = true;
+        }
+        // fallthrough
+        case -1: {
+            tmp = PyTuple_GET_ITEM(pargs, 2);
+            if (obj2imm_int(state, tmp, &lineno) < 0) {
+                goto fail;
+            }
+            got_lineno = true;
+        }
+        // fallthrough
+        case -2: {
+            tmp = PyTuple_GET_ITEM(pargs, 1);
+            if (obj2imm_comprehension_seq(state, tmp, "SetComp", "generators",
+                &generators) < 0) {
+                goto fail;
+            }
+        }
+        // fallthrough
+        case -3: {
+            tmp = PyTuple_GET_ITEM(pargs, 0);
+            if (obj2imm_expr(state, tmp, &elt) < 0) {
+                goto fail;
             }
         }
         // fallthrough
         default:
             break;
     }
-    return res;
+    if (kwargs != NULL && PyDict_Size(kwargs)) {
+        int err;
+        if (elt != NULL) {
+            err = PyDict_PopString(kwargs, "elt", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_expr(state, tmp, &elt) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (generators != NULL) {
+            err = PyDict_PopString(kwargs, "generators", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_comprehension_seq(state, tmp, "SetComp",
+                    "generators", &generators) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_lineno) {
+            err = PyDict_PopString(kwargs, "lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_col_offset) {
+            err = PyDict_PopString(kwargs, "col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_lineno) {
+            err = PyDict_PopString(kwargs, "end_lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_col_offset) {
+            err = PyDict_PopString(kwargs, "end_col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (PyDict_Size(kwargs)) {
+            Py_ssize_t pos = 0;
+            PyObject *key;
+            while (PyDict_Next(kwargs, &pos, &key, NULL)) {
+                PyErr_Format(PyExc_TypeError,
+                                "%.400s.__replace__ got an unexpected keyword "
+                                "argument '%U'.", pytype->tp_name, key);
+                goto fail;
+            }
+        }
+    }
+    struct _expr *res = (struct _expr*)pytype->tp_alloc(pytype, 0);
+    if (!res) goto fail;
+    res->v.SetComp.elt = elt;
+    res->v.SetComp.generators = generators;
+    res->lineno = lineno;
+    res->col_offset = col_offset;
+    res->end_lineno = end_lineno;
+    res->end_col_offset = end_col_offset;
+    return (PyObject *)res;
+fail:
+    Py_XDECREF(elt);
+    Py_XDECREF(generators);
+    return NULL;
 }
 
 static void SetComp_dealloc(PyObject *self) {
@@ -11605,45 +16576,177 @@ error:
 }
 
 static PyObject *
-DictComp_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+DictComp_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
 {
-    PyObject *res = type->tp_alloc(type, 0);
-    if (!res) {
+    Py_ssize_t posargs = PyTuple_GET_SIZE(pargs);
+    if (posargs > 3) {
+        PyErr_SetString(PyExc_TypeError,
+                        "DictComp takes at most 3 positional arguments");
         return NULL;
     }
+    expr_ty key = NULL;
+    expr_ty value = NULL;
+    asdl_comprehension_seq* generators = NULL;
+    int lineno = 0;
+    bool got_lineno = false;
+    int col_offset = 0;
+    bool got_col_offset = false;
+    int end_lineno = 0;
+    bool got_end_lineno = false;
+    int end_col_offset = 0;
+    bool got_end_col_offset = false;
+    PyObject *tmp;
     struct ast_state *state = get_ast_state();
-    struct _expr *self = (struct _expr*)res;
-    Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     switch (posargs) {
         case 3: {
-            PyObject *value = PyTuple_GET_ITEM(args, 2);
-            if (obj2imm_comprehension_seq(state, value, "", "generators",
-                &self->v.DictComp.generators) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 6);
+            if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                goto fail;
             }
+            got_end_col_offset = true;
         }
         // fallthrough
         case 2: {
-            PyObject *value = PyTuple_GET_ITEM(args, 1);
-            if (obj2imm_expr(state, value, &self->v.DictComp.value) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 5);
+            if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                goto fail;
             }
+            got_end_lineno = true;
         }
         // fallthrough
         case 1: {
-            PyObject *value = PyTuple_GET_ITEM(args, 0);
-            if (obj2imm_expr(state, value, &self->v.DictComp.key) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 4);
+            if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                goto fail;
+            }
+            got_col_offset = true;
+        }
+        // fallthrough
+        case 0: {
+            tmp = PyTuple_GET_ITEM(pargs, 3);
+            if (obj2imm_int(state, tmp, &lineno) < 0) {
+                goto fail;
+            }
+            got_lineno = true;
+        }
+        // fallthrough
+        case -1: {
+            tmp = PyTuple_GET_ITEM(pargs, 2);
+            if (obj2imm_comprehension_seq(state, tmp, "DictComp", "generators",
+                &generators) < 0) {
+                goto fail;
+            }
+        }
+        // fallthrough
+        case -2: {
+            tmp = PyTuple_GET_ITEM(pargs, 1);
+            if (obj2imm_expr(state, tmp, &value) < 0) {
+                goto fail;
+            }
+        }
+        // fallthrough
+        case -3: {
+            tmp = PyTuple_GET_ITEM(pargs, 0);
+            if (obj2imm_expr(state, tmp, &key) < 0) {
+                goto fail;
             }
         }
         // fallthrough
         default:
             break;
     }
-    return res;
+    if (kwargs != NULL && PyDict_Size(kwargs)) {
+        int err;
+        if (key != NULL) {
+            err = PyDict_PopString(kwargs, "key", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_expr(state, tmp, &key) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (value != NULL) {
+            err = PyDict_PopString(kwargs, "value", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_expr(state, tmp, &value) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (generators != NULL) {
+            err = PyDict_PopString(kwargs, "generators", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_comprehension_seq(state, tmp, "DictComp",
+                    "generators", &generators) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_lineno) {
+            err = PyDict_PopString(kwargs, "lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_col_offset) {
+            err = PyDict_PopString(kwargs, "col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_lineno) {
+            err = PyDict_PopString(kwargs, "end_lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_col_offset) {
+            err = PyDict_PopString(kwargs, "end_col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (PyDict_Size(kwargs)) {
+            Py_ssize_t pos = 0;
+            PyObject *key;
+            while (PyDict_Next(kwargs, &pos, &key, NULL)) {
+                PyErr_Format(PyExc_TypeError,
+                                "%.400s.__replace__ got an unexpected keyword "
+                                "argument '%U'.", pytype->tp_name, key);
+                goto fail;
+            }
+        }
+    }
+    struct _expr *res = (struct _expr*)pytype->tp_alloc(pytype, 0);
+    if (!res) goto fail;
+    res->v.DictComp.key = key;
+    res->v.DictComp.value = value;
+    res->v.DictComp.generators = generators;
+    res->lineno = lineno;
+    res->col_offset = col_offset;
+    res->end_lineno = end_lineno;
+    res->end_col_offset = end_col_offset;
+    return (PyObject *)res;
+fail:
+    Py_XDECREF(key);
+    Py_XDECREF(value);
+    Py_XDECREF(generators);
+    return NULL;
 }
 
 static void DictComp_dealloc(PyObject *self) {
@@ -11718,37 +16821,158 @@ error:
 }
 
 static PyObject *
-GeneratorExp_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+GeneratorExp_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
 {
-    PyObject *res = type->tp_alloc(type, 0);
-    if (!res) {
+    Py_ssize_t posargs = PyTuple_GET_SIZE(pargs);
+    if (posargs > 2) {
+        PyErr_SetString(PyExc_TypeError,
+                        "GeneratorExp takes at most 2 positional arguments");
         return NULL;
     }
+    expr_ty elt = NULL;
+    asdl_comprehension_seq* generators = NULL;
+    int lineno = 0;
+    bool got_lineno = false;
+    int col_offset = 0;
+    bool got_col_offset = false;
+    int end_lineno = 0;
+    bool got_end_lineno = false;
+    int end_col_offset = 0;
+    bool got_end_col_offset = false;
+    PyObject *tmp;
     struct ast_state *state = get_ast_state();
-    struct _expr *self = (struct _expr*)res;
-    Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     switch (posargs) {
         case 2: {
-            PyObject *value = PyTuple_GET_ITEM(args, 1);
-            if (obj2imm_comprehension_seq(state, value, "", "generators",
-                &self->v.GeneratorExp.generators) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 5);
+            if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                goto fail;
             }
+            got_end_col_offset = true;
         }
         // fallthrough
         case 1: {
-            PyObject *value = PyTuple_GET_ITEM(args, 0);
-            if (obj2imm_expr(state, value, &self->v.GeneratorExp.elt) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 4);
+            if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                goto fail;
+            }
+            got_end_lineno = true;
+        }
+        // fallthrough
+        case 0: {
+            tmp = PyTuple_GET_ITEM(pargs, 3);
+            if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                goto fail;
+            }
+            got_col_offset = true;
+        }
+        // fallthrough
+        case -1: {
+            tmp = PyTuple_GET_ITEM(pargs, 2);
+            if (obj2imm_int(state, tmp, &lineno) < 0) {
+                goto fail;
+            }
+            got_lineno = true;
+        }
+        // fallthrough
+        case -2: {
+            tmp = PyTuple_GET_ITEM(pargs, 1);
+            if (obj2imm_comprehension_seq(state, tmp, "GeneratorExp",
+                "generators", &generators) < 0) {
+                goto fail;
+            }
+        }
+        // fallthrough
+        case -3: {
+            tmp = PyTuple_GET_ITEM(pargs, 0);
+            if (obj2imm_expr(state, tmp, &elt) < 0) {
+                goto fail;
             }
         }
         // fallthrough
         default:
             break;
     }
-    return res;
+    if (kwargs != NULL && PyDict_Size(kwargs)) {
+        int err;
+        if (elt != NULL) {
+            err = PyDict_PopString(kwargs, "elt", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_expr(state, tmp, &elt) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (generators != NULL) {
+            err = PyDict_PopString(kwargs, "generators", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_comprehension_seq(state, tmp, "GeneratorExp",
+                    "generators", &generators) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_lineno) {
+            err = PyDict_PopString(kwargs, "lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_col_offset) {
+            err = PyDict_PopString(kwargs, "col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_lineno) {
+            err = PyDict_PopString(kwargs, "end_lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_col_offset) {
+            err = PyDict_PopString(kwargs, "end_col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (PyDict_Size(kwargs)) {
+            Py_ssize_t pos = 0;
+            PyObject *key;
+            while (PyDict_Next(kwargs, &pos, &key, NULL)) {
+                PyErr_Format(PyExc_TypeError,
+                                "%.400s.__replace__ got an unexpected keyword "
+                                "argument '%U'.", pytype->tp_name, key);
+                goto fail;
+            }
+        }
+    }
+    struct _expr *res = (struct _expr*)pytype->tp_alloc(pytype, 0);
+    if (!res) goto fail;
+    res->v.GeneratorExp.elt = elt;
+    res->v.GeneratorExp.generators = generators;
+    res->lineno = lineno;
+    res->col_offset = col_offset;
+    res->end_lineno = end_lineno;
+    res->end_col_offset = end_col_offset;
+    return (PyObject *)res;
+fail:
+    Py_XDECREF(elt);
+    Py_XDECREF(generators);
+    return NULL;
 }
 
 static void GeneratorExp_dealloc(PyObject *self) {
@@ -11814,28 +17038,137 @@ error:
 }
 
 static PyObject *
-Await_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+Await_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
 {
-    PyObject *res = type->tp_alloc(type, 0);
-    if (!res) {
+    Py_ssize_t posargs = PyTuple_GET_SIZE(pargs);
+    if (posargs > 1) {
+        PyErr_SetString(PyExc_TypeError,
+                        "Await takes at most 1 positional argument");
         return NULL;
     }
+    expr_ty value = NULL;
+    int lineno = 0;
+    bool got_lineno = false;
+    int col_offset = 0;
+    bool got_col_offset = false;
+    int end_lineno = 0;
+    bool got_end_lineno = false;
+    int end_col_offset = 0;
+    bool got_end_col_offset = false;
+    PyObject *tmp;
     struct ast_state *state = get_ast_state();
-    struct _expr *self = (struct _expr*)res;
-    Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     switch (posargs) {
         case 1: {
-            PyObject *value = PyTuple_GET_ITEM(args, 0);
-            if (obj2imm_expr(state, value, &self->v.Await.value) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 4);
+            if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                goto fail;
+            }
+            got_end_col_offset = true;
+        }
+        // fallthrough
+        case 0: {
+            tmp = PyTuple_GET_ITEM(pargs, 3);
+            if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                goto fail;
+            }
+            got_end_lineno = true;
+        }
+        // fallthrough
+        case -1: {
+            tmp = PyTuple_GET_ITEM(pargs, 2);
+            if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                goto fail;
+            }
+            got_col_offset = true;
+        }
+        // fallthrough
+        case -2: {
+            tmp = PyTuple_GET_ITEM(pargs, 1);
+            if (obj2imm_int(state, tmp, &lineno) < 0) {
+                goto fail;
+            }
+            got_lineno = true;
+        }
+        // fallthrough
+        case -3: {
+            tmp = PyTuple_GET_ITEM(pargs, 0);
+            if (obj2imm_expr(state, tmp, &value) < 0) {
+                goto fail;
             }
         }
         // fallthrough
         default:
             break;
     }
-    return res;
+    if (kwargs != NULL && PyDict_Size(kwargs)) {
+        int err;
+        if (value != NULL) {
+            err = PyDict_PopString(kwargs, "value", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_expr(state, tmp, &value) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_lineno) {
+            err = PyDict_PopString(kwargs, "lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_col_offset) {
+            err = PyDict_PopString(kwargs, "col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_lineno) {
+            err = PyDict_PopString(kwargs, "end_lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_col_offset) {
+            err = PyDict_PopString(kwargs, "end_col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (PyDict_Size(kwargs)) {
+            Py_ssize_t pos = 0;
+            PyObject *key;
+            while (PyDict_Next(kwargs, &pos, &key, NULL)) {
+                PyErr_Format(PyExc_TypeError,
+                                "%.400s.__replace__ got an unexpected keyword "
+                                "argument '%U'.", pytype->tp_name, key);
+                goto fail;
+            }
+        }
+    }
+    struct _expr *res = (struct _expr*)pytype->tp_alloc(pytype, 0);
+    if (!res) goto fail;
+    res->v.Await.value = value;
+    res->lineno = lineno;
+    res->col_offset = col_offset;
+    res->end_lineno = end_lineno;
+    res->end_col_offset = end_col_offset;
+    return (PyObject *)res;
+fail:
+    Py_XDECREF(value);
+    return NULL;
 }
 
 static void Await_dealloc(PyObject *self) {
@@ -11891,28 +17224,137 @@ error:
 }
 
 static PyObject *
-Yield_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+Yield_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
 {
-    PyObject *res = type->tp_alloc(type, 0);
-    if (!res) {
+    Py_ssize_t posargs = PyTuple_GET_SIZE(pargs);
+    if (posargs > 1) {
+        PyErr_SetString(PyExc_TypeError,
+                        "Yield takes at most 1 positional argument");
         return NULL;
     }
+    expr_ty value = NULL;
+    int lineno = 0;
+    bool got_lineno = false;
+    int col_offset = 0;
+    bool got_col_offset = false;
+    int end_lineno = 0;
+    bool got_end_lineno = false;
+    int end_col_offset = 0;
+    bool got_end_col_offset = false;
+    PyObject *tmp;
     struct ast_state *state = get_ast_state();
-    struct _expr *self = (struct _expr*)res;
-    Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     switch (posargs) {
         case 1: {
-            PyObject *value = PyTuple_GET_ITEM(args, 0);
-            if (obj2imm_expr(state, value, &self->v.Yield.value) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 4);
+            if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                goto fail;
+            }
+            got_end_col_offset = true;
+        }
+        // fallthrough
+        case 0: {
+            tmp = PyTuple_GET_ITEM(pargs, 3);
+            if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                goto fail;
+            }
+            got_end_lineno = true;
+        }
+        // fallthrough
+        case -1: {
+            tmp = PyTuple_GET_ITEM(pargs, 2);
+            if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                goto fail;
+            }
+            got_col_offset = true;
+        }
+        // fallthrough
+        case -2: {
+            tmp = PyTuple_GET_ITEM(pargs, 1);
+            if (obj2imm_int(state, tmp, &lineno) < 0) {
+                goto fail;
+            }
+            got_lineno = true;
+        }
+        // fallthrough
+        case -3: {
+            tmp = PyTuple_GET_ITEM(pargs, 0);
+            if (obj2imm_expr(state, tmp, &value) < 0) {
+                goto fail;
             }
         }
         // fallthrough
         default:
             break;
     }
-    return res;
+    if (kwargs != NULL && PyDict_Size(kwargs)) {
+        int err;
+        if (value != NULL) {
+            err = PyDict_PopString(kwargs, "value", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_expr(state, tmp, &value) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_lineno) {
+            err = PyDict_PopString(kwargs, "lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_col_offset) {
+            err = PyDict_PopString(kwargs, "col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_lineno) {
+            err = PyDict_PopString(kwargs, "end_lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_col_offset) {
+            err = PyDict_PopString(kwargs, "end_col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (PyDict_Size(kwargs)) {
+            Py_ssize_t pos = 0;
+            PyObject *key;
+            while (PyDict_Next(kwargs, &pos, &key, NULL)) {
+                PyErr_Format(PyExc_TypeError,
+                                "%.400s.__replace__ got an unexpected keyword "
+                                "argument '%U'.", pytype->tp_name, key);
+                goto fail;
+            }
+        }
+    }
+    struct _expr *res = (struct _expr*)pytype->tp_alloc(pytype, 0);
+    if (!res) goto fail;
+    res->v.Yield.value = value;
+    res->lineno = lineno;
+    res->col_offset = col_offset;
+    res->end_lineno = end_lineno;
+    res->end_col_offset = end_col_offset;
+    return (PyObject *)res;
+fail:
+    Py_XDECREF(value);
+    return NULL;
 }
 
 static void Yield_dealloc(PyObject *self) {
@@ -11968,28 +17410,137 @@ error:
 }
 
 static PyObject *
-YieldFrom_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+YieldFrom_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
 {
-    PyObject *res = type->tp_alloc(type, 0);
-    if (!res) {
+    Py_ssize_t posargs = PyTuple_GET_SIZE(pargs);
+    if (posargs > 1) {
+        PyErr_SetString(PyExc_TypeError,
+                        "YieldFrom takes at most 1 positional argument");
         return NULL;
     }
+    expr_ty value = NULL;
+    int lineno = 0;
+    bool got_lineno = false;
+    int col_offset = 0;
+    bool got_col_offset = false;
+    int end_lineno = 0;
+    bool got_end_lineno = false;
+    int end_col_offset = 0;
+    bool got_end_col_offset = false;
+    PyObject *tmp;
     struct ast_state *state = get_ast_state();
-    struct _expr *self = (struct _expr*)res;
-    Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     switch (posargs) {
         case 1: {
-            PyObject *value = PyTuple_GET_ITEM(args, 0);
-            if (obj2imm_expr(state, value, &self->v.YieldFrom.value) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 4);
+            if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                goto fail;
+            }
+            got_end_col_offset = true;
+        }
+        // fallthrough
+        case 0: {
+            tmp = PyTuple_GET_ITEM(pargs, 3);
+            if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                goto fail;
+            }
+            got_end_lineno = true;
+        }
+        // fallthrough
+        case -1: {
+            tmp = PyTuple_GET_ITEM(pargs, 2);
+            if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                goto fail;
+            }
+            got_col_offset = true;
+        }
+        // fallthrough
+        case -2: {
+            tmp = PyTuple_GET_ITEM(pargs, 1);
+            if (obj2imm_int(state, tmp, &lineno) < 0) {
+                goto fail;
+            }
+            got_lineno = true;
+        }
+        // fallthrough
+        case -3: {
+            tmp = PyTuple_GET_ITEM(pargs, 0);
+            if (obj2imm_expr(state, tmp, &value) < 0) {
+                goto fail;
             }
         }
         // fallthrough
         default:
             break;
     }
-    return res;
+    if (kwargs != NULL && PyDict_Size(kwargs)) {
+        int err;
+        if (value != NULL) {
+            err = PyDict_PopString(kwargs, "value", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_expr(state, tmp, &value) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_lineno) {
+            err = PyDict_PopString(kwargs, "lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_col_offset) {
+            err = PyDict_PopString(kwargs, "col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_lineno) {
+            err = PyDict_PopString(kwargs, "end_lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_col_offset) {
+            err = PyDict_PopString(kwargs, "end_col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (PyDict_Size(kwargs)) {
+            Py_ssize_t pos = 0;
+            PyObject *key;
+            while (PyDict_Next(kwargs, &pos, &key, NULL)) {
+                PyErr_Format(PyExc_TypeError,
+                                "%.400s.__replace__ got an unexpected keyword "
+                                "argument '%U'.", pytype->tp_name, key);
+                goto fail;
+            }
+        }
+    }
+    struct _expr *res = (struct _expr*)pytype->tp_alloc(pytype, 0);
+    if (!res) goto fail;
+    res->v.YieldFrom.value = value;
+    res->lineno = lineno;
+    res->col_offset = col_offset;
+    res->end_lineno = end_lineno;
+    res->end_col_offset = end_col_offset;
+    return (PyObject *)res;
+fail:
+    Py_XDECREF(value);
+    return NULL;
 }
 
 static void YieldFrom_dealloc(PyObject *self) {
@@ -12045,46 +17596,178 @@ error:
 }
 
 static PyObject *
-Compare_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+Compare_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
 {
-    PyObject *res = type->tp_alloc(type, 0);
-    if (!res) {
+    Py_ssize_t posargs = PyTuple_GET_SIZE(pargs);
+    if (posargs > 3) {
+        PyErr_SetString(PyExc_TypeError,
+                        "Compare takes at most 3 positional arguments");
         return NULL;
     }
+    expr_ty left = NULL;
+    asdl_int_seq* ops = NULL;
+    bool got_ops = false;
+    asdl_expr_seq* comparators = NULL;
+    int lineno = 0;
+    bool got_lineno = false;
+    int col_offset = 0;
+    bool got_col_offset = false;
+    int end_lineno = 0;
+    bool got_end_lineno = false;
+    int end_col_offset = 0;
+    bool got_end_col_offset = false;
+    PyObject *tmp;
     struct ast_state *state = get_ast_state();
-    struct _expr *self = (struct _expr*)res;
-    Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     switch (posargs) {
         case 3: {
-            PyObject *value = PyTuple_GET_ITEM(args, 2);
-            if (obj2imm_expr_seq(state, value, "", "comparators",
-                &self->v.Compare.comparators) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 6);
+            if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                goto fail;
             }
+            got_end_col_offset = true;
         }
         // fallthrough
         case 2: {
-            PyObject *value = PyTuple_GET_ITEM(args, 1);
-            if (obj2imm_cmpop_seq(state, value, "", "ops",
-                &self->v.Compare.ops) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 5);
+            if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                goto fail;
             }
+            got_end_lineno = true;
         }
         // fallthrough
         case 1: {
-            PyObject *value = PyTuple_GET_ITEM(args, 0);
-            if (obj2imm_expr(state, value, &self->v.Compare.left) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 4);
+            if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                goto fail;
+            }
+            got_col_offset = true;
+        }
+        // fallthrough
+        case 0: {
+            tmp = PyTuple_GET_ITEM(pargs, 3);
+            if (obj2imm_int(state, tmp, &lineno) < 0) {
+                goto fail;
+            }
+            got_lineno = true;
+        }
+        // fallthrough
+        case -1: {
+            tmp = PyTuple_GET_ITEM(pargs, 2);
+            if (obj2imm_expr_seq(state, tmp, "Compare", "comparators",
+                &comparators) < 0) {
+                goto fail;
+            }
+        }
+        // fallthrough
+        case -2: {
+            tmp = PyTuple_GET_ITEM(pargs, 1);
+            if (obj2imm_cmpop_seq(state, tmp, "Compare", "ops", &ops) < 0) {
+                goto fail;
+            }
+            got_ops = true;
+        }
+        // fallthrough
+        case -3: {
+            tmp = PyTuple_GET_ITEM(pargs, 0);
+            if (obj2imm_expr(state, tmp, &left) < 0) {
+                goto fail;
             }
         }
         // fallthrough
         default:
             break;
     }
-    return res;
+    if (kwargs != NULL && PyDict_Size(kwargs)) {
+        int err;
+        if (left != NULL) {
+            err = PyDict_PopString(kwargs, "left", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_expr(state, tmp, &left) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_ops) {
+            err = PyDict_PopString(kwargs, "ops", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_cmpop_seq(state, tmp, "Compare", "ops", &ops) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (comparators != NULL) {
+            err = PyDict_PopString(kwargs, "comparators", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_expr_seq(state, tmp, "Compare", "comparators",
+                    &comparators) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_lineno) {
+            err = PyDict_PopString(kwargs, "lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_col_offset) {
+            err = PyDict_PopString(kwargs, "col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_lineno) {
+            err = PyDict_PopString(kwargs, "end_lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_col_offset) {
+            err = PyDict_PopString(kwargs, "end_col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (PyDict_Size(kwargs)) {
+            Py_ssize_t pos = 0;
+            PyObject *key;
+            while (PyDict_Next(kwargs, &pos, &key, NULL)) {
+                PyErr_Format(PyExc_TypeError,
+                                "%.400s.__replace__ got an unexpected keyword "
+                                "argument '%U'.", pytype->tp_name, key);
+                goto fail;
+            }
+        }
+    }
+    struct _expr *res = (struct _expr*)pytype->tp_alloc(pytype, 0);
+    if (!res) goto fail;
+    res->v.Compare.left = left;
+    res->v.Compare.ops = ops;
+    res->v.Compare.comparators = comparators;
+    res->lineno = lineno;
+    res->col_offset = col_offset;
+    res->end_lineno = end_lineno;
+    res->end_col_offset = end_col_offset;
+    return (PyObject *)res;
+fail:
+    Py_XDECREF(left);
+    Py_XDECREF(comparators);
+    return NULL;
 }
 
 static void Compare_dealloc(PyObject *self) {
@@ -12157,46 +17840,177 @@ error:
 }
 
 static PyObject *
-Call_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+Call_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
 {
-    PyObject *res = type->tp_alloc(type, 0);
-    if (!res) {
+    Py_ssize_t posargs = PyTuple_GET_SIZE(pargs);
+    if (posargs > 3) {
+        PyErr_SetString(PyExc_TypeError,
+                        "Call takes at most 3 positional arguments");
         return NULL;
     }
+    expr_ty func = NULL;
+    asdl_expr_seq* args = NULL;
+    asdl_keyword_seq* keywords = NULL;
+    int lineno = 0;
+    bool got_lineno = false;
+    int col_offset = 0;
+    bool got_col_offset = false;
+    int end_lineno = 0;
+    bool got_end_lineno = false;
+    int end_col_offset = 0;
+    bool got_end_col_offset = false;
+    PyObject *tmp;
     struct ast_state *state = get_ast_state();
-    struct _expr *self = (struct _expr*)res;
-    Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     switch (posargs) {
         case 3: {
-            PyObject *value = PyTuple_GET_ITEM(args, 2);
-            if (obj2imm_keyword_seq(state, value, "", "keywords",
-                &self->v.Call.keywords) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 6);
+            if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                goto fail;
             }
+            got_end_col_offset = true;
         }
         // fallthrough
         case 2: {
-            PyObject *value = PyTuple_GET_ITEM(args, 1);
-            if (obj2imm_expr_seq(state, value, "", "args", &self->v.Call.args)
-                < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 5);
+            if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                goto fail;
             }
+            got_end_lineno = true;
         }
         // fallthrough
         case 1: {
-            PyObject *value = PyTuple_GET_ITEM(args, 0);
-            if (obj2imm_expr(state, value, &self->v.Call.func) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 4);
+            if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                goto fail;
+            }
+            got_col_offset = true;
+        }
+        // fallthrough
+        case 0: {
+            tmp = PyTuple_GET_ITEM(pargs, 3);
+            if (obj2imm_int(state, tmp, &lineno) < 0) {
+                goto fail;
+            }
+            got_lineno = true;
+        }
+        // fallthrough
+        case -1: {
+            tmp = PyTuple_GET_ITEM(pargs, 2);
+            if (obj2imm_keyword_seq(state, tmp, "Call", "keywords", &keywords)
+                < 0) {
+                goto fail;
+            }
+        }
+        // fallthrough
+        case -2: {
+            tmp = PyTuple_GET_ITEM(pargs, 1);
+            if (obj2imm_expr_seq(state, tmp, "Call", "args", &args) < 0) {
+                goto fail;
+            }
+        }
+        // fallthrough
+        case -3: {
+            tmp = PyTuple_GET_ITEM(pargs, 0);
+            if (obj2imm_expr(state, tmp, &func) < 0) {
+                goto fail;
             }
         }
         // fallthrough
         default:
             break;
     }
-    return res;
+    if (kwargs != NULL && PyDict_Size(kwargs)) {
+        int err;
+        if (func != NULL) {
+            err = PyDict_PopString(kwargs, "func", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_expr(state, tmp, &func) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (args != NULL) {
+            err = PyDict_PopString(kwargs, "args", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_expr_seq(state, tmp, "Call", "args", &args) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (keywords != NULL) {
+            err = PyDict_PopString(kwargs, "keywords", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_keyword_seq(state, tmp, "Call", "keywords",
+                    &keywords) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_lineno) {
+            err = PyDict_PopString(kwargs, "lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_col_offset) {
+            err = PyDict_PopString(kwargs, "col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_lineno) {
+            err = PyDict_PopString(kwargs, "end_lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_col_offset) {
+            err = PyDict_PopString(kwargs, "end_col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (PyDict_Size(kwargs)) {
+            Py_ssize_t pos = 0;
+            PyObject *key;
+            while (PyDict_Next(kwargs, &pos, &key, NULL)) {
+                PyErr_Format(PyExc_TypeError,
+                                "%.400s.__replace__ got an unexpected keyword "
+                                "argument '%U'.", pytype->tp_name, key);
+                goto fail;
+            }
+        }
+    }
+    struct _expr *res = (struct _expr*)pytype->tp_alloc(pytype, 0);
+    if (!res) goto fail;
+    res->v.Call.func = func;
+    res->v.Call.args = args;
+    res->v.Call.keywords = keywords;
+    res->lineno = lineno;
+    res->col_offset = col_offset;
+    res->end_lineno = end_lineno;
+    res->end_col_offset = end_col_offset;
+    return (PyObject *)res;
+fail:
+    Py_XDECREF(func);
+    Py_XDECREF(args);
+    Py_XDECREF(keywords);
+    return NULL;
 }
 
 static void Call_dealloc(PyObject *self) {
@@ -12269,47 +18083,176 @@ error:
 }
 
 static PyObject *
-FormattedValue_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+FormattedValue_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
 {
-    PyObject *res = type->tp_alloc(type, 0);
-    if (!res) {
+    Py_ssize_t posargs = PyTuple_GET_SIZE(pargs);
+    if (posargs > 3) {
+        PyErr_SetString(PyExc_TypeError,
+                        "FormattedValue takes at most 3 positional arguments");
         return NULL;
     }
+    expr_ty value = NULL;
+    int conversion = 0;
+    bool got_conversion = false;
+    expr_ty format_spec = NULL;
+    int lineno = 0;
+    bool got_lineno = false;
+    int col_offset = 0;
+    bool got_col_offset = false;
+    int end_lineno = 0;
+    bool got_end_lineno = false;
+    int end_col_offset = 0;
+    bool got_end_col_offset = false;
+    PyObject *tmp;
     struct ast_state *state = get_ast_state();
-    struct _expr *self = (struct _expr*)res;
-    Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     switch (posargs) {
         case 3: {
-            PyObject *value = PyTuple_GET_ITEM(args, 2);
-            if (obj2imm_expr(state, value, &self->v.FormattedValue.format_spec)
-                < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 6);
+            if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                goto fail;
             }
+            got_end_col_offset = true;
         }
         // fallthrough
         case 2: {
-            PyObject *value = PyTuple_GET_ITEM(args, 1);
-            int out;
-            if (obj2imm_int(state, value, &out) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 5);
+            if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                goto fail;
             }
-            self->v.FormattedValue.conversion = out;
+            got_end_lineno = true;
         }
         // fallthrough
         case 1: {
-            PyObject *value = PyTuple_GET_ITEM(args, 0);
-            if (obj2imm_expr(state, value, &self->v.FormattedValue.value) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 4);
+            if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                goto fail;
+            }
+            got_col_offset = true;
+        }
+        // fallthrough
+        case 0: {
+            tmp = PyTuple_GET_ITEM(pargs, 3);
+            if (obj2imm_int(state, tmp, &lineno) < 0) {
+                goto fail;
+            }
+            got_lineno = true;
+        }
+        // fallthrough
+        case -1: {
+            tmp = PyTuple_GET_ITEM(pargs, 2);
+            if (obj2imm_expr(state, tmp, &format_spec) < 0) {
+                goto fail;
+            }
+        }
+        // fallthrough
+        case -2: {
+            tmp = PyTuple_GET_ITEM(pargs, 1);
+            if (obj2imm_int(state, tmp, &conversion) < 0) {
+                goto fail;
+            }
+            got_conversion = true;
+        }
+        // fallthrough
+        case -3: {
+            tmp = PyTuple_GET_ITEM(pargs, 0);
+            if (obj2imm_expr(state, tmp, &value) < 0) {
+                goto fail;
             }
         }
         // fallthrough
         default:
             break;
     }
-    return res;
+    if (kwargs != NULL && PyDict_Size(kwargs)) {
+        int err;
+        if (value != NULL) {
+            err = PyDict_PopString(kwargs, "value", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_expr(state, tmp, &value) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_conversion) {
+            err = PyDict_PopString(kwargs, "conversion", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &conversion) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (format_spec != NULL) {
+            err = PyDict_PopString(kwargs, "format_spec", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_expr(state, tmp, &format_spec) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_lineno) {
+            err = PyDict_PopString(kwargs, "lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_col_offset) {
+            err = PyDict_PopString(kwargs, "col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_lineno) {
+            err = PyDict_PopString(kwargs, "end_lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_col_offset) {
+            err = PyDict_PopString(kwargs, "end_col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (PyDict_Size(kwargs)) {
+            Py_ssize_t pos = 0;
+            PyObject *key;
+            while (PyDict_Next(kwargs, &pos, &key, NULL)) {
+                PyErr_Format(PyExc_TypeError,
+                                "%.400s.__replace__ got an unexpected keyword "
+                                "argument '%U'.", pytype->tp_name, key);
+                goto fail;
+            }
+        }
+    }
+    struct _expr *res = (struct _expr*)pytype->tp_alloc(pytype, 0);
+    if (!res) goto fail;
+    res->v.FormattedValue.value = value;
+    res->v.FormattedValue.conversion = conversion;
+    res->v.FormattedValue.format_spec = format_spec;
+    res->lineno = lineno;
+    res->col_offset = col_offset;
+    res->end_lineno = end_lineno;
+    res->end_col_offset = end_col_offset;
+    return (PyObject *)res;
+fail:
+    Py_XDECREF(value);
+    Py_XDECREF(format_spec);
+    return NULL;
 }
 
 static void FormattedValue_dealloc(PyObject *self) {
@@ -12379,56 +18322,195 @@ error:
 }
 
 static PyObject *
-Interpolation_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+Interpolation_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
 {
-    PyObject *res = type->tp_alloc(type, 0);
-    if (!res) {
+    Py_ssize_t posargs = PyTuple_GET_SIZE(pargs);
+    if (posargs > 4) {
+        PyErr_SetString(PyExc_TypeError,
+                        "Interpolation takes at most 4 positional arguments");
         return NULL;
     }
+    expr_ty value = NULL;
+    constant str = NULL;
+    int conversion = 0;
+    bool got_conversion = false;
+    expr_ty format_spec = NULL;
+    int lineno = 0;
+    bool got_lineno = false;
+    int col_offset = 0;
+    bool got_col_offset = false;
+    int end_lineno = 0;
+    bool got_end_lineno = false;
+    int end_col_offset = 0;
+    bool got_end_col_offset = false;
+    PyObject *tmp;
     struct ast_state *state = get_ast_state();
-    struct _expr *self = (struct _expr*)res;
-    Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     switch (posargs) {
         case 4: {
-            PyObject *value = PyTuple_GET_ITEM(args, 3);
-            if (obj2imm_expr(state, value, &self->v.Interpolation.format_spec)
-                < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 7);
+            if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                goto fail;
             }
+            got_end_col_offset = true;
         }
         // fallthrough
         case 3: {
-            PyObject *value = PyTuple_GET_ITEM(args, 2);
-            int out;
-            if (obj2imm_int(state, value, &out) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 6);
+            if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                goto fail;
             }
-            self->v.Interpolation.conversion = out;
+            got_end_lineno = true;
         }
         // fallthrough
         case 2: {
-            PyObject *value = PyTuple_GET_ITEM(args, 1);
-            if (obj2imm_constant(state, value, &self->v.Interpolation.str) < 0)
-                {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 5);
+            if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                goto fail;
             }
+            got_col_offset = true;
         }
         // fallthrough
         case 1: {
-            PyObject *value = PyTuple_GET_ITEM(args, 0);
-            if (obj2imm_expr(state, value, &self->v.Interpolation.value) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 4);
+            if (obj2imm_int(state, tmp, &lineno) < 0) {
+                goto fail;
+            }
+            got_lineno = true;
+        }
+        // fallthrough
+        case 0: {
+            tmp = PyTuple_GET_ITEM(pargs, 3);
+            if (obj2imm_expr(state, tmp, &format_spec) < 0) {
+                goto fail;
+            }
+        }
+        // fallthrough
+        case -1: {
+            tmp = PyTuple_GET_ITEM(pargs, 2);
+            if (obj2imm_int(state, tmp, &conversion) < 0) {
+                goto fail;
+            }
+            got_conversion = true;
+        }
+        // fallthrough
+        case -2: {
+            tmp = PyTuple_GET_ITEM(pargs, 1);
+            if (obj2imm_constant(state, tmp, &str) < 0) {
+                goto fail;
+            }
+        }
+        // fallthrough
+        case -3: {
+            tmp = PyTuple_GET_ITEM(pargs, 0);
+            if (obj2imm_expr(state, tmp, &value) < 0) {
+                goto fail;
             }
         }
         // fallthrough
         default:
             break;
     }
-    return res;
+    if (kwargs != NULL && PyDict_Size(kwargs)) {
+        int err;
+        if (value != NULL) {
+            err = PyDict_PopString(kwargs, "value", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_expr(state, tmp, &value) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (str != NULL) {
+            err = PyDict_PopString(kwargs, "str", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_constant(state, tmp, &str) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_conversion) {
+            err = PyDict_PopString(kwargs, "conversion", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &conversion) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (format_spec != NULL) {
+            err = PyDict_PopString(kwargs, "format_spec", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_expr(state, tmp, &format_spec) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_lineno) {
+            err = PyDict_PopString(kwargs, "lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_col_offset) {
+            err = PyDict_PopString(kwargs, "col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_lineno) {
+            err = PyDict_PopString(kwargs, "end_lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_col_offset) {
+            err = PyDict_PopString(kwargs, "end_col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (PyDict_Size(kwargs)) {
+            Py_ssize_t pos = 0;
+            PyObject *key;
+            while (PyDict_Next(kwargs, &pos, &key, NULL)) {
+                PyErr_Format(PyExc_TypeError,
+                                "%.400s.__replace__ got an unexpected keyword "
+                                "argument '%U'.", pytype->tp_name, key);
+                goto fail;
+            }
+        }
+    }
+    struct _expr *res = (struct _expr*)pytype->tp_alloc(pytype, 0);
+    if (!res) goto fail;
+    res->v.Interpolation.value = value;
+    res->v.Interpolation.str = str;
+    res->v.Interpolation.conversion = conversion;
+    res->v.Interpolation.format_spec = format_spec;
+    res->lineno = lineno;
+    res->col_offset = col_offset;
+    res->end_lineno = end_lineno;
+    res->end_col_offset = end_col_offset;
+    return (PyObject *)res;
+fail:
+    Py_XDECREF(value);
+    Py_XDECREF(str);
+    Py_XDECREF(format_spec);
+    return NULL;
 }
 
 static void Interpolation_dealloc(PyObject *self) {
@@ -12507,29 +18589,139 @@ error:
 }
 
 static PyObject *
-JoinedStr_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+JoinedStr_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
 {
-    PyObject *res = type->tp_alloc(type, 0);
-    if (!res) {
+    Py_ssize_t posargs = PyTuple_GET_SIZE(pargs);
+    if (posargs > 1) {
+        PyErr_SetString(PyExc_TypeError,
+                        "JoinedStr takes at most 1 positional argument");
         return NULL;
     }
+    asdl_expr_seq* values = NULL;
+    int lineno = 0;
+    bool got_lineno = false;
+    int col_offset = 0;
+    bool got_col_offset = false;
+    int end_lineno = 0;
+    bool got_end_lineno = false;
+    int end_col_offset = 0;
+    bool got_end_col_offset = false;
+    PyObject *tmp;
     struct ast_state *state = get_ast_state();
-    struct _expr *self = (struct _expr*)res;
-    Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     switch (posargs) {
         case 1: {
-            PyObject *value = PyTuple_GET_ITEM(args, 0);
-            if (obj2imm_expr_seq(state, value, "", "values",
-                &self->v.JoinedStr.values) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 4);
+            if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                goto fail;
+            }
+            got_end_col_offset = true;
+        }
+        // fallthrough
+        case 0: {
+            tmp = PyTuple_GET_ITEM(pargs, 3);
+            if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                goto fail;
+            }
+            got_end_lineno = true;
+        }
+        // fallthrough
+        case -1: {
+            tmp = PyTuple_GET_ITEM(pargs, 2);
+            if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                goto fail;
+            }
+            got_col_offset = true;
+        }
+        // fallthrough
+        case -2: {
+            tmp = PyTuple_GET_ITEM(pargs, 1);
+            if (obj2imm_int(state, tmp, &lineno) < 0) {
+                goto fail;
+            }
+            got_lineno = true;
+        }
+        // fallthrough
+        case -3: {
+            tmp = PyTuple_GET_ITEM(pargs, 0);
+            if (obj2imm_expr_seq(state, tmp, "JoinedStr", "values", &values) <
+                0) {
+                goto fail;
             }
         }
         // fallthrough
         default:
             break;
     }
-    return res;
+    if (kwargs != NULL && PyDict_Size(kwargs)) {
+        int err;
+        if (values != NULL) {
+            err = PyDict_PopString(kwargs, "values", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_expr_seq(state, tmp, "JoinedStr", "values",
+                    &values) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_lineno) {
+            err = PyDict_PopString(kwargs, "lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_col_offset) {
+            err = PyDict_PopString(kwargs, "col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_lineno) {
+            err = PyDict_PopString(kwargs, "end_lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_col_offset) {
+            err = PyDict_PopString(kwargs, "end_col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (PyDict_Size(kwargs)) {
+            Py_ssize_t pos = 0;
+            PyObject *key;
+            while (PyDict_Next(kwargs, &pos, &key, NULL)) {
+                PyErr_Format(PyExc_TypeError,
+                                "%.400s.__replace__ got an unexpected keyword "
+                                "argument '%U'.", pytype->tp_name, key);
+                goto fail;
+            }
+        }
+    }
+    struct _expr *res = (struct _expr*)pytype->tp_alloc(pytype, 0);
+    if (!res) goto fail;
+    res->v.JoinedStr.values = values;
+    res->lineno = lineno;
+    res->col_offset = col_offset;
+    res->end_lineno = end_lineno;
+    res->end_col_offset = end_col_offset;
+    return (PyObject *)res;
+fail:
+    Py_XDECREF(values);
+    return NULL;
 }
 
 static void JoinedStr_dealloc(PyObject *self) {
@@ -12586,29 +18778,139 @@ error:
 }
 
 static PyObject *
-TemplateStr_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+TemplateStr_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
 {
-    PyObject *res = type->tp_alloc(type, 0);
-    if (!res) {
+    Py_ssize_t posargs = PyTuple_GET_SIZE(pargs);
+    if (posargs > 1) {
+        PyErr_SetString(PyExc_TypeError,
+                        "TemplateStr takes at most 1 positional argument");
         return NULL;
     }
+    asdl_expr_seq* values = NULL;
+    int lineno = 0;
+    bool got_lineno = false;
+    int col_offset = 0;
+    bool got_col_offset = false;
+    int end_lineno = 0;
+    bool got_end_lineno = false;
+    int end_col_offset = 0;
+    bool got_end_col_offset = false;
+    PyObject *tmp;
     struct ast_state *state = get_ast_state();
-    struct _expr *self = (struct _expr*)res;
-    Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     switch (posargs) {
         case 1: {
-            PyObject *value = PyTuple_GET_ITEM(args, 0);
-            if (obj2imm_expr_seq(state, value, "", "values",
-                &self->v.TemplateStr.values) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 4);
+            if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                goto fail;
+            }
+            got_end_col_offset = true;
+        }
+        // fallthrough
+        case 0: {
+            tmp = PyTuple_GET_ITEM(pargs, 3);
+            if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                goto fail;
+            }
+            got_end_lineno = true;
+        }
+        // fallthrough
+        case -1: {
+            tmp = PyTuple_GET_ITEM(pargs, 2);
+            if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                goto fail;
+            }
+            got_col_offset = true;
+        }
+        // fallthrough
+        case -2: {
+            tmp = PyTuple_GET_ITEM(pargs, 1);
+            if (obj2imm_int(state, tmp, &lineno) < 0) {
+                goto fail;
+            }
+            got_lineno = true;
+        }
+        // fallthrough
+        case -3: {
+            tmp = PyTuple_GET_ITEM(pargs, 0);
+            if (obj2imm_expr_seq(state, tmp, "TemplateStr", "values", &values)
+                < 0) {
+                goto fail;
             }
         }
         // fallthrough
         default:
             break;
     }
-    return res;
+    if (kwargs != NULL && PyDict_Size(kwargs)) {
+        int err;
+        if (values != NULL) {
+            err = PyDict_PopString(kwargs, "values", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_expr_seq(state, tmp, "TemplateStr", "values",
+                    &values) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_lineno) {
+            err = PyDict_PopString(kwargs, "lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_col_offset) {
+            err = PyDict_PopString(kwargs, "col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_lineno) {
+            err = PyDict_PopString(kwargs, "end_lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_col_offset) {
+            err = PyDict_PopString(kwargs, "end_col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (PyDict_Size(kwargs)) {
+            Py_ssize_t pos = 0;
+            PyObject *key;
+            while (PyDict_Next(kwargs, &pos, &key, NULL)) {
+                PyErr_Format(PyExc_TypeError,
+                                "%.400s.__replace__ got an unexpected keyword "
+                                "argument '%U'.", pytype->tp_name, key);
+                goto fail;
+            }
+        }
+    }
+    struct _expr *res = (struct _expr*)pytype->tp_alloc(pytype, 0);
+    if (!res) goto fail;
+    res->v.TemplateStr.values = values;
+    res->lineno = lineno;
+    res->col_offset = col_offset;
+    res->end_lineno = end_lineno;
+    res->end_col_offset = end_col_offset;
+    return (PyObject *)res;
+fail:
+    Py_XDECREF(values);
+    return NULL;
 }
 
 static void TemplateStr_dealloc(PyObject *self) {
@@ -12665,36 +18967,156 @@ error:
 }
 
 static PyObject *
-Constant_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+Constant_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
 {
-    PyObject *res = type->tp_alloc(type, 0);
-    if (!res) {
+    Py_ssize_t posargs = PyTuple_GET_SIZE(pargs);
+    if (posargs > 2) {
+        PyErr_SetString(PyExc_TypeError,
+                        "Constant takes at most 2 positional arguments");
         return NULL;
     }
+    constant value = NULL;
+    string kind = 0;
+    int lineno = 0;
+    bool got_lineno = false;
+    int col_offset = 0;
+    bool got_col_offset = false;
+    int end_lineno = 0;
+    bool got_end_lineno = false;
+    int end_col_offset = 0;
+    bool got_end_col_offset = false;
+    PyObject *tmp;
     struct ast_state *state = get_ast_state();
-    struct _expr *self = (struct _expr*)res;
-    Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     switch (posargs) {
         case 2: {
-            PyObject *value = PyTuple_GET_ITEM(args, 1);
-            if (obj2imm_string(state, value, &self->v.Constant.kind) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 5);
+            if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                goto fail;
             }
+            got_end_col_offset = true;
         }
         // fallthrough
         case 1: {
-            PyObject *value = PyTuple_GET_ITEM(args, 0);
-            if (obj2imm_constant(state, value, &self->v.Constant.value) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 4);
+            if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                goto fail;
+            }
+            got_end_lineno = true;
+        }
+        // fallthrough
+        case 0: {
+            tmp = PyTuple_GET_ITEM(pargs, 3);
+            if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                goto fail;
+            }
+            got_col_offset = true;
+        }
+        // fallthrough
+        case -1: {
+            tmp = PyTuple_GET_ITEM(pargs, 2);
+            if (obj2imm_int(state, tmp, &lineno) < 0) {
+                goto fail;
+            }
+            got_lineno = true;
+        }
+        // fallthrough
+        case -2: {
+            tmp = PyTuple_GET_ITEM(pargs, 1);
+            if (obj2imm_string(state, tmp, &kind) < 0) {
+                goto fail;
+            }
+        }
+        // fallthrough
+        case -3: {
+            tmp = PyTuple_GET_ITEM(pargs, 0);
+            if (obj2imm_constant(state, tmp, &value) < 0) {
+                goto fail;
             }
         }
         // fallthrough
         default:
             break;
     }
-    return res;
+    if (kwargs != NULL && PyDict_Size(kwargs)) {
+        int err;
+        if (value != NULL) {
+            err = PyDict_PopString(kwargs, "value", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_constant(state, tmp, &value) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (kind != NULL) {
+            err = PyDict_PopString(kwargs, "kind", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_string(state, tmp, &kind) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_lineno) {
+            err = PyDict_PopString(kwargs, "lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_col_offset) {
+            err = PyDict_PopString(kwargs, "col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_lineno) {
+            err = PyDict_PopString(kwargs, "end_lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_col_offset) {
+            err = PyDict_PopString(kwargs, "end_col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (PyDict_Size(kwargs)) {
+            Py_ssize_t pos = 0;
+            PyObject *key;
+            while (PyDict_Next(kwargs, &pos, &key, NULL)) {
+                PyErr_Format(PyExc_TypeError,
+                                "%.400s.__replace__ got an unexpected keyword "
+                                "argument '%U'.", pytype->tp_name, key);
+                goto fail;
+            }
+        }
+    }
+    struct _expr *res = (struct _expr*)pytype->tp_alloc(pytype, 0);
+    if (!res) goto fail;
+    res->v.Constant.value = value;
+    res->v.Constant.kind = kind;
+    res->lineno = lineno;
+    res->col_offset = col_offset;
+    res->end_lineno = end_lineno;
+    res->end_col_offset = end_col_offset;
+    return (PyObject *)res;
+fail:
+    Py_XDECREF(value);
+    Py_XDECREF(kind);
+    return NULL;
 }
 
 static void Constant_dealloc(PyObject *self) {
@@ -12759,46 +19181,176 @@ error:
 }
 
 static PyObject *
-Attribute_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+Attribute_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
 {
-    PyObject *res = type->tp_alloc(type, 0);
-    if (!res) {
+    Py_ssize_t posargs = PyTuple_GET_SIZE(pargs);
+    if (posargs > 3) {
+        PyErr_SetString(PyExc_TypeError,
+                        "Attribute takes at most 3 positional arguments");
         return NULL;
     }
+    expr_ty value = NULL;
+    identifier attr = NULL;
+    expr_context_ty ctx = 0;
+    bool got_ctx = false;
+    int lineno = 0;
+    bool got_lineno = false;
+    int col_offset = 0;
+    bool got_col_offset = false;
+    int end_lineno = 0;
+    bool got_end_lineno = false;
+    int end_col_offset = 0;
+    bool got_end_col_offset = false;
+    PyObject *tmp;
     struct ast_state *state = get_ast_state();
-    struct _expr *self = (struct _expr*)res;
-    Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     switch (posargs) {
         case 3: {
-            PyObject *value = PyTuple_GET_ITEM(args, 2);
-            expr_context_ty out;
-            if (obj2imm_expr_context(state, value, &out) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 6);
+            if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                goto fail;
             }
-            self->v.Attribute.ctx = out;
+            got_end_col_offset = true;
         }
         // fallthrough
         case 2: {
-            PyObject *value = PyTuple_GET_ITEM(args, 1);
-            if (obj2imm_identifier(state, value, &self->v.Attribute.attr) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 5);
+            if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                goto fail;
             }
+            got_end_lineno = true;
         }
         // fallthrough
         case 1: {
-            PyObject *value = PyTuple_GET_ITEM(args, 0);
-            if (obj2imm_expr(state, value, &self->v.Attribute.value) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 4);
+            if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                goto fail;
+            }
+            got_col_offset = true;
+        }
+        // fallthrough
+        case 0: {
+            tmp = PyTuple_GET_ITEM(pargs, 3);
+            if (obj2imm_int(state, tmp, &lineno) < 0) {
+                goto fail;
+            }
+            got_lineno = true;
+        }
+        // fallthrough
+        case -1: {
+            tmp = PyTuple_GET_ITEM(pargs, 2);
+            if (obj2imm_expr_context(state, tmp, &ctx) < 0) {
+                goto fail;
+            }
+            got_ctx = true;
+        }
+        // fallthrough
+        case -2: {
+            tmp = PyTuple_GET_ITEM(pargs, 1);
+            if (obj2imm_identifier(state, tmp, &attr) < 0) {
+                goto fail;
+            }
+        }
+        // fallthrough
+        case -3: {
+            tmp = PyTuple_GET_ITEM(pargs, 0);
+            if (obj2imm_expr(state, tmp, &value) < 0) {
+                goto fail;
             }
         }
         // fallthrough
         default:
             break;
     }
-    return res;
+    if (kwargs != NULL && PyDict_Size(kwargs)) {
+        int err;
+        if (value != NULL) {
+            err = PyDict_PopString(kwargs, "value", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_expr(state, tmp, &value) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (attr != NULL) {
+            err = PyDict_PopString(kwargs, "attr", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_identifier(state, tmp, &attr) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_ctx) {
+            err = PyDict_PopString(kwargs, "ctx", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_expr_context(state, tmp, &ctx) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_lineno) {
+            err = PyDict_PopString(kwargs, "lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_col_offset) {
+            err = PyDict_PopString(kwargs, "col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_lineno) {
+            err = PyDict_PopString(kwargs, "end_lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_col_offset) {
+            err = PyDict_PopString(kwargs, "end_col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (PyDict_Size(kwargs)) {
+            Py_ssize_t pos = 0;
+            PyObject *key;
+            while (PyDict_Next(kwargs, &pos, &key, NULL)) {
+                PyErr_Format(PyExc_TypeError,
+                                "%.400s.__replace__ got an unexpected keyword "
+                                "argument '%U'.", pytype->tp_name, key);
+                goto fail;
+            }
+        }
+    }
+    struct _expr *res = (struct _expr*)pytype->tp_alloc(pytype, 0);
+    if (!res) goto fail;
+    res->v.Attribute.value = value;
+    res->v.Attribute.attr = attr;
+    res->v.Attribute.ctx = ctx;
+    res->lineno = lineno;
+    res->col_offset = col_offset;
+    res->end_lineno = end_lineno;
+    res->end_col_offset = end_col_offset;
+    return (PyObject *)res;
+fail:
+    Py_XDECREF(value);
+    Py_XDECREF(attr);
+    return NULL;
 }
 
 static void Attribute_dealloc(PyObject *self) {
@@ -12866,46 +19418,176 @@ error:
 }
 
 static PyObject *
-Subscript_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+Subscript_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
 {
-    PyObject *res = type->tp_alloc(type, 0);
-    if (!res) {
+    Py_ssize_t posargs = PyTuple_GET_SIZE(pargs);
+    if (posargs > 3) {
+        PyErr_SetString(PyExc_TypeError,
+                        "Subscript takes at most 3 positional arguments");
         return NULL;
     }
+    expr_ty value = NULL;
+    expr_ty slice = NULL;
+    expr_context_ty ctx = 0;
+    bool got_ctx = false;
+    int lineno = 0;
+    bool got_lineno = false;
+    int col_offset = 0;
+    bool got_col_offset = false;
+    int end_lineno = 0;
+    bool got_end_lineno = false;
+    int end_col_offset = 0;
+    bool got_end_col_offset = false;
+    PyObject *tmp;
     struct ast_state *state = get_ast_state();
-    struct _expr *self = (struct _expr*)res;
-    Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     switch (posargs) {
         case 3: {
-            PyObject *value = PyTuple_GET_ITEM(args, 2);
-            expr_context_ty out;
-            if (obj2imm_expr_context(state, value, &out) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 6);
+            if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                goto fail;
             }
-            self->v.Subscript.ctx = out;
+            got_end_col_offset = true;
         }
         // fallthrough
         case 2: {
-            PyObject *value = PyTuple_GET_ITEM(args, 1);
-            if (obj2imm_expr(state, value, &self->v.Subscript.slice) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 5);
+            if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                goto fail;
             }
+            got_end_lineno = true;
         }
         // fallthrough
         case 1: {
-            PyObject *value = PyTuple_GET_ITEM(args, 0);
-            if (obj2imm_expr(state, value, &self->v.Subscript.value) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 4);
+            if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                goto fail;
+            }
+            got_col_offset = true;
+        }
+        // fallthrough
+        case 0: {
+            tmp = PyTuple_GET_ITEM(pargs, 3);
+            if (obj2imm_int(state, tmp, &lineno) < 0) {
+                goto fail;
+            }
+            got_lineno = true;
+        }
+        // fallthrough
+        case -1: {
+            tmp = PyTuple_GET_ITEM(pargs, 2);
+            if (obj2imm_expr_context(state, tmp, &ctx) < 0) {
+                goto fail;
+            }
+            got_ctx = true;
+        }
+        // fallthrough
+        case -2: {
+            tmp = PyTuple_GET_ITEM(pargs, 1);
+            if (obj2imm_expr(state, tmp, &slice) < 0) {
+                goto fail;
+            }
+        }
+        // fallthrough
+        case -3: {
+            tmp = PyTuple_GET_ITEM(pargs, 0);
+            if (obj2imm_expr(state, tmp, &value) < 0) {
+                goto fail;
             }
         }
         // fallthrough
         default:
             break;
     }
-    return res;
+    if (kwargs != NULL && PyDict_Size(kwargs)) {
+        int err;
+        if (value != NULL) {
+            err = PyDict_PopString(kwargs, "value", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_expr(state, tmp, &value) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (slice != NULL) {
+            err = PyDict_PopString(kwargs, "slice", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_expr(state, tmp, &slice) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_ctx) {
+            err = PyDict_PopString(kwargs, "ctx", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_expr_context(state, tmp, &ctx) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_lineno) {
+            err = PyDict_PopString(kwargs, "lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_col_offset) {
+            err = PyDict_PopString(kwargs, "col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_lineno) {
+            err = PyDict_PopString(kwargs, "end_lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_col_offset) {
+            err = PyDict_PopString(kwargs, "end_col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (PyDict_Size(kwargs)) {
+            Py_ssize_t pos = 0;
+            PyObject *key;
+            while (PyDict_Next(kwargs, &pos, &key, NULL)) {
+                PyErr_Format(PyExc_TypeError,
+                                "%.400s.__replace__ got an unexpected keyword "
+                                "argument '%U'.", pytype->tp_name, key);
+                goto fail;
+            }
+        }
+    }
+    struct _expr *res = (struct _expr*)pytype->tp_alloc(pytype, 0);
+    if (!res) goto fail;
+    res->v.Subscript.value = value;
+    res->v.Subscript.slice = slice;
+    res->v.Subscript.ctx = ctx;
+    res->lineno = lineno;
+    res->col_offset = col_offset;
+    res->end_lineno = end_lineno;
+    res->end_col_offset = end_col_offset;
+    return (PyObject *)res;
+fail:
+    Py_XDECREF(value);
+    Py_XDECREF(slice);
+    return NULL;
 }
 
 static void Subscript_dealloc(PyObject *self) {
@@ -12973,38 +19655,157 @@ error:
 }
 
 static PyObject *
-Starred_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+Starred_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
 {
-    PyObject *res = type->tp_alloc(type, 0);
-    if (!res) {
+    Py_ssize_t posargs = PyTuple_GET_SIZE(pargs);
+    if (posargs > 2) {
+        PyErr_SetString(PyExc_TypeError,
+                        "Starred takes at most 2 positional arguments");
         return NULL;
     }
+    expr_ty value = NULL;
+    expr_context_ty ctx = 0;
+    bool got_ctx = false;
+    int lineno = 0;
+    bool got_lineno = false;
+    int col_offset = 0;
+    bool got_col_offset = false;
+    int end_lineno = 0;
+    bool got_end_lineno = false;
+    int end_col_offset = 0;
+    bool got_end_col_offset = false;
+    PyObject *tmp;
     struct ast_state *state = get_ast_state();
-    struct _expr *self = (struct _expr*)res;
-    Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     switch (posargs) {
         case 2: {
-            PyObject *value = PyTuple_GET_ITEM(args, 1);
-            expr_context_ty out;
-            if (obj2imm_expr_context(state, value, &out) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 5);
+            if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                goto fail;
             }
-            self->v.Starred.ctx = out;
+            got_end_col_offset = true;
         }
         // fallthrough
         case 1: {
-            PyObject *value = PyTuple_GET_ITEM(args, 0);
-            if (obj2imm_expr(state, value, &self->v.Starred.value) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 4);
+            if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                goto fail;
+            }
+            got_end_lineno = true;
+        }
+        // fallthrough
+        case 0: {
+            tmp = PyTuple_GET_ITEM(pargs, 3);
+            if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                goto fail;
+            }
+            got_col_offset = true;
+        }
+        // fallthrough
+        case -1: {
+            tmp = PyTuple_GET_ITEM(pargs, 2);
+            if (obj2imm_int(state, tmp, &lineno) < 0) {
+                goto fail;
+            }
+            got_lineno = true;
+        }
+        // fallthrough
+        case -2: {
+            tmp = PyTuple_GET_ITEM(pargs, 1);
+            if (obj2imm_expr_context(state, tmp, &ctx) < 0) {
+                goto fail;
+            }
+            got_ctx = true;
+        }
+        // fallthrough
+        case -3: {
+            tmp = PyTuple_GET_ITEM(pargs, 0);
+            if (obj2imm_expr(state, tmp, &value) < 0) {
+                goto fail;
             }
         }
         // fallthrough
         default:
             break;
     }
-    return res;
+    if (kwargs != NULL && PyDict_Size(kwargs)) {
+        int err;
+        if (value != NULL) {
+            err = PyDict_PopString(kwargs, "value", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_expr(state, tmp, &value) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_ctx) {
+            err = PyDict_PopString(kwargs, "ctx", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_expr_context(state, tmp, &ctx) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_lineno) {
+            err = PyDict_PopString(kwargs, "lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_col_offset) {
+            err = PyDict_PopString(kwargs, "col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_lineno) {
+            err = PyDict_PopString(kwargs, "end_lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_col_offset) {
+            err = PyDict_PopString(kwargs, "end_col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (PyDict_Size(kwargs)) {
+            Py_ssize_t pos = 0;
+            PyObject *key;
+            while (PyDict_Next(kwargs, &pos, &key, NULL)) {
+                PyErr_Format(PyExc_TypeError,
+                                "%.400s.__replace__ got an unexpected keyword "
+                                "argument '%U'.", pytype->tp_name, key);
+                goto fail;
+            }
+        }
+    }
+    struct _expr *res = (struct _expr*)pytype->tp_alloc(pytype, 0);
+    if (!res) goto fail;
+    res->v.Starred.value = value;
+    res->v.Starred.ctx = ctx;
+    res->lineno = lineno;
+    res->col_offset = col_offset;
+    res->end_lineno = end_lineno;
+    res->end_col_offset = end_col_offset;
+    return (PyObject *)res;
+fail:
+    Py_XDECREF(value);
+    return NULL;
 }
 
 static void Starred_dealloc(PyObject *self) {
@@ -13062,38 +19863,157 @@ error:
 }
 
 static PyObject *
-Name_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+Name_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
 {
-    PyObject *res = type->tp_alloc(type, 0);
-    if (!res) {
+    Py_ssize_t posargs = PyTuple_GET_SIZE(pargs);
+    if (posargs > 2) {
+        PyErr_SetString(PyExc_TypeError,
+                        "Name takes at most 2 positional arguments");
         return NULL;
     }
+    identifier id = NULL;
+    expr_context_ty ctx = 0;
+    bool got_ctx = false;
+    int lineno = 0;
+    bool got_lineno = false;
+    int col_offset = 0;
+    bool got_col_offset = false;
+    int end_lineno = 0;
+    bool got_end_lineno = false;
+    int end_col_offset = 0;
+    bool got_end_col_offset = false;
+    PyObject *tmp;
     struct ast_state *state = get_ast_state();
-    struct _expr *self = (struct _expr*)res;
-    Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     switch (posargs) {
         case 2: {
-            PyObject *value = PyTuple_GET_ITEM(args, 1);
-            expr_context_ty out;
-            if (obj2imm_expr_context(state, value, &out) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 5);
+            if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                goto fail;
             }
-            self->v.Name.ctx = out;
+            got_end_col_offset = true;
         }
         // fallthrough
         case 1: {
-            PyObject *value = PyTuple_GET_ITEM(args, 0);
-            if (obj2imm_identifier(state, value, &self->v.Name.id) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 4);
+            if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                goto fail;
+            }
+            got_end_lineno = true;
+        }
+        // fallthrough
+        case 0: {
+            tmp = PyTuple_GET_ITEM(pargs, 3);
+            if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                goto fail;
+            }
+            got_col_offset = true;
+        }
+        // fallthrough
+        case -1: {
+            tmp = PyTuple_GET_ITEM(pargs, 2);
+            if (obj2imm_int(state, tmp, &lineno) < 0) {
+                goto fail;
+            }
+            got_lineno = true;
+        }
+        // fallthrough
+        case -2: {
+            tmp = PyTuple_GET_ITEM(pargs, 1);
+            if (obj2imm_expr_context(state, tmp, &ctx) < 0) {
+                goto fail;
+            }
+            got_ctx = true;
+        }
+        // fallthrough
+        case -3: {
+            tmp = PyTuple_GET_ITEM(pargs, 0);
+            if (obj2imm_identifier(state, tmp, &id) < 0) {
+                goto fail;
             }
         }
         // fallthrough
         default:
             break;
     }
-    return res;
+    if (kwargs != NULL && PyDict_Size(kwargs)) {
+        int err;
+        if (id != NULL) {
+            err = PyDict_PopString(kwargs, "id", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_identifier(state, tmp, &id) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_ctx) {
+            err = PyDict_PopString(kwargs, "ctx", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_expr_context(state, tmp, &ctx) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_lineno) {
+            err = PyDict_PopString(kwargs, "lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_col_offset) {
+            err = PyDict_PopString(kwargs, "col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_lineno) {
+            err = PyDict_PopString(kwargs, "end_lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_col_offset) {
+            err = PyDict_PopString(kwargs, "end_col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (PyDict_Size(kwargs)) {
+            Py_ssize_t pos = 0;
+            PyObject *key;
+            while (PyDict_Next(kwargs, &pos, &key, NULL)) {
+                PyErr_Format(PyExc_TypeError,
+                                "%.400s.__replace__ got an unexpected keyword "
+                                "argument '%U'.", pytype->tp_name, key);
+                goto fail;
+            }
+        }
+    }
+    struct _expr *res = (struct _expr*)pytype->tp_alloc(pytype, 0);
+    if (!res) goto fail;
+    res->v.Name.id = id;
+    res->v.Name.ctx = ctx;
+    res->lineno = lineno;
+    res->col_offset = col_offset;
+    res->end_lineno = end_lineno;
+    res->end_col_offset = end_col_offset;
+    return (PyObject *)res;
+fail:
+    Py_XDECREF(id);
+    return NULL;
 }
 
 static void Name_dealloc(PyObject *self) {
@@ -13149,39 +20069,157 @@ error:
 }
 
 static PyObject *
-List_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+List_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
 {
-    PyObject *res = type->tp_alloc(type, 0);
-    if (!res) {
+    Py_ssize_t posargs = PyTuple_GET_SIZE(pargs);
+    if (posargs > 2) {
+        PyErr_SetString(PyExc_TypeError,
+                        "List takes at most 2 positional arguments");
         return NULL;
     }
+    asdl_expr_seq* elts = NULL;
+    expr_context_ty ctx = 0;
+    bool got_ctx = false;
+    int lineno = 0;
+    bool got_lineno = false;
+    int col_offset = 0;
+    bool got_col_offset = false;
+    int end_lineno = 0;
+    bool got_end_lineno = false;
+    int end_col_offset = 0;
+    bool got_end_col_offset = false;
+    PyObject *tmp;
     struct ast_state *state = get_ast_state();
-    struct _expr *self = (struct _expr*)res;
-    Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     switch (posargs) {
         case 2: {
-            PyObject *value = PyTuple_GET_ITEM(args, 1);
-            expr_context_ty out;
-            if (obj2imm_expr_context(state, value, &out) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 5);
+            if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                goto fail;
             }
-            self->v.List.ctx = out;
+            got_end_col_offset = true;
         }
         // fallthrough
         case 1: {
-            PyObject *value = PyTuple_GET_ITEM(args, 0);
-            if (obj2imm_expr_seq(state, value, "", "elts", &self->v.List.elts)
-                < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 4);
+            if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                goto fail;
+            }
+            got_end_lineno = true;
+        }
+        // fallthrough
+        case 0: {
+            tmp = PyTuple_GET_ITEM(pargs, 3);
+            if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                goto fail;
+            }
+            got_col_offset = true;
+        }
+        // fallthrough
+        case -1: {
+            tmp = PyTuple_GET_ITEM(pargs, 2);
+            if (obj2imm_int(state, tmp, &lineno) < 0) {
+                goto fail;
+            }
+            got_lineno = true;
+        }
+        // fallthrough
+        case -2: {
+            tmp = PyTuple_GET_ITEM(pargs, 1);
+            if (obj2imm_expr_context(state, tmp, &ctx) < 0) {
+                goto fail;
+            }
+            got_ctx = true;
+        }
+        // fallthrough
+        case -3: {
+            tmp = PyTuple_GET_ITEM(pargs, 0);
+            if (obj2imm_expr_seq(state, tmp, "List", "elts", &elts) < 0) {
+                goto fail;
             }
         }
         // fallthrough
         default:
             break;
     }
-    return res;
+    if (kwargs != NULL && PyDict_Size(kwargs)) {
+        int err;
+        if (elts != NULL) {
+            err = PyDict_PopString(kwargs, "elts", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_expr_seq(state, tmp, "List", "elts", &elts) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_ctx) {
+            err = PyDict_PopString(kwargs, "ctx", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_expr_context(state, tmp, &ctx) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_lineno) {
+            err = PyDict_PopString(kwargs, "lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_col_offset) {
+            err = PyDict_PopString(kwargs, "col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_lineno) {
+            err = PyDict_PopString(kwargs, "end_lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_col_offset) {
+            err = PyDict_PopString(kwargs, "end_col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (PyDict_Size(kwargs)) {
+            Py_ssize_t pos = 0;
+            PyObject *key;
+            while (PyDict_Next(kwargs, &pos, &key, NULL)) {
+                PyErr_Format(PyExc_TypeError,
+                                "%.400s.__replace__ got an unexpected keyword "
+                                "argument '%U'.", pytype->tp_name, key);
+                goto fail;
+            }
+        }
+    }
+    struct _expr *res = (struct _expr*)pytype->tp_alloc(pytype, 0);
+    if (!res) goto fail;
+    res->v.List.elts = elts;
+    res->v.List.ctx = ctx;
+    res->lineno = lineno;
+    res->col_offset = col_offset;
+    res->end_lineno = end_lineno;
+    res->end_col_offset = end_col_offset;
+    return (PyObject *)res;
+fail:
+    Py_XDECREF(elts);
+    return NULL;
 }
 
 static void List_dealloc(PyObject *self) {
@@ -13238,39 +20276,157 @@ error:
 }
 
 static PyObject *
-Tuple_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+Tuple_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
 {
-    PyObject *res = type->tp_alloc(type, 0);
-    if (!res) {
+    Py_ssize_t posargs = PyTuple_GET_SIZE(pargs);
+    if (posargs > 2) {
+        PyErr_SetString(PyExc_TypeError,
+                        "Tuple takes at most 2 positional arguments");
         return NULL;
     }
+    asdl_expr_seq* elts = NULL;
+    expr_context_ty ctx = 0;
+    bool got_ctx = false;
+    int lineno = 0;
+    bool got_lineno = false;
+    int col_offset = 0;
+    bool got_col_offset = false;
+    int end_lineno = 0;
+    bool got_end_lineno = false;
+    int end_col_offset = 0;
+    bool got_end_col_offset = false;
+    PyObject *tmp;
     struct ast_state *state = get_ast_state();
-    struct _expr *self = (struct _expr*)res;
-    Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     switch (posargs) {
         case 2: {
-            PyObject *value = PyTuple_GET_ITEM(args, 1);
-            expr_context_ty out;
-            if (obj2imm_expr_context(state, value, &out) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 5);
+            if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                goto fail;
             }
-            self->v.Tuple.ctx = out;
+            got_end_col_offset = true;
         }
         // fallthrough
         case 1: {
-            PyObject *value = PyTuple_GET_ITEM(args, 0);
-            if (obj2imm_expr_seq(state, value, "", "elts", &self->v.Tuple.elts)
-                < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 4);
+            if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                goto fail;
+            }
+            got_end_lineno = true;
+        }
+        // fallthrough
+        case 0: {
+            tmp = PyTuple_GET_ITEM(pargs, 3);
+            if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                goto fail;
+            }
+            got_col_offset = true;
+        }
+        // fallthrough
+        case -1: {
+            tmp = PyTuple_GET_ITEM(pargs, 2);
+            if (obj2imm_int(state, tmp, &lineno) < 0) {
+                goto fail;
+            }
+            got_lineno = true;
+        }
+        // fallthrough
+        case -2: {
+            tmp = PyTuple_GET_ITEM(pargs, 1);
+            if (obj2imm_expr_context(state, tmp, &ctx) < 0) {
+                goto fail;
+            }
+            got_ctx = true;
+        }
+        // fallthrough
+        case -3: {
+            tmp = PyTuple_GET_ITEM(pargs, 0);
+            if (obj2imm_expr_seq(state, tmp, "Tuple", "elts", &elts) < 0) {
+                goto fail;
             }
         }
         // fallthrough
         default:
             break;
     }
-    return res;
+    if (kwargs != NULL && PyDict_Size(kwargs)) {
+        int err;
+        if (elts != NULL) {
+            err = PyDict_PopString(kwargs, "elts", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_expr_seq(state, tmp, "Tuple", "elts", &elts) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_ctx) {
+            err = PyDict_PopString(kwargs, "ctx", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_expr_context(state, tmp, &ctx) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_lineno) {
+            err = PyDict_PopString(kwargs, "lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_col_offset) {
+            err = PyDict_PopString(kwargs, "col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_lineno) {
+            err = PyDict_PopString(kwargs, "end_lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_col_offset) {
+            err = PyDict_PopString(kwargs, "end_col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (PyDict_Size(kwargs)) {
+            Py_ssize_t pos = 0;
+            PyObject *key;
+            while (PyDict_Next(kwargs, &pos, &key, NULL)) {
+                PyErr_Format(PyExc_TypeError,
+                                "%.400s.__replace__ got an unexpected keyword "
+                                "argument '%U'.", pytype->tp_name, key);
+                goto fail;
+            }
+        }
+    }
+    struct _expr *res = (struct _expr*)pytype->tp_alloc(pytype, 0);
+    if (!res) goto fail;
+    res->v.Tuple.elts = elts;
+    res->v.Tuple.ctx = ctx;
+    res->lineno = lineno;
+    res->col_offset = col_offset;
+    res->end_lineno = end_lineno;
+    res->end_col_offset = end_col_offset;
+    return (PyObject *)res;
+fail:
+    Py_XDECREF(elts);
+    return NULL;
 }
 
 static void Tuple_dealloc(PyObject *self) {
@@ -13328,44 +20484,175 @@ error:
 }
 
 static PyObject *
-Slice_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+Slice_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
 {
-    PyObject *res = type->tp_alloc(type, 0);
-    if (!res) {
+    Py_ssize_t posargs = PyTuple_GET_SIZE(pargs);
+    if (posargs > 3) {
+        PyErr_SetString(PyExc_TypeError,
+                        "Slice takes at most 3 positional arguments");
         return NULL;
     }
+    expr_ty lower = NULL;
+    expr_ty upper = NULL;
+    expr_ty step = NULL;
+    int lineno = 0;
+    bool got_lineno = false;
+    int col_offset = 0;
+    bool got_col_offset = false;
+    int end_lineno = 0;
+    bool got_end_lineno = false;
+    int end_col_offset = 0;
+    bool got_end_col_offset = false;
+    PyObject *tmp;
     struct ast_state *state = get_ast_state();
-    struct _expr *self = (struct _expr*)res;
-    Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     switch (posargs) {
         case 3: {
-            PyObject *value = PyTuple_GET_ITEM(args, 2);
-            if (obj2imm_expr(state, value, &self->v.Slice.step) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 6);
+            if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                goto fail;
             }
+            got_end_col_offset = true;
         }
         // fallthrough
         case 2: {
-            PyObject *value = PyTuple_GET_ITEM(args, 1);
-            if (obj2imm_expr(state, value, &self->v.Slice.upper) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 5);
+            if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                goto fail;
             }
+            got_end_lineno = true;
         }
         // fallthrough
         case 1: {
-            PyObject *value = PyTuple_GET_ITEM(args, 0);
-            if (obj2imm_expr(state, value, &self->v.Slice.lower) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 4);
+            if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                goto fail;
+            }
+            got_col_offset = true;
+        }
+        // fallthrough
+        case 0: {
+            tmp = PyTuple_GET_ITEM(pargs, 3);
+            if (obj2imm_int(state, tmp, &lineno) < 0) {
+                goto fail;
+            }
+            got_lineno = true;
+        }
+        // fallthrough
+        case -1: {
+            tmp = PyTuple_GET_ITEM(pargs, 2);
+            if (obj2imm_expr(state, tmp, &step) < 0) {
+                goto fail;
+            }
+        }
+        // fallthrough
+        case -2: {
+            tmp = PyTuple_GET_ITEM(pargs, 1);
+            if (obj2imm_expr(state, tmp, &upper) < 0) {
+                goto fail;
+            }
+        }
+        // fallthrough
+        case -3: {
+            tmp = PyTuple_GET_ITEM(pargs, 0);
+            if (obj2imm_expr(state, tmp, &lower) < 0) {
+                goto fail;
             }
         }
         // fallthrough
         default:
             break;
     }
-    return res;
+    if (kwargs != NULL && PyDict_Size(kwargs)) {
+        int err;
+        if (lower != NULL) {
+            err = PyDict_PopString(kwargs, "lower", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_expr(state, tmp, &lower) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (upper != NULL) {
+            err = PyDict_PopString(kwargs, "upper", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_expr(state, tmp, &upper) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (step != NULL) {
+            err = PyDict_PopString(kwargs, "step", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_expr(state, tmp, &step) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_lineno) {
+            err = PyDict_PopString(kwargs, "lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_col_offset) {
+            err = PyDict_PopString(kwargs, "col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_lineno) {
+            err = PyDict_PopString(kwargs, "end_lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_col_offset) {
+            err = PyDict_PopString(kwargs, "end_col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (PyDict_Size(kwargs)) {
+            Py_ssize_t pos = 0;
+            PyObject *key;
+            while (PyDict_Next(kwargs, &pos, &key, NULL)) {
+                PyErr_Format(PyExc_TypeError,
+                                "%.400s.__replace__ got an unexpected keyword "
+                                "argument '%U'.", pytype->tp_name, key);
+                goto fail;
+            }
+        }
+    }
+    struct _expr *res = (struct _expr*)pytype->tp_alloc(pytype, 0);
+    if (!res) goto fail;
+    res->v.Slice.lower = lower;
+    res->v.Slice.upper = upper;
+    res->v.Slice.step = step;
+    res->lineno = lineno;
+    res->col_offset = col_offset;
+    res->end_lineno = end_lineno;
+    res->end_col_offset = end_col_offset;
+    return (PyObject *)res;
+fail:
+    Py_XDECREF(lower);
+    Py_XDECREF(upper);
+    Py_XDECREF(step);
+    return NULL;
 }
 
 static void Slice_dealloc(PyObject *self) {
@@ -13504,13 +20791,82 @@ expr_ty _PyAst_expr_Copy(expr_ty node) {
 }
 
 static PyObject *
-expr_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+expr_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
 {
-    PyObject *res = type->tp_alloc(type, 0);
-    if (!res) {
+    Py_ssize_t posargs = PyTuple_GET_SIZE(pargs);
+    if (posargs > 0) {
+        PyErr_SetString(PyExc_TypeError,
+                        "expr takes at most 0 positional arguments");
         return NULL;
     }
-    return res;
+    int lineno = 0;
+    bool got_lineno = false;
+    int col_offset = 0;
+    bool got_col_offset = false;
+    int end_lineno = 0;
+    bool got_end_lineno = false;
+    int end_col_offset = 0;
+    bool got_end_col_offset = false;
+    PyObject *tmp;
+    struct ast_state *state = get_ast_state();
+    if (kwargs != NULL && PyDict_Size(kwargs)) {
+        int err;
+        if (!got_lineno) {
+            err = PyDict_PopString(kwargs, "lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_col_offset) {
+            err = PyDict_PopString(kwargs, "col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_lineno) {
+            err = PyDict_PopString(kwargs, "end_lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_col_offset) {
+            err = PyDict_PopString(kwargs, "end_col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (PyDict_Size(kwargs)) {
+            Py_ssize_t pos = 0;
+            PyObject *key;
+            while (PyDict_Next(kwargs, &pos, &key, NULL)) {
+                PyErr_Format(PyExc_TypeError,
+                                "%.400s.__replace__ got an unexpected keyword "
+                                "argument '%U'.", pytype->tp_name, key);
+                goto fail;
+            }
+        }
+    }
+    struct _expr *res = (struct _expr*)pytype->tp_alloc(pytype, 0);
+    if (!res) goto fail;
+    res->lineno = lineno;
+    res->col_offset = col_offset;
+    res->end_lineno = end_lineno;
+    res->end_col_offset = end_col_offset;
+    return (PyObject *)res;
+fail:
+    return NULL;
 }
 
 static void expr_dealloc(PyObject *self) {
@@ -13626,13 +20982,29 @@ asdl_expr_seq *_PyAst_expr_seq_Copy(asdl_expr_seq *seq) {
 }
 
 static PyObject *
-expr_context_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+expr_context_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
 {
-    PyObject *res = type->tp_alloc(type, 0);
-    if (!res) {
+    Py_ssize_t posargs = PyTuple_GET_SIZE(pargs);
+    if (posargs > 0) {
+        PyErr_SetString(PyExc_TypeError,
+                        "expr_context takes at most 0 positional arguments");
         return NULL;
     }
-    return res;
+    if (kwargs != NULL && PyDict_Size(kwargs)) {
+        if (PyDict_Size(kwargs)) {
+            Py_ssize_t pos = 0;
+            PyObject *key;
+            while (PyDict_Next(kwargs, &pos, &key, NULL)) {
+                PyErr_Format(PyExc_TypeError,
+                                "%.400s.__replace__ got an unexpected keyword "
+                                "argument '%U'.", pytype->tp_name, key);
+                goto fail;
+            }
+        }
+    }
+    return pytype->tp_alloc(pytype, 0);
+fail:
+    return NULL;
 }
 
 static void expr_context_dealloc(PyObject *self) {
@@ -13665,13 +21037,30 @@ static PyType_Spec _expr_context_type_spec = {
 
 
 static PyObject *
-Load_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+Load_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
 {
-    PyObject *res = type->tp_alloc(type, 0);
-    if (!res) {
+    Py_ssize_t posargs = PyTuple_GET_SIZE(pargs);
+    if (posargs > 0) {
+        PyErr_SetString(PyExc_TypeError,
+                        "Load takes at most 0 positional arguments");
         return NULL;
     }
-    return res;
+    if (kwargs != NULL && PyDict_Size(kwargs)) {
+        if (PyDict_Size(kwargs)) {
+            Py_ssize_t pos = 0;
+            PyObject *key;
+            while (PyDict_Next(kwargs, &pos, &key, NULL)) {
+                PyErr_Format(PyExc_TypeError,
+                                "%.400s.__replace__ got an unexpected keyword "
+                                "argument '%U'.", pytype->tp_name, key);
+                goto fail;
+            }
+        }
+    }
+    struct ast_state *state = get_ast_state();
+    return Py_NewRef(state->_Load_singleton);
+fail:
+    return NULL;
 }
 
 static void Load_dealloc(PyObject *self) {
@@ -13704,13 +21093,30 @@ static PyType_Spec _Load_type_spec = {
 
 
 static PyObject *
-Store_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+Store_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
 {
-    PyObject *res = type->tp_alloc(type, 0);
-    if (!res) {
+    Py_ssize_t posargs = PyTuple_GET_SIZE(pargs);
+    if (posargs > 0) {
+        PyErr_SetString(PyExc_TypeError,
+                        "Store takes at most 0 positional arguments");
         return NULL;
     }
-    return res;
+    if (kwargs != NULL && PyDict_Size(kwargs)) {
+        if (PyDict_Size(kwargs)) {
+            Py_ssize_t pos = 0;
+            PyObject *key;
+            while (PyDict_Next(kwargs, &pos, &key, NULL)) {
+                PyErr_Format(PyExc_TypeError,
+                                "%.400s.__replace__ got an unexpected keyword "
+                                "argument '%U'.", pytype->tp_name, key);
+                goto fail;
+            }
+        }
+    }
+    struct ast_state *state = get_ast_state();
+    return Py_NewRef(state->_Store_singleton);
+fail:
+    return NULL;
 }
 
 static void Store_dealloc(PyObject *self) {
@@ -13743,13 +21149,30 @@ static PyType_Spec _Store_type_spec = {
 
 
 static PyObject *
-Del_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+Del_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
 {
-    PyObject *res = type->tp_alloc(type, 0);
-    if (!res) {
+    Py_ssize_t posargs = PyTuple_GET_SIZE(pargs);
+    if (posargs > 0) {
+        PyErr_SetString(PyExc_TypeError,
+                        "Del takes at most 0 positional arguments");
         return NULL;
     }
-    return res;
+    if (kwargs != NULL && PyDict_Size(kwargs)) {
+        if (PyDict_Size(kwargs)) {
+            Py_ssize_t pos = 0;
+            PyObject *key;
+            while (PyDict_Next(kwargs, &pos, &key, NULL)) {
+                PyErr_Format(PyExc_TypeError,
+                                "%.400s.__replace__ got an unexpected keyword "
+                                "argument '%U'.", pytype->tp_name, key);
+                goto fail;
+            }
+        }
+    }
+    struct ast_state *state = get_ast_state();
+    return Py_NewRef(state->_Del_singleton);
+fail:
+    return NULL;
 }
 
 static void Del_dealloc(PyObject *self) {
@@ -13782,13 +21205,29 @@ static PyType_Spec _Del_type_spec = {
 
 
 static PyObject *
-boolop_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+boolop_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
 {
-    PyObject *res = type->tp_alloc(type, 0);
-    if (!res) {
+    Py_ssize_t posargs = PyTuple_GET_SIZE(pargs);
+    if (posargs > 0) {
+        PyErr_SetString(PyExc_TypeError,
+                        "boolop takes at most 0 positional arguments");
         return NULL;
     }
-    return res;
+    if (kwargs != NULL && PyDict_Size(kwargs)) {
+        if (PyDict_Size(kwargs)) {
+            Py_ssize_t pos = 0;
+            PyObject *key;
+            while (PyDict_Next(kwargs, &pos, &key, NULL)) {
+                PyErr_Format(PyExc_TypeError,
+                                "%.400s.__replace__ got an unexpected keyword "
+                                "argument '%U'.", pytype->tp_name, key);
+                goto fail;
+            }
+        }
+    }
+    return pytype->tp_alloc(pytype, 0);
+fail:
+    return NULL;
 }
 
 static void boolop_dealloc(PyObject *self) {
@@ -13821,13 +21260,30 @@ static PyType_Spec _boolop_type_spec = {
 
 
 static PyObject *
-And_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+And_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
 {
-    PyObject *res = type->tp_alloc(type, 0);
-    if (!res) {
+    Py_ssize_t posargs = PyTuple_GET_SIZE(pargs);
+    if (posargs > 0) {
+        PyErr_SetString(PyExc_TypeError,
+                        "And takes at most 0 positional arguments");
         return NULL;
     }
-    return res;
+    if (kwargs != NULL && PyDict_Size(kwargs)) {
+        if (PyDict_Size(kwargs)) {
+            Py_ssize_t pos = 0;
+            PyObject *key;
+            while (PyDict_Next(kwargs, &pos, &key, NULL)) {
+                PyErr_Format(PyExc_TypeError,
+                                "%.400s.__replace__ got an unexpected keyword "
+                                "argument '%U'.", pytype->tp_name, key);
+                goto fail;
+            }
+        }
+    }
+    struct ast_state *state = get_ast_state();
+    return Py_NewRef(state->_And_singleton);
+fail:
+    return NULL;
 }
 
 static void And_dealloc(PyObject *self) {
@@ -13860,13 +21316,30 @@ static PyType_Spec _And_type_spec = {
 
 
 static PyObject *
-Or_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+Or_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
 {
-    PyObject *res = type->tp_alloc(type, 0);
-    if (!res) {
+    Py_ssize_t posargs = PyTuple_GET_SIZE(pargs);
+    if (posargs > 0) {
+        PyErr_SetString(PyExc_TypeError,
+                        "Or takes at most 0 positional arguments");
         return NULL;
     }
-    return res;
+    if (kwargs != NULL && PyDict_Size(kwargs)) {
+        if (PyDict_Size(kwargs)) {
+            Py_ssize_t pos = 0;
+            PyObject *key;
+            while (PyDict_Next(kwargs, &pos, &key, NULL)) {
+                PyErr_Format(PyExc_TypeError,
+                                "%.400s.__replace__ got an unexpected keyword "
+                                "argument '%U'.", pytype->tp_name, key);
+                goto fail;
+            }
+        }
+    }
+    struct ast_state *state = get_ast_state();
+    return Py_NewRef(state->_Or_singleton);
+fail:
+    return NULL;
 }
 
 static void Or_dealloc(PyObject *self) {
@@ -13899,13 +21372,29 @@ static PyType_Spec _Or_type_spec = {
 
 
 static PyObject *
-operator_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+operator_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
 {
-    PyObject *res = type->tp_alloc(type, 0);
-    if (!res) {
+    Py_ssize_t posargs = PyTuple_GET_SIZE(pargs);
+    if (posargs > 0) {
+        PyErr_SetString(PyExc_TypeError,
+                        "operator takes at most 0 positional arguments");
         return NULL;
     }
-    return res;
+    if (kwargs != NULL && PyDict_Size(kwargs)) {
+        if (PyDict_Size(kwargs)) {
+            Py_ssize_t pos = 0;
+            PyObject *key;
+            while (PyDict_Next(kwargs, &pos, &key, NULL)) {
+                PyErr_Format(PyExc_TypeError,
+                                "%.400s.__replace__ got an unexpected keyword "
+                                "argument '%U'.", pytype->tp_name, key);
+                goto fail;
+            }
+        }
+    }
+    return pytype->tp_alloc(pytype, 0);
+fail:
+    return NULL;
 }
 
 static void operator_dealloc(PyObject *self) {
@@ -13938,13 +21427,30 @@ static PyType_Spec _operator_type_spec = {
 
 
 static PyObject *
-Add_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+Add_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
 {
-    PyObject *res = type->tp_alloc(type, 0);
-    if (!res) {
+    Py_ssize_t posargs = PyTuple_GET_SIZE(pargs);
+    if (posargs > 0) {
+        PyErr_SetString(PyExc_TypeError,
+                        "Add takes at most 0 positional arguments");
         return NULL;
     }
-    return res;
+    if (kwargs != NULL && PyDict_Size(kwargs)) {
+        if (PyDict_Size(kwargs)) {
+            Py_ssize_t pos = 0;
+            PyObject *key;
+            while (PyDict_Next(kwargs, &pos, &key, NULL)) {
+                PyErr_Format(PyExc_TypeError,
+                                "%.400s.__replace__ got an unexpected keyword "
+                                "argument '%U'.", pytype->tp_name, key);
+                goto fail;
+            }
+        }
+    }
+    struct ast_state *state = get_ast_state();
+    return Py_NewRef(state->_Add_singleton);
+fail:
+    return NULL;
 }
 
 static void Add_dealloc(PyObject *self) {
@@ -13977,13 +21483,30 @@ static PyType_Spec _Add_type_spec = {
 
 
 static PyObject *
-Sub_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+Sub_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
 {
-    PyObject *res = type->tp_alloc(type, 0);
-    if (!res) {
+    Py_ssize_t posargs = PyTuple_GET_SIZE(pargs);
+    if (posargs > 0) {
+        PyErr_SetString(PyExc_TypeError,
+                        "Sub takes at most 0 positional arguments");
         return NULL;
     }
-    return res;
+    if (kwargs != NULL && PyDict_Size(kwargs)) {
+        if (PyDict_Size(kwargs)) {
+            Py_ssize_t pos = 0;
+            PyObject *key;
+            while (PyDict_Next(kwargs, &pos, &key, NULL)) {
+                PyErr_Format(PyExc_TypeError,
+                                "%.400s.__replace__ got an unexpected keyword "
+                                "argument '%U'.", pytype->tp_name, key);
+                goto fail;
+            }
+        }
+    }
+    struct ast_state *state = get_ast_state();
+    return Py_NewRef(state->_Sub_singleton);
+fail:
+    return NULL;
 }
 
 static void Sub_dealloc(PyObject *self) {
@@ -14016,13 +21539,30 @@ static PyType_Spec _Sub_type_spec = {
 
 
 static PyObject *
-Mult_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+Mult_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
 {
-    PyObject *res = type->tp_alloc(type, 0);
-    if (!res) {
+    Py_ssize_t posargs = PyTuple_GET_SIZE(pargs);
+    if (posargs > 0) {
+        PyErr_SetString(PyExc_TypeError,
+                        "Mult takes at most 0 positional arguments");
         return NULL;
     }
-    return res;
+    if (kwargs != NULL && PyDict_Size(kwargs)) {
+        if (PyDict_Size(kwargs)) {
+            Py_ssize_t pos = 0;
+            PyObject *key;
+            while (PyDict_Next(kwargs, &pos, &key, NULL)) {
+                PyErr_Format(PyExc_TypeError,
+                                "%.400s.__replace__ got an unexpected keyword "
+                                "argument '%U'.", pytype->tp_name, key);
+                goto fail;
+            }
+        }
+    }
+    struct ast_state *state = get_ast_state();
+    return Py_NewRef(state->_Mult_singleton);
+fail:
+    return NULL;
 }
 
 static void Mult_dealloc(PyObject *self) {
@@ -14055,13 +21595,30 @@ static PyType_Spec _Mult_type_spec = {
 
 
 static PyObject *
-MatMult_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+MatMult_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
 {
-    PyObject *res = type->tp_alloc(type, 0);
-    if (!res) {
+    Py_ssize_t posargs = PyTuple_GET_SIZE(pargs);
+    if (posargs > 0) {
+        PyErr_SetString(PyExc_TypeError,
+                        "MatMult takes at most 0 positional arguments");
         return NULL;
     }
-    return res;
+    if (kwargs != NULL && PyDict_Size(kwargs)) {
+        if (PyDict_Size(kwargs)) {
+            Py_ssize_t pos = 0;
+            PyObject *key;
+            while (PyDict_Next(kwargs, &pos, &key, NULL)) {
+                PyErr_Format(PyExc_TypeError,
+                                "%.400s.__replace__ got an unexpected keyword "
+                                "argument '%U'.", pytype->tp_name, key);
+                goto fail;
+            }
+        }
+    }
+    struct ast_state *state = get_ast_state();
+    return Py_NewRef(state->_MatMult_singleton);
+fail:
+    return NULL;
 }
 
 static void MatMult_dealloc(PyObject *self) {
@@ -14094,13 +21651,30 @@ static PyType_Spec _MatMult_type_spec = {
 
 
 static PyObject *
-Div_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+Div_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
 {
-    PyObject *res = type->tp_alloc(type, 0);
-    if (!res) {
+    Py_ssize_t posargs = PyTuple_GET_SIZE(pargs);
+    if (posargs > 0) {
+        PyErr_SetString(PyExc_TypeError,
+                        "Div takes at most 0 positional arguments");
         return NULL;
     }
-    return res;
+    if (kwargs != NULL && PyDict_Size(kwargs)) {
+        if (PyDict_Size(kwargs)) {
+            Py_ssize_t pos = 0;
+            PyObject *key;
+            while (PyDict_Next(kwargs, &pos, &key, NULL)) {
+                PyErr_Format(PyExc_TypeError,
+                                "%.400s.__replace__ got an unexpected keyword "
+                                "argument '%U'.", pytype->tp_name, key);
+                goto fail;
+            }
+        }
+    }
+    struct ast_state *state = get_ast_state();
+    return Py_NewRef(state->_Div_singleton);
+fail:
+    return NULL;
 }
 
 static void Div_dealloc(PyObject *self) {
@@ -14133,13 +21707,30 @@ static PyType_Spec _Div_type_spec = {
 
 
 static PyObject *
-Mod_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+Mod_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
 {
-    PyObject *res = type->tp_alloc(type, 0);
-    if (!res) {
+    Py_ssize_t posargs = PyTuple_GET_SIZE(pargs);
+    if (posargs > 0) {
+        PyErr_SetString(PyExc_TypeError,
+                        "Mod takes at most 0 positional arguments");
         return NULL;
     }
-    return res;
+    if (kwargs != NULL && PyDict_Size(kwargs)) {
+        if (PyDict_Size(kwargs)) {
+            Py_ssize_t pos = 0;
+            PyObject *key;
+            while (PyDict_Next(kwargs, &pos, &key, NULL)) {
+                PyErr_Format(PyExc_TypeError,
+                                "%.400s.__replace__ got an unexpected keyword "
+                                "argument '%U'.", pytype->tp_name, key);
+                goto fail;
+            }
+        }
+    }
+    struct ast_state *state = get_ast_state();
+    return Py_NewRef(state->_Mod_singleton);
+fail:
+    return NULL;
 }
 
 static void Mod_dealloc(PyObject *self) {
@@ -14172,13 +21763,30 @@ static PyType_Spec _Mod_type_spec = {
 
 
 static PyObject *
-Pow_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+Pow_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
 {
-    PyObject *res = type->tp_alloc(type, 0);
-    if (!res) {
+    Py_ssize_t posargs = PyTuple_GET_SIZE(pargs);
+    if (posargs > 0) {
+        PyErr_SetString(PyExc_TypeError,
+                        "Pow takes at most 0 positional arguments");
         return NULL;
     }
-    return res;
+    if (kwargs != NULL && PyDict_Size(kwargs)) {
+        if (PyDict_Size(kwargs)) {
+            Py_ssize_t pos = 0;
+            PyObject *key;
+            while (PyDict_Next(kwargs, &pos, &key, NULL)) {
+                PyErr_Format(PyExc_TypeError,
+                                "%.400s.__replace__ got an unexpected keyword "
+                                "argument '%U'.", pytype->tp_name, key);
+                goto fail;
+            }
+        }
+    }
+    struct ast_state *state = get_ast_state();
+    return Py_NewRef(state->_Pow_singleton);
+fail:
+    return NULL;
 }
 
 static void Pow_dealloc(PyObject *self) {
@@ -14211,13 +21819,30 @@ static PyType_Spec _Pow_type_spec = {
 
 
 static PyObject *
-LShift_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+LShift_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
 {
-    PyObject *res = type->tp_alloc(type, 0);
-    if (!res) {
+    Py_ssize_t posargs = PyTuple_GET_SIZE(pargs);
+    if (posargs > 0) {
+        PyErr_SetString(PyExc_TypeError,
+                        "LShift takes at most 0 positional arguments");
         return NULL;
     }
-    return res;
+    if (kwargs != NULL && PyDict_Size(kwargs)) {
+        if (PyDict_Size(kwargs)) {
+            Py_ssize_t pos = 0;
+            PyObject *key;
+            while (PyDict_Next(kwargs, &pos, &key, NULL)) {
+                PyErr_Format(PyExc_TypeError,
+                                "%.400s.__replace__ got an unexpected keyword "
+                                "argument '%U'.", pytype->tp_name, key);
+                goto fail;
+            }
+        }
+    }
+    struct ast_state *state = get_ast_state();
+    return Py_NewRef(state->_LShift_singleton);
+fail:
+    return NULL;
 }
 
 static void LShift_dealloc(PyObject *self) {
@@ -14250,13 +21875,30 @@ static PyType_Spec _LShift_type_spec = {
 
 
 static PyObject *
-RShift_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+RShift_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
 {
-    PyObject *res = type->tp_alloc(type, 0);
-    if (!res) {
+    Py_ssize_t posargs = PyTuple_GET_SIZE(pargs);
+    if (posargs > 0) {
+        PyErr_SetString(PyExc_TypeError,
+                        "RShift takes at most 0 positional arguments");
         return NULL;
     }
-    return res;
+    if (kwargs != NULL && PyDict_Size(kwargs)) {
+        if (PyDict_Size(kwargs)) {
+            Py_ssize_t pos = 0;
+            PyObject *key;
+            while (PyDict_Next(kwargs, &pos, &key, NULL)) {
+                PyErr_Format(PyExc_TypeError,
+                                "%.400s.__replace__ got an unexpected keyword "
+                                "argument '%U'.", pytype->tp_name, key);
+                goto fail;
+            }
+        }
+    }
+    struct ast_state *state = get_ast_state();
+    return Py_NewRef(state->_RShift_singleton);
+fail:
+    return NULL;
 }
 
 static void RShift_dealloc(PyObject *self) {
@@ -14289,13 +21931,30 @@ static PyType_Spec _RShift_type_spec = {
 
 
 static PyObject *
-BitOr_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+BitOr_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
 {
-    PyObject *res = type->tp_alloc(type, 0);
-    if (!res) {
+    Py_ssize_t posargs = PyTuple_GET_SIZE(pargs);
+    if (posargs > 0) {
+        PyErr_SetString(PyExc_TypeError,
+                        "BitOr takes at most 0 positional arguments");
         return NULL;
     }
-    return res;
+    if (kwargs != NULL && PyDict_Size(kwargs)) {
+        if (PyDict_Size(kwargs)) {
+            Py_ssize_t pos = 0;
+            PyObject *key;
+            while (PyDict_Next(kwargs, &pos, &key, NULL)) {
+                PyErr_Format(PyExc_TypeError,
+                                "%.400s.__replace__ got an unexpected keyword "
+                                "argument '%U'.", pytype->tp_name, key);
+                goto fail;
+            }
+        }
+    }
+    struct ast_state *state = get_ast_state();
+    return Py_NewRef(state->_BitOr_singleton);
+fail:
+    return NULL;
 }
 
 static void BitOr_dealloc(PyObject *self) {
@@ -14328,13 +21987,30 @@ static PyType_Spec _BitOr_type_spec = {
 
 
 static PyObject *
-BitXor_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+BitXor_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
 {
-    PyObject *res = type->tp_alloc(type, 0);
-    if (!res) {
+    Py_ssize_t posargs = PyTuple_GET_SIZE(pargs);
+    if (posargs > 0) {
+        PyErr_SetString(PyExc_TypeError,
+                        "BitXor takes at most 0 positional arguments");
         return NULL;
     }
-    return res;
+    if (kwargs != NULL && PyDict_Size(kwargs)) {
+        if (PyDict_Size(kwargs)) {
+            Py_ssize_t pos = 0;
+            PyObject *key;
+            while (PyDict_Next(kwargs, &pos, &key, NULL)) {
+                PyErr_Format(PyExc_TypeError,
+                                "%.400s.__replace__ got an unexpected keyword "
+                                "argument '%U'.", pytype->tp_name, key);
+                goto fail;
+            }
+        }
+    }
+    struct ast_state *state = get_ast_state();
+    return Py_NewRef(state->_BitXor_singleton);
+fail:
+    return NULL;
 }
 
 static void BitXor_dealloc(PyObject *self) {
@@ -14367,13 +22043,30 @@ static PyType_Spec _BitXor_type_spec = {
 
 
 static PyObject *
-BitAnd_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+BitAnd_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
 {
-    PyObject *res = type->tp_alloc(type, 0);
-    if (!res) {
+    Py_ssize_t posargs = PyTuple_GET_SIZE(pargs);
+    if (posargs > 0) {
+        PyErr_SetString(PyExc_TypeError,
+                        "BitAnd takes at most 0 positional arguments");
         return NULL;
     }
-    return res;
+    if (kwargs != NULL && PyDict_Size(kwargs)) {
+        if (PyDict_Size(kwargs)) {
+            Py_ssize_t pos = 0;
+            PyObject *key;
+            while (PyDict_Next(kwargs, &pos, &key, NULL)) {
+                PyErr_Format(PyExc_TypeError,
+                                "%.400s.__replace__ got an unexpected keyword "
+                                "argument '%U'.", pytype->tp_name, key);
+                goto fail;
+            }
+        }
+    }
+    struct ast_state *state = get_ast_state();
+    return Py_NewRef(state->_BitAnd_singleton);
+fail:
+    return NULL;
 }
 
 static void BitAnd_dealloc(PyObject *self) {
@@ -14406,13 +22099,30 @@ static PyType_Spec _BitAnd_type_spec = {
 
 
 static PyObject *
-FloorDiv_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+FloorDiv_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
 {
-    PyObject *res = type->tp_alloc(type, 0);
-    if (!res) {
+    Py_ssize_t posargs = PyTuple_GET_SIZE(pargs);
+    if (posargs > 0) {
+        PyErr_SetString(PyExc_TypeError,
+                        "FloorDiv takes at most 0 positional arguments");
         return NULL;
     }
-    return res;
+    if (kwargs != NULL && PyDict_Size(kwargs)) {
+        if (PyDict_Size(kwargs)) {
+            Py_ssize_t pos = 0;
+            PyObject *key;
+            while (PyDict_Next(kwargs, &pos, &key, NULL)) {
+                PyErr_Format(PyExc_TypeError,
+                                "%.400s.__replace__ got an unexpected keyword "
+                                "argument '%U'.", pytype->tp_name, key);
+                goto fail;
+            }
+        }
+    }
+    struct ast_state *state = get_ast_state();
+    return Py_NewRef(state->_FloorDiv_singleton);
+fail:
+    return NULL;
 }
 
 static void FloorDiv_dealloc(PyObject *self) {
@@ -14445,13 +22155,29 @@ static PyType_Spec _FloorDiv_type_spec = {
 
 
 static PyObject *
-unaryop_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+unaryop_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
 {
-    PyObject *res = type->tp_alloc(type, 0);
-    if (!res) {
+    Py_ssize_t posargs = PyTuple_GET_SIZE(pargs);
+    if (posargs > 0) {
+        PyErr_SetString(PyExc_TypeError,
+                        "unaryop takes at most 0 positional arguments");
         return NULL;
     }
-    return res;
+    if (kwargs != NULL && PyDict_Size(kwargs)) {
+        if (PyDict_Size(kwargs)) {
+            Py_ssize_t pos = 0;
+            PyObject *key;
+            while (PyDict_Next(kwargs, &pos, &key, NULL)) {
+                PyErr_Format(PyExc_TypeError,
+                                "%.400s.__replace__ got an unexpected keyword "
+                                "argument '%U'.", pytype->tp_name, key);
+                goto fail;
+            }
+        }
+    }
+    return pytype->tp_alloc(pytype, 0);
+fail:
+    return NULL;
 }
 
 static void unaryop_dealloc(PyObject *self) {
@@ -14484,13 +22210,30 @@ static PyType_Spec _unaryop_type_spec = {
 
 
 static PyObject *
-Invert_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+Invert_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
 {
-    PyObject *res = type->tp_alloc(type, 0);
-    if (!res) {
+    Py_ssize_t posargs = PyTuple_GET_SIZE(pargs);
+    if (posargs > 0) {
+        PyErr_SetString(PyExc_TypeError,
+                        "Invert takes at most 0 positional arguments");
         return NULL;
     }
-    return res;
+    if (kwargs != NULL && PyDict_Size(kwargs)) {
+        if (PyDict_Size(kwargs)) {
+            Py_ssize_t pos = 0;
+            PyObject *key;
+            while (PyDict_Next(kwargs, &pos, &key, NULL)) {
+                PyErr_Format(PyExc_TypeError,
+                                "%.400s.__replace__ got an unexpected keyword "
+                                "argument '%U'.", pytype->tp_name, key);
+                goto fail;
+            }
+        }
+    }
+    struct ast_state *state = get_ast_state();
+    return Py_NewRef(state->_Invert_singleton);
+fail:
+    return NULL;
 }
 
 static void Invert_dealloc(PyObject *self) {
@@ -14523,13 +22266,30 @@ static PyType_Spec _Invert_type_spec = {
 
 
 static PyObject *
-Not_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+Not_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
 {
-    PyObject *res = type->tp_alloc(type, 0);
-    if (!res) {
+    Py_ssize_t posargs = PyTuple_GET_SIZE(pargs);
+    if (posargs > 0) {
+        PyErr_SetString(PyExc_TypeError,
+                        "Not takes at most 0 positional arguments");
         return NULL;
     }
-    return res;
+    if (kwargs != NULL && PyDict_Size(kwargs)) {
+        if (PyDict_Size(kwargs)) {
+            Py_ssize_t pos = 0;
+            PyObject *key;
+            while (PyDict_Next(kwargs, &pos, &key, NULL)) {
+                PyErr_Format(PyExc_TypeError,
+                                "%.400s.__replace__ got an unexpected keyword "
+                                "argument '%U'.", pytype->tp_name, key);
+                goto fail;
+            }
+        }
+    }
+    struct ast_state *state = get_ast_state();
+    return Py_NewRef(state->_Not_singleton);
+fail:
+    return NULL;
 }
 
 static void Not_dealloc(PyObject *self) {
@@ -14562,13 +22322,30 @@ static PyType_Spec _Not_type_spec = {
 
 
 static PyObject *
-UAdd_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+UAdd_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
 {
-    PyObject *res = type->tp_alloc(type, 0);
-    if (!res) {
+    Py_ssize_t posargs = PyTuple_GET_SIZE(pargs);
+    if (posargs > 0) {
+        PyErr_SetString(PyExc_TypeError,
+                        "UAdd takes at most 0 positional arguments");
         return NULL;
     }
-    return res;
+    if (kwargs != NULL && PyDict_Size(kwargs)) {
+        if (PyDict_Size(kwargs)) {
+            Py_ssize_t pos = 0;
+            PyObject *key;
+            while (PyDict_Next(kwargs, &pos, &key, NULL)) {
+                PyErr_Format(PyExc_TypeError,
+                                "%.400s.__replace__ got an unexpected keyword "
+                                "argument '%U'.", pytype->tp_name, key);
+                goto fail;
+            }
+        }
+    }
+    struct ast_state *state = get_ast_state();
+    return Py_NewRef(state->_UAdd_singleton);
+fail:
+    return NULL;
 }
 
 static void UAdd_dealloc(PyObject *self) {
@@ -14601,13 +22378,30 @@ static PyType_Spec _UAdd_type_spec = {
 
 
 static PyObject *
-USub_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+USub_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
 {
-    PyObject *res = type->tp_alloc(type, 0);
-    if (!res) {
+    Py_ssize_t posargs = PyTuple_GET_SIZE(pargs);
+    if (posargs > 0) {
+        PyErr_SetString(PyExc_TypeError,
+                        "USub takes at most 0 positional arguments");
         return NULL;
     }
-    return res;
+    if (kwargs != NULL && PyDict_Size(kwargs)) {
+        if (PyDict_Size(kwargs)) {
+            Py_ssize_t pos = 0;
+            PyObject *key;
+            while (PyDict_Next(kwargs, &pos, &key, NULL)) {
+                PyErr_Format(PyExc_TypeError,
+                                "%.400s.__replace__ got an unexpected keyword "
+                                "argument '%U'.", pytype->tp_name, key);
+                goto fail;
+            }
+        }
+    }
+    struct ast_state *state = get_ast_state();
+    return Py_NewRef(state->_USub_singleton);
+fail:
+    return NULL;
 }
 
 static void USub_dealloc(PyObject *self) {
@@ -14640,13 +22434,29 @@ static PyType_Spec _USub_type_spec = {
 
 
 static PyObject *
-cmpop_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+cmpop_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
 {
-    PyObject *res = type->tp_alloc(type, 0);
-    if (!res) {
+    Py_ssize_t posargs = PyTuple_GET_SIZE(pargs);
+    if (posargs > 0) {
+        PyErr_SetString(PyExc_TypeError,
+                        "cmpop takes at most 0 positional arguments");
         return NULL;
     }
-    return res;
+    if (kwargs != NULL && PyDict_Size(kwargs)) {
+        if (PyDict_Size(kwargs)) {
+            Py_ssize_t pos = 0;
+            PyObject *key;
+            while (PyDict_Next(kwargs, &pos, &key, NULL)) {
+                PyErr_Format(PyExc_TypeError,
+                                "%.400s.__replace__ got an unexpected keyword "
+                                "argument '%U'.", pytype->tp_name, key);
+                goto fail;
+            }
+        }
+    }
+    return pytype->tp_alloc(pytype, 0);
+fail:
+    return NULL;
 }
 
 static void cmpop_dealloc(PyObject *self) {
@@ -14679,13 +22489,30 @@ static PyType_Spec _cmpop_type_spec = {
 
 
 static PyObject *
-Eq_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+Eq_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
 {
-    PyObject *res = type->tp_alloc(type, 0);
-    if (!res) {
+    Py_ssize_t posargs = PyTuple_GET_SIZE(pargs);
+    if (posargs > 0) {
+        PyErr_SetString(PyExc_TypeError,
+                        "Eq takes at most 0 positional arguments");
         return NULL;
     }
-    return res;
+    if (kwargs != NULL && PyDict_Size(kwargs)) {
+        if (PyDict_Size(kwargs)) {
+            Py_ssize_t pos = 0;
+            PyObject *key;
+            while (PyDict_Next(kwargs, &pos, &key, NULL)) {
+                PyErr_Format(PyExc_TypeError,
+                                "%.400s.__replace__ got an unexpected keyword "
+                                "argument '%U'.", pytype->tp_name, key);
+                goto fail;
+            }
+        }
+    }
+    struct ast_state *state = get_ast_state();
+    return Py_NewRef(state->_Eq_singleton);
+fail:
+    return NULL;
 }
 
 static void Eq_dealloc(PyObject *self) {
@@ -14718,13 +22545,30 @@ static PyType_Spec _Eq_type_spec = {
 
 
 static PyObject *
-NotEq_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+NotEq_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
 {
-    PyObject *res = type->tp_alloc(type, 0);
-    if (!res) {
+    Py_ssize_t posargs = PyTuple_GET_SIZE(pargs);
+    if (posargs > 0) {
+        PyErr_SetString(PyExc_TypeError,
+                        "NotEq takes at most 0 positional arguments");
         return NULL;
     }
-    return res;
+    if (kwargs != NULL && PyDict_Size(kwargs)) {
+        if (PyDict_Size(kwargs)) {
+            Py_ssize_t pos = 0;
+            PyObject *key;
+            while (PyDict_Next(kwargs, &pos, &key, NULL)) {
+                PyErr_Format(PyExc_TypeError,
+                                "%.400s.__replace__ got an unexpected keyword "
+                                "argument '%U'.", pytype->tp_name, key);
+                goto fail;
+            }
+        }
+    }
+    struct ast_state *state = get_ast_state();
+    return Py_NewRef(state->_NotEq_singleton);
+fail:
+    return NULL;
 }
 
 static void NotEq_dealloc(PyObject *self) {
@@ -14757,13 +22601,30 @@ static PyType_Spec _NotEq_type_spec = {
 
 
 static PyObject *
-Lt_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+Lt_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
 {
-    PyObject *res = type->tp_alloc(type, 0);
-    if (!res) {
+    Py_ssize_t posargs = PyTuple_GET_SIZE(pargs);
+    if (posargs > 0) {
+        PyErr_SetString(PyExc_TypeError,
+                        "Lt takes at most 0 positional arguments");
         return NULL;
     }
-    return res;
+    if (kwargs != NULL && PyDict_Size(kwargs)) {
+        if (PyDict_Size(kwargs)) {
+            Py_ssize_t pos = 0;
+            PyObject *key;
+            while (PyDict_Next(kwargs, &pos, &key, NULL)) {
+                PyErr_Format(PyExc_TypeError,
+                                "%.400s.__replace__ got an unexpected keyword "
+                                "argument '%U'.", pytype->tp_name, key);
+                goto fail;
+            }
+        }
+    }
+    struct ast_state *state = get_ast_state();
+    return Py_NewRef(state->_Lt_singleton);
+fail:
+    return NULL;
 }
 
 static void Lt_dealloc(PyObject *self) {
@@ -14796,13 +22657,30 @@ static PyType_Spec _Lt_type_spec = {
 
 
 static PyObject *
-LtE_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+LtE_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
 {
-    PyObject *res = type->tp_alloc(type, 0);
-    if (!res) {
+    Py_ssize_t posargs = PyTuple_GET_SIZE(pargs);
+    if (posargs > 0) {
+        PyErr_SetString(PyExc_TypeError,
+                        "LtE takes at most 0 positional arguments");
         return NULL;
     }
-    return res;
+    if (kwargs != NULL && PyDict_Size(kwargs)) {
+        if (PyDict_Size(kwargs)) {
+            Py_ssize_t pos = 0;
+            PyObject *key;
+            while (PyDict_Next(kwargs, &pos, &key, NULL)) {
+                PyErr_Format(PyExc_TypeError,
+                                "%.400s.__replace__ got an unexpected keyword "
+                                "argument '%U'.", pytype->tp_name, key);
+                goto fail;
+            }
+        }
+    }
+    struct ast_state *state = get_ast_state();
+    return Py_NewRef(state->_LtE_singleton);
+fail:
+    return NULL;
 }
 
 static void LtE_dealloc(PyObject *self) {
@@ -14835,13 +22713,30 @@ static PyType_Spec _LtE_type_spec = {
 
 
 static PyObject *
-Gt_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+Gt_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
 {
-    PyObject *res = type->tp_alloc(type, 0);
-    if (!res) {
+    Py_ssize_t posargs = PyTuple_GET_SIZE(pargs);
+    if (posargs > 0) {
+        PyErr_SetString(PyExc_TypeError,
+                        "Gt takes at most 0 positional arguments");
         return NULL;
     }
-    return res;
+    if (kwargs != NULL && PyDict_Size(kwargs)) {
+        if (PyDict_Size(kwargs)) {
+            Py_ssize_t pos = 0;
+            PyObject *key;
+            while (PyDict_Next(kwargs, &pos, &key, NULL)) {
+                PyErr_Format(PyExc_TypeError,
+                                "%.400s.__replace__ got an unexpected keyword "
+                                "argument '%U'.", pytype->tp_name, key);
+                goto fail;
+            }
+        }
+    }
+    struct ast_state *state = get_ast_state();
+    return Py_NewRef(state->_Gt_singleton);
+fail:
+    return NULL;
 }
 
 static void Gt_dealloc(PyObject *self) {
@@ -14874,13 +22769,30 @@ static PyType_Spec _Gt_type_spec = {
 
 
 static PyObject *
-GtE_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+GtE_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
 {
-    PyObject *res = type->tp_alloc(type, 0);
-    if (!res) {
+    Py_ssize_t posargs = PyTuple_GET_SIZE(pargs);
+    if (posargs > 0) {
+        PyErr_SetString(PyExc_TypeError,
+                        "GtE takes at most 0 positional arguments");
         return NULL;
     }
-    return res;
+    if (kwargs != NULL && PyDict_Size(kwargs)) {
+        if (PyDict_Size(kwargs)) {
+            Py_ssize_t pos = 0;
+            PyObject *key;
+            while (PyDict_Next(kwargs, &pos, &key, NULL)) {
+                PyErr_Format(PyExc_TypeError,
+                                "%.400s.__replace__ got an unexpected keyword "
+                                "argument '%U'.", pytype->tp_name, key);
+                goto fail;
+            }
+        }
+    }
+    struct ast_state *state = get_ast_state();
+    return Py_NewRef(state->_GtE_singleton);
+fail:
+    return NULL;
 }
 
 static void GtE_dealloc(PyObject *self) {
@@ -14913,13 +22825,30 @@ static PyType_Spec _GtE_type_spec = {
 
 
 static PyObject *
-Is_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+Is_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
 {
-    PyObject *res = type->tp_alloc(type, 0);
-    if (!res) {
+    Py_ssize_t posargs = PyTuple_GET_SIZE(pargs);
+    if (posargs > 0) {
+        PyErr_SetString(PyExc_TypeError,
+                        "Is takes at most 0 positional arguments");
         return NULL;
     }
-    return res;
+    if (kwargs != NULL && PyDict_Size(kwargs)) {
+        if (PyDict_Size(kwargs)) {
+            Py_ssize_t pos = 0;
+            PyObject *key;
+            while (PyDict_Next(kwargs, &pos, &key, NULL)) {
+                PyErr_Format(PyExc_TypeError,
+                                "%.400s.__replace__ got an unexpected keyword "
+                                "argument '%U'.", pytype->tp_name, key);
+                goto fail;
+            }
+        }
+    }
+    struct ast_state *state = get_ast_state();
+    return Py_NewRef(state->_Is_singleton);
+fail:
+    return NULL;
 }
 
 static void Is_dealloc(PyObject *self) {
@@ -14952,13 +22881,30 @@ static PyType_Spec _Is_type_spec = {
 
 
 static PyObject *
-IsNot_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+IsNot_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
 {
-    PyObject *res = type->tp_alloc(type, 0);
-    if (!res) {
+    Py_ssize_t posargs = PyTuple_GET_SIZE(pargs);
+    if (posargs > 0) {
+        PyErr_SetString(PyExc_TypeError,
+                        "IsNot takes at most 0 positional arguments");
         return NULL;
     }
-    return res;
+    if (kwargs != NULL && PyDict_Size(kwargs)) {
+        if (PyDict_Size(kwargs)) {
+            Py_ssize_t pos = 0;
+            PyObject *key;
+            while (PyDict_Next(kwargs, &pos, &key, NULL)) {
+                PyErr_Format(PyExc_TypeError,
+                                "%.400s.__replace__ got an unexpected keyword "
+                                "argument '%U'.", pytype->tp_name, key);
+                goto fail;
+            }
+        }
+    }
+    struct ast_state *state = get_ast_state();
+    return Py_NewRef(state->_IsNot_singleton);
+fail:
+    return NULL;
 }
 
 static void IsNot_dealloc(PyObject *self) {
@@ -14991,13 +22937,30 @@ static PyType_Spec _IsNot_type_spec = {
 
 
 static PyObject *
-In_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+In_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
 {
-    PyObject *res = type->tp_alloc(type, 0);
-    if (!res) {
+    Py_ssize_t posargs = PyTuple_GET_SIZE(pargs);
+    if (posargs > 0) {
+        PyErr_SetString(PyExc_TypeError,
+                        "In takes at most 0 positional arguments");
         return NULL;
     }
-    return res;
+    if (kwargs != NULL && PyDict_Size(kwargs)) {
+        if (PyDict_Size(kwargs)) {
+            Py_ssize_t pos = 0;
+            PyObject *key;
+            while (PyDict_Next(kwargs, &pos, &key, NULL)) {
+                PyErr_Format(PyExc_TypeError,
+                                "%.400s.__replace__ got an unexpected keyword "
+                                "argument '%U'.", pytype->tp_name, key);
+                goto fail;
+            }
+        }
+    }
+    struct ast_state *state = get_ast_state();
+    return Py_NewRef(state->_In_singleton);
+fail:
+    return NULL;
 }
 
 static void In_dealloc(PyObject *self) {
@@ -15030,13 +22993,30 @@ static PyType_Spec _In_type_spec = {
 
 
 static PyObject *
-NotIn_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+NotIn_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
 {
-    PyObject *res = type->tp_alloc(type, 0);
-    if (!res) {
+    Py_ssize_t posargs = PyTuple_GET_SIZE(pargs);
+    if (posargs > 0) {
+        PyErr_SetString(PyExc_TypeError,
+                        "NotIn takes at most 0 positional arguments");
         return NULL;
     }
-    return res;
+    if (kwargs != NULL && PyDict_Size(kwargs)) {
+        if (PyDict_Size(kwargs)) {
+            Py_ssize_t pos = 0;
+            PyObject *key;
+            while (PyDict_Next(kwargs, &pos, &key, NULL)) {
+                PyErr_Format(PyExc_TypeError,
+                                "%.400s.__replace__ got an unexpected keyword "
+                                "argument '%U'.", pytype->tp_name, key);
+                goto fail;
+            }
+        }
+    }
+    struct ast_state *state = get_ast_state();
+    return Py_NewRef(state->_NotIn_singleton);
+fail:
+    return NULL;
 }
 
 static void NotIn_dealloc(PyObject *self) {
@@ -15126,54 +23106,118 @@ asdl_comprehension_seq *_PyAst_comprehension_seq_Copy(asdl_comprehension_seq
 }
 
 static PyObject *
-comprehension_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+comprehension_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
 {
-    PyObject *res = type->tp_alloc(type, 0);
-    if (!res) {
+    Py_ssize_t posargs = PyTuple_GET_SIZE(pargs);
+    if (posargs > 4) {
+        PyErr_SetString(PyExc_TypeError,
+                        "comprehension takes at most 4 positional arguments");
         return NULL;
     }
+    expr_ty target = NULL;
+    expr_ty iter = NULL;
+    asdl_expr_seq* ifs = NULL;
+    int is_async = 0;
+    bool got_is_async = false;
+    PyObject *tmp;
     struct ast_state *state = get_ast_state();
-    struct _comprehension *self = (struct _comprehension*)res;
-    Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     switch (posargs) {
         case 4: {
-            PyObject *value = PyTuple_GET_ITEM(args, 3);
-            int out;
-            if (obj2imm_int(state, value, &out) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 3);
+            if (obj2imm_int(state, tmp, &is_async) < 0) {
+                goto fail;
             }
-            self->is_async = out;
+            got_is_async = true;
         }
         // fallthrough
         case 3: {
-            PyObject *value = PyTuple_GET_ITEM(args, 2);
-            if (obj2imm_expr_seq(state, value, "", "ifs", &self->ifs) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 2);
+            if (obj2imm_expr_seq(state, tmp, "comprehension", "ifs", &ifs) < 0)
+                {
+                goto fail;
             }
         }
         // fallthrough
         case 2: {
-            PyObject *value = PyTuple_GET_ITEM(args, 1);
-            if (obj2imm_expr(state, value, &self->iter) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 1);
+            if (obj2imm_expr(state, tmp, &iter) < 0) {
+                goto fail;
             }
         }
         // fallthrough
         case 1: {
-            PyObject *value = PyTuple_GET_ITEM(args, 0);
-            if (obj2imm_expr(state, value, &self->target) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 0);
+            if (obj2imm_expr(state, tmp, &target) < 0) {
+                goto fail;
             }
         }
         // fallthrough
         default:
             break;
     }
-    return res;
+    if (kwargs != NULL && PyDict_Size(kwargs)) {
+        int err;
+        if (target != NULL) {
+            err = PyDict_PopString(kwargs, "target", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_expr(state, tmp, &target) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (iter != NULL) {
+            err = PyDict_PopString(kwargs, "iter", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_expr(state, tmp, &iter) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (ifs != NULL) {
+            err = PyDict_PopString(kwargs, "ifs", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_expr_seq(state, tmp, "comprehension", "ifs", &ifs)
+                    < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_is_async) {
+            err = PyDict_PopString(kwargs, "is_async", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &is_async) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (PyDict_Size(kwargs)) {
+            Py_ssize_t pos = 0;
+            PyObject *key;
+            while (PyDict_Next(kwargs, &pos, &key, NULL)) {
+                PyErr_Format(PyExc_TypeError,
+                                "%.400s.__replace__ got an unexpected keyword "
+                                "argument '%U'.", pytype->tp_name, key);
+                goto fail;
+            }
+        }
+    }
+    struct _comprehension *res = (struct
+                                  _comprehension*)pytype->tp_alloc(pytype, 0);
+    if (!res) goto fail;
+    res->target = target;
+    res->iter = iter;
+    res->ifs = ifs;
+    res->is_async = is_async;
+    return (PyObject *)res;
+fail:
+    Py_XDECREF(target);
+    Py_XDECREF(iter);
+    Py_XDECREF(ifs);
+    return NULL;
 }
 
 static void comprehension_dealloc(PyObject *self) {
@@ -15242,46 +23286,178 @@ error:
 }
 
 static PyObject *
-ExceptHandler_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+ExceptHandler_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
 {
-    PyObject *res = type->tp_alloc(type, 0);
-    if (!res) {
+    Py_ssize_t posargs = PyTuple_GET_SIZE(pargs);
+    if (posargs > 3) {
+        PyErr_SetString(PyExc_TypeError,
+                        "ExceptHandler takes at most 3 positional arguments");
         return NULL;
     }
+    expr_ty type = NULL;
+    identifier name = NULL;
+    asdl_stmt_seq* body = NULL;
+    int lineno = 0;
+    bool got_lineno = false;
+    int col_offset = 0;
+    bool got_col_offset = false;
+    int end_lineno = 0;
+    bool got_end_lineno = false;
+    int end_col_offset = 0;
+    bool got_end_col_offset = false;
+    PyObject *tmp;
     struct ast_state *state = get_ast_state();
-    struct _excepthandler *self = (struct _excepthandler*)res;
-    Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     switch (posargs) {
         case 3: {
-            PyObject *value = PyTuple_GET_ITEM(args, 2);
-            if (obj2imm_stmt_seq(state, value, "", "body",
-                &self->v.ExceptHandler.body) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 6);
+            if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                goto fail;
             }
+            got_end_col_offset = true;
         }
         // fallthrough
         case 2: {
-            PyObject *value = PyTuple_GET_ITEM(args, 1);
-            if (obj2imm_identifier(state, value, &self->v.ExceptHandler.name) <
-                0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 5);
+            if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                goto fail;
             }
+            got_end_lineno = true;
         }
         // fallthrough
         case 1: {
-            PyObject *value = PyTuple_GET_ITEM(args, 0);
-            if (obj2imm_expr(state, value, &self->v.ExceptHandler.type) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 4);
+            if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                goto fail;
+            }
+            got_col_offset = true;
+        }
+        // fallthrough
+        case 0: {
+            tmp = PyTuple_GET_ITEM(pargs, 3);
+            if (obj2imm_int(state, tmp, &lineno) < 0) {
+                goto fail;
+            }
+            got_lineno = true;
+        }
+        // fallthrough
+        case -1: {
+            tmp = PyTuple_GET_ITEM(pargs, 2);
+            if (obj2imm_stmt_seq(state, tmp, "ExceptHandler", "body", &body) <
+                0) {
+                goto fail;
+            }
+        }
+        // fallthrough
+        case -2: {
+            tmp = PyTuple_GET_ITEM(pargs, 1);
+            if (obj2imm_identifier(state, tmp, &name) < 0) {
+                goto fail;
+            }
+        }
+        // fallthrough
+        case -3: {
+            tmp = PyTuple_GET_ITEM(pargs, 0);
+            if (obj2imm_expr(state, tmp, &type) < 0) {
+                goto fail;
             }
         }
         // fallthrough
         default:
             break;
     }
-    return res;
+    if (kwargs != NULL && PyDict_Size(kwargs)) {
+        int err;
+        if (type != NULL) {
+            err = PyDict_PopString(kwargs, "type", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_expr(state, tmp, &type) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (name != NULL) {
+            err = PyDict_PopString(kwargs, "name", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_identifier(state, tmp, &name) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (body != NULL) {
+            err = PyDict_PopString(kwargs, "body", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_stmt_seq(state, tmp, "ExceptHandler", "body",
+                    &body) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_lineno) {
+            err = PyDict_PopString(kwargs, "lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_col_offset) {
+            err = PyDict_PopString(kwargs, "col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_lineno) {
+            err = PyDict_PopString(kwargs, "end_lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_col_offset) {
+            err = PyDict_PopString(kwargs, "end_col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (PyDict_Size(kwargs)) {
+            Py_ssize_t pos = 0;
+            PyObject *key;
+            while (PyDict_Next(kwargs, &pos, &key, NULL)) {
+                PyErr_Format(PyExc_TypeError,
+                                "%.400s.__replace__ got an unexpected keyword "
+                                "argument '%U'.", pytype->tp_name, key);
+                goto fail;
+            }
+        }
+    }
+    struct _excepthandler *res = (struct
+                                  _excepthandler*)pytype->tp_alloc(pytype, 0);
+    if (!res) goto fail;
+    res->v.ExceptHandler.type = type;
+    res->v.ExceptHandler.name = name;
+    res->v.ExceptHandler.body = body;
+    res->lineno = lineno;
+    res->col_offset = col_offset;
+    res->end_lineno = end_lineno;
+    res->end_col_offset = end_col_offset;
+    return (PyObject *)res;
+fail:
+    Py_XDECREF(type);
+    Py_XDECREF(name);
+    Py_XDECREF(body);
+    return NULL;
 }
 
 static void ExceptHandler_dealloc(PyObject *self) {
@@ -15366,13 +23542,83 @@ excepthandler_ty _PyAst_excepthandler_Copy(excepthandler_ty node) {
 }
 
 static PyObject *
-excepthandler_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+excepthandler_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
 {
-    PyObject *res = type->tp_alloc(type, 0);
-    if (!res) {
+    Py_ssize_t posargs = PyTuple_GET_SIZE(pargs);
+    if (posargs > 0) {
+        PyErr_SetString(PyExc_TypeError,
+                        "excepthandler takes at most 0 positional arguments");
         return NULL;
     }
-    return res;
+    int lineno = 0;
+    bool got_lineno = false;
+    int col_offset = 0;
+    bool got_col_offset = false;
+    int end_lineno = 0;
+    bool got_end_lineno = false;
+    int end_col_offset = 0;
+    bool got_end_col_offset = false;
+    PyObject *tmp;
+    struct ast_state *state = get_ast_state();
+    if (kwargs != NULL && PyDict_Size(kwargs)) {
+        int err;
+        if (!got_lineno) {
+            err = PyDict_PopString(kwargs, "lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_col_offset) {
+            err = PyDict_PopString(kwargs, "col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_lineno) {
+            err = PyDict_PopString(kwargs, "end_lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_col_offset) {
+            err = PyDict_PopString(kwargs, "end_col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (PyDict_Size(kwargs)) {
+            Py_ssize_t pos = 0;
+            PyObject *key;
+            while (PyDict_Next(kwargs, &pos, &key, NULL)) {
+                PyErr_Format(PyExc_TypeError,
+                                "%.400s.__replace__ got an unexpected keyword "
+                                "argument '%U'.", pytype->tp_name, key);
+                goto fail;
+            }
+        }
+    }
+    struct _excepthandler *res = (struct
+                                  _excepthandler*)pytype->tp_alloc(pytype, 0);
+    if (!res) goto fail;
+    res->lineno = lineno;
+    res->col_offset = col_offset;
+    res->end_lineno = end_lineno;
+    res->end_col_offset = end_col_offset;
+    return (PyObject *)res;
+fail:
+    return NULL;
 }
 
 static void excepthandler_dealloc(PyObject *self) {
@@ -15518,80 +23764,180 @@ asdl_arguments_seq *_PyAst_arguments_seq_Copy(asdl_arguments_seq *seq) {
 }
 
 static PyObject *
-arguments_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+arguments_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
 {
-    PyObject *res = type->tp_alloc(type, 0);
-    if (!res) {
+    Py_ssize_t posargs = PyTuple_GET_SIZE(pargs);
+    if (posargs > 7) {
+        PyErr_SetString(PyExc_TypeError,
+                        "arguments takes at most 7 positional arguments");
         return NULL;
     }
+    asdl_arg_seq* posonlyargs = NULL;
+    asdl_arg_seq* args = NULL;
+    arg_ty vararg = NULL;
+    asdl_arg_seq* kwonlyargs = NULL;
+    asdl_expr_seq* kw_defaults = NULL;
+    arg_ty kwarg = NULL;
+    asdl_expr_seq* defaults = NULL;
+    PyObject *tmp;
     struct ast_state *state = get_ast_state();
-    struct _arguments *self = (struct _arguments*)res;
-    Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     switch (posargs) {
         case 7: {
-            PyObject *value = PyTuple_GET_ITEM(args, 6);
-            if (obj2imm_expr_seq(state, value, "", "defaults", &self->defaults)
-                < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 6);
+            if (obj2imm_expr_seq(state, tmp, "arguments", "defaults",
+                &defaults) < 0) {
+                goto fail;
             }
         }
         // fallthrough
         case 6: {
-            PyObject *value = PyTuple_GET_ITEM(args, 5);
-            if (obj2imm_arg(state, value, &self->kwarg) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 5);
+            if (obj2imm_arg(state, tmp, &kwarg) < 0) {
+                goto fail;
             }
         }
         // fallthrough
         case 5: {
-            PyObject *value = PyTuple_GET_ITEM(args, 4);
-            if (obj2imm_expr_seq(state, value, "", "kw_defaults",
-                &self->kw_defaults) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 4);
+            if (obj2imm_expr_seq(state, tmp, "arguments", "kw_defaults",
+                &kw_defaults) < 0) {
+                goto fail;
             }
         }
         // fallthrough
         case 4: {
-            PyObject *value = PyTuple_GET_ITEM(args, 3);
-            if (obj2imm_arg_seq(state, value, "", "kwonlyargs",
-                &self->kwonlyargs) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 3);
+            if (obj2imm_arg_seq(state, tmp, "arguments", "kwonlyargs",
+                &kwonlyargs) < 0) {
+                goto fail;
             }
         }
         // fallthrough
         case 3: {
-            PyObject *value = PyTuple_GET_ITEM(args, 2);
-            if (obj2imm_arg(state, value, &self->vararg) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 2);
+            if (obj2imm_arg(state, tmp, &vararg) < 0) {
+                goto fail;
             }
         }
         // fallthrough
         case 2: {
-            PyObject *value = PyTuple_GET_ITEM(args, 1);
-            if (obj2imm_arg_seq(state, value, "", "args", &self->args) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 1);
+            if (obj2imm_arg_seq(state, tmp, "arguments", "args", &args) < 0) {
+                goto fail;
             }
         }
         // fallthrough
         case 1: {
-            PyObject *value = PyTuple_GET_ITEM(args, 0);
-            if (obj2imm_arg_seq(state, value, "", "posonlyargs",
-                &self->posonlyargs) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 0);
+            if (obj2imm_arg_seq(state, tmp, "arguments", "posonlyargs",
+                &posonlyargs) < 0) {
+                goto fail;
             }
         }
         // fallthrough
         default:
             break;
     }
-    return res;
+    if (kwargs != NULL && PyDict_Size(kwargs)) {
+        int err;
+        if (posonlyargs != NULL) {
+            err = PyDict_PopString(kwargs, "posonlyargs", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_arg_seq(state, tmp, "arguments", "posonlyargs",
+                    &posonlyargs) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (args != NULL) {
+            err = PyDict_PopString(kwargs, "args", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_arg_seq(state, tmp, "arguments", "args", &args) <
+                    0) {
+                    goto fail;
+                }
+            }
+        }
+        if (vararg != NULL) {
+            err = PyDict_PopString(kwargs, "vararg", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_arg(state, tmp, &vararg) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (kwonlyargs != NULL) {
+            err = PyDict_PopString(kwargs, "kwonlyargs", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_arg_seq(state, tmp, "arguments", "kwonlyargs",
+                    &kwonlyargs) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (kw_defaults != NULL) {
+            err = PyDict_PopString(kwargs, "kw_defaults", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_expr_seq(state, tmp, "arguments", "kw_defaults",
+                    &kw_defaults) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (kwarg != NULL) {
+            err = PyDict_PopString(kwargs, "kwarg", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_arg(state, tmp, &kwarg) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (defaults != NULL) {
+            err = PyDict_PopString(kwargs, "defaults", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_expr_seq(state, tmp, "arguments", "defaults",
+                    &defaults) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (PyDict_Size(kwargs)) {
+            Py_ssize_t pos = 0;
+            PyObject *key;
+            while (PyDict_Next(kwargs, &pos, &key, NULL)) {
+                PyErr_Format(PyExc_TypeError,
+                                "%.400s.__replace__ got an unexpected keyword "
+                                "argument '%U'.", pytype->tp_name, key);
+                goto fail;
+            }
+        }
+    }
+    struct _arguments *res = (struct _arguments*)pytype->tp_alloc(pytype, 0);
+    if (!res) goto fail;
+    res->posonlyargs = posonlyargs;
+    res->args = args;
+    res->vararg = vararg;
+    res->kwonlyargs = kwonlyargs;
+    res->kw_defaults = kw_defaults;
+    res->kwarg = kwarg;
+    res->defaults = defaults;
+    return (PyObject *)res;
+fail:
+    Py_XDECREF(posonlyargs);
+    Py_XDECREF(args);
+    Py_XDECREF(vararg);
+    Py_XDECREF(kwonlyargs);
+    Py_XDECREF(kw_defaults);
+    Py_XDECREF(kwarg);
+    Py_XDECREF(defaults);
+    return NULL;
 }
 
 static void arguments_dealloc(PyObject *self) {
@@ -15742,44 +24088,95 @@ asdl_arg_seq *_PyAst_arg_seq_Copy(asdl_arg_seq *seq) {
 }
 
 static PyObject *
-arg_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+arg_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
 {
-    PyObject *res = type->tp_alloc(type, 0);
-    if (!res) {
+    Py_ssize_t posargs = PyTuple_GET_SIZE(pargs);
+    if (posargs > 3) {
+        PyErr_SetString(PyExc_TypeError,
+                        "arg takes at most 3 positional arguments");
         return NULL;
     }
+    identifier arg = NULL;
+    expr_ty annotation = NULL;
+    string type_comment = 0;
+    PyObject *tmp;
     struct ast_state *state = get_ast_state();
-    struct _arg *self = (struct _arg*)res;
-    Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     switch (posargs) {
         case 3: {
-            PyObject *value = PyTuple_GET_ITEM(args, 2);
-            if (obj2imm_string(state, value, &self->type_comment) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 2);
+            if (obj2imm_string(state, tmp, &type_comment) < 0) {
+                goto fail;
             }
         }
         // fallthrough
         case 2: {
-            PyObject *value = PyTuple_GET_ITEM(args, 1);
-            if (obj2imm_expr(state, value, &self->annotation) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 1);
+            if (obj2imm_expr(state, tmp, &annotation) < 0) {
+                goto fail;
             }
         }
         // fallthrough
         case 1: {
-            PyObject *value = PyTuple_GET_ITEM(args, 0);
-            if (obj2imm_identifier(state, value, &self->arg) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 0);
+            if (obj2imm_identifier(state, tmp, &arg) < 0) {
+                goto fail;
             }
         }
         // fallthrough
         default:
             break;
     }
-    return res;
+    if (kwargs != NULL && PyDict_Size(kwargs)) {
+        int err;
+        if (arg != NULL) {
+            err = PyDict_PopString(kwargs, "arg", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_identifier(state, tmp, &arg) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (annotation != NULL) {
+            err = PyDict_PopString(kwargs, "annotation", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_expr(state, tmp, &annotation) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (type_comment != NULL) {
+            err = PyDict_PopString(kwargs, "type_comment", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_string(state, tmp, &type_comment) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (PyDict_Size(kwargs)) {
+            Py_ssize_t pos = 0;
+            PyObject *key;
+            while (PyDict_Next(kwargs, &pos, &key, NULL)) {
+                PyErr_Format(PyExc_TypeError,
+                                "%.400s.__replace__ got an unexpected keyword "
+                                "argument '%U'.", pytype->tp_name, key);
+                goto fail;
+            }
+        }
+    }
+    struct _arg *res = (struct _arg*)pytype->tp_alloc(pytype, 0);
+    if (!res) goto fail;
+    res->arg = arg;
+    res->annotation = annotation;
+    res->type_comment = type_comment;
+    return (PyObject *)res;
+fail:
+    Py_XDECREF(arg);
+    Py_XDECREF(annotation);
+    Py_XDECREF(type_comment);
+    return NULL;
 }
 
 static void arg_dealloc(PyObject *self) {
@@ -15902,36 +24299,76 @@ asdl_keyword_seq *_PyAst_keyword_seq_Copy(asdl_keyword_seq *seq) {
 }
 
 static PyObject *
-keyword_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+keyword_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
 {
-    PyObject *res = type->tp_alloc(type, 0);
-    if (!res) {
+    Py_ssize_t posargs = PyTuple_GET_SIZE(pargs);
+    if (posargs > 2) {
+        PyErr_SetString(PyExc_TypeError,
+                        "keyword takes at most 2 positional arguments");
         return NULL;
     }
+    identifier arg = NULL;
+    expr_ty value = NULL;
+    PyObject *tmp;
     struct ast_state *state = get_ast_state();
-    struct _keyword *self = (struct _keyword*)res;
-    Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     switch (posargs) {
         case 2: {
-            PyObject *value = PyTuple_GET_ITEM(args, 1);
-            if (obj2imm_expr(state, value, &self->value) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 1);
+            if (obj2imm_expr(state, tmp, &value) < 0) {
+                goto fail;
             }
         }
         // fallthrough
         case 1: {
-            PyObject *value = PyTuple_GET_ITEM(args, 0);
-            if (obj2imm_identifier(state, value, &self->arg) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 0);
+            if (obj2imm_identifier(state, tmp, &arg) < 0) {
+                goto fail;
             }
         }
         // fallthrough
         default:
             break;
     }
-    return res;
+    if (kwargs != NULL && PyDict_Size(kwargs)) {
+        int err;
+        if (arg != NULL) {
+            err = PyDict_PopString(kwargs, "arg", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_identifier(state, tmp, &arg) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (value != NULL) {
+            err = PyDict_PopString(kwargs, "value", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_expr(state, tmp, &value) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (PyDict_Size(kwargs)) {
+            Py_ssize_t pos = 0;
+            PyObject *key;
+            while (PyDict_Next(kwargs, &pos, &key, NULL)) {
+                PyErr_Format(PyExc_TypeError,
+                                "%.400s.__replace__ got an unexpected keyword "
+                                "argument '%U'.", pytype->tp_name, key);
+                goto fail;
+            }
+        }
+    }
+    struct _keyword *res = (struct _keyword*)pytype->tp_alloc(pytype, 0);
+    if (!res) goto fail;
+    res->arg = arg;
+    res->value = value;
+    return (PyObject *)res;
+fail:
+    Py_XDECREF(arg);
+    Py_XDECREF(value);
+    return NULL;
 }
 
 static void keyword_dealloc(PyObject *self) {
@@ -16047,36 +24484,76 @@ asdl_alias_seq *_PyAst_alias_seq_Copy(asdl_alias_seq *seq) {
 }
 
 static PyObject *
-alias_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+alias_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
 {
-    PyObject *res = type->tp_alloc(type, 0);
-    if (!res) {
+    Py_ssize_t posargs = PyTuple_GET_SIZE(pargs);
+    if (posargs > 2) {
+        PyErr_SetString(PyExc_TypeError,
+                        "alias takes at most 2 positional arguments");
         return NULL;
     }
+    identifier name = NULL;
+    identifier asname = NULL;
+    PyObject *tmp;
     struct ast_state *state = get_ast_state();
-    struct _alias *self = (struct _alias*)res;
-    Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     switch (posargs) {
         case 2: {
-            PyObject *value = PyTuple_GET_ITEM(args, 1);
-            if (obj2imm_identifier(state, value, &self->asname) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 1);
+            if (obj2imm_identifier(state, tmp, &asname) < 0) {
+                goto fail;
             }
         }
         // fallthrough
         case 1: {
-            PyObject *value = PyTuple_GET_ITEM(args, 0);
-            if (obj2imm_identifier(state, value, &self->name) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 0);
+            if (obj2imm_identifier(state, tmp, &name) < 0) {
+                goto fail;
             }
         }
         // fallthrough
         default:
             break;
     }
-    return res;
+    if (kwargs != NULL && PyDict_Size(kwargs)) {
+        int err;
+        if (name != NULL) {
+            err = PyDict_PopString(kwargs, "name", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_identifier(state, tmp, &name) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (asname != NULL) {
+            err = PyDict_PopString(kwargs, "asname", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_identifier(state, tmp, &asname) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (PyDict_Size(kwargs)) {
+            Py_ssize_t pos = 0;
+            PyObject *key;
+            while (PyDict_Next(kwargs, &pos, &key, NULL)) {
+                PyErr_Format(PyExc_TypeError,
+                                "%.400s.__replace__ got an unexpected keyword "
+                                "argument '%U'.", pytype->tp_name, key);
+                goto fail;
+            }
+        }
+    }
+    struct _alias *res = (struct _alias*)pytype->tp_alloc(pytype, 0);
+    if (!res) goto fail;
+    res->name = name;
+    res->asname = asname;
+    return (PyObject *)res;
+fail:
+    Py_XDECREF(name);
+    Py_XDECREF(asname);
+    return NULL;
 }
 
 static void alias_dealloc(PyObject *self) {
@@ -16193,36 +24670,76 @@ asdl_withitem_seq *_PyAst_withitem_seq_Copy(asdl_withitem_seq *seq) {
 }
 
 static PyObject *
-withitem_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+withitem_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
 {
-    PyObject *res = type->tp_alloc(type, 0);
-    if (!res) {
+    Py_ssize_t posargs = PyTuple_GET_SIZE(pargs);
+    if (posargs > 2) {
+        PyErr_SetString(PyExc_TypeError,
+                        "withitem takes at most 2 positional arguments");
         return NULL;
     }
+    expr_ty context_expr = NULL;
+    expr_ty optional_vars = NULL;
+    PyObject *tmp;
     struct ast_state *state = get_ast_state();
-    struct _withitem *self = (struct _withitem*)res;
-    Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     switch (posargs) {
         case 2: {
-            PyObject *value = PyTuple_GET_ITEM(args, 1);
-            if (obj2imm_expr(state, value, &self->optional_vars) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 1);
+            if (obj2imm_expr(state, tmp, &optional_vars) < 0) {
+                goto fail;
             }
         }
         // fallthrough
         case 1: {
-            PyObject *value = PyTuple_GET_ITEM(args, 0);
-            if (obj2imm_expr(state, value, &self->context_expr) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 0);
+            if (obj2imm_expr(state, tmp, &context_expr) < 0) {
+                goto fail;
             }
         }
         // fallthrough
         default:
             break;
     }
-    return res;
+    if (kwargs != NULL && PyDict_Size(kwargs)) {
+        int err;
+        if (context_expr != NULL) {
+            err = PyDict_PopString(kwargs, "context_expr", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_expr(state, tmp, &context_expr) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (optional_vars != NULL) {
+            err = PyDict_PopString(kwargs, "optional_vars", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_expr(state, tmp, &optional_vars) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (PyDict_Size(kwargs)) {
+            Py_ssize_t pos = 0;
+            PyObject *key;
+            while (PyDict_Next(kwargs, &pos, &key, NULL)) {
+                PyErr_Format(PyExc_TypeError,
+                                "%.400s.__replace__ got an unexpected keyword "
+                                "argument '%U'.", pytype->tp_name, key);
+                goto fail;
+            }
+        }
+    }
+    struct _withitem *res = (struct _withitem*)pytype->tp_alloc(pytype, 0);
+    if (!res) goto fail;
+    res->context_expr = context_expr;
+    res->optional_vars = optional_vars;
+    return (PyObject *)res;
+fail:
+    Py_XDECREF(context_expr);
+    Py_XDECREF(optional_vars);
+    return NULL;
 }
 
 static void withitem_dealloc(PyObject *self) {
@@ -16339,44 +24856,96 @@ asdl_match_case_seq *_PyAst_match_case_seq_Copy(asdl_match_case_seq *seq) {
 }
 
 static PyObject *
-match_case_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+match_case_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
 {
-    PyObject *res = type->tp_alloc(type, 0);
-    if (!res) {
+    Py_ssize_t posargs = PyTuple_GET_SIZE(pargs);
+    if (posargs > 3) {
+        PyErr_SetString(PyExc_TypeError,
+                        "match_case takes at most 3 positional arguments");
         return NULL;
     }
+    pattern_ty pattern = NULL;
+    expr_ty guard = NULL;
+    asdl_stmt_seq* body = NULL;
+    PyObject *tmp;
     struct ast_state *state = get_ast_state();
-    struct _match_case *self = (struct _match_case*)res;
-    Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     switch (posargs) {
         case 3: {
-            PyObject *value = PyTuple_GET_ITEM(args, 2);
-            if (obj2imm_stmt_seq(state, value, "", "body", &self->body) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 2);
+            if (obj2imm_stmt_seq(state, tmp, "match_case", "body", &body) < 0) {
+                goto fail;
             }
         }
         // fallthrough
         case 2: {
-            PyObject *value = PyTuple_GET_ITEM(args, 1);
-            if (obj2imm_expr(state, value, &self->guard) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 1);
+            if (obj2imm_expr(state, tmp, &guard) < 0) {
+                goto fail;
             }
         }
         // fallthrough
         case 1: {
-            PyObject *value = PyTuple_GET_ITEM(args, 0);
-            if (obj2imm_pattern(state, value, &self->pattern) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 0);
+            if (obj2imm_pattern(state, tmp, &pattern) < 0) {
+                goto fail;
             }
         }
         // fallthrough
         default:
             break;
     }
-    return res;
+    if (kwargs != NULL && PyDict_Size(kwargs)) {
+        int err;
+        if (pattern != NULL) {
+            err = PyDict_PopString(kwargs, "pattern", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_pattern(state, tmp, &pattern) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (guard != NULL) {
+            err = PyDict_PopString(kwargs, "guard", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_expr(state, tmp, &guard) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (body != NULL) {
+            err = PyDict_PopString(kwargs, "body", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_stmt_seq(state, tmp, "match_case", "body", &body) <
+                    0) {
+                    goto fail;
+                }
+            }
+        }
+        if (PyDict_Size(kwargs)) {
+            Py_ssize_t pos = 0;
+            PyObject *key;
+            while (PyDict_Next(kwargs, &pos, &key, NULL)) {
+                PyErr_Format(PyExc_TypeError,
+                                "%.400s.__replace__ got an unexpected keyword "
+                                "argument '%U'.", pytype->tp_name, key);
+                goto fail;
+            }
+        }
+    }
+    struct _match_case *res = (struct _match_case*)pytype->tp_alloc(pytype, 0);
+    if (!res) goto fail;
+    res->pattern = pattern;
+    res->guard = guard;
+    res->body = body;
+    return (PyObject *)res;
+fail:
+    Py_XDECREF(pattern);
+    Py_XDECREF(guard);
+    Py_XDECREF(body);
+    return NULL;
 }
 
 static void match_case_dealloc(PyObject *self) {
@@ -16444,28 +25013,137 @@ error:
 }
 
 static PyObject *
-MatchValue_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+MatchValue_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
 {
-    PyObject *res = type->tp_alloc(type, 0);
-    if (!res) {
+    Py_ssize_t posargs = PyTuple_GET_SIZE(pargs);
+    if (posargs > 1) {
+        PyErr_SetString(PyExc_TypeError,
+                        "MatchValue takes at most 1 positional argument");
         return NULL;
     }
+    expr_ty value = NULL;
+    int lineno = 0;
+    bool got_lineno = false;
+    int col_offset = 0;
+    bool got_col_offset = false;
+    int end_lineno = 0;
+    bool got_end_lineno = false;
+    int end_col_offset = 0;
+    bool got_end_col_offset = false;
+    PyObject *tmp;
     struct ast_state *state = get_ast_state();
-    struct _pattern *self = (struct _pattern*)res;
-    Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     switch (posargs) {
         case 1: {
-            PyObject *value = PyTuple_GET_ITEM(args, 0);
-            if (obj2imm_expr(state, value, &self->v.MatchValue.value) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 4);
+            if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                goto fail;
+            }
+            got_end_col_offset = true;
+        }
+        // fallthrough
+        case 0: {
+            tmp = PyTuple_GET_ITEM(pargs, 3);
+            if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                goto fail;
+            }
+            got_end_lineno = true;
+        }
+        // fallthrough
+        case -1: {
+            tmp = PyTuple_GET_ITEM(pargs, 2);
+            if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                goto fail;
+            }
+            got_col_offset = true;
+        }
+        // fallthrough
+        case -2: {
+            tmp = PyTuple_GET_ITEM(pargs, 1);
+            if (obj2imm_int(state, tmp, &lineno) < 0) {
+                goto fail;
+            }
+            got_lineno = true;
+        }
+        // fallthrough
+        case -3: {
+            tmp = PyTuple_GET_ITEM(pargs, 0);
+            if (obj2imm_expr(state, tmp, &value) < 0) {
+                goto fail;
             }
         }
         // fallthrough
         default:
             break;
     }
-    return res;
+    if (kwargs != NULL && PyDict_Size(kwargs)) {
+        int err;
+        if (value != NULL) {
+            err = PyDict_PopString(kwargs, "value", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_expr(state, tmp, &value) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_lineno) {
+            err = PyDict_PopString(kwargs, "lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_col_offset) {
+            err = PyDict_PopString(kwargs, "col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_lineno) {
+            err = PyDict_PopString(kwargs, "end_lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_col_offset) {
+            err = PyDict_PopString(kwargs, "end_col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (PyDict_Size(kwargs)) {
+            Py_ssize_t pos = 0;
+            PyObject *key;
+            while (PyDict_Next(kwargs, &pos, &key, NULL)) {
+                PyErr_Format(PyExc_TypeError,
+                                "%.400s.__replace__ got an unexpected keyword "
+                                "argument '%U'.", pytype->tp_name, key);
+                goto fail;
+            }
+        }
+    }
+    struct _pattern *res = (struct _pattern*)pytype->tp_alloc(pytype, 0);
+    if (!res) goto fail;
+    res->v.MatchValue.value = value;
+    res->lineno = lineno;
+    res->col_offset = col_offset;
+    res->end_lineno = end_lineno;
+    res->end_col_offset = end_col_offset;
+    return (PyObject *)res;
+fail:
+    Py_XDECREF(value);
+    return NULL;
 }
 
 static void MatchValue_dealloc(PyObject *self) {
@@ -16521,29 +25199,137 @@ error:
 }
 
 static PyObject *
-MatchSingleton_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+MatchSingleton_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
 {
-    PyObject *res = type->tp_alloc(type, 0);
-    if (!res) {
+    Py_ssize_t posargs = PyTuple_GET_SIZE(pargs);
+    if (posargs > 1) {
+        PyErr_SetString(PyExc_TypeError,
+                        "MatchSingleton takes at most 1 positional argument");
         return NULL;
     }
+    constant value = NULL;
+    int lineno = 0;
+    bool got_lineno = false;
+    int col_offset = 0;
+    bool got_col_offset = false;
+    int end_lineno = 0;
+    bool got_end_lineno = false;
+    int end_col_offset = 0;
+    bool got_end_col_offset = false;
+    PyObject *tmp;
     struct ast_state *state = get_ast_state();
-    struct _pattern *self = (struct _pattern*)res;
-    Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     switch (posargs) {
         case 1: {
-            PyObject *value = PyTuple_GET_ITEM(args, 0);
-            if (obj2imm_constant(state, value, &self->v.MatchSingleton.value) <
-                0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 4);
+            if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                goto fail;
+            }
+            got_end_col_offset = true;
+        }
+        // fallthrough
+        case 0: {
+            tmp = PyTuple_GET_ITEM(pargs, 3);
+            if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                goto fail;
+            }
+            got_end_lineno = true;
+        }
+        // fallthrough
+        case -1: {
+            tmp = PyTuple_GET_ITEM(pargs, 2);
+            if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                goto fail;
+            }
+            got_col_offset = true;
+        }
+        // fallthrough
+        case -2: {
+            tmp = PyTuple_GET_ITEM(pargs, 1);
+            if (obj2imm_int(state, tmp, &lineno) < 0) {
+                goto fail;
+            }
+            got_lineno = true;
+        }
+        // fallthrough
+        case -3: {
+            tmp = PyTuple_GET_ITEM(pargs, 0);
+            if (obj2imm_constant(state, tmp, &value) < 0) {
+                goto fail;
             }
         }
         // fallthrough
         default:
             break;
     }
-    return res;
+    if (kwargs != NULL && PyDict_Size(kwargs)) {
+        int err;
+        if (value != NULL) {
+            err = PyDict_PopString(kwargs, "value", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_constant(state, tmp, &value) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_lineno) {
+            err = PyDict_PopString(kwargs, "lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_col_offset) {
+            err = PyDict_PopString(kwargs, "col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_lineno) {
+            err = PyDict_PopString(kwargs, "end_lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_col_offset) {
+            err = PyDict_PopString(kwargs, "end_col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (PyDict_Size(kwargs)) {
+            Py_ssize_t pos = 0;
+            PyObject *key;
+            while (PyDict_Next(kwargs, &pos, &key, NULL)) {
+                PyErr_Format(PyExc_TypeError,
+                                "%.400s.__replace__ got an unexpected keyword "
+                                "argument '%U'.", pytype->tp_name, key);
+                goto fail;
+            }
+        }
+    }
+    struct _pattern *res = (struct _pattern*)pytype->tp_alloc(pytype, 0);
+    if (!res) goto fail;
+    res->v.MatchSingleton.value = value;
+    res->lineno = lineno;
+    res->col_offset = col_offset;
+    res->end_lineno = end_lineno;
+    res->end_col_offset = end_col_offset;
+    return (PyObject *)res;
+fail:
+    Py_XDECREF(value);
+    return NULL;
 }
 
 static void MatchSingleton_dealloc(PyObject *self) {
@@ -16599,29 +25385,139 @@ error:
 }
 
 static PyObject *
-MatchSequence_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+MatchSequence_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
 {
-    PyObject *res = type->tp_alloc(type, 0);
-    if (!res) {
+    Py_ssize_t posargs = PyTuple_GET_SIZE(pargs);
+    if (posargs > 1) {
+        PyErr_SetString(PyExc_TypeError,
+                        "MatchSequence takes at most 1 positional argument");
         return NULL;
     }
+    asdl_pattern_seq* patterns = NULL;
+    int lineno = 0;
+    bool got_lineno = false;
+    int col_offset = 0;
+    bool got_col_offset = false;
+    int end_lineno = 0;
+    bool got_end_lineno = false;
+    int end_col_offset = 0;
+    bool got_end_col_offset = false;
+    PyObject *tmp;
     struct ast_state *state = get_ast_state();
-    struct _pattern *self = (struct _pattern*)res;
-    Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     switch (posargs) {
         case 1: {
-            PyObject *value = PyTuple_GET_ITEM(args, 0);
-            if (obj2imm_pattern_seq(state, value, "", "patterns",
-                &self->v.MatchSequence.patterns) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 4);
+            if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                goto fail;
+            }
+            got_end_col_offset = true;
+        }
+        // fallthrough
+        case 0: {
+            tmp = PyTuple_GET_ITEM(pargs, 3);
+            if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                goto fail;
+            }
+            got_end_lineno = true;
+        }
+        // fallthrough
+        case -1: {
+            tmp = PyTuple_GET_ITEM(pargs, 2);
+            if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                goto fail;
+            }
+            got_col_offset = true;
+        }
+        // fallthrough
+        case -2: {
+            tmp = PyTuple_GET_ITEM(pargs, 1);
+            if (obj2imm_int(state, tmp, &lineno) < 0) {
+                goto fail;
+            }
+            got_lineno = true;
+        }
+        // fallthrough
+        case -3: {
+            tmp = PyTuple_GET_ITEM(pargs, 0);
+            if (obj2imm_pattern_seq(state, tmp, "MatchSequence", "patterns",
+                &patterns) < 0) {
+                goto fail;
             }
         }
         // fallthrough
         default:
             break;
     }
-    return res;
+    if (kwargs != NULL && PyDict_Size(kwargs)) {
+        int err;
+        if (patterns != NULL) {
+            err = PyDict_PopString(kwargs, "patterns", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_pattern_seq(state, tmp, "MatchSequence",
+                    "patterns", &patterns) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_lineno) {
+            err = PyDict_PopString(kwargs, "lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_col_offset) {
+            err = PyDict_PopString(kwargs, "col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_lineno) {
+            err = PyDict_PopString(kwargs, "end_lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_col_offset) {
+            err = PyDict_PopString(kwargs, "end_col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (PyDict_Size(kwargs)) {
+            Py_ssize_t pos = 0;
+            PyObject *key;
+            while (PyDict_Next(kwargs, &pos, &key, NULL)) {
+                PyErr_Format(PyExc_TypeError,
+                                "%.400s.__replace__ got an unexpected keyword "
+                                "argument '%U'.", pytype->tp_name, key);
+                goto fail;
+            }
+        }
+    }
+    struct _pattern *res = (struct _pattern*)pytype->tp_alloc(pytype, 0);
+    if (!res) goto fail;
+    res->v.MatchSequence.patterns = patterns;
+    res->lineno = lineno;
+    res->col_offset = col_offset;
+    res->end_lineno = end_lineno;
+    res->end_col_offset = end_col_offset;
+    return (PyObject *)res;
+fail:
+    Py_XDECREF(patterns);
+    return NULL;
 }
 
 static void MatchSequence_dealloc(PyObject *self) {
@@ -16678,47 +25574,179 @@ error:
 }
 
 static PyObject *
-MatchMapping_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+MatchMapping_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
 {
-    PyObject *res = type->tp_alloc(type, 0);
-    if (!res) {
+    Py_ssize_t posargs = PyTuple_GET_SIZE(pargs);
+    if (posargs > 3) {
+        PyErr_SetString(PyExc_TypeError,
+                        "MatchMapping takes at most 3 positional arguments");
         return NULL;
     }
+    asdl_expr_seq* keys = NULL;
+    asdl_pattern_seq* patterns = NULL;
+    identifier rest = NULL;
+    int lineno = 0;
+    bool got_lineno = false;
+    int col_offset = 0;
+    bool got_col_offset = false;
+    int end_lineno = 0;
+    bool got_end_lineno = false;
+    int end_col_offset = 0;
+    bool got_end_col_offset = false;
+    PyObject *tmp;
     struct ast_state *state = get_ast_state();
-    struct _pattern *self = (struct _pattern*)res;
-    Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     switch (posargs) {
         case 3: {
-            PyObject *value = PyTuple_GET_ITEM(args, 2);
-            if (obj2imm_identifier(state, value, &self->v.MatchMapping.rest) <
-                0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 6);
+            if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                goto fail;
             }
+            got_end_col_offset = true;
         }
         // fallthrough
         case 2: {
-            PyObject *value = PyTuple_GET_ITEM(args, 1);
-            if (obj2imm_pattern_seq(state, value, "", "patterns",
-                &self->v.MatchMapping.patterns) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 5);
+            if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                goto fail;
             }
+            got_end_lineno = true;
         }
         // fallthrough
         case 1: {
-            PyObject *value = PyTuple_GET_ITEM(args, 0);
-            if (obj2imm_expr_seq(state, value, "", "keys",
-                &self->v.MatchMapping.keys) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 4);
+            if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                goto fail;
+            }
+            got_col_offset = true;
+        }
+        // fallthrough
+        case 0: {
+            tmp = PyTuple_GET_ITEM(pargs, 3);
+            if (obj2imm_int(state, tmp, &lineno) < 0) {
+                goto fail;
+            }
+            got_lineno = true;
+        }
+        // fallthrough
+        case -1: {
+            tmp = PyTuple_GET_ITEM(pargs, 2);
+            if (obj2imm_identifier(state, tmp, &rest) < 0) {
+                goto fail;
+            }
+        }
+        // fallthrough
+        case -2: {
+            tmp = PyTuple_GET_ITEM(pargs, 1);
+            if (obj2imm_pattern_seq(state, tmp, "MatchMapping", "patterns",
+                &patterns) < 0) {
+                goto fail;
+            }
+        }
+        // fallthrough
+        case -3: {
+            tmp = PyTuple_GET_ITEM(pargs, 0);
+            if (obj2imm_expr_seq(state, tmp, "MatchMapping", "keys", &keys) <
+                0) {
+                goto fail;
             }
         }
         // fallthrough
         default:
             break;
     }
-    return res;
+    if (kwargs != NULL && PyDict_Size(kwargs)) {
+        int err;
+        if (keys != NULL) {
+            err = PyDict_PopString(kwargs, "keys", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_expr_seq(state, tmp, "MatchMapping", "keys", &keys)
+                    < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (patterns != NULL) {
+            err = PyDict_PopString(kwargs, "patterns", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_pattern_seq(state, tmp, "MatchMapping", "patterns",
+                    &patterns) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (rest != NULL) {
+            err = PyDict_PopString(kwargs, "rest", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_identifier(state, tmp, &rest) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_lineno) {
+            err = PyDict_PopString(kwargs, "lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_col_offset) {
+            err = PyDict_PopString(kwargs, "col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_lineno) {
+            err = PyDict_PopString(kwargs, "end_lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_col_offset) {
+            err = PyDict_PopString(kwargs, "end_col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (PyDict_Size(kwargs)) {
+            Py_ssize_t pos = 0;
+            PyObject *key;
+            while (PyDict_Next(kwargs, &pos, &key, NULL)) {
+                PyErr_Format(PyExc_TypeError,
+                                "%.400s.__replace__ got an unexpected keyword "
+                                "argument '%U'.", pytype->tp_name, key);
+                goto fail;
+            }
+        }
+    }
+    struct _pattern *res = (struct _pattern*)pytype->tp_alloc(pytype, 0);
+    if (!res) goto fail;
+    res->v.MatchMapping.keys = keys;
+    res->v.MatchMapping.patterns = patterns;
+    res->v.MatchMapping.rest = rest;
+    res->lineno = lineno;
+    res->col_offset = col_offset;
+    res->end_lineno = end_lineno;
+    res->end_col_offset = end_col_offset;
+    return (PyObject *)res;
+fail:
+    Py_XDECREF(keys);
+    Py_XDECREF(patterns);
+    Py_XDECREF(rest);
+    return NULL;
 }
 
 static void MatchMapping_dealloc(PyObject *self) {
@@ -16794,55 +25822,200 @@ error:
 }
 
 static PyObject *
-MatchClass_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+MatchClass_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
 {
-    PyObject *res = type->tp_alloc(type, 0);
-    if (!res) {
+    Py_ssize_t posargs = PyTuple_GET_SIZE(pargs);
+    if (posargs > 4) {
+        PyErr_SetString(PyExc_TypeError,
+                        "MatchClass takes at most 4 positional arguments");
         return NULL;
     }
+    expr_ty cls = NULL;
+    asdl_pattern_seq* patterns = NULL;
+    asdl_identifier_seq* kwd_attrs = NULL;
+    asdl_pattern_seq* kwd_patterns = NULL;
+    int lineno = 0;
+    bool got_lineno = false;
+    int col_offset = 0;
+    bool got_col_offset = false;
+    int end_lineno = 0;
+    bool got_end_lineno = false;
+    int end_col_offset = 0;
+    bool got_end_col_offset = false;
+    PyObject *tmp;
     struct ast_state *state = get_ast_state();
-    struct _pattern *self = (struct _pattern*)res;
-    Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     switch (posargs) {
         case 4: {
-            PyObject *value = PyTuple_GET_ITEM(args, 3);
-            if (obj2imm_pattern_seq(state, value, "", "kwd_patterns",
-                &self->v.MatchClass.kwd_patterns) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 7);
+            if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                goto fail;
             }
+            got_end_col_offset = true;
         }
         // fallthrough
         case 3: {
-            PyObject *value = PyTuple_GET_ITEM(args, 2);
-            if (obj2imm_identifier_seq(state, value, "", "kwd_attrs",
-                &self->v.MatchClass.kwd_attrs) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 6);
+            if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                goto fail;
             }
+            got_end_lineno = true;
         }
         // fallthrough
         case 2: {
-            PyObject *value = PyTuple_GET_ITEM(args, 1);
-            if (obj2imm_pattern_seq(state, value, "", "patterns",
-                &self->v.MatchClass.patterns) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 5);
+            if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                goto fail;
             }
+            got_col_offset = true;
         }
         // fallthrough
         case 1: {
-            PyObject *value = PyTuple_GET_ITEM(args, 0);
-            if (obj2imm_expr(state, value, &self->v.MatchClass.cls) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 4);
+            if (obj2imm_int(state, tmp, &lineno) < 0) {
+                goto fail;
+            }
+            got_lineno = true;
+        }
+        // fallthrough
+        case 0: {
+            tmp = PyTuple_GET_ITEM(pargs, 3);
+            if (obj2imm_pattern_seq(state, tmp, "MatchClass", "kwd_patterns",
+                &kwd_patterns) < 0) {
+                goto fail;
+            }
+        }
+        // fallthrough
+        case -1: {
+            tmp = PyTuple_GET_ITEM(pargs, 2);
+            if (obj2imm_identifier_seq(state, tmp, "MatchClass", "kwd_attrs",
+                &kwd_attrs) < 0) {
+                goto fail;
+            }
+        }
+        // fallthrough
+        case -2: {
+            tmp = PyTuple_GET_ITEM(pargs, 1);
+            if (obj2imm_pattern_seq(state, tmp, "MatchClass", "patterns",
+                &patterns) < 0) {
+                goto fail;
+            }
+        }
+        // fallthrough
+        case -3: {
+            tmp = PyTuple_GET_ITEM(pargs, 0);
+            if (obj2imm_expr(state, tmp, &cls) < 0) {
+                goto fail;
             }
         }
         // fallthrough
         default:
             break;
     }
-    return res;
+    if (kwargs != NULL && PyDict_Size(kwargs)) {
+        int err;
+        if (cls != NULL) {
+            err = PyDict_PopString(kwargs, "cls", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_expr(state, tmp, &cls) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (patterns != NULL) {
+            err = PyDict_PopString(kwargs, "patterns", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_pattern_seq(state, tmp, "MatchClass", "patterns",
+                    &patterns) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (kwd_attrs != NULL) {
+            err = PyDict_PopString(kwargs, "kwd_attrs", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_identifier_seq(state, tmp, "MatchClass",
+                    "kwd_attrs", &kwd_attrs) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (kwd_patterns != NULL) {
+            err = PyDict_PopString(kwargs, "kwd_patterns", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_pattern_seq(state, tmp, "MatchClass",
+                    "kwd_patterns", &kwd_patterns) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_lineno) {
+            err = PyDict_PopString(kwargs, "lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_col_offset) {
+            err = PyDict_PopString(kwargs, "col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_lineno) {
+            err = PyDict_PopString(kwargs, "end_lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_col_offset) {
+            err = PyDict_PopString(kwargs, "end_col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (PyDict_Size(kwargs)) {
+            Py_ssize_t pos = 0;
+            PyObject *key;
+            while (PyDict_Next(kwargs, &pos, &key, NULL)) {
+                PyErr_Format(PyExc_TypeError,
+                                "%.400s.__replace__ got an unexpected keyword "
+                                "argument '%U'.", pytype->tp_name, key);
+                goto fail;
+            }
+        }
+    }
+    struct _pattern *res = (struct _pattern*)pytype->tp_alloc(pytype, 0);
+    if (!res) goto fail;
+    res->v.MatchClass.cls = cls;
+    res->v.MatchClass.patterns = patterns;
+    res->v.MatchClass.kwd_attrs = kwd_attrs;
+    res->v.MatchClass.kwd_patterns = kwd_patterns;
+    res->lineno = lineno;
+    res->col_offset = col_offset;
+    res->end_lineno = end_lineno;
+    res->end_col_offset = end_col_offset;
+    return (PyObject *)res;
+fail:
+    Py_XDECREF(cls);
+    Py_XDECREF(patterns);
+    Py_XDECREF(kwd_attrs);
+    Py_XDECREF(kwd_patterns);
+    return NULL;
 }
 
 static void MatchClass_dealloc(PyObject *self) {
@@ -16928,28 +26101,137 @@ error:
 }
 
 static PyObject *
-MatchStar_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+MatchStar_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
 {
-    PyObject *res = type->tp_alloc(type, 0);
-    if (!res) {
+    Py_ssize_t posargs = PyTuple_GET_SIZE(pargs);
+    if (posargs > 1) {
+        PyErr_SetString(PyExc_TypeError,
+                        "MatchStar takes at most 1 positional argument");
         return NULL;
     }
+    identifier name = NULL;
+    int lineno = 0;
+    bool got_lineno = false;
+    int col_offset = 0;
+    bool got_col_offset = false;
+    int end_lineno = 0;
+    bool got_end_lineno = false;
+    int end_col_offset = 0;
+    bool got_end_col_offset = false;
+    PyObject *tmp;
     struct ast_state *state = get_ast_state();
-    struct _pattern *self = (struct _pattern*)res;
-    Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     switch (posargs) {
         case 1: {
-            PyObject *value = PyTuple_GET_ITEM(args, 0);
-            if (obj2imm_identifier(state, value, &self->v.MatchStar.name) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 4);
+            if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                goto fail;
+            }
+            got_end_col_offset = true;
+        }
+        // fallthrough
+        case 0: {
+            tmp = PyTuple_GET_ITEM(pargs, 3);
+            if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                goto fail;
+            }
+            got_end_lineno = true;
+        }
+        // fallthrough
+        case -1: {
+            tmp = PyTuple_GET_ITEM(pargs, 2);
+            if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                goto fail;
+            }
+            got_col_offset = true;
+        }
+        // fallthrough
+        case -2: {
+            tmp = PyTuple_GET_ITEM(pargs, 1);
+            if (obj2imm_int(state, tmp, &lineno) < 0) {
+                goto fail;
+            }
+            got_lineno = true;
+        }
+        // fallthrough
+        case -3: {
+            tmp = PyTuple_GET_ITEM(pargs, 0);
+            if (obj2imm_identifier(state, tmp, &name) < 0) {
+                goto fail;
             }
         }
         // fallthrough
         default:
             break;
     }
-    return res;
+    if (kwargs != NULL && PyDict_Size(kwargs)) {
+        int err;
+        if (name != NULL) {
+            err = PyDict_PopString(kwargs, "name", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_identifier(state, tmp, &name) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_lineno) {
+            err = PyDict_PopString(kwargs, "lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_col_offset) {
+            err = PyDict_PopString(kwargs, "col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_lineno) {
+            err = PyDict_PopString(kwargs, "end_lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_col_offset) {
+            err = PyDict_PopString(kwargs, "end_col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (PyDict_Size(kwargs)) {
+            Py_ssize_t pos = 0;
+            PyObject *key;
+            while (PyDict_Next(kwargs, &pos, &key, NULL)) {
+                PyErr_Format(PyExc_TypeError,
+                                "%.400s.__replace__ got an unexpected keyword "
+                                "argument '%U'.", pytype->tp_name, key);
+                goto fail;
+            }
+        }
+    }
+    struct _pattern *res = (struct _pattern*)pytype->tp_alloc(pytype, 0);
+    if (!res) goto fail;
+    res->v.MatchStar.name = name;
+    res->lineno = lineno;
+    res->col_offset = col_offset;
+    res->end_lineno = end_lineno;
+    res->end_col_offset = end_col_offset;
+    return (PyObject *)res;
+fail:
+    Py_XDECREF(name);
+    return NULL;
 }
 
 static void MatchStar_dealloc(PyObject *self) {
@@ -17005,36 +26287,156 @@ error:
 }
 
 static PyObject *
-MatchAs_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+MatchAs_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
 {
-    PyObject *res = type->tp_alloc(type, 0);
-    if (!res) {
+    Py_ssize_t posargs = PyTuple_GET_SIZE(pargs);
+    if (posargs > 2) {
+        PyErr_SetString(PyExc_TypeError,
+                        "MatchAs takes at most 2 positional arguments");
         return NULL;
     }
+    pattern_ty pattern = NULL;
+    identifier name = NULL;
+    int lineno = 0;
+    bool got_lineno = false;
+    int col_offset = 0;
+    bool got_col_offset = false;
+    int end_lineno = 0;
+    bool got_end_lineno = false;
+    int end_col_offset = 0;
+    bool got_end_col_offset = false;
+    PyObject *tmp;
     struct ast_state *state = get_ast_state();
-    struct _pattern *self = (struct _pattern*)res;
-    Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     switch (posargs) {
         case 2: {
-            PyObject *value = PyTuple_GET_ITEM(args, 1);
-            if (obj2imm_identifier(state, value, &self->v.MatchAs.name) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 5);
+            if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                goto fail;
             }
+            got_end_col_offset = true;
         }
         // fallthrough
         case 1: {
-            PyObject *value = PyTuple_GET_ITEM(args, 0);
-            if (obj2imm_pattern(state, value, &self->v.MatchAs.pattern) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 4);
+            if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                goto fail;
+            }
+            got_end_lineno = true;
+        }
+        // fallthrough
+        case 0: {
+            tmp = PyTuple_GET_ITEM(pargs, 3);
+            if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                goto fail;
+            }
+            got_col_offset = true;
+        }
+        // fallthrough
+        case -1: {
+            tmp = PyTuple_GET_ITEM(pargs, 2);
+            if (obj2imm_int(state, tmp, &lineno) < 0) {
+                goto fail;
+            }
+            got_lineno = true;
+        }
+        // fallthrough
+        case -2: {
+            tmp = PyTuple_GET_ITEM(pargs, 1);
+            if (obj2imm_identifier(state, tmp, &name) < 0) {
+                goto fail;
+            }
+        }
+        // fallthrough
+        case -3: {
+            tmp = PyTuple_GET_ITEM(pargs, 0);
+            if (obj2imm_pattern(state, tmp, &pattern) < 0) {
+                goto fail;
             }
         }
         // fallthrough
         default:
             break;
     }
-    return res;
+    if (kwargs != NULL && PyDict_Size(kwargs)) {
+        int err;
+        if (pattern != NULL) {
+            err = PyDict_PopString(kwargs, "pattern", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_pattern(state, tmp, &pattern) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (name != NULL) {
+            err = PyDict_PopString(kwargs, "name", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_identifier(state, tmp, &name) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_lineno) {
+            err = PyDict_PopString(kwargs, "lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_col_offset) {
+            err = PyDict_PopString(kwargs, "col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_lineno) {
+            err = PyDict_PopString(kwargs, "end_lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_col_offset) {
+            err = PyDict_PopString(kwargs, "end_col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (PyDict_Size(kwargs)) {
+            Py_ssize_t pos = 0;
+            PyObject *key;
+            while (PyDict_Next(kwargs, &pos, &key, NULL)) {
+                PyErr_Format(PyExc_TypeError,
+                                "%.400s.__replace__ got an unexpected keyword "
+                                "argument '%U'.", pytype->tp_name, key);
+                goto fail;
+            }
+        }
+    }
+    struct _pattern *res = (struct _pattern*)pytype->tp_alloc(pytype, 0);
+    if (!res) goto fail;
+    res->v.MatchAs.pattern = pattern;
+    res->v.MatchAs.name = name;
+    res->lineno = lineno;
+    res->col_offset = col_offset;
+    res->end_lineno = end_lineno;
+    res->end_col_offset = end_col_offset;
+    return (PyObject *)res;
+fail:
+    Py_XDECREF(pattern);
+    Py_XDECREF(name);
+    return NULL;
 }
 
 static void MatchAs_dealloc(PyObject *self) {
@@ -17099,29 +26501,139 @@ error:
 }
 
 static PyObject *
-MatchOr_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+MatchOr_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
 {
-    PyObject *res = type->tp_alloc(type, 0);
-    if (!res) {
+    Py_ssize_t posargs = PyTuple_GET_SIZE(pargs);
+    if (posargs > 1) {
+        PyErr_SetString(PyExc_TypeError,
+                        "MatchOr takes at most 1 positional argument");
         return NULL;
     }
+    asdl_pattern_seq* patterns = NULL;
+    int lineno = 0;
+    bool got_lineno = false;
+    int col_offset = 0;
+    bool got_col_offset = false;
+    int end_lineno = 0;
+    bool got_end_lineno = false;
+    int end_col_offset = 0;
+    bool got_end_col_offset = false;
+    PyObject *tmp;
     struct ast_state *state = get_ast_state();
-    struct _pattern *self = (struct _pattern*)res;
-    Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     switch (posargs) {
         case 1: {
-            PyObject *value = PyTuple_GET_ITEM(args, 0);
-            if (obj2imm_pattern_seq(state, value, "", "patterns",
-                &self->v.MatchOr.patterns) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 4);
+            if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                goto fail;
+            }
+            got_end_col_offset = true;
+        }
+        // fallthrough
+        case 0: {
+            tmp = PyTuple_GET_ITEM(pargs, 3);
+            if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                goto fail;
+            }
+            got_end_lineno = true;
+        }
+        // fallthrough
+        case -1: {
+            tmp = PyTuple_GET_ITEM(pargs, 2);
+            if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                goto fail;
+            }
+            got_col_offset = true;
+        }
+        // fallthrough
+        case -2: {
+            tmp = PyTuple_GET_ITEM(pargs, 1);
+            if (obj2imm_int(state, tmp, &lineno) < 0) {
+                goto fail;
+            }
+            got_lineno = true;
+        }
+        // fallthrough
+        case -3: {
+            tmp = PyTuple_GET_ITEM(pargs, 0);
+            if (obj2imm_pattern_seq(state, tmp, "MatchOr", "patterns",
+                &patterns) < 0) {
+                goto fail;
             }
         }
         // fallthrough
         default:
             break;
     }
-    return res;
+    if (kwargs != NULL && PyDict_Size(kwargs)) {
+        int err;
+        if (patterns != NULL) {
+            err = PyDict_PopString(kwargs, "patterns", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_pattern_seq(state, tmp, "MatchOr", "patterns",
+                    &patterns) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_lineno) {
+            err = PyDict_PopString(kwargs, "lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_col_offset) {
+            err = PyDict_PopString(kwargs, "col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_lineno) {
+            err = PyDict_PopString(kwargs, "end_lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_col_offset) {
+            err = PyDict_PopString(kwargs, "end_col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (PyDict_Size(kwargs)) {
+            Py_ssize_t pos = 0;
+            PyObject *key;
+            while (PyDict_Next(kwargs, &pos, &key, NULL)) {
+                PyErr_Format(PyExc_TypeError,
+                                "%.400s.__replace__ got an unexpected keyword "
+                                "argument '%U'.", pytype->tp_name, key);
+                goto fail;
+            }
+        }
+    }
+    struct _pattern *res = (struct _pattern*)pytype->tp_alloc(pytype, 0);
+    if (!res) goto fail;
+    res->v.MatchOr.patterns = patterns;
+    res->lineno = lineno;
+    res->col_offset = col_offset;
+    res->end_lineno = end_lineno;
+    res->end_col_offset = end_col_offset;
+    return (PyObject *)res;
+fail:
+    Py_XDECREF(patterns);
+    return NULL;
 }
 
 static void MatchOr_dealloc(PyObject *self) {
@@ -17201,13 +26713,82 @@ pattern_ty _PyAst_pattern_Copy(pattern_ty node) {
 }
 
 static PyObject *
-pattern_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+pattern_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
 {
-    PyObject *res = type->tp_alloc(type, 0);
-    if (!res) {
+    Py_ssize_t posargs = PyTuple_GET_SIZE(pargs);
+    if (posargs > 0) {
+        PyErr_SetString(PyExc_TypeError,
+                        "pattern takes at most 0 positional arguments");
         return NULL;
     }
-    return res;
+    int lineno = 0;
+    bool got_lineno = false;
+    int col_offset = 0;
+    bool got_col_offset = false;
+    int end_lineno = 0;
+    bool got_end_lineno = false;
+    int end_col_offset = 0;
+    bool got_end_col_offset = false;
+    PyObject *tmp;
+    struct ast_state *state = get_ast_state();
+    if (kwargs != NULL && PyDict_Size(kwargs)) {
+        int err;
+        if (!got_lineno) {
+            err = PyDict_PopString(kwargs, "lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_col_offset) {
+            err = PyDict_PopString(kwargs, "col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_lineno) {
+            err = PyDict_PopString(kwargs, "end_lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_col_offset) {
+            err = PyDict_PopString(kwargs, "end_col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (PyDict_Size(kwargs)) {
+            Py_ssize_t pos = 0;
+            PyObject *key;
+            while (PyDict_Next(kwargs, &pos, &key, NULL)) {
+                PyErr_Format(PyExc_TypeError,
+                                "%.400s.__replace__ got an unexpected keyword "
+                                "argument '%U'.", pytype->tp_name, key);
+                goto fail;
+            }
+        }
+    }
+    struct _pattern *res = (struct _pattern*)pytype->tp_alloc(pytype, 0);
+    if (!res) goto fail;
+    res->lineno = lineno;
+    res->col_offset = col_offset;
+    res->end_lineno = end_lineno;
+    res->end_col_offset = end_col_offset;
+    return (PyObject *)res;
+fail:
+    return NULL;
 }
 
 static void pattern_dealloc(PyObject *self) {
@@ -17303,38 +26884,78 @@ asdl_pattern_seq *_PyAst_pattern_seq_Copy(asdl_pattern_seq *seq) {
 }
 
 static PyObject *
-TypeIgnore_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+TypeIgnore_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
 {
-    PyObject *res = type->tp_alloc(type, 0);
-    if (!res) {
+    Py_ssize_t posargs = PyTuple_GET_SIZE(pargs);
+    if (posargs > 2) {
+        PyErr_SetString(PyExc_TypeError,
+                        "TypeIgnore takes at most 2 positional arguments");
         return NULL;
     }
+    int lineno = 0;
+    bool got_lineno = false;
+    string tag = 0;
+    PyObject *tmp;
     struct ast_state *state = get_ast_state();
-    struct _type_ignore *self = (struct _type_ignore*)res;
-    Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     switch (posargs) {
         case 2: {
-            PyObject *value = PyTuple_GET_ITEM(args, 1);
-            if (obj2imm_string(state, value, &self->v.TypeIgnore.tag) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 1);
+            if (obj2imm_string(state, tmp, &tag) < 0) {
+                goto fail;
             }
         }
         // fallthrough
         case 1: {
-            PyObject *value = PyTuple_GET_ITEM(args, 0);
-            int out;
-            if (obj2imm_int(state, value, &out) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 0);
+            if (obj2imm_int(state, tmp, &lineno) < 0) {
+                goto fail;
             }
-            self->v.TypeIgnore.lineno = out;
+            got_lineno = true;
         }
         // fallthrough
         default:
             break;
     }
-    return res;
+    if (kwargs != NULL && PyDict_Size(kwargs)) {
+        int err;
+        if (!got_lineno) {
+            err = PyDict_PopString(kwargs, "lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (tag != NULL) {
+            err = PyDict_PopString(kwargs, "tag", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_string(state, tmp, &tag) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (PyDict_Size(kwargs)) {
+            Py_ssize_t pos = 0;
+            PyObject *key;
+            while (PyDict_Next(kwargs, &pos, &key, NULL)) {
+                PyErr_Format(PyExc_TypeError,
+                                "%.400s.__replace__ got an unexpected keyword "
+                                "argument '%U'.", pytype->tp_name, key);
+                goto fail;
+            }
+        }
+    }
+    struct _type_ignore *res = (struct _type_ignore*)pytype->tp_alloc(pytype,
+                                0);
+    if (!res) goto fail;
+    res->v.TypeIgnore.lineno = lineno;
+    res->v.TypeIgnore.tag = tag;
+    return (PyObject *)res;
+fail:
+    Py_XDECREF(tag);
+    return NULL;
 }
 
 static void TypeIgnore_dealloc(PyObject *self) {
@@ -17402,13 +27023,32 @@ type_ignore_ty _PyAst_type_ignore_Copy(type_ignore_ty node) {
 }
 
 static PyObject *
-type_ignore_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+type_ignore_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
 {
-    PyObject *res = type->tp_alloc(type, 0);
-    if (!res) {
+    Py_ssize_t posargs = PyTuple_GET_SIZE(pargs);
+    if (posargs > 0) {
+        PyErr_SetString(PyExc_TypeError,
+                        "type_ignore takes at most 0 positional arguments");
         return NULL;
     }
-    return res;
+    if (kwargs != NULL && PyDict_Size(kwargs)) {
+        if (PyDict_Size(kwargs)) {
+            Py_ssize_t pos = 0;
+            PyObject *key;
+            while (PyDict_Next(kwargs, &pos, &key, NULL)) {
+                PyErr_Format(PyExc_TypeError,
+                                "%.400s.__replace__ got an unexpected keyword "
+                                "argument '%U'.", pytype->tp_name, key);
+                goto fail;
+            }
+        }
+    }
+    struct _type_ignore *res = (struct _type_ignore*)pytype->tp_alloc(pytype,
+                                0);
+    if (!res) goto fail;
+    return (PyObject *)res;
+fail:
+    return NULL;
 }
 
 static void type_ignore_dealloc(PyObject *self) {
@@ -17497,45 +27137,175 @@ asdl_type_ignore_seq *_PyAst_type_ignore_seq_Copy(asdl_type_ignore_seq *seq) {
 }
 
 static PyObject *
-TypeVar_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+TypeVar_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
 {
-    PyObject *res = type->tp_alloc(type, 0);
-    if (!res) {
+    Py_ssize_t posargs = PyTuple_GET_SIZE(pargs);
+    if (posargs > 3) {
+        PyErr_SetString(PyExc_TypeError,
+                        "TypeVar takes at most 3 positional arguments");
         return NULL;
     }
+    identifier name = NULL;
+    expr_ty bound = NULL;
+    expr_ty default_value = NULL;
+    int lineno = 0;
+    bool got_lineno = false;
+    int col_offset = 0;
+    bool got_col_offset = false;
+    int end_lineno = 0;
+    bool got_end_lineno = false;
+    int end_col_offset = 0;
+    bool got_end_col_offset = false;
+    PyObject *tmp;
     struct ast_state *state = get_ast_state();
-    struct _type_param *self = (struct _type_param*)res;
-    Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     switch (posargs) {
         case 3: {
-            PyObject *value = PyTuple_GET_ITEM(args, 2);
-            if (obj2imm_expr(state, value, &self->v.TypeVar.default_value) < 0)
-                {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 6);
+            if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                goto fail;
             }
+            got_end_col_offset = true;
         }
         // fallthrough
         case 2: {
-            PyObject *value = PyTuple_GET_ITEM(args, 1);
-            if (obj2imm_expr(state, value, &self->v.TypeVar.bound) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 5);
+            if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                goto fail;
             }
+            got_end_lineno = true;
         }
         // fallthrough
         case 1: {
-            PyObject *value = PyTuple_GET_ITEM(args, 0);
-            if (obj2imm_identifier(state, value, &self->v.TypeVar.name) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 4);
+            if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                goto fail;
+            }
+            got_col_offset = true;
+        }
+        // fallthrough
+        case 0: {
+            tmp = PyTuple_GET_ITEM(pargs, 3);
+            if (obj2imm_int(state, tmp, &lineno) < 0) {
+                goto fail;
+            }
+            got_lineno = true;
+        }
+        // fallthrough
+        case -1: {
+            tmp = PyTuple_GET_ITEM(pargs, 2);
+            if (obj2imm_expr(state, tmp, &default_value) < 0) {
+                goto fail;
+            }
+        }
+        // fallthrough
+        case -2: {
+            tmp = PyTuple_GET_ITEM(pargs, 1);
+            if (obj2imm_expr(state, tmp, &bound) < 0) {
+                goto fail;
+            }
+        }
+        // fallthrough
+        case -3: {
+            tmp = PyTuple_GET_ITEM(pargs, 0);
+            if (obj2imm_identifier(state, tmp, &name) < 0) {
+                goto fail;
             }
         }
         // fallthrough
         default:
             break;
     }
-    return res;
+    if (kwargs != NULL && PyDict_Size(kwargs)) {
+        int err;
+        if (name != NULL) {
+            err = PyDict_PopString(kwargs, "name", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_identifier(state, tmp, &name) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (bound != NULL) {
+            err = PyDict_PopString(kwargs, "bound", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_expr(state, tmp, &bound) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (default_value != NULL) {
+            err = PyDict_PopString(kwargs, "default_value", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_expr(state, tmp, &default_value) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_lineno) {
+            err = PyDict_PopString(kwargs, "lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_col_offset) {
+            err = PyDict_PopString(kwargs, "col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_lineno) {
+            err = PyDict_PopString(kwargs, "end_lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_col_offset) {
+            err = PyDict_PopString(kwargs, "end_col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (PyDict_Size(kwargs)) {
+            Py_ssize_t pos = 0;
+            PyObject *key;
+            while (PyDict_Next(kwargs, &pos, &key, NULL)) {
+                PyErr_Format(PyExc_TypeError,
+                                "%.400s.__replace__ got an unexpected keyword "
+                                "argument '%U'.", pytype->tp_name, key);
+                goto fail;
+            }
+        }
+    }
+    struct _type_param *res = (struct _type_param*)pytype->tp_alloc(pytype, 0);
+    if (!res) goto fail;
+    res->v.TypeVar.name = name;
+    res->v.TypeVar.bound = bound;
+    res->v.TypeVar.default_value = default_value;
+    res->lineno = lineno;
+    res->col_offset = col_offset;
+    res->end_lineno = end_lineno;
+    res->end_col_offset = end_col_offset;
+    return (PyObject *)res;
+fail:
+    Py_XDECREF(name);
+    Py_XDECREF(bound);
+    Py_XDECREF(default_value);
+    return NULL;
 }
 
 static void TypeVar_dealloc(PyObject *self) {
@@ -17610,37 +27380,156 @@ error:
 }
 
 static PyObject *
-ParamSpec_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+ParamSpec_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
 {
-    PyObject *res = type->tp_alloc(type, 0);
-    if (!res) {
+    Py_ssize_t posargs = PyTuple_GET_SIZE(pargs);
+    if (posargs > 2) {
+        PyErr_SetString(PyExc_TypeError,
+                        "ParamSpec takes at most 2 positional arguments");
         return NULL;
     }
+    identifier name = NULL;
+    expr_ty default_value = NULL;
+    int lineno = 0;
+    bool got_lineno = false;
+    int col_offset = 0;
+    bool got_col_offset = false;
+    int end_lineno = 0;
+    bool got_end_lineno = false;
+    int end_col_offset = 0;
+    bool got_end_col_offset = false;
+    PyObject *tmp;
     struct ast_state *state = get_ast_state();
-    struct _type_param *self = (struct _type_param*)res;
-    Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     switch (posargs) {
         case 2: {
-            PyObject *value = PyTuple_GET_ITEM(args, 1);
-            if (obj2imm_expr(state, value, &self->v.ParamSpec.default_value) <
-                0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 5);
+            if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                goto fail;
             }
+            got_end_col_offset = true;
         }
         // fallthrough
         case 1: {
-            PyObject *value = PyTuple_GET_ITEM(args, 0);
-            if (obj2imm_identifier(state, value, &self->v.ParamSpec.name) < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 4);
+            if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                goto fail;
+            }
+            got_end_lineno = true;
+        }
+        // fallthrough
+        case 0: {
+            tmp = PyTuple_GET_ITEM(pargs, 3);
+            if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                goto fail;
+            }
+            got_col_offset = true;
+        }
+        // fallthrough
+        case -1: {
+            tmp = PyTuple_GET_ITEM(pargs, 2);
+            if (obj2imm_int(state, tmp, &lineno) < 0) {
+                goto fail;
+            }
+            got_lineno = true;
+        }
+        // fallthrough
+        case -2: {
+            tmp = PyTuple_GET_ITEM(pargs, 1);
+            if (obj2imm_expr(state, tmp, &default_value) < 0) {
+                goto fail;
+            }
+        }
+        // fallthrough
+        case -3: {
+            tmp = PyTuple_GET_ITEM(pargs, 0);
+            if (obj2imm_identifier(state, tmp, &name) < 0) {
+                goto fail;
             }
         }
         // fallthrough
         default:
             break;
     }
-    return res;
+    if (kwargs != NULL && PyDict_Size(kwargs)) {
+        int err;
+        if (name != NULL) {
+            err = PyDict_PopString(kwargs, "name", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_identifier(state, tmp, &name) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (default_value != NULL) {
+            err = PyDict_PopString(kwargs, "default_value", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_expr(state, tmp, &default_value) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_lineno) {
+            err = PyDict_PopString(kwargs, "lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_col_offset) {
+            err = PyDict_PopString(kwargs, "col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_lineno) {
+            err = PyDict_PopString(kwargs, "end_lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_col_offset) {
+            err = PyDict_PopString(kwargs, "end_col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (PyDict_Size(kwargs)) {
+            Py_ssize_t pos = 0;
+            PyObject *key;
+            while (PyDict_Next(kwargs, &pos, &key, NULL)) {
+                PyErr_Format(PyExc_TypeError,
+                                "%.400s.__replace__ got an unexpected keyword "
+                                "argument '%U'.", pytype->tp_name, key);
+                goto fail;
+            }
+        }
+    }
+    struct _type_param *res = (struct _type_param*)pytype->tp_alloc(pytype, 0);
+    if (!res) goto fail;
+    res->v.ParamSpec.name = name;
+    res->v.ParamSpec.default_value = default_value;
+    res->lineno = lineno;
+    res->col_offset = col_offset;
+    res->end_lineno = end_lineno;
+    res->end_col_offset = end_col_offset;
+    return (PyObject *)res;
+fail:
+    Py_XDECREF(name);
+    Py_XDECREF(default_value);
+    return NULL;
 }
 
 static void ParamSpec_dealloc(PyObject *self) {
@@ -17706,38 +27595,156 @@ error:
 }
 
 static PyObject *
-TypeVarTuple_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+TypeVarTuple_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
 {
-    PyObject *res = type->tp_alloc(type, 0);
-    if (!res) {
+    Py_ssize_t posargs = PyTuple_GET_SIZE(pargs);
+    if (posargs > 2) {
+        PyErr_SetString(PyExc_TypeError,
+                        "TypeVarTuple takes at most 2 positional arguments");
         return NULL;
     }
+    identifier name = NULL;
+    expr_ty default_value = NULL;
+    int lineno = 0;
+    bool got_lineno = false;
+    int col_offset = 0;
+    bool got_col_offset = false;
+    int end_lineno = 0;
+    bool got_end_lineno = false;
+    int end_col_offset = 0;
+    bool got_end_col_offset = false;
+    PyObject *tmp;
     struct ast_state *state = get_ast_state();
-    struct _type_param *self = (struct _type_param*)res;
-    Py_ssize_t posargs = PyTuple_GET_SIZE(args);
     switch (posargs) {
         case 2: {
-            PyObject *value = PyTuple_GET_ITEM(args, 1);
-            if (obj2imm_expr(state, value, &self->v.TypeVarTuple.default_value)
-                < 0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 5);
+            if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                goto fail;
             }
+            got_end_col_offset = true;
         }
         // fallthrough
         case 1: {
-            PyObject *value = PyTuple_GET_ITEM(args, 0);
-            if (obj2imm_identifier(state, value, &self->v.TypeVarTuple.name) <
-                0) {
-                Py_DECREF(res);
-                return NULL;
+            tmp = PyTuple_GET_ITEM(pargs, 4);
+            if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                goto fail;
+            }
+            got_end_lineno = true;
+        }
+        // fallthrough
+        case 0: {
+            tmp = PyTuple_GET_ITEM(pargs, 3);
+            if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                goto fail;
+            }
+            got_col_offset = true;
+        }
+        // fallthrough
+        case -1: {
+            tmp = PyTuple_GET_ITEM(pargs, 2);
+            if (obj2imm_int(state, tmp, &lineno) < 0) {
+                goto fail;
+            }
+            got_lineno = true;
+        }
+        // fallthrough
+        case -2: {
+            tmp = PyTuple_GET_ITEM(pargs, 1);
+            if (obj2imm_expr(state, tmp, &default_value) < 0) {
+                goto fail;
+            }
+        }
+        // fallthrough
+        case -3: {
+            tmp = PyTuple_GET_ITEM(pargs, 0);
+            if (obj2imm_identifier(state, tmp, &name) < 0) {
+                goto fail;
             }
         }
         // fallthrough
         default:
             break;
     }
-    return res;
+    if (kwargs != NULL && PyDict_Size(kwargs)) {
+        int err;
+        if (name != NULL) {
+            err = PyDict_PopString(kwargs, "name", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_identifier(state, tmp, &name) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (default_value != NULL) {
+            err = PyDict_PopString(kwargs, "default_value", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_expr(state, tmp, &default_value) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_lineno) {
+            err = PyDict_PopString(kwargs, "lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_col_offset) {
+            err = PyDict_PopString(kwargs, "col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_lineno) {
+            err = PyDict_PopString(kwargs, "end_lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_col_offset) {
+            err = PyDict_PopString(kwargs, "end_col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (PyDict_Size(kwargs)) {
+            Py_ssize_t pos = 0;
+            PyObject *key;
+            while (PyDict_Next(kwargs, &pos, &key, NULL)) {
+                PyErr_Format(PyExc_TypeError,
+                                "%.400s.__replace__ got an unexpected keyword "
+                                "argument '%U'.", pytype->tp_name, key);
+                goto fail;
+            }
+        }
+    }
+    struct _type_param *res = (struct _type_param*)pytype->tp_alloc(pytype, 0);
+    if (!res) goto fail;
+    res->v.TypeVarTuple.name = name;
+    res->v.TypeVarTuple.default_value = default_value;
+    res->lineno = lineno;
+    res->col_offset = col_offset;
+    res->end_lineno = end_lineno;
+    res->end_col_offset = end_col_offset;
+    return (PyObject *)res;
+fail:
+    Py_XDECREF(name);
+    Py_XDECREF(default_value);
+    return NULL;
 }
 
 static void TypeVarTuple_dealloc(PyObject *self) {
@@ -17816,13 +27823,82 @@ type_param_ty _PyAst_type_param_Copy(type_param_ty node) {
 }
 
 static PyObject *
-type_param_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+type_param_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)
 {
-    PyObject *res = type->tp_alloc(type, 0);
-    if (!res) {
+    Py_ssize_t posargs = PyTuple_GET_SIZE(pargs);
+    if (posargs > 0) {
+        PyErr_SetString(PyExc_TypeError,
+                        "type_param takes at most 0 positional arguments");
         return NULL;
     }
-    return res;
+    int lineno = 0;
+    bool got_lineno = false;
+    int col_offset = 0;
+    bool got_col_offset = false;
+    int end_lineno = 0;
+    bool got_end_lineno = false;
+    int end_col_offset = 0;
+    bool got_end_col_offset = false;
+    PyObject *tmp;
+    struct ast_state *state = get_ast_state();
+    if (kwargs != NULL && PyDict_Size(kwargs)) {
+        int err;
+        if (!got_lineno) {
+            err = PyDict_PopString(kwargs, "lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_col_offset) {
+            err = PyDict_PopString(kwargs, "col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_lineno) {
+            err = PyDict_PopString(kwargs, "end_lineno", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_lineno) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (!got_end_col_offset) {
+            err = PyDict_PopString(kwargs, "end_col_offset", &tmp);
+            if (err < 0) goto fail;
+            if (err) {
+                if (obj2imm_int(state, tmp, &end_col_offset) < 0) {
+                    goto fail;
+                }
+            }
+        }
+        if (PyDict_Size(kwargs)) {
+            Py_ssize_t pos = 0;
+            PyObject *key;
+            while (PyDict_Next(kwargs, &pos, &key, NULL)) {
+                PyErr_Format(PyExc_TypeError,
+                                "%.400s.__replace__ got an unexpected keyword "
+                                "argument '%U'.", pytype->tp_name, key);
+                goto fail;
+            }
+        }
+    }
+    struct _type_param *res = (struct _type_param*)pytype->tp_alloc(pytype, 0);
+    if (!res) goto fail;
+    res->lineno = lineno;
+    res->col_offset = col_offset;
+    res->end_lineno = end_lineno;
+    res->end_col_offset = end_col_offset;
+    return (PyObject *)res;
+fail:
+    return NULL;
 }
 
 static void type_param_dealloc(PyObject *self) {

@@ -2964,7 +2964,7 @@ class NodesVisitor(EmitVisitor):
 
     def visitSum(self, sum, name, depth = 0):
         if is_simple(sum):
-            self.emit_new("->", name, name)
+            self.emit_new("->", name, name, attributes=sum.attributes, primary_sum=True)
 
             self.emit(f"static void {name}_dealloc(PyObject *self) {{", 0)
             self.emit_dealloc_footer()
@@ -2973,7 +2973,7 @@ class NodesVisitor(EmitVisitor):
             self.ast_type(name, "object", asdl_of(name, sum))
             
             for cons in sum.types:
-                self.emit_new(f"->v.{cons.name}.", cons.name, name, cons.fields)
+                self.emit_new(f"->v.{cons.name}.", cons.name, name, cons.fields, sum.attributes)
 
                 self.emit(f"static void {cons.name}_dealloc(PyObject *self) {{", 0)
                 self.emit_dealloc_footer()
@@ -2981,10 +2981,9 @@ class NodesVisitor(EmitVisitor):
                 self.ast_type(cons.name, "object", asdl_of(cons.name, cons))
             return
 
-
-
         for cons in sum.types:
-            self.emit_new(f"->v.{cons.name}.", cons.name, name, cons.fields)
+            self.emit_new(f"->v.{cons.name}.", cons.name, name, cons.fields, sum.attributes)
+
             self.emit_dealloc_header(cons.name, name, len(cons.fields) > 0)
             self.emit_type_dealloc(f"obj->v.{cons.name}.", cons, cons.fields, 1)
             self.emit_dealloc_footer()
@@ -3004,7 +3003,7 @@ class NodesVisitor(EmitVisitor):
         self.emit("}", 0)
         self.emit("", 0)
 
-        self.emit_new("->", name, name)
+        self.emit_new("->", name, name, attributes=sum.attributes, primary_sum=True)
 
         self.emit_dealloc_header(name, name, False)
         self.emit_type_dealloc(f"obj->", name, [], 1)
@@ -3036,62 +3035,138 @@ class NodesVisitor(EmitVisitor):
         self.emit("{0}", 1)
         self.emit("};", 0)
 
-    def emit_new(self, attrs, name, type_name, fields = (), attributes = ()):
+    def emit_new(self, attrs, name, type_name, fields = (), attributes = (), primary_sum = False):
         self.emit("static PyObject *", 0)
         self.emit(
-            f"{name}_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)", 0
+            f"{name}_new(PyTypeObject *pytype, PyObject *pargs, PyObject *kwargs)", 0
         )
         self.emit("{", 0)
-        self.emit("PyObject *res = type->tp_alloc(type, 0);", 1)
-
-        self.emit("if (!res) {", 1)
+        arguments = "arguments" if len(fields) != 1 else "argument"
+        self.emit(f"Py_ssize_t posargs = PyTuple_GET_SIZE(pargs);", 1)
+        self.emit(f"if (posargs > {len(fields)}) {{", 1)
+        self.emit("PyErr_SetString(PyExc_TypeError,", 2)
+        self.emit(f'                "{name} takes at most {len(fields)} positional {arguments}");', 2, reflow=False)
         self.emit("return NULL;", 2)
         self.emit("}", 1)
-        if fields:
+
+        all_mems = tuple(fields) + tuple(attributes)
+        for field in all_mems:
+            self.visitFieldDeclaration(field, depth=1)
+            if self.isSimpleType(field):
+                self.emit(f"bool got_{field.name} = false;", 1)
+
+        if fields or attributes:
+            self.emit("PyObject *tmp;", 1)
             self.emit("struct ast_state *state = get_ast_state();", 1)
-            self.emit(f"struct _{type_name} *self = (struct _{type_name}*)res;", 1)
-            self.emit("Py_ssize_t posargs = PyTuple_GET_SIZE(args);", 1)
+        if fields:
             self.emit("switch (posargs) {", 1)
-            for i, field in enumerate(reversed(fields)):
+            for i, field in enumerate(reversed(all_mems)):
                 self.emit(f"case {len(fields)-i}: {{", 2)
-                self.emit_field_new(field, attrs, len(fields) - i - 1, 3)
+                self.emit(f"tmp = PyTuple_GET_ITEM(pargs, {len(all_mems) - i - 1});", 3)
+                self.emit_field_new(field, name, 3)
+                if self.isSimpleType(field):
+                    self.emit(f"got_{field.name} = true;", 3)
                 self.emit("}", 2)
                 self.emit("// fallthrough", 2)
             self.emit("default:", 2)
             self.emit("break;", 3)
             self.emit("}", 1)
 
-        for attribute in attributes:
-            pass
+        self.emit("if (kwargs != NULL && PyDict_Size(kwargs)) {", 1)
+        if all_mems:
+            self.emit("int err;", 2)
+        for field in all_mems:
+            if self.isSimpleType(field):
+                self.emit(f"if (!got_{field.name}) {{", 2)
+            else:
+                self.emit(f"if ({field.name} != NULL) {{", 2)
+            self.emit(f'err = PyDict_PopString(kwargs, "{field.name}", &tmp);', 3)
+            self.emit("if (err < 0) goto fail;", 3)
+            self.emit("if (err) {", 3)
+            self.emit_field_new(field, name, 4)
+            self.emit("}", 3)
+            self.emit("}", 2)
+        #for attribute in attributes:
+        #    self.emit(f'err = PyDict_PopString(kwargs, "{attribute.name}", &result);', 2)
+        #    self.emit("if (err < 0) goto fail;", 2)
+        #    self.emit("if (err) {", 2)
+        #    self.emit("}", 2)
+        
+        self.emit("""if (PyDict_Size(kwargs)) {
+            Py_ssize_t pos = 0;
+            PyObject *key;
+            while (PyDict_Next(kwargs, &pos, &key, NULL)) {
+                PyErr_Format(PyExc_TypeError,
+                                "%.400s.__replace__ got an unexpected keyword "
+                                "argument '%U'.", pytype->tp_name, key);
+                goto fail;
+            }
+        }""", 2, reflow=False)
 
-        self.emit("return res;", 1)
+        self.emit("}", 1)
+
+        if type_name in self.metadata.simple_sums:
+            if primary_sum:
+                self.emit("return pytype->tp_alloc(pytype, 0);", 1)
+            else:
+                self.emit("struct ast_state *state = get_ast_state();", 1)
+                self.emit(f"return Py_NewRef(state->_{name}_singleton);", 1)
+        else:
+            self.emit(f"struct _{type_name} *res = (struct _{type_name}*)pytype->tp_alloc(pytype, 0);", 1)
+
+            self.emit("if (!res) goto fail;", 1)
+            for field in fields:
+                self.emit(f"res{attrs}{field.name} = {field.name};", 1)
+            for attribute in attributes:
+                self.emit(f"res->{attribute.name} = {attribute.name};", 1)
+            self.emit("return (PyObject *)res;", 1)
+        self.emit("fail:", 0)
+        for field in all_mems:
+            if not self.isSimpleType(field):
+                self.emit(f"Py_XDECREF({field.name});", 1)
+        self.emit("return NULL;", 1)
         self.emit("}", 0)
         self.emit("", 0)
 
-    def emit_field_new(self, field, attrs, i, depth):
-        self.emit(f"PyObject *value = PyTuple_GET_ITEM(args, {i});", depth)
+    def isNumeric(self, field):
+        return get_c_type(field.type) in ("int", "bool")
+
+    def isSimpleType(self, field):
+        return field.type in self.metadata.simple_sums or self.isNumeric(field)
+
+    def visitFieldDeclaration(self, field, depth=0):
+        ctype = get_c_type(field.type)
+        if field.seq:
+            if self.isSimpleType(field):
+                self.emit("asdl_int_seq* %s = NULL;" % field.name, depth)
+            else:
+                _type = field.type
+                self.emit(f"asdl_{field.type}_seq* {field.name} = NULL;", depth)
+        else:
+            ctype = get_c_type(field.type)
+            if ctype not in NON_PYOBJECT_TYPES:
+                self.emit("%s %s = NULL;" % (ctype, field.name), depth)
+            else:
+                self.emit("%s %s = 0;" % (ctype, field.name), depth)
+
+    def emit_field_new(self, field, container, depth):
         if asdl.Quantifier.SEQUENCE in field.quantifiers:
             t = f"(asdl_{field.type}_seq *)" if field.type != "cmpop" else "(asdl_int_seq *)"
-            self.emit(f'if (obj2imm_{field.type}_seq(state, value, "", "{field.name}", &self{attrs}{field.name}) < 0) {{', depth)
-            self.emit("Py_DECREF(res);", depth+1)
-            self.emit("return NULL;", depth+1)
+            self.emit(f'if (obj2imm_{field.type}_seq(state, tmp, "{container}", "{field.name}", &{field.name}) < 0) {{', depth)
+            self.emit("goto fail;", depth+1)
             self.emit("}", depth)
         elif field.type in self.metadata.simple_sums or field.type == "int":
             t = "int" if field.type == "int" else f"{field.type}_ty"
-            self.emit(f"{t} out;", depth)
-            self.emit(f"if (obj2imm_{field.type}(state, value, &out) < 0) {{", depth)
-            self.emit("Py_DECREF(res);", depth+1)
-            self.emit("return NULL;", depth+1)
+            self.emit(f"if (obj2imm_{field.type}(state, tmp, &{field.name}) < 0) {{", depth)
+            self.emit("goto fail;", depth+1)
             self.emit("}", depth)
-            self.emit(f"self{attrs}{field.name} = out;", depth)
         else:
-            if field.type not in ("string", "constant", "identifier"):
-                cast = f"(struct _{field.type} *)"
-            else:
-                cast = ""
-            self.emit(f"if (obj2imm_{field.type}(state, value, &self{attrs}{field.name}) < 0) {{", depth)
-            self.emit("Py_DECREF(res);", depth+1)
-            self.emit("return NULL;", depth+1)
+            #if field.type not in ("string", "constant", "identifier"):
+            #    cast = f"(struct _{field.type} *)"
+            #else:
+            #    cast = ""
+            self.emit(f"if (obj2imm_{field.type}(state, tmp, &{field.name}) < 0) {{", depth)
+            self.emit("goto fail;", depth+1)
             self.emit("}", depth)
 
     def ast_type(self, node_name, type_name, doc=""):
