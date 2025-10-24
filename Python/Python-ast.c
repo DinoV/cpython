@@ -7140,6 +7140,7 @@ mod_ty _PyAst_Module_Copy(mod_ty self) {
     if (res == NULL) {
         goto error;
     }
+    res->kind = Module_kind;
     if (self->v.Module.body != NULL) {
         res->v.Module.body = _PyAst_stmt_seq_Copy(self->v.Module.body);
         ERROR_IF_NULL(res->v.Module.body);
@@ -7255,6 +7256,7 @@ mod_ty _PyAst_Interactive_Copy(mod_ty self) {
     if (res == NULL) {
         goto error;
     }
+    res->kind = Interactive_kind;
     if (self->v.Interactive.body != NULL) {
         res->v.Interactive.body =
         _PyAst_stmt_seq_Copy(self->v.Interactive.body);
@@ -7362,6 +7364,7 @@ mod_ty _PyAst_Expression_Copy(mod_ty self) {
     if (res == NULL) {
         goto error;
     }
+    res->kind = Expression_kind;
     if (self->v.Expression.body != NULL) {
         res->v.Expression.body = _PyAst_expr_Copy(self->v.Expression.body);
         ERROR_IF_NULL(res->v.Expression.body);
@@ -7492,6 +7495,7 @@ mod_ty _PyAst_FunctionType_Copy(mod_ty self) {
     if (res == NULL) {
         goto error;
     }
+    res->kind = FunctionType_kind;
     if (self->v.FunctionType.argtypes != NULL) {
         res->v.FunctionType.argtypes =
         _PyAst_expr_seq_Copy(self->v.FunctionType.argtypes);
@@ -7954,6 +7958,7 @@ stmt_ty _PyAst_FunctionDef_Copy(stmt_ty self) {
     if (res == NULL) {
         goto error;
     }
+    res->kind = FunctionDef_kind;
     if (self->v.FunctionDef.name != NULL) {
         res->v.FunctionDef.name = Py_NewRef(self->v.FunctionDef.name);
         ERROR_IF_NULL(res->v.FunctionDef.name);
@@ -8002,6 +8007,10 @@ stmt_ty _PyAst_FunctionDef_Copy(stmt_ty self) {
     } else {
         res->v.FunctionDef.type_params = NULL;
     }
+    res->lineno = self->lineno;
+    res->col_offset = self->col_offset;
+    res->end_lineno = self->end_lineno;
+    res->end_col_offset = self->end_col_offset;
     return res;
 error:
     Py_XDECREF(res);
@@ -8320,6 +8329,7 @@ stmt_ty _PyAst_AsyncFunctionDef_Copy(stmt_ty self) {
     if (res == NULL) {
         goto error;
     }
+    res->kind = AsyncFunctionDef_kind;
     if (self->v.AsyncFunctionDef.name != NULL) {
         res->v.AsyncFunctionDef.name = Py_NewRef(self->v.AsyncFunctionDef.name);
         ERROR_IF_NULL(res->v.AsyncFunctionDef.name);
@@ -8368,6 +8378,10 @@ stmt_ty _PyAst_AsyncFunctionDef_Copy(stmt_ty self) {
     } else {
         res->v.AsyncFunctionDef.type_params = NULL;
     }
+    res->lineno = self->lineno;
+    res->col_offset = self->col_offset;
+    res->end_lineno = self->end_lineno;
+    res->end_col_offset = self->end_col_offset;
     return res;
 error:
     Py_XDECREF(res);
@@ -8666,6 +8680,7 @@ stmt_ty _PyAst_ClassDef_Copy(stmt_ty self) {
     if (res == NULL) {
         goto error;
     }
+    res->kind = ClassDef_kind;
     if (self->v.ClassDef.name != NULL) {
         res->v.ClassDef.name = Py_NewRef(self->v.ClassDef.name);
         ERROR_IF_NULL(res->v.ClassDef.name);
@@ -8705,6 +8720,10 @@ stmt_ty _PyAst_ClassDef_Copy(stmt_ty self) {
     } else {
         res->v.ClassDef.type_params = NULL;
     }
+    res->lineno = self->lineno;
+    res->col_offset = self->col_offset;
+    res->end_lineno = self->end_lineno;
+    res->end_col_offset = self->end_col_offset;
     return res;
 error:
     Py_XDECREF(res);
@@ -8885,12 +8904,17 @@ stmt_ty _PyAst_Return_Copy(stmt_ty self) {
     if (res == NULL) {
         goto error;
     }
+    res->kind = Return_kind;
     if (self->v.Return.value != NULL) {
         res->v.Return.value = _PyAst_expr_Copy(self->v.Return.value);
         ERROR_IF_NULL(res->v.Return.value);
     } else {
         res->v.Return.value = NULL;
     }
+    res->lineno = self->lineno;
+    res->col_offset = self->col_offset;
+    res->end_lineno = self->end_lineno;
+    res->end_col_offset = self->end_col_offset;
     return res;
 error:
     Py_XDECREF(res);
@@ -9073,12 +9097,17 @@ stmt_ty _PyAst_Delete_Copy(stmt_ty self) {
     if (res == NULL) {
         goto error;
     }
+    res->kind = Delete_kind;
     if (self->v.Delete.targets != NULL) {
         res->v.Delete.targets = _PyAst_expr_seq_Copy(self->v.Delete.targets);
         ERROR_IF_NULL(res->v.Delete.targets);
     } else {
         res->v.Delete.targets = NULL;
     }
+    res->lineno = self->lineno;
+    res->col_offset = self->col_offset;
+    res->end_lineno = self->end_lineno;
+    res->end_col_offset = self->end_col_offset;
     return res;
 error:
     Py_XDECREF(res);
@@ -9305,6 +9334,7 @@ stmt_ty _PyAst_Assign_Copy(stmt_ty self) {
     if (res == NULL) {
         goto error;
     }
+    res->kind = Assign_kind;
     if (self->v.Assign.targets != NULL) {
         res->v.Assign.targets = _PyAst_expr_seq_Copy(self->v.Assign.targets);
         ERROR_IF_NULL(res->v.Assign.targets);
@@ -9323,6 +9353,10 @@ stmt_ty _PyAst_Assign_Copy(stmt_ty self) {
     } else {
         res->v.Assign.type_comment = NULL;
     }
+    res->lineno = self->lineno;
+    res->col_offset = self->col_offset;
+    res->end_lineno = self->end_lineno;
+    res->end_col_offset = self->end_col_offset;
     return res;
 error:
     Py_XDECREF(res);
@@ -9549,6 +9583,7 @@ stmt_ty _PyAst_TypeAlias_Copy(stmt_ty self) {
     if (res == NULL) {
         goto error;
     }
+    res->kind = TypeAlias_kind;
     if (self->v.TypeAlias.name != NULL) {
         res->v.TypeAlias.name = _PyAst_expr_Copy(self->v.TypeAlias.name);
         ERROR_IF_NULL(res->v.TypeAlias.name);
@@ -9568,6 +9603,10 @@ stmt_ty _PyAst_TypeAlias_Copy(stmt_ty self) {
     } else {
         res->v.TypeAlias.value = NULL;
     }
+    res->lineno = self->lineno;
+    res->col_offset = self->col_offset;
+    res->end_lineno = self->end_lineno;
+    res->end_col_offset = self->end_col_offset;
     return res;
 error:
     Py_XDECREF(res);
@@ -9791,6 +9830,7 @@ stmt_ty _PyAst_AugAssign_Copy(stmt_ty self) {
     if (res == NULL) {
         goto error;
     }
+    res->kind = AugAssign_kind;
     if (self->v.AugAssign.target != NULL) {
         res->v.AugAssign.target = _PyAst_expr_Copy(self->v.AugAssign.target);
         ERROR_IF_NULL(res->v.AugAssign.target);
@@ -9804,6 +9844,10 @@ stmt_ty _PyAst_AugAssign_Copy(stmt_ty self) {
     } else {
         res->v.AugAssign.value = NULL;
     }
+    res->lineno = self->lineno;
+    res->col_offset = self->col_offset;
+    res->end_lineno = self->end_lineno;
+    res->end_col_offset = self->end_col_offset;
     return res;
 error:
     Py_XDECREF(res);
@@ -10050,6 +10094,7 @@ stmt_ty _PyAst_AnnAssign_Copy(stmt_ty self) {
     if (res == NULL) {
         goto error;
     }
+    res->kind = AnnAssign_kind;
     if (self->v.AnnAssign.target != NULL) {
         res->v.AnnAssign.target = _PyAst_expr_Copy(self->v.AnnAssign.target);
         ERROR_IF_NULL(res->v.AnnAssign.target);
@@ -10070,6 +10115,10 @@ stmt_ty _PyAst_AnnAssign_Copy(stmt_ty self) {
         res->v.AnnAssign.value = NULL;
     }
     res->v.AnnAssign.simple = self->v.AnnAssign.simple;
+    res->lineno = self->lineno;
+    res->col_offset = self->col_offset;
+    res->end_lineno = self->end_lineno;
+    res->end_col_offset = self->end_col_offset;
     return res;
 error:
     Py_XDECREF(res);
@@ -10338,6 +10387,7 @@ stmt_ty _PyAst_For_Copy(stmt_ty self) {
     if (res == NULL) {
         goto error;
     }
+    res->kind = For_kind;
     if (self->v.For.target != NULL) {
         res->v.For.target = _PyAst_expr_Copy(self->v.For.target);
         ERROR_IF_NULL(res->v.For.target);
@@ -10368,6 +10418,10 @@ stmt_ty _PyAst_For_Copy(stmt_ty self) {
     } else {
         res->v.For.type_comment = NULL;
     }
+    res->lineno = self->lineno;
+    res->col_offset = self->col_offset;
+    res->end_lineno = self->end_lineno;
+    res->end_col_offset = self->end_col_offset;
     return res;
 error:
     Py_XDECREF(res);
@@ -10639,6 +10693,7 @@ stmt_ty _PyAst_AsyncFor_Copy(stmt_ty self) {
     if (res == NULL) {
         goto error;
     }
+    res->kind = AsyncFor_kind;
     if (self->v.AsyncFor.target != NULL) {
         res->v.AsyncFor.target = _PyAst_expr_Copy(self->v.AsyncFor.target);
         ERROR_IF_NULL(res->v.AsyncFor.target);
@@ -10669,6 +10724,10 @@ stmt_ty _PyAst_AsyncFor_Copy(stmt_ty self) {
     } else {
         res->v.AsyncFor.type_comment = NULL;
     }
+    res->lineno = self->lineno;
+    res->col_offset = self->col_offset;
+    res->end_lineno = self->end_lineno;
+    res->end_col_offset = self->end_col_offset;
     return res;
 error:
     Py_XDECREF(res);
@@ -10894,6 +10953,7 @@ stmt_ty _PyAst_While_Copy(stmt_ty self) {
     if (res == NULL) {
         goto error;
     }
+    res->kind = While_kind;
     if (self->v.While.test != NULL) {
         res->v.While.test = _PyAst_expr_Copy(self->v.While.test);
         ERROR_IF_NULL(res->v.While.test);
@@ -10912,6 +10972,10 @@ stmt_ty _PyAst_While_Copy(stmt_ty self) {
     } else {
         res->v.While.orelse = NULL;
     }
+    res->lineno = self->lineno;
+    res->col_offset = self->col_offset;
+    res->end_lineno = self->end_lineno;
+    res->end_col_offset = self->end_col_offset;
     return res;
 error:
     Py_XDECREF(res);
@@ -11135,6 +11199,7 @@ stmt_ty _PyAst_If_Copy(stmt_ty self) {
     if (res == NULL) {
         goto error;
     }
+    res->kind = If_kind;
     if (self->v.If.test != NULL) {
         res->v.If.test = _PyAst_expr_Copy(self->v.If.test);
         ERROR_IF_NULL(res->v.If.test);
@@ -11153,6 +11218,10 @@ stmt_ty _PyAst_If_Copy(stmt_ty self) {
     } else {
         res->v.If.orelse = NULL;
     }
+    res->lineno = self->lineno;
+    res->col_offset = self->col_offset;
+    res->end_lineno = self->end_lineno;
+    res->end_col_offset = self->end_col_offset;
     return res;
 error:
     Py_XDECREF(res);
@@ -11377,6 +11446,7 @@ stmt_ty _PyAst_With_Copy(stmt_ty self) {
     if (res == NULL) {
         goto error;
     }
+    res->kind = With_kind;
     if (self->v.With.items != NULL) {
         res->v.With.items = _PyAst_withitem_seq_Copy(self->v.With.items);
         ERROR_IF_NULL(res->v.With.items);
@@ -11395,6 +11465,10 @@ stmt_ty _PyAst_With_Copy(stmt_ty self) {
     } else {
         res->v.With.type_comment = NULL;
     }
+    res->lineno = self->lineno;
+    res->col_offset = self->col_offset;
+    res->end_lineno = self->end_lineno;
+    res->end_col_offset = self->end_col_offset;
     return res;
 error:
     Py_XDECREF(res);
@@ -11622,6 +11696,7 @@ stmt_ty _PyAst_AsyncWith_Copy(stmt_ty self) {
     if (res == NULL) {
         goto error;
     }
+    res->kind = AsyncWith_kind;
     if (self->v.AsyncWith.items != NULL) {
         res->v.AsyncWith.items =
         _PyAst_withitem_seq_Copy(self->v.AsyncWith.items);
@@ -11642,6 +11717,10 @@ stmt_ty _PyAst_AsyncWith_Copy(stmt_ty self) {
     } else {
         res->v.AsyncWith.type_comment = NULL;
     }
+    res->lineno = self->lineno;
+    res->col_offset = self->col_offset;
+    res->end_lineno = self->end_lineno;
+    res->end_col_offset = self->end_col_offset;
     return res;
 error:
     Py_XDECREF(res);
@@ -11846,6 +11925,7 @@ stmt_ty _PyAst_Match_Copy(stmt_ty self) {
     if (res == NULL) {
         goto error;
     }
+    res->kind = Match_kind;
     if (self->v.Match.subject != NULL) {
         res->v.Match.subject = _PyAst_expr_Copy(self->v.Match.subject);
         ERROR_IF_NULL(res->v.Match.subject);
@@ -11858,6 +11938,10 @@ stmt_ty _PyAst_Match_Copy(stmt_ty self) {
     } else {
         res->v.Match.cases = NULL;
     }
+    res->lineno = self->lineno;
+    res->col_offset = self->col_offset;
+    res->end_lineno = self->end_lineno;
+    res->end_col_offset = self->end_col_offset;
     return res;
 error:
     Py_XDECREF(res);
@@ -12060,6 +12144,7 @@ stmt_ty _PyAst_Raise_Copy(stmt_ty self) {
     if (res == NULL) {
         goto error;
     }
+    res->kind = Raise_kind;
     if (self->v.Raise.exc != NULL) {
         res->v.Raise.exc = _PyAst_expr_Copy(self->v.Raise.exc);
         ERROR_IF_NULL(res->v.Raise.exc);
@@ -12072,6 +12157,10 @@ stmt_ty _PyAst_Raise_Copy(stmt_ty self) {
     } else {
         res->v.Raise.cause = NULL;
     }
+    res->lineno = self->lineno;
+    res->col_offset = self->col_offset;
+    res->end_lineno = self->end_lineno;
+    res->end_col_offset = self->end_col_offset;
     return res;
 error:
     Py_XDECREF(res);
@@ -12322,6 +12411,7 @@ stmt_ty _PyAst_Try_Copy(stmt_ty self) {
     if (res == NULL) {
         goto error;
     }
+    res->kind = Try_kind;
     if (self->v.Try.body != NULL) {
         res->v.Try.body = _PyAst_stmt_seq_Copy(self->v.Try.body);
         ERROR_IF_NULL(res->v.Try.body);
@@ -12347,6 +12437,10 @@ stmt_ty _PyAst_Try_Copy(stmt_ty self) {
     } else {
         res->v.Try.finalbody = NULL;
     }
+    res->lineno = self->lineno;
+    res->col_offset = self->col_offset;
+    res->end_lineno = self->end_lineno;
+    res->end_col_offset = self->end_col_offset;
     return res;
 error:
     Py_XDECREF(res);
@@ -12600,6 +12694,7 @@ stmt_ty _PyAst_TryStar_Copy(stmt_ty self) {
     if (res == NULL) {
         goto error;
     }
+    res->kind = TryStar_kind;
     if (self->v.TryStar.body != NULL) {
         res->v.TryStar.body = _PyAst_stmt_seq_Copy(self->v.TryStar.body);
         ERROR_IF_NULL(res->v.TryStar.body);
@@ -12626,6 +12721,10 @@ stmt_ty _PyAst_TryStar_Copy(stmt_ty self) {
     } else {
         res->v.TryStar.finalbody = NULL;
     }
+    res->lineno = self->lineno;
+    res->col_offset = self->col_offset;
+    res->end_lineno = self->end_lineno;
+    res->end_col_offset = self->end_col_offset;
     return res;
 error:
     Py_XDECREF(res);
@@ -12828,6 +12927,7 @@ stmt_ty _PyAst_Assert_Copy(stmt_ty self) {
     if (res == NULL) {
         goto error;
     }
+    res->kind = Assert_kind;
     if (self->v.Assert.test != NULL) {
         res->v.Assert.test = _PyAst_expr_Copy(self->v.Assert.test);
         ERROR_IF_NULL(res->v.Assert.test);
@@ -12840,6 +12940,10 @@ stmt_ty _PyAst_Assert_Copy(stmt_ty self) {
     } else {
         res->v.Assert.msg = NULL;
     }
+    res->lineno = self->lineno;
+    res->col_offset = self->col_offset;
+    res->end_lineno = self->end_lineno;
+    res->end_col_offset = self->end_col_offset;
     return res;
 error:
     Py_XDECREF(res);
@@ -13021,12 +13125,17 @@ stmt_ty _PyAst_Import_Copy(stmt_ty self) {
     if (res == NULL) {
         goto error;
     }
+    res->kind = Import_kind;
     if (self->v.Import.names != NULL) {
         res->v.Import.names = _PyAst_alias_seq_Copy(self->v.Import.names);
         ERROR_IF_NULL(res->v.Import.names);
     } else {
         res->v.Import.names = NULL;
     }
+    res->lineno = self->lineno;
+    res->col_offset = self->col_offset;
+    res->end_lineno = self->end_lineno;
+    res->end_col_offset = self->end_col_offset;
     return res;
 error:
     Py_XDECREF(res);
@@ -13253,6 +13362,7 @@ stmt_ty _PyAst_ImportFrom_Copy(stmt_ty self) {
     if (res == NULL) {
         goto error;
     }
+    res->kind = ImportFrom_kind;
     if (self->v.ImportFrom.module != NULL) {
         res->v.ImportFrom.module = Py_NewRef(self->v.ImportFrom.module);
         ERROR_IF_NULL(res->v.ImportFrom.module);
@@ -13267,6 +13377,10 @@ stmt_ty _PyAst_ImportFrom_Copy(stmt_ty self) {
         res->v.ImportFrom.names = NULL;
     }
     res->v.ImportFrom.level = self->v.ImportFrom.level;
+    res->lineno = self->lineno;
+    res->col_offset = self->col_offset;
+    res->end_lineno = self->end_lineno;
+    res->end_col_offset = self->end_col_offset;
     return res;
 error:
     Py_XDECREF(res);
@@ -13449,12 +13563,17 @@ stmt_ty _PyAst_Global_Copy(stmt_ty self) {
     if (res == NULL) {
         goto error;
     }
+    res->kind = Global_kind;
     if (self->v.Global.names != NULL) {
         res->v.Global.names = _PyAst_identifier_seq_Copy(self->v.Global.names);
         ERROR_IF_NULL(res->v.Global.names);
     } else {
         res->v.Global.names = NULL;
     }
+    res->lineno = self->lineno;
+    res->col_offset = self->col_offset;
+    res->end_lineno = self->end_lineno;
+    res->end_col_offset = self->end_col_offset;
     return res;
 error:
     Py_XDECREF(res);
@@ -13637,6 +13756,7 @@ stmt_ty _PyAst_Nonlocal_Copy(stmt_ty self) {
     if (res == NULL) {
         goto error;
     }
+    res->kind = Nonlocal_kind;
     if (self->v.Nonlocal.names != NULL) {
         res->v.Nonlocal.names =
         _PyAst_identifier_seq_Copy(self->v.Nonlocal.names);
@@ -13644,6 +13764,10 @@ stmt_ty _PyAst_Nonlocal_Copy(stmt_ty self) {
     } else {
         res->v.Nonlocal.names = NULL;
     }
+    res->lineno = self->lineno;
+    res->col_offset = self->col_offset;
+    res->end_lineno = self->end_lineno;
+    res->end_col_offset = self->end_col_offset;
     return res;
 error:
     Py_XDECREF(res);
@@ -13823,12 +13947,17 @@ stmt_ty _PyAst_Expr_Copy(stmt_ty self) {
     if (res == NULL) {
         goto error;
     }
+    res->kind = Expr_kind;
     if (self->v.Expr.value != NULL) {
         res->v.Expr.value = _PyAst_expr_Copy(self->v.Expr.value);
         ERROR_IF_NULL(res->v.Expr.value);
     } else {
         res->v.Expr.value = NULL;
     }
+    res->lineno = self->lineno;
+    res->col_offset = self->col_offset;
+    res->end_lineno = self->end_lineno;
+    res->end_col_offset = self->end_col_offset;
     return res;
 error:
     Py_XDECREF(res);
@@ -13949,6 +14078,11 @@ stmt_ty _PyAst_Pass_Copy(stmt_ty self) {
     if (res == NULL) {
         goto error;
     }
+    res->kind = Pass_kind;
+    res->lineno = self->lineno;
+    res->col_offset = self->col_offset;
+    res->end_lineno = self->end_lineno;
+    res->end_col_offset = self->end_col_offset;
     return res;
 error:
     Py_XDECREF(res);
@@ -14070,6 +14204,11 @@ stmt_ty _PyAst_Break_Copy(stmt_ty self) {
     if (res == NULL) {
         goto error;
     }
+    res->kind = Break_kind;
+    res->lineno = self->lineno;
+    res->col_offset = self->col_offset;
+    res->end_lineno = self->end_lineno;
+    res->end_col_offset = self->end_col_offset;
     return res;
 error:
     Py_XDECREF(res);
@@ -14191,6 +14330,11 @@ stmt_ty _PyAst_Continue_Copy(stmt_ty self) {
     if (res == NULL) {
         goto error;
     }
+    res->kind = Continue_kind;
+    res->lineno = self->lineno;
+    res->col_offset = self->col_offset;
+    res->end_lineno = self->end_lineno;
+    res->end_col_offset = self->end_col_offset;
     return res;
 error:
     Py_XDECREF(res);
@@ -14646,6 +14790,7 @@ expr_ty _PyAst_BoolOp_Copy(expr_ty self) {
     if (res == NULL) {
         goto error;
     }
+    res->kind = BoolOp_kind;
     res->v.BoolOp.op = self->v.BoolOp.op;
     if (self->v.BoolOp.values != NULL) {
         res->v.BoolOp.values = _PyAst_expr_seq_Copy(self->v.BoolOp.values);
@@ -14653,6 +14798,10 @@ expr_ty _PyAst_BoolOp_Copy(expr_ty self) {
     } else {
         res->v.BoolOp.values = NULL;
     }
+    res->lineno = self->lineno;
+    res->col_offset = self->col_offset;
+    res->end_lineno = self->end_lineno;
+    res->end_col_offset = self->end_col_offset;
     return res;
 error:
     Py_XDECREF(res);
@@ -14855,6 +15004,7 @@ expr_ty _PyAst_NamedExpr_Copy(expr_ty self) {
     if (res == NULL) {
         goto error;
     }
+    res->kind = NamedExpr_kind;
     if (self->v.NamedExpr.target != NULL) {
         res->v.NamedExpr.target = _PyAst_expr_Copy(self->v.NamedExpr.target);
         ERROR_IF_NULL(res->v.NamedExpr.target);
@@ -14867,6 +15017,10 @@ expr_ty _PyAst_NamedExpr_Copy(expr_ty self) {
     } else {
         res->v.NamedExpr.value = NULL;
     }
+    res->lineno = self->lineno;
+    res->col_offset = self->col_offset;
+    res->end_lineno = self->end_lineno;
+    res->end_col_offset = self->end_col_offset;
     return res;
 error:
     Py_XDECREF(res);
@@ -15090,6 +15244,7 @@ expr_ty _PyAst_BinOp_Copy(expr_ty self) {
     if (res == NULL) {
         goto error;
     }
+    res->kind = BinOp_kind;
     if (self->v.BinOp.left != NULL) {
         res->v.BinOp.left = _PyAst_expr_Copy(self->v.BinOp.left);
         ERROR_IF_NULL(res->v.BinOp.left);
@@ -15103,6 +15258,10 @@ expr_ty _PyAst_BinOp_Copy(expr_ty self) {
     } else {
         res->v.BinOp.right = NULL;
     }
+    res->lineno = self->lineno;
+    res->col_offset = self->col_offset;
+    res->end_lineno = self->end_lineno;
+    res->end_col_offset = self->end_col_offset;
     return res;
 error:
     Py_XDECREF(res);
@@ -15304,6 +15463,7 @@ expr_ty _PyAst_UnaryOp_Copy(expr_ty self) {
     if (res == NULL) {
         goto error;
     }
+    res->kind = UnaryOp_kind;
     res->v.UnaryOp.op = self->v.UnaryOp.op;
     if (self->v.UnaryOp.operand != NULL) {
         res->v.UnaryOp.operand = _PyAst_expr_Copy(self->v.UnaryOp.operand);
@@ -15311,6 +15471,10 @@ expr_ty _PyAst_UnaryOp_Copy(expr_ty self) {
     } else {
         res->v.UnaryOp.operand = NULL;
     }
+    res->lineno = self->lineno;
+    res->col_offset = self->col_offset;
+    res->end_lineno = self->end_lineno;
+    res->end_col_offset = self->end_col_offset;
     return res;
 error:
     Py_XDECREF(res);
@@ -15513,6 +15677,7 @@ expr_ty _PyAst_Lambda_Copy(expr_ty self) {
     if (res == NULL) {
         goto error;
     }
+    res->kind = Lambda_kind;
     if (self->v.Lambda.args != NULL) {
         res->v.Lambda.args = _PyAst_arguments_Copy(self->v.Lambda.args);
         ERROR_IF_NULL(res->v.Lambda.args);
@@ -15525,6 +15690,10 @@ expr_ty _PyAst_Lambda_Copy(expr_ty self) {
     } else {
         res->v.Lambda.body = NULL;
     }
+    res->lineno = self->lineno;
+    res->col_offset = self->col_offset;
+    res->end_lineno = self->end_lineno;
+    res->end_col_offset = self->end_col_offset;
     return res;
 error:
     Py_XDECREF(res);
@@ -15749,6 +15918,7 @@ expr_ty _PyAst_IfExp_Copy(expr_ty self) {
     if (res == NULL) {
         goto error;
     }
+    res->kind = IfExp_kind;
     if (self->v.IfExp.test != NULL) {
         res->v.IfExp.test = _PyAst_expr_Copy(self->v.IfExp.test);
         ERROR_IF_NULL(res->v.IfExp.test);
@@ -15767,6 +15937,10 @@ expr_ty _PyAst_IfExp_Copy(expr_ty self) {
     } else {
         res->v.IfExp.orelse = NULL;
     }
+    res->lineno = self->lineno;
+    res->col_offset = self->col_offset;
+    res->end_lineno = self->end_lineno;
+    res->end_col_offset = self->end_col_offset;
     return res;
 error:
     Py_XDECREF(res);
@@ -15969,6 +16143,7 @@ expr_ty _PyAst_Dict_Copy(expr_ty self) {
     if (res == NULL) {
         goto error;
     }
+    res->kind = Dict_kind;
     if (self->v.Dict.keys != NULL) {
         res->v.Dict.keys = _PyAst_expr_seq_Copy(self->v.Dict.keys);
         ERROR_IF_NULL(res->v.Dict.keys);
@@ -15981,6 +16156,10 @@ expr_ty _PyAst_Dict_Copy(expr_ty self) {
     } else {
         res->v.Dict.values = NULL;
     }
+    res->lineno = self->lineno;
+    res->col_offset = self->col_offset;
+    res->end_lineno = self->end_lineno;
+    res->end_col_offset = self->end_col_offset;
     return res;
 error:
     Py_XDECREF(res);
@@ -16160,12 +16339,17 @@ expr_ty _PyAst_Set_Copy(expr_ty self) {
     if (res == NULL) {
         goto error;
     }
+    res->kind = Set_kind;
     if (self->v.Set.elts != NULL) {
         res->v.Set.elts = _PyAst_expr_seq_Copy(self->v.Set.elts);
         ERROR_IF_NULL(res->v.Set.elts);
     } else {
         res->v.Set.elts = NULL;
     }
+    res->lineno = self->lineno;
+    res->col_offset = self->col_offset;
+    res->end_lineno = self->end_lineno;
+    res->end_col_offset = self->end_col_offset;
     return res;
 error:
     Py_XDECREF(res);
@@ -16370,6 +16554,7 @@ expr_ty _PyAst_ListComp_Copy(expr_ty self) {
     if (res == NULL) {
         goto error;
     }
+    res->kind = ListComp_kind;
     if (self->v.ListComp.elt != NULL) {
         res->v.ListComp.elt = _PyAst_expr_Copy(self->v.ListComp.elt);
         ERROR_IF_NULL(res->v.ListComp.elt);
@@ -16383,6 +16568,10 @@ expr_ty _PyAst_ListComp_Copy(expr_ty self) {
     } else {
         res->v.ListComp.generators = NULL;
     }
+    res->lineno = self->lineno;
+    res->col_offset = self->col_offset;
+    res->end_lineno = self->end_lineno;
+    res->end_col_offset = self->end_col_offset;
     return res;
 error:
     Py_XDECREF(res);
@@ -16587,6 +16776,7 @@ expr_ty _PyAst_SetComp_Copy(expr_ty self) {
     if (res == NULL) {
         goto error;
     }
+    res->kind = SetComp_kind;
     if (self->v.SetComp.elt != NULL) {
         res->v.SetComp.elt = _PyAst_expr_Copy(self->v.SetComp.elt);
         ERROR_IF_NULL(res->v.SetComp.elt);
@@ -16600,6 +16790,10 @@ expr_ty _PyAst_SetComp_Copy(expr_ty self) {
     } else {
         res->v.SetComp.generators = NULL;
     }
+    res->lineno = self->lineno;
+    res->col_offset = self->col_offset;
+    res->end_lineno = self->end_lineno;
+    res->end_col_offset = self->end_col_offset;
     return res;
 error:
     Py_XDECREF(res);
@@ -16826,6 +17020,7 @@ expr_ty _PyAst_DictComp_Copy(expr_ty self) {
     if (res == NULL) {
         goto error;
     }
+    res->kind = DictComp_kind;
     if (self->v.DictComp.key != NULL) {
         res->v.DictComp.key = _PyAst_expr_Copy(self->v.DictComp.key);
         ERROR_IF_NULL(res->v.DictComp.key);
@@ -16845,6 +17040,10 @@ expr_ty _PyAst_DictComp_Copy(expr_ty self) {
     } else {
         res->v.DictComp.generators = NULL;
     }
+    res->lineno = self->lineno;
+    res->col_offset = self->col_offset;
+    res->end_lineno = self->end_lineno;
+    res->end_col_offset = self->end_col_offset;
     return res;
 error:
     Py_XDECREF(res);
@@ -17049,6 +17248,7 @@ expr_ty _PyAst_GeneratorExp_Copy(expr_ty self) {
     if (res == NULL) {
         goto error;
     }
+    res->kind = GeneratorExp_kind;
     if (self->v.GeneratorExp.elt != NULL) {
         res->v.GeneratorExp.elt = _PyAst_expr_Copy(self->v.GeneratorExp.elt);
         ERROR_IF_NULL(res->v.GeneratorExp.elt);
@@ -17062,6 +17262,10 @@ expr_ty _PyAst_GeneratorExp_Copy(expr_ty self) {
     } else {
         res->v.GeneratorExp.generators = NULL;
     }
+    res->lineno = self->lineno;
+    res->col_offset = self->col_offset;
+    res->end_lineno = self->end_lineno;
+    res->end_col_offset = self->end_col_offset;
     return res;
 error:
     Py_XDECREF(res);
@@ -17242,12 +17446,17 @@ expr_ty _PyAst_Await_Copy(expr_ty self) {
     if (res == NULL) {
         goto error;
     }
+    res->kind = Await_kind;
     if (self->v.Await.value != NULL) {
         res->v.Await.value = _PyAst_expr_Copy(self->v.Await.value);
         ERROR_IF_NULL(res->v.Await.value);
     } else {
         res->v.Await.value = NULL;
     }
+    res->lineno = self->lineno;
+    res->col_offset = self->col_offset;
+    res->end_lineno = self->end_lineno;
+    res->end_col_offset = self->end_col_offset;
     return res;
 error:
     Py_XDECREF(res);
@@ -17428,12 +17637,17 @@ expr_ty _PyAst_Yield_Copy(expr_ty self) {
     if (res == NULL) {
         goto error;
     }
+    res->kind = Yield_kind;
     if (self->v.Yield.value != NULL) {
         res->v.Yield.value = _PyAst_expr_Copy(self->v.Yield.value);
         ERROR_IF_NULL(res->v.Yield.value);
     } else {
         res->v.Yield.value = NULL;
     }
+    res->lineno = self->lineno;
+    res->col_offset = self->col_offset;
+    res->end_lineno = self->end_lineno;
+    res->end_col_offset = self->end_col_offset;
     return res;
 error:
     Py_XDECREF(res);
@@ -17614,12 +17828,17 @@ expr_ty _PyAst_YieldFrom_Copy(expr_ty self) {
     if (res == NULL) {
         goto error;
     }
+    res->kind = YieldFrom_kind;
     if (self->v.YieldFrom.value != NULL) {
         res->v.YieldFrom.value = _PyAst_expr_Copy(self->v.YieldFrom.value);
         ERROR_IF_NULL(res->v.YieldFrom.value);
     } else {
         res->v.YieldFrom.value = NULL;
     }
+    res->lineno = self->lineno;
+    res->col_offset = self->col_offset;
+    res->end_lineno = self->end_lineno;
+    res->end_col_offset = self->end_col_offset;
     return res;
 error:
     Py_XDECREF(res);
@@ -17845,6 +18064,7 @@ expr_ty _PyAst_Compare_Copy(expr_ty self) {
     if (res == NULL) {
         goto error;
     }
+    res->kind = Compare_kind;
     if (self->v.Compare.left != NULL) {
         res->v.Compare.left = _PyAst_expr_Copy(self->v.Compare.left);
         ERROR_IF_NULL(res->v.Compare.left);
@@ -17864,6 +18084,10 @@ expr_ty _PyAst_Compare_Copy(expr_ty self) {
     } else {
         res->v.Compare.comparators = NULL;
     }
+    res->lineno = self->lineno;
+    res->col_offset = self->col_offset;
+    res->end_lineno = self->end_lineno;
+    res->end_col_offset = self->end_col_offset;
     return res;
 error:
     Py_XDECREF(res);
@@ -18089,6 +18313,7 @@ expr_ty _PyAst_Call_Copy(expr_ty self) {
     if (res == NULL) {
         goto error;
     }
+    res->kind = Call_kind;
     if (self->v.Call.func != NULL) {
         res->v.Call.func = _PyAst_expr_Copy(self->v.Call.func);
         ERROR_IF_NULL(res->v.Call.func);
@@ -18107,6 +18332,10 @@ expr_ty _PyAst_Call_Copy(expr_ty self) {
     } else {
         res->v.Call.keywords = NULL;
     }
+    res->lineno = self->lineno;
+    res->col_offset = self->col_offset;
+    res->end_lineno = self->end_lineno;
+    res->end_col_offset = self->end_col_offset;
     return res;
 error:
     Py_XDECREF(res);
@@ -18331,6 +18560,7 @@ expr_ty _PyAst_FormattedValue_Copy(expr_ty self) {
     if (res == NULL) {
         goto error;
     }
+    res->kind = FormattedValue_kind;
     if (self->v.FormattedValue.value != NULL) {
         res->v.FormattedValue.value =
         _PyAst_expr_Copy(self->v.FormattedValue.value);
@@ -18346,6 +18576,10 @@ expr_ty _PyAst_FormattedValue_Copy(expr_ty self) {
     } else {
         res->v.FormattedValue.format_spec = NULL;
     }
+    res->lineno = self->lineno;
+    res->col_offset = self->col_offset;
+    res->end_lineno = self->end_lineno;
+    res->end_col_offset = self->end_col_offset;
     return res;
 error:
     Py_XDECREF(res);
@@ -18592,6 +18826,7 @@ expr_ty _PyAst_Interpolation_Copy(expr_ty self) {
     if (res == NULL) {
         goto error;
     }
+    res->kind = Interpolation_kind;
     if (self->v.Interpolation.value != NULL) {
         res->v.Interpolation.value =
         _PyAst_expr_Copy(self->v.Interpolation.value);
@@ -18613,6 +18848,10 @@ expr_ty _PyAst_Interpolation_Copy(expr_ty self) {
     } else {
         res->v.Interpolation.format_spec = NULL;
     }
+    res->lineno = self->lineno;
+    res->col_offset = self->col_offset;
+    res->end_lineno = self->end_lineno;
+    res->end_col_offset = self->end_col_offset;
     return res;
 error:
     Py_XDECREF(res);
@@ -18795,6 +19034,7 @@ expr_ty _PyAst_JoinedStr_Copy(expr_ty self) {
     if (res == NULL) {
         goto error;
     }
+    res->kind = JoinedStr_kind;
     if (self->v.JoinedStr.values != NULL) {
         res->v.JoinedStr.values =
         _PyAst_expr_seq_Copy(self->v.JoinedStr.values);
@@ -18802,6 +19042,10 @@ expr_ty _PyAst_JoinedStr_Copy(expr_ty self) {
     } else {
         res->v.JoinedStr.values = NULL;
     }
+    res->lineno = self->lineno;
+    res->col_offset = self->col_offset;
+    res->end_lineno = self->end_lineno;
+    res->end_col_offset = self->end_col_offset;
     return res;
 error:
     Py_XDECREF(res);
@@ -18984,6 +19228,7 @@ expr_ty _PyAst_TemplateStr_Copy(expr_ty self) {
     if (res == NULL) {
         goto error;
     }
+    res->kind = TemplateStr_kind;
     if (self->v.TemplateStr.values != NULL) {
         res->v.TemplateStr.values =
         _PyAst_expr_seq_Copy(self->v.TemplateStr.values);
@@ -18991,6 +19236,10 @@ expr_ty _PyAst_TemplateStr_Copy(expr_ty self) {
     } else {
         res->v.TemplateStr.values = NULL;
     }
+    res->lineno = self->lineno;
+    res->col_offset = self->col_offset;
+    res->end_lineno = self->end_lineno;
+    res->end_col_offset = self->end_col_offset;
     return res;
 error:
     Py_XDECREF(res);
@@ -19193,6 +19442,7 @@ expr_ty _PyAst_Constant_Copy(expr_ty self) {
     if (res == NULL) {
         goto error;
     }
+    res->kind = Constant_kind;
     if (self->v.Constant.value != NULL) {
         res->v.Constant.value = Py_NewRef(self->v.Constant.value);
         ERROR_IF_NULL(res->v.Constant.value);
@@ -19205,6 +19455,10 @@ expr_ty _PyAst_Constant_Copy(expr_ty self) {
     } else {
         res->v.Constant.kind = NULL;
     }
+    res->lineno = self->lineno;
+    res->col_offset = self->col_offset;
+    res->end_lineno = self->end_lineno;
+    res->end_col_offset = self->end_col_offset;
     return res;
 error:
     Py_XDECREF(res);
@@ -19429,6 +19683,7 @@ expr_ty _PyAst_Attribute_Copy(expr_ty self) {
     if (res == NULL) {
         goto error;
     }
+    res->kind = Attribute_kind;
     if (self->v.Attribute.value != NULL) {
         res->v.Attribute.value = _PyAst_expr_Copy(self->v.Attribute.value);
         ERROR_IF_NULL(res->v.Attribute.value);
@@ -19442,6 +19697,10 @@ expr_ty _PyAst_Attribute_Copy(expr_ty self) {
         res->v.Attribute.attr = NULL;
     }
     res->v.Attribute.ctx = self->v.Attribute.ctx;
+    res->lineno = self->lineno;
+    res->col_offset = self->col_offset;
+    res->end_lineno = self->end_lineno;
+    res->end_col_offset = self->end_col_offset;
     return res;
 error:
     Py_XDECREF(res);
@@ -19666,6 +19925,7 @@ expr_ty _PyAst_Subscript_Copy(expr_ty self) {
     if (res == NULL) {
         goto error;
     }
+    res->kind = Subscript_kind;
     if (self->v.Subscript.value != NULL) {
         res->v.Subscript.value = _PyAst_expr_Copy(self->v.Subscript.value);
         ERROR_IF_NULL(res->v.Subscript.value);
@@ -19679,6 +19939,10 @@ expr_ty _PyAst_Subscript_Copy(expr_ty self) {
         res->v.Subscript.slice = NULL;
     }
     res->v.Subscript.ctx = self->v.Subscript.ctx;
+    res->lineno = self->lineno;
+    res->col_offset = self->col_offset;
+    res->end_lineno = self->end_lineno;
+    res->end_col_offset = self->end_col_offset;
     return res;
 error:
     Py_XDECREF(res);
@@ -19880,6 +20144,7 @@ expr_ty _PyAst_Starred_Copy(expr_ty self) {
     if (res == NULL) {
         goto error;
     }
+    res->kind = Starred_kind;
     if (self->v.Starred.value != NULL) {
         res->v.Starred.value = _PyAst_expr_Copy(self->v.Starred.value);
         ERROR_IF_NULL(res->v.Starred.value);
@@ -19887,6 +20152,10 @@ expr_ty _PyAst_Starred_Copy(expr_ty self) {
         res->v.Starred.value = NULL;
     }
     res->v.Starred.ctx = self->v.Starred.ctx;
+    res->lineno = self->lineno;
+    res->col_offset = self->col_offset;
+    res->end_lineno = self->end_lineno;
+    res->end_col_offset = self->end_col_offset;
     return res;
 error:
     Py_XDECREF(res);
@@ -20086,6 +20355,7 @@ expr_ty _PyAst_Name_Copy(expr_ty self) {
     if (res == NULL) {
         goto error;
     }
+    res->kind = Name_kind;
     if (self->v.Name.id != NULL) {
         res->v.Name.id = Py_NewRef(self->v.Name.id);
         ERROR_IF_NULL(res->v.Name.id);
@@ -20093,6 +20363,10 @@ expr_ty _PyAst_Name_Copy(expr_ty self) {
         res->v.Name.id = NULL;
     }
     res->v.Name.ctx = self->v.Name.ctx;
+    res->lineno = self->lineno;
+    res->col_offset = self->col_offset;
+    res->end_lineno = self->end_lineno;
+    res->end_col_offset = self->end_col_offset;
     return res;
 error:
     Py_XDECREF(res);
@@ -20293,6 +20567,7 @@ expr_ty _PyAst_List_Copy(expr_ty self) {
     if (res == NULL) {
         goto error;
     }
+    res->kind = List_kind;
     if (self->v.List.elts != NULL) {
         res->v.List.elts = _PyAst_expr_seq_Copy(self->v.List.elts);
         ERROR_IF_NULL(res->v.List.elts);
@@ -20300,6 +20575,10 @@ expr_ty _PyAst_List_Copy(expr_ty self) {
         res->v.List.elts = NULL;
     }
     res->v.List.ctx = self->v.List.ctx;
+    res->lineno = self->lineno;
+    res->col_offset = self->col_offset;
+    res->end_lineno = self->end_lineno;
+    res->end_col_offset = self->end_col_offset;
     return res;
 error:
     Py_XDECREF(res);
@@ -20501,6 +20780,7 @@ expr_ty _PyAst_Tuple_Copy(expr_ty self) {
     if (res == NULL) {
         goto error;
     }
+    res->kind = Tuple_kind;
     if (self->v.Tuple.elts != NULL) {
         res->v.Tuple.elts = _PyAst_expr_seq_Copy(self->v.Tuple.elts);
         ERROR_IF_NULL(res->v.Tuple.elts);
@@ -20508,6 +20788,10 @@ expr_ty _PyAst_Tuple_Copy(expr_ty self) {
         res->v.Tuple.elts = NULL;
     }
     res->v.Tuple.ctx = self->v.Tuple.ctx;
+    res->lineno = self->lineno;
+    res->col_offset = self->col_offset;
+    res->end_lineno = self->end_lineno;
+    res->end_col_offset = self->end_col_offset;
     return res;
 error:
     Py_XDECREF(res);
@@ -20732,6 +21016,7 @@ expr_ty _PyAst_Slice_Copy(expr_ty self) {
     if (res == NULL) {
         goto error;
     }
+    res->kind = Slice_kind;
     if (self->v.Slice.lower != NULL) {
         res->v.Slice.lower = _PyAst_expr_Copy(self->v.Slice.lower);
         ERROR_IF_NULL(res->v.Slice.lower);
@@ -20750,6 +21035,10 @@ expr_ty _PyAst_Slice_Copy(expr_ty self) {
     } else {
         res->v.Slice.step = NULL;
     }
+    res->lineno = self->lineno;
+    res->col_offset = self->col_offset;
+    res->end_lineno = self->end_lineno;
+    res->end_col_offset = self->end_col_offset;
     return res;
 error:
     Py_XDECREF(res);
@@ -23537,6 +23826,7 @@ excepthandler_ty _PyAst_ExceptHandler_Copy(excepthandler_ty self) {
     if (res == NULL) {
         goto error;
     }
+    res->kind = ExceptHandler_kind;
     if (self->v.ExceptHandler.type != NULL) {
         res->v.ExceptHandler.type =
         _PyAst_expr_Copy(self->v.ExceptHandler.type);
@@ -23557,6 +23847,10 @@ excepthandler_ty _PyAst_ExceptHandler_Copy(excepthandler_ty self) {
     } else {
         res->v.ExceptHandler.body = NULL;
     }
+    res->lineno = self->lineno;
+    res->col_offset = self->col_offset;
+    res->end_lineno = self->end_lineno;
+    res->end_col_offset = self->end_col_offset;
     return res;
 error:
     Py_XDECREF(res);
@@ -24267,6 +24561,10 @@ arg_ty _PyAst_arg_Copy(arg_ty self) {
     } else {
         res->type_comment = NULL;
     }
+    res->lineno = self->lineno;
+    res->col_offset = self->col_offset;
+    res->end_lineno = self->end_lineno;
+    res->end_col_offset = self->end_col_offset;
     return res;
 error:
     Py_XDECREF(res);
@@ -24453,6 +24751,10 @@ keyword_ty _PyAst_keyword_Copy(keyword_ty self) {
     } else {
         res->value = NULL;
     }
+    res->lineno = self->lineno;
+    res->col_offset = self->col_offset;
+    res->end_lineno = self->end_lineno;
+    res->end_col_offset = self->end_col_offset;
     return res;
 error:
     Py_XDECREF(res);
@@ -24638,6 +24940,10 @@ alias_ty _PyAst_alias_Copy(alias_ty self) {
     } else {
         res->asname = NULL;
     }
+    res->lineno = self->lineno;
+    res->col_offset = self->col_offset;
+    res->end_lineno = self->end_lineno;
+    res->end_col_offset = self->end_col_offset;
     return res;
 error:
     Py_XDECREF(res);
@@ -25217,12 +25523,17 @@ pattern_ty _PyAst_MatchValue_Copy(pattern_ty self) {
     if (res == NULL) {
         goto error;
     }
+    res->kind = MatchValue_kind;
     if (self->v.MatchValue.value != NULL) {
         res->v.MatchValue.value = _PyAst_expr_Copy(self->v.MatchValue.value);
         ERROR_IF_NULL(res->v.MatchValue.value);
     } else {
         res->v.MatchValue.value = NULL;
     }
+    res->lineno = self->lineno;
+    res->col_offset = self->col_offset;
+    res->end_lineno = self->end_lineno;
+    res->end_col_offset = self->end_col_offset;
     return res;
 error:
     Py_XDECREF(res);
@@ -25403,12 +25714,17 @@ pattern_ty _PyAst_MatchSingleton_Copy(pattern_ty self) {
     if (res == NULL) {
         goto error;
     }
+    res->kind = MatchSingleton_kind;
     if (self->v.MatchSingleton.value != NULL) {
         res->v.MatchSingleton.value = Py_NewRef(self->v.MatchSingleton.value);
         ERROR_IF_NULL(res->v.MatchSingleton.value);
     } else {
         res->v.MatchSingleton.value = NULL;
     }
+    res->lineno = self->lineno;
+    res->col_offset = self->col_offset;
+    res->end_lineno = self->end_lineno;
+    res->end_col_offset = self->end_col_offset;
     return res;
 error:
     Py_XDECREF(res);
@@ -25591,6 +25907,7 @@ pattern_ty _PyAst_MatchSequence_Copy(pattern_ty self) {
     if (res == NULL) {
         goto error;
     }
+    res->kind = MatchSequence_kind;
     if (self->v.MatchSequence.patterns != NULL) {
         res->v.MatchSequence.patterns =
         _PyAst_pattern_seq_Copy(self->v.MatchSequence.patterns);
@@ -25598,6 +25915,10 @@ pattern_ty _PyAst_MatchSequence_Copy(pattern_ty self) {
     } else {
         res->v.MatchSequence.patterns = NULL;
     }
+    res->lineno = self->lineno;
+    res->col_offset = self->col_offset;
+    res->end_lineno = self->end_lineno;
+    res->end_col_offset = self->end_col_offset;
     return res;
 error:
     Py_XDECREF(res);
@@ -25826,6 +26147,7 @@ pattern_ty _PyAst_MatchMapping_Copy(pattern_ty self) {
     if (res == NULL) {
         goto error;
     }
+    res->kind = MatchMapping_kind;
     if (self->v.MatchMapping.keys != NULL) {
         res->v.MatchMapping.keys =
         _PyAst_expr_seq_Copy(self->v.MatchMapping.keys);
@@ -25846,6 +26168,10 @@ pattern_ty _PyAst_MatchMapping_Copy(pattern_ty self) {
     } else {
         res->v.MatchMapping.rest = NULL;
     }
+    res->lineno = self->lineno;
+    res->col_offset = self->col_offset;
+    res->end_lineno = self->end_lineno;
+    res->end_col_offset = self->end_col_offset;
     return res;
 error:
     Py_XDECREF(res);
@@ -26098,6 +26424,7 @@ pattern_ty _PyAst_MatchClass_Copy(pattern_ty self) {
     if (res == NULL) {
         goto error;
     }
+    res->kind = MatchClass_kind;
     if (self->v.MatchClass.cls != NULL) {
         res->v.MatchClass.cls = _PyAst_expr_Copy(self->v.MatchClass.cls);
         ERROR_IF_NULL(res->v.MatchClass.cls);
@@ -26125,6 +26452,10 @@ pattern_ty _PyAst_MatchClass_Copy(pattern_ty self) {
     } else {
         res->v.MatchClass.kwd_patterns = NULL;
     }
+    res->lineno = self->lineno;
+    res->col_offset = self->col_offset;
+    res->end_lineno = self->end_lineno;
+    res->end_col_offset = self->end_col_offset;
     return res;
 error:
     Py_XDECREF(res);
@@ -26305,12 +26636,17 @@ pattern_ty _PyAst_MatchStar_Copy(pattern_ty self) {
     if (res == NULL) {
         goto error;
     }
+    res->kind = MatchStar_kind;
     if (self->v.MatchStar.name != NULL) {
         res->v.MatchStar.name = Py_NewRef(self->v.MatchStar.name);
         ERROR_IF_NULL(res->v.MatchStar.name);
     } else {
         res->v.MatchStar.name = NULL;
     }
+    res->lineno = self->lineno;
+    res->col_offset = self->col_offset;
+    res->end_lineno = self->end_lineno;
+    res->end_col_offset = self->end_col_offset;
     return res;
 error:
     Py_XDECREF(res);
@@ -26513,6 +26849,7 @@ pattern_ty _PyAst_MatchAs_Copy(pattern_ty self) {
     if (res == NULL) {
         goto error;
     }
+    res->kind = MatchAs_kind;
     if (self->v.MatchAs.pattern != NULL) {
         res->v.MatchAs.pattern = _PyAst_pattern_Copy(self->v.MatchAs.pattern);
         ERROR_IF_NULL(res->v.MatchAs.pattern);
@@ -26525,6 +26862,10 @@ pattern_ty _PyAst_MatchAs_Copy(pattern_ty self) {
     } else {
         res->v.MatchAs.name = NULL;
     }
+    res->lineno = self->lineno;
+    res->col_offset = self->col_offset;
+    res->end_lineno = self->end_lineno;
+    res->end_col_offset = self->end_col_offset;
     return res;
 error:
     Py_XDECREF(res);
@@ -26707,6 +27048,7 @@ pattern_ty _PyAst_MatchOr_Copy(pattern_ty self) {
     if (res == NULL) {
         goto error;
     }
+    res->kind = MatchOr_kind;
     if (self->v.MatchOr.patterns != NULL) {
         res->v.MatchOr.patterns =
         _PyAst_pattern_seq_Copy(self->v.MatchOr.patterns);
@@ -26714,6 +27056,10 @@ pattern_ty _PyAst_MatchOr_Copy(pattern_ty self) {
     } else {
         res->v.MatchOr.patterns = NULL;
     }
+    res->lineno = self->lineno;
+    res->col_offset = self->col_offset;
+    res->end_lineno = self->end_lineno;
+    res->end_col_offset = self->end_col_offset;
     return res;
 error:
     Py_XDECREF(res);
@@ -27031,6 +27377,7 @@ type_ignore_ty _PyAst_TypeIgnore_Copy(type_ignore_ty self) {
     if (res == NULL) {
         goto error;
     }
+    res->kind = TypeIgnore_kind;
     res->v.TypeIgnore.lineno = self->v.TypeIgnore.lineno;
     if (self->v.TypeIgnore.tag != NULL) {
         res->v.TypeIgnore.tag = Py_NewRef(self->v.TypeIgnore.tag);
@@ -27385,6 +27732,7 @@ type_param_ty _PyAst_TypeVar_Copy(type_param_ty self) {
     if (res == NULL) {
         goto error;
     }
+    res->kind = TypeVar_kind;
     if (self->v.TypeVar.name != NULL) {
         res->v.TypeVar.name = Py_NewRef(self->v.TypeVar.name);
         ERROR_IF_NULL(res->v.TypeVar.name);
@@ -27404,6 +27752,10 @@ type_param_ty _PyAst_TypeVar_Copy(type_param_ty self) {
     } else {
         res->v.TypeVar.default_value = NULL;
     }
+    res->lineno = self->lineno;
+    res->col_offset = self->col_offset;
+    res->end_lineno = self->end_lineno;
+    res->end_col_offset = self->end_col_offset;
     return res;
 error:
     Py_XDECREF(res);
@@ -27606,6 +27958,7 @@ type_param_ty _PyAst_ParamSpec_Copy(type_param_ty self) {
     if (res == NULL) {
         goto error;
     }
+    res->kind = ParamSpec_kind;
     if (self->v.ParamSpec.name != NULL) {
         res->v.ParamSpec.name = Py_NewRef(self->v.ParamSpec.name);
         ERROR_IF_NULL(res->v.ParamSpec.name);
@@ -27619,6 +27972,10 @@ type_param_ty _PyAst_ParamSpec_Copy(type_param_ty self) {
     } else {
         res->v.ParamSpec.default_value = NULL;
     }
+    res->lineno = self->lineno;
+    res->col_offset = self->col_offset;
+    res->end_lineno = self->end_lineno;
+    res->end_col_offset = self->end_col_offset;
     return res;
 error:
     Py_XDECREF(res);
@@ -27821,6 +28178,7 @@ type_param_ty _PyAst_TypeVarTuple_Copy(type_param_ty self) {
     if (res == NULL) {
         goto error;
     }
+    res->kind = TypeVarTuple_kind;
     if (self->v.TypeVarTuple.name != NULL) {
         res->v.TypeVarTuple.name = Py_NewRef(self->v.TypeVarTuple.name);
         ERROR_IF_NULL(res->v.TypeVarTuple.name);
@@ -27834,6 +28192,10 @@ type_param_ty _PyAst_TypeVarTuple_Copy(type_param_ty self) {
     } else {
         res->v.TypeVarTuple.default_value = NULL;
     }
+    res->lineno = self->lineno;
+    res->col_offset = self->col_offset;
+    res->end_lineno = self->end_lineno;
+    res->end_col_offset = self->end_col_offset;
     return res;
 error:
     Py_XDECREF(res);
@@ -51555,6 +51917,15 @@ int PyAST_Check(PyObject* obj)
         return -1;
     }
     return PyObject_IsInstance(obj, state->AST_type);
+}
+
+int PyImmutableAST_Check(PyObject* obj)
+{
+    struct ast_state *state = get_ast_state();
+    if (state == NULL) {
+        return -1;
+    }
+    return PyObject_IsInstance(obj, state->_mod_type);
 }
 
 

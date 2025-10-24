@@ -3804,8 +3804,33 @@ class Immutable_AST_Tests(unittest.TestCase):
     def test_repr(self):
         pass
         
-    def Xtest_construction(self):
-        code = self.parse("x = 42")
+    def test_construction(self):
+        code = ast.parse("x = 42", immutable=True)
+        code = ast.parse("x(42, 100, 200)", immutable=True)
+        code = ast.parse("x = 'foo %s' % (mode,)", optimize=2, immutable=True)
+        print(code.body[0])
+        compile(code, "<string>", "exec")
+
+    def test_roundtrip(self):
+        code = ast.parse("x = 42", immutable=True)
+        compiled = compile(code, "<string>", "exec")
+        g = {}
+        exec(compiled, g, g)
+        self.assertEqual(g["x"], 42)
+
+    def test_roundtrip2(self):
+        with open('/home/dinoviehland/cpython_upstream/Lib/socket.py') as f:
+            socket = f.read()
+
+        import time
+        for immutable in [True, False]:
+            start = time.perf_counter()        
+            for i in range(1):
+                code = ast.parse(socket, optimize=2, immutable=immutable)
+                Visitor().visit(code)
+                compiled = compile(code, "<string>", "exec")
+            end = time.perf_counter()
+            #print(immutable, end-start)
 
     def Xtest_construction(self):
         x = _ast._Yield(ast.Constant(42, lineno=1, col_offset=0))

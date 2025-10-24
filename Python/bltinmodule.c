@@ -829,7 +829,7 @@ builtin_compile_impl(PyObject *module, PyObject *source, PyObject *filename,
         goto error;
     }
 
-    is_ast = PyAST_Check(source);
+    is_ast = PyAST_Check(source) || PyImmutableAST_Check(source);
     if (is_ast == -1)
         goto error;
     if (is_ast) {
@@ -838,12 +838,17 @@ builtin_compile_impl(PyObject *module, PyObject *source, PyObject *filename,
             goto error;
         }
 
+        mod_ty mod;
+        if (PyImmutableAST_Check(source)) {
+            mod = (mod_ty)source;
+        } else {
+            mod = PyAST_obj2mod(source, arena, compile_mode);
+        }
+        if (mod == NULL || !_PyAST_Validate(mod)) {
+            _PyArena_Free(arena);
+            goto error;
+        }
         if (flags & PyCF_ONLY_AST) {
-            mod_ty mod = PyAST_obj2mod(source, arena, compile_mode);
-            if (mod == NULL || !_PyAST_Validate(mod)) {
-                _PyArena_Free(arena);
-                goto error;
-            }
             int syntax_check_only = ((flags & PyCF_OPTIMIZED_AST) == PyCF_ONLY_AST); /* unoptiomized AST */
             if (_PyCompile_AstPreprocess(mod, filename, &cf, optimize,
                                            arena, syntax_check_only) < 0) {
@@ -857,11 +862,6 @@ builtin_compile_impl(PyObject *module, PyObject *source, PyObject *filename,
             }
         }
         else {
-            mod_ty mod = PyAST_obj2mod(source, arena, compile_mode);
-            if (mod == NULL || !_PyAST_Validate(mod)) {
-                _PyArena_Free(arena);
-                goto error;
-            }
             result = (PyObject*)_PyAST_Compile(mod, filename,
                                                &cf, optimize, arena);
         }

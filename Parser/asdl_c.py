@@ -2679,6 +2679,15 @@ int PyAST_Check(PyObject* obj)
     }
     return PyObject_IsInstance(obj, state->AST_type);
 }
+
+int PyImmutableAST_Check(PyObject* obj)
+{
+    struct ast_state *state = get_ast_state();
+    if (state == NULL) {
+        return -1;
+    }
+    return PyObject_IsInstance(obj, state->_mod_type);
+}
 """
 
 class ChainOfVisitors:
@@ -2836,6 +2845,7 @@ def write_header(mod, metadata, f):
         int PyAst_CheckMode(PyObject *ast, int mode);
         mod_ty PyAST_obj2mod(PyObject* ast, PyArena* arena, int mode);
         int PyAST_Check(PyObject* obj);
+        int PyImmutableAST_Check(PyObject* obj);
 
         extern int _PyAST_Validate(mod_ty);
 
@@ -3035,7 +3045,7 @@ class NodesVisitor(EmitVisitor):
             self.emit_dealloc_footer()
             self.emit_ast_members(cons.name, cons.fields, name)
             self.ast_type(cons.name, name, asdl_of(cons.name, cons))
-            self.emit_type_copy(cons.name, cons.fields, name, f"v.{cons.name}.")
+            self.emit_type_copy(cons.name, cons.fields, name, f"v.{cons.name}.", sum.attributes, True)
 
         self.emit("", 0)
         self.emit(f"{name}_ty _PyAst_{name}_Copy({name}_ty node) {{", 0)
@@ -3069,7 +3079,7 @@ class NodesVisitor(EmitVisitor):
 
         self.emit_ast_members(name, [], name)
         self.ast_type(name, name, asdl_of(name, product))
-        self.emit_type_copy(name, product.fields, name)
+        self.emit_type_copy(name, product.fields + product.attributes, name)
 
     def emit_ast_members(self, node_name, fields, type_name):
         self.emit(f"static PyMemberDef {node_name}_members[] = {{", 0)
@@ -3277,18 +3287,26 @@ static PyType_Spec _{node_name}_type_spec = {{
         self.emit(f"{dst} = NULL;", depth + 1)
         self.emit("}", depth)
 
-    def emit_type_copy(self, node_name, fields, type_name, path=''):
+    def emit_type_copy(self, node_name, fields, type_name, path='', attributes=(), is_sum=False):
         self.emit(f"{type_name}_ty _PyAst_{node_name}_Copy({type_name}_ty self) {{", 0)
         self.emit("struct ast_state *state = get_ast_state();", 1)
         self.emit(f"{type_name}_ty res = PyObject_New(struct _{type_name}, (PyTypeObject *)state->_{node_name}_type);", 1)
         self.emit("if (res == NULL) {", 1)
         self.emit("goto error;", 2)
         self.emit("}", 1)
+        if is_sum:
+            self.emit(f"res->kind = {node_name}_kind;", 1)
         for field in fields:
             type = field.type
             if type in self.metadata.simple_sums:
                 type = "int"
             self.emit_copy(f"self->{path}{field.name}", f"res->{path}{field.name}", field.seq, type, 1)
+        for attribute in attributes:
+            type = attribute.type
+            if type in self.metadata.simple_sums:
+                type = "int"
+            self.emit_copy(f"self->{attribute.name}", f"res->{attribute.name}", attribute.seq, type, 1)
+
         self.emit("return res;", 1)
         self.emit("error:", 0)
         self.emit("Py_XDECREF(res);", 1)
@@ -3297,7 +3315,8 @@ static PyType_Spec _{node_name}_type_spec = {{
         self.emit("", 0)
 
     def emit_seq_copy(self, name):
-        self.emit(f"asdl_{name}_seq *_PyAst_{name}_seq_Copy(asdl_{name}_seq *seq) {{", 0)
+        self.emit(f"asdl_{name}_seq *", 0)
+        self.emit(f"_PyAst_{name}_seq_Copy(asdl_{name}_seq *seq) {{", 0)
         self.emit("struct ast_state *state = get_ast_state();", 1)
         self.emit(f"asdl_{name}_seq *res = PyObject_NewVar(asdl_{name}_seq, (PyTypeObject *)state->_{name}_seq_type, seq->size);", 1, reflow=False)
         self.emit("if (res == NULL) {", 1)
