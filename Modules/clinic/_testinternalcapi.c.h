@@ -231,6 +231,104 @@ exit:
     return return_value;
 }
 
+PyDoc_STRVAR(_testinternalcapi_compile_ast__doc__,
+"compile_ast($module, /, code, filename, optimize=1, flags=0)\n"
+"--\n"
+"\n"
+"Apply compiler optimizations to an instruction list.");
+
+#define _TESTINTERNALCAPI_COMPILE_AST_METHODDEF    \
+    {"compile_ast", _PyCFunction_CAST(_testinternalcapi_compile_ast), METH_FASTCALL|METH_KEYWORDS, _testinternalcapi_compile_ast__doc__},
+
+static PyObject *
+_testinternalcapi_compile_ast_impl(PyObject *module, const char *code,
+                                   PyObject *filename, int optimize,
+                                   int flags);
+
+static PyObject *
+_testinternalcapi_compile_ast(PyObject *module, PyObject *const *args, Py_ssize_t nargs, PyObject *kwnames)
+{
+    PyObject *return_value = NULL;
+    #if defined(Py_BUILD_CORE) && !defined(Py_BUILD_CORE_MODULE)
+
+    #define NUM_KEYWORDS 4
+    static struct {
+        PyGC_Head _this_is_not_used;
+        PyObject_VAR_HEAD
+        Py_hash_t ob_hash;
+        PyObject *ob_item[NUM_KEYWORDS];
+    } _kwtuple = {
+        .ob_base = PyVarObject_HEAD_INIT(&PyTuple_Type, NUM_KEYWORDS)
+        .ob_hash = -1,
+        .ob_item = { &_Py_ID(code), &_Py_ID(filename), &_Py_ID(optimize), &_Py_ID(flags), },
+    };
+    #undef NUM_KEYWORDS
+    #define KWTUPLE (&_kwtuple.ob_base.ob_base)
+
+    #else  // !Py_BUILD_CORE
+    #  define KWTUPLE NULL
+    #endif  // !Py_BUILD_CORE
+
+    static const char * const _keywords[] = {"code", "filename", "optimize", "flags", NULL};
+    static _PyArg_Parser _parser = {
+        .keywords = _keywords,
+        .fname = "compile_ast",
+        .kwtuple = KWTUPLE,
+    };
+    #undef KWTUPLE
+    PyObject *argsbuf[4];
+    Py_ssize_t noptargs = nargs + (kwnames ? PyTuple_GET_SIZE(kwnames) : 0) - 2;
+    const char *code;
+    PyObject *filename;
+    int optimize = 1;
+    int flags = 0;
+
+    args = _PyArg_UnpackKeywords(args, nargs, NULL, kwnames, &_parser,
+            /*minpos*/ 2, /*maxpos*/ 4, /*minkw*/ 0, /*varpos*/ 0, argsbuf);
+    if (!args) {
+        goto exit;
+    }
+    if (!PyUnicode_Check(args[0])) {
+        _PyArg_BadArgument("compile_ast", "argument 'code'", "str", args[0]);
+        goto exit;
+    }
+    Py_ssize_t code_length;
+    code = PyUnicode_AsUTF8AndSize(args[0], &code_length);
+    if (code == NULL) {
+        goto exit;
+    }
+    if (strlen(code) != (size_t)code_length) {
+        PyErr_SetString(PyExc_ValueError, "embedded null character");
+        goto exit;
+    }
+    if (!PyUnicode_Check(args[1])) {
+        _PyArg_BadArgument("compile_ast", "argument 'filename'", "str", args[1]);
+        goto exit;
+    }
+    filename = args[1];
+    if (!noptargs) {
+        goto skip_optional_pos;
+    }
+    if (args[2]) {
+        optimize = PyLong_AsInt(args[2]);
+        if (optimize == -1 && PyErr_Occurred()) {
+            goto exit;
+        }
+        if (!--noptargs) {
+            goto skip_optional_pos;
+        }
+    }
+    flags = PyLong_AsInt(args[3]);
+    if (flags == -1 && PyErr_Occurred()) {
+        goto exit;
+    }
+skip_optional_pos:
+    return_value = _testinternalcapi_compile_ast_impl(module, code, filename, optimize, flags);
+
+exit:
+    return return_value;
+}
+
 PyDoc_STRVAR(_testinternalcapi_assemble_code_object__doc__,
 "assemble_code_object($module, /, filename, instructions, metadata)\n"
 "--\n"
@@ -392,4 +490,4 @@ get_next_dict_keys_version(PyObject *module, PyObject *Py_UNUSED(ignored))
 {
     return get_next_dict_keys_version_impl(module);
 }
-/*[clinic end generated code: output=fbd8b7e0cae8bac7 input=a9049054013a1b77]*/
+/*[clinic end generated code: output=9577eb903654a1fc input=a9049054013a1b77]*/

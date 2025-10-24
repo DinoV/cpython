@@ -30,6 +30,7 @@
 #include "pycore_interpframe.h"   // _PyFrame_GetFunction()
 #include "pycore_object.h"        // _PyObject_IsFreed()
 #include "pycore_optimizer.h"     // _Py_Executor_DependsOn
+#include "pycore_parser.h"        // _PyParser_ASTFromString()
 #include "pycore_pathconfig.h"    // _PyPathConfig_ClearGlobal()
 #include "pycore_pyerrors.h"      // _PyErr_ChainExceptions1()
 #include "pycore_pylifecycle.h"   // _PyInterpreterConfig_InitFromDict()
@@ -763,6 +764,48 @@ _testinternalcapi_optimize_cfg_impl(PyObject *module, PyObject *instructions,
 /*[clinic end generated code: output=57c53c3a3dfd1df0 input=6a96d1926d58d7e5]*/
 {
     return _PyCompile_OptimizeCfg(instructions, consts, nlocals);
+}
+
+
+/*[clinic input]
+
+_testinternalcapi.compile_ast -> object
+
+  code: str
+  filename: unicode
+  optimize: int = 1
+  flags: int = 0
+
+Apply compiler optimizations to an instruction list.
+[clinic start generated code]*/
+
+static PyObject *
+_testinternalcapi_compile_ast_impl(PyObject *module, const char *code,
+                                   PyObject *filename, int optimize,
+                                   int flags)
+/*[clinic end generated code: output=825b024cd1773c22 input=e2f322a4060e618d]*/
+{
+    mod_ty mod;
+    PyArena *arena = _PyArena_New();
+    if (arena == NULL)
+        return NULL;
+
+    PyCompilerFlags cf = _PyCompilerFlags_INIT;
+    cf.cf_flags = flags | PyCF_SOURCE_IS_UTF8;
+    mod = _PyParser_ASTFromString(code, filename, Py_file_input, &cf, arena);
+    if (mod == NULL) {
+        _PyArena_Free(arena);
+        return NULL;
+    }
+
+    if (_PyCompile_AstPreprocess(mod, filename, &cf, optimize, arena, 0) < 0) {
+        _PyArena_Free(arena);
+        return NULL;
+    }
+
+    PyObject *res = (PyObject *)_PyAst_mod_Copy(mod);
+    _PyArena_Free(arena);
+    return res;
 }
 
 static int
@@ -2442,6 +2485,7 @@ static PyMethodDef module_functions[] = {
     _TESTINTERNALCAPI_COMPILER_CODEGEN_METHODDEF
     _TESTINTERNALCAPI_OPTIMIZE_CFG_METHODDEF
     _TESTINTERNALCAPI_ASSEMBLE_CODE_OBJECT_METHODDEF
+    _TESTINTERNALCAPI_COMPILE_AST_METHODDEF
     {"get_interp_settings", get_interp_settings, METH_VARARGS, NULL},
     {"clear_extension", clear_extension, METH_VARARGS, NULL},
     {"write_perf_map_entry", write_perf_map_entry, METH_VARARGS},

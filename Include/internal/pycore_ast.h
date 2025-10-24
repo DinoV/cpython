@@ -161,6 +161,7 @@ asdl_type_param_seq *_Py_asdl_type_param_seq_new(Py_ssize_t size, PyArena
 enum _mod_kind {Module_kind=1, Interactive_kind=2, Expression_kind=3,
                  FunctionType_kind=4};
 struct _mod {
+    PyObject_HEAD
     enum _mod_kind kind;
     union {
         struct {
@@ -194,6 +195,7 @@ enum _stmt_kind {FunctionDef_kind=1, AsyncFunctionDef_kind=2, ClassDef_kind=3,
                   Nonlocal_kind=24, Expr_kind=25, Pass_kind=26, Break_kind=27,
                   Continue_kind=28};
 struct _stmt {
+    PyObject_HEAD
     enum _stmt_kind kind;
     union {
         struct {
@@ -366,6 +368,7 @@ enum _expr_kind {BoolOp_kind=1, NamedExpr_kind=2, BinOp_kind=3, UnaryOp_kind=4,
                   Attribute_kind=23, Subscript_kind=24, Starred_kind=25,
                   Name_kind=26, List_kind=27, Tuple_kind=28, Slice_kind=29};
 struct _expr {
+    PyObject_HEAD
     enum _expr_kind kind;
     union {
         struct {
@@ -526,6 +529,7 @@ struct _expr {
 };
 
 struct _comprehension {
+    PyObject_HEAD
     expr_ty target;
     expr_ty iter;
     asdl_expr_seq *ifs;
@@ -534,6 +538,7 @@ struct _comprehension {
 
 enum _excepthandler_kind {ExceptHandler_kind=1};
 struct _excepthandler {
+    PyObject_HEAD
     enum _excepthandler_kind kind;
     union {
         struct {
@@ -550,6 +555,7 @@ struct _excepthandler {
 };
 
 struct _arguments {
+    PyObject_HEAD
     asdl_arg_seq *posonlyargs;
     asdl_arg_seq *args;
     arg_ty vararg;
@@ -560,6 +566,7 @@ struct _arguments {
 };
 
 struct _arg {
+    PyObject_HEAD
     identifier arg;
     expr_ty annotation;
     string type_comment;
@@ -570,6 +577,7 @@ struct _arg {
 };
 
 struct _keyword {
+    PyObject_HEAD
     identifier arg;
     expr_ty value;
     int lineno;
@@ -579,6 +587,7 @@ struct _keyword {
 };
 
 struct _alias {
+    PyObject_HEAD
     identifier name;
     identifier asname;
     int lineno;
@@ -588,11 +597,13 @@ struct _alias {
 };
 
 struct _withitem {
+    PyObject_HEAD
     expr_ty context_expr;
     expr_ty optional_vars;
 };
 
 struct _match_case {
+    PyObject_HEAD
     pattern_ty pattern;
     expr_ty guard;
     asdl_stmt_seq *body;
@@ -603,6 +614,7 @@ enum _pattern_kind {MatchValue_kind=1, MatchSingleton_kind=2,
                      MatchClass_kind=5, MatchStar_kind=6, MatchAs_kind=7,
                      MatchOr_kind=8};
 struct _pattern {
+    PyObject_HEAD
     enum _pattern_kind kind;
     union {
         struct {
@@ -652,6 +664,7 @@ struct _pattern {
 
 enum _type_ignore_kind {TypeIgnore_kind=1};
 struct _type_ignore {
+    PyObject_HEAD
     enum _type_ignore_kind kind;
     union {
         struct {
@@ -664,6 +677,7 @@ struct _type_ignore {
 
 enum _type_param_kind {TypeVar_kind=1, ParamSpec_kind=2, TypeVarTuple_kind=3};
 struct _type_param {
+    PyObject_HEAD
     enum _type_param_kind kind;
     union {
         struct {
@@ -689,6 +703,201 @@ struct _type_param {
     int end_col_offset;
 };
 
+
+mod_ty _PyAst_mod_Copy(mod_ty self);
+PyAPI_FUNC(mod_ty) _PyAst_mod_Copy(mod_ty node);
+asdl_mod_seq *_PyAst_mod_seq_Copy(asdl_mod_seq *seq);
+mod_ty _PyAst_Module_Copy(mod_ty self);
+PyAPI_FUNC(mod_ty) _PyAst_mod_Copy(mod_ty node);
+mod_ty _PyAst_Interactive_Copy(mod_ty self);
+PyAPI_FUNC(mod_ty) _PyAst_mod_Copy(mod_ty node);
+mod_ty _PyAst_Expression_Copy(mod_ty self);
+PyAPI_FUNC(mod_ty) _PyAst_mod_Copy(mod_ty node);
+mod_ty _PyAst_FunctionType_Copy(mod_ty self);
+PyAPI_FUNC(mod_ty) _PyAst_mod_Copy(mod_ty node);
+stmt_ty _PyAst_stmt_Copy(stmt_ty self);
+PyAPI_FUNC(stmt_ty) _PyAst_stmt_Copy(stmt_ty node);
+asdl_stmt_seq *_PyAst_stmt_seq_Copy(asdl_stmt_seq *seq);
+stmt_ty _PyAst_FunctionDef_Copy(stmt_ty self);
+PyAPI_FUNC(stmt_ty) _PyAst_stmt_Copy(stmt_ty node);
+stmt_ty _PyAst_AsyncFunctionDef_Copy(stmt_ty self);
+PyAPI_FUNC(stmt_ty) _PyAst_stmt_Copy(stmt_ty node);
+stmt_ty _PyAst_ClassDef_Copy(stmt_ty self);
+PyAPI_FUNC(stmt_ty) _PyAst_stmt_Copy(stmt_ty node);
+stmt_ty _PyAst_Return_Copy(stmt_ty self);
+PyAPI_FUNC(stmt_ty) _PyAst_stmt_Copy(stmt_ty node);
+stmt_ty _PyAst_Delete_Copy(stmt_ty self);
+PyAPI_FUNC(stmt_ty) _PyAst_stmt_Copy(stmt_ty node);
+stmt_ty _PyAst_Assign_Copy(stmt_ty self);
+PyAPI_FUNC(stmt_ty) _PyAst_stmt_Copy(stmt_ty node);
+stmt_ty _PyAst_TypeAlias_Copy(stmt_ty self);
+PyAPI_FUNC(stmt_ty) _PyAst_stmt_Copy(stmt_ty node);
+stmt_ty _PyAst_AugAssign_Copy(stmt_ty self);
+PyAPI_FUNC(stmt_ty) _PyAst_stmt_Copy(stmt_ty node);
+stmt_ty _PyAst_AnnAssign_Copy(stmt_ty self);
+PyAPI_FUNC(stmt_ty) _PyAst_stmt_Copy(stmt_ty node);
+stmt_ty _PyAst_For_Copy(stmt_ty self);
+PyAPI_FUNC(stmt_ty) _PyAst_stmt_Copy(stmt_ty node);
+stmt_ty _PyAst_AsyncFor_Copy(stmt_ty self);
+PyAPI_FUNC(stmt_ty) _PyAst_stmt_Copy(stmt_ty node);
+stmt_ty _PyAst_While_Copy(stmt_ty self);
+PyAPI_FUNC(stmt_ty) _PyAst_stmt_Copy(stmt_ty node);
+stmt_ty _PyAst_If_Copy(stmt_ty self);
+PyAPI_FUNC(stmt_ty) _PyAst_stmt_Copy(stmt_ty node);
+stmt_ty _PyAst_With_Copy(stmt_ty self);
+PyAPI_FUNC(stmt_ty) _PyAst_stmt_Copy(stmt_ty node);
+stmt_ty _PyAst_AsyncWith_Copy(stmt_ty self);
+PyAPI_FUNC(stmt_ty) _PyAst_stmt_Copy(stmt_ty node);
+stmt_ty _PyAst_Match_Copy(stmt_ty self);
+PyAPI_FUNC(stmt_ty) _PyAst_stmt_Copy(stmt_ty node);
+stmt_ty _PyAst_Raise_Copy(stmt_ty self);
+PyAPI_FUNC(stmt_ty) _PyAst_stmt_Copy(stmt_ty node);
+stmt_ty _PyAst_Try_Copy(stmt_ty self);
+PyAPI_FUNC(stmt_ty) _PyAst_stmt_Copy(stmt_ty node);
+stmt_ty _PyAst_TryStar_Copy(stmt_ty self);
+PyAPI_FUNC(stmt_ty) _PyAst_stmt_Copy(stmt_ty node);
+stmt_ty _PyAst_Assert_Copy(stmt_ty self);
+PyAPI_FUNC(stmt_ty) _PyAst_stmt_Copy(stmt_ty node);
+stmt_ty _PyAst_Import_Copy(stmt_ty self);
+PyAPI_FUNC(stmt_ty) _PyAst_stmt_Copy(stmt_ty node);
+stmt_ty _PyAst_ImportFrom_Copy(stmt_ty self);
+PyAPI_FUNC(stmt_ty) _PyAst_stmt_Copy(stmt_ty node);
+stmt_ty _PyAst_Global_Copy(stmt_ty self);
+PyAPI_FUNC(stmt_ty) _PyAst_stmt_Copy(stmt_ty node);
+stmt_ty _PyAst_Nonlocal_Copy(stmt_ty self);
+PyAPI_FUNC(stmt_ty) _PyAst_stmt_Copy(stmt_ty node);
+stmt_ty _PyAst_Expr_Copy(stmt_ty self);
+PyAPI_FUNC(stmt_ty) _PyAst_stmt_Copy(stmt_ty node);
+stmt_ty _PyAst_Pass_Copy(stmt_ty self);
+PyAPI_FUNC(stmt_ty) _PyAst_stmt_Copy(stmt_ty node);
+stmt_ty _PyAst_Break_Copy(stmt_ty self);
+PyAPI_FUNC(stmt_ty) _PyAst_stmt_Copy(stmt_ty node);
+stmt_ty _PyAst_Continue_Copy(stmt_ty self);
+PyAPI_FUNC(stmt_ty) _PyAst_stmt_Copy(stmt_ty node);
+expr_ty _PyAst_expr_Copy(expr_ty self);
+PyAPI_FUNC(expr_ty) _PyAst_expr_Copy(expr_ty node);
+asdl_expr_seq *_PyAst_expr_seq_Copy(asdl_expr_seq *seq);
+expr_ty _PyAst_BoolOp_Copy(expr_ty self);
+PyAPI_FUNC(expr_ty) _PyAst_expr_Copy(expr_ty node);
+expr_ty _PyAst_NamedExpr_Copy(expr_ty self);
+PyAPI_FUNC(expr_ty) _PyAst_expr_Copy(expr_ty node);
+expr_ty _PyAst_BinOp_Copy(expr_ty self);
+PyAPI_FUNC(expr_ty) _PyAst_expr_Copy(expr_ty node);
+expr_ty _PyAst_UnaryOp_Copy(expr_ty self);
+PyAPI_FUNC(expr_ty) _PyAst_expr_Copy(expr_ty node);
+expr_ty _PyAst_Lambda_Copy(expr_ty self);
+PyAPI_FUNC(expr_ty) _PyAst_expr_Copy(expr_ty node);
+expr_ty _PyAst_IfExp_Copy(expr_ty self);
+PyAPI_FUNC(expr_ty) _PyAst_expr_Copy(expr_ty node);
+expr_ty _PyAst_Dict_Copy(expr_ty self);
+PyAPI_FUNC(expr_ty) _PyAst_expr_Copy(expr_ty node);
+expr_ty _PyAst_Set_Copy(expr_ty self);
+PyAPI_FUNC(expr_ty) _PyAst_expr_Copy(expr_ty node);
+expr_ty _PyAst_ListComp_Copy(expr_ty self);
+PyAPI_FUNC(expr_ty) _PyAst_expr_Copy(expr_ty node);
+expr_ty _PyAst_SetComp_Copy(expr_ty self);
+PyAPI_FUNC(expr_ty) _PyAst_expr_Copy(expr_ty node);
+expr_ty _PyAst_DictComp_Copy(expr_ty self);
+PyAPI_FUNC(expr_ty) _PyAst_expr_Copy(expr_ty node);
+expr_ty _PyAst_GeneratorExp_Copy(expr_ty self);
+PyAPI_FUNC(expr_ty) _PyAst_expr_Copy(expr_ty node);
+expr_ty _PyAst_Await_Copy(expr_ty self);
+PyAPI_FUNC(expr_ty) _PyAst_expr_Copy(expr_ty node);
+expr_ty _PyAst_Yield_Copy(expr_ty self);
+PyAPI_FUNC(expr_ty) _PyAst_expr_Copy(expr_ty node);
+expr_ty _PyAst_YieldFrom_Copy(expr_ty self);
+PyAPI_FUNC(expr_ty) _PyAst_expr_Copy(expr_ty node);
+expr_ty _PyAst_Compare_Copy(expr_ty self);
+PyAPI_FUNC(expr_ty) _PyAst_expr_Copy(expr_ty node);
+expr_ty _PyAst_Call_Copy(expr_ty self);
+PyAPI_FUNC(expr_ty) _PyAst_expr_Copy(expr_ty node);
+expr_ty _PyAst_FormattedValue_Copy(expr_ty self);
+PyAPI_FUNC(expr_ty) _PyAst_expr_Copy(expr_ty node);
+expr_ty _PyAst_Interpolation_Copy(expr_ty self);
+PyAPI_FUNC(expr_ty) _PyAst_expr_Copy(expr_ty node);
+expr_ty _PyAst_JoinedStr_Copy(expr_ty self);
+PyAPI_FUNC(expr_ty) _PyAst_expr_Copy(expr_ty node);
+expr_ty _PyAst_TemplateStr_Copy(expr_ty self);
+PyAPI_FUNC(expr_ty) _PyAst_expr_Copy(expr_ty node);
+expr_ty _PyAst_Constant_Copy(expr_ty self);
+PyAPI_FUNC(expr_ty) _PyAst_expr_Copy(expr_ty node);
+expr_ty _PyAst_Attribute_Copy(expr_ty self);
+PyAPI_FUNC(expr_ty) _PyAst_expr_Copy(expr_ty node);
+expr_ty _PyAst_Subscript_Copy(expr_ty self);
+PyAPI_FUNC(expr_ty) _PyAst_expr_Copy(expr_ty node);
+expr_ty _PyAst_Starred_Copy(expr_ty self);
+PyAPI_FUNC(expr_ty) _PyAst_expr_Copy(expr_ty node);
+expr_ty _PyAst_Name_Copy(expr_ty self);
+PyAPI_FUNC(expr_ty) _PyAst_expr_Copy(expr_ty node);
+expr_ty _PyAst_List_Copy(expr_ty self);
+PyAPI_FUNC(expr_ty) _PyAst_expr_Copy(expr_ty node);
+expr_ty _PyAst_Tuple_Copy(expr_ty self);
+PyAPI_FUNC(expr_ty) _PyAst_expr_Copy(expr_ty node);
+expr_ty _PyAst_Slice_Copy(expr_ty self);
+PyAPI_FUNC(expr_ty) _PyAst_expr_Copy(expr_ty node);
+comprehension_ty _PyAst_comprehension_Copy(comprehension_ty self);
+PyAPI_FUNC(comprehension_ty) _PyAst_comprehension_Copy(comprehension_ty node);
+asdl_comprehension_seq *_PyAst_comprehension_seq_Copy(asdl_comprehension_seq
+                                                      *seq);
+excepthandler_ty _PyAst_excepthandler_Copy(excepthandler_ty self);
+PyAPI_FUNC(excepthandler_ty) _PyAst_excepthandler_Copy(excepthandler_ty node);
+asdl_excepthandler_seq *_PyAst_excepthandler_seq_Copy(asdl_excepthandler_seq
+                                                      *seq);
+excepthandler_ty _PyAst_ExceptHandler_Copy(excepthandler_ty self);
+PyAPI_FUNC(excepthandler_ty) _PyAst_excepthandler_Copy(excepthandler_ty node);
+arguments_ty _PyAst_arguments_Copy(arguments_ty self);
+PyAPI_FUNC(arguments_ty) _PyAst_arguments_Copy(arguments_ty node);
+asdl_arguments_seq *_PyAst_arguments_seq_Copy(asdl_arguments_seq *seq);
+arg_ty _PyAst_arg_Copy(arg_ty self);
+PyAPI_FUNC(arg_ty) _PyAst_arg_Copy(arg_ty node);
+asdl_arg_seq *_PyAst_arg_seq_Copy(asdl_arg_seq *seq);
+keyword_ty _PyAst_keyword_Copy(keyword_ty self);
+PyAPI_FUNC(keyword_ty) _PyAst_keyword_Copy(keyword_ty node);
+asdl_keyword_seq *_PyAst_keyword_seq_Copy(asdl_keyword_seq *seq);
+alias_ty _PyAst_alias_Copy(alias_ty self);
+PyAPI_FUNC(alias_ty) _PyAst_alias_Copy(alias_ty node);
+asdl_alias_seq *_PyAst_alias_seq_Copy(asdl_alias_seq *seq);
+withitem_ty _PyAst_withitem_Copy(withitem_ty self);
+PyAPI_FUNC(withitem_ty) _PyAst_withitem_Copy(withitem_ty node);
+asdl_withitem_seq *_PyAst_withitem_seq_Copy(asdl_withitem_seq *seq);
+match_case_ty _PyAst_match_case_Copy(match_case_ty self);
+PyAPI_FUNC(match_case_ty) _PyAst_match_case_Copy(match_case_ty node);
+asdl_match_case_seq *_PyAst_match_case_seq_Copy(asdl_match_case_seq *seq);
+pattern_ty _PyAst_pattern_Copy(pattern_ty self);
+PyAPI_FUNC(pattern_ty) _PyAst_pattern_Copy(pattern_ty node);
+asdl_pattern_seq *_PyAst_pattern_seq_Copy(asdl_pattern_seq *seq);
+pattern_ty _PyAst_MatchValue_Copy(pattern_ty self);
+PyAPI_FUNC(pattern_ty) _PyAst_pattern_Copy(pattern_ty node);
+pattern_ty _PyAst_MatchSingleton_Copy(pattern_ty self);
+PyAPI_FUNC(pattern_ty) _PyAst_pattern_Copy(pattern_ty node);
+pattern_ty _PyAst_MatchSequence_Copy(pattern_ty self);
+PyAPI_FUNC(pattern_ty) _PyAst_pattern_Copy(pattern_ty node);
+pattern_ty _PyAst_MatchMapping_Copy(pattern_ty self);
+PyAPI_FUNC(pattern_ty) _PyAst_pattern_Copy(pattern_ty node);
+pattern_ty _PyAst_MatchClass_Copy(pattern_ty self);
+PyAPI_FUNC(pattern_ty) _PyAst_pattern_Copy(pattern_ty node);
+pattern_ty _PyAst_MatchStar_Copy(pattern_ty self);
+PyAPI_FUNC(pattern_ty) _PyAst_pattern_Copy(pattern_ty node);
+pattern_ty _PyAst_MatchAs_Copy(pattern_ty self);
+PyAPI_FUNC(pattern_ty) _PyAst_pattern_Copy(pattern_ty node);
+pattern_ty _PyAst_MatchOr_Copy(pattern_ty self);
+PyAPI_FUNC(pattern_ty) _PyAst_pattern_Copy(pattern_ty node);
+type_ignore_ty _PyAst_type_ignore_Copy(type_ignore_ty self);
+PyAPI_FUNC(type_ignore_ty) _PyAst_type_ignore_Copy(type_ignore_ty node);
+asdl_type_ignore_seq *_PyAst_type_ignore_seq_Copy(asdl_type_ignore_seq *seq);
+type_ignore_ty _PyAst_TypeIgnore_Copy(type_ignore_ty self);
+PyAPI_FUNC(type_ignore_ty) _PyAst_type_ignore_Copy(type_ignore_ty node);
+type_param_ty _PyAst_type_param_Copy(type_param_ty self);
+PyAPI_FUNC(type_param_ty) _PyAst_type_param_Copy(type_param_ty node);
+asdl_type_param_seq *_PyAst_type_param_seq_Copy(asdl_type_param_seq *seq);
+type_param_ty _PyAst_TypeVar_Copy(type_param_ty self);
+PyAPI_FUNC(type_param_ty) _PyAst_type_param_Copy(type_param_ty node);
+type_param_ty _PyAst_ParamSpec_Copy(type_param_ty self);
+PyAPI_FUNC(type_param_ty) _PyAst_type_param_Copy(type_param_ty node);
+type_param_ty _PyAst_TypeVarTuple_Copy(type_param_ty self);
+PyAPI_FUNC(type_param_ty) _PyAst_type_param_Copy(type_param_ty node);
+asdl_int_seq *_PyAst_int_seq_Copy(asdl_int_seq *seq);
+asdl_identifier_seq *_PyAst_identifier_seq_Copy(asdl_identifier_seq *seq);
 
 // Note: these macros affect function definitions, not only call sites.
 mod_ty _PyAST_Module(asdl_stmt_seq * body, asdl_type_ignore_seq * type_ignores,

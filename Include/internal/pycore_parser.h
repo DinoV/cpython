@@ -43,7 +43,7 @@ _Py_DECLARE_STR(empty, "")
     }
 #endif
 
-extern struct _mod* _PyParser_ASTFromString(
+PyAPI_FUNC(mod_ty) _PyParser_ASTFromString(
     const char *str,
     PyObject* filename,
     int mode,

@@ -172,12 +172,138 @@ void _PyAST_Fini(PyInterpreterState *interp)
     Py_CLEAR(state->With_type);
     Py_CLEAR(state->YieldFrom_type);
     Py_CLEAR(state->Yield_type);
+    Py_CLEAR(state->_AST_Type);
+    Py_CLEAR(state->_Add_Type);
+    Py_CLEAR(state->_And_Type);
+    Py_CLEAR(state->_AnnAssign_Type);
+    Py_CLEAR(state->_Assert_Type);
+    Py_CLEAR(state->_Assign_Type);
+    Py_CLEAR(state->_AsyncFor_Type);
+    Py_CLEAR(state->_AsyncFunctionDef_Type);
+    Py_CLEAR(state->_AsyncWith_Type);
+    Py_CLEAR(state->_Attribute_Type);
+    Py_CLEAR(state->_AugAssign_Type);
+    Py_CLEAR(state->_Await_Type);
+    Py_CLEAR(state->_BinOp_Type);
+    Py_CLEAR(state->_BitAnd_Type);
+    Py_CLEAR(state->_BitOr_Type);
+    Py_CLEAR(state->_BitXor_Type);
+    Py_CLEAR(state->_BoolOp_Type);
+    Py_CLEAR(state->_Break_Type);
+    Py_CLEAR(state->_Call_Type);
+    Py_CLEAR(state->_ClassDef_Type);
+    Py_CLEAR(state->_Compare_Type);
+    Py_CLEAR(state->_Constant_Type);
+    Py_CLEAR(state->_Continue_Type);
+    Py_CLEAR(state->_Del_Type);
+    Py_CLEAR(state->_Delete_Type);
+    Py_CLEAR(state->_DictComp_Type);
+    Py_CLEAR(state->_Dict_Type);
+    Py_CLEAR(state->_Div_Type);
+    Py_CLEAR(state->_Eq_Type);
+    Py_CLEAR(state->_ExceptHandler_Type);
+    Py_CLEAR(state->_Expr_Type);
+    Py_CLEAR(state->_Expression_Type);
+    Py_CLEAR(state->_FloorDiv_Type);
+    Py_CLEAR(state->_For_Type);
+    Py_CLEAR(state->_FormattedValue_Type);
+    Py_CLEAR(state->_FunctionDef_Type);
+    Py_CLEAR(state->_FunctionType_Type);
+    Py_CLEAR(state->_GeneratorExp_Type);
+    Py_CLEAR(state->_Global_Type);
+    Py_CLEAR(state->_GtE_Type);
+    Py_CLEAR(state->_Gt_Type);
+    Py_CLEAR(state->_IfExp_Type);
+    Py_CLEAR(state->_If_Type);
+    Py_CLEAR(state->_ImportFrom_Type);
+    Py_CLEAR(state->_Import_Type);
+    Py_CLEAR(state->_In_Type);
+    Py_CLEAR(state->_Interactive_Type);
+    Py_CLEAR(state->_Interpolation_Type);
+    Py_CLEAR(state->_Invert_Type);
+    Py_CLEAR(state->_IsNot_Type);
+    Py_CLEAR(state->_Is_Type);
+    Py_CLEAR(state->_JoinedStr_Type);
+    Py_CLEAR(state->_LShift_Type);
+    Py_CLEAR(state->_Lambda_Type);
+    Py_CLEAR(state->_ListComp_Type);
+    Py_CLEAR(state->_List_Type);
+    Py_CLEAR(state->_Load_Type);
+    Py_CLEAR(state->_LtE_Type);
+    Py_CLEAR(state->_Lt_Type);
+    Py_CLEAR(state->_MatMult_Type);
+    Py_CLEAR(state->_MatchAs_Type);
+    Py_CLEAR(state->_MatchClass_Type);
+    Py_CLEAR(state->_MatchMapping_Type);
+    Py_CLEAR(state->_MatchOr_Type);
+    Py_CLEAR(state->_MatchSequence_Type);
+    Py_CLEAR(state->_MatchSingleton_Type);
+    Py_CLEAR(state->_MatchStar_Type);
+    Py_CLEAR(state->_MatchValue_Type);
+    Py_CLEAR(state->_Match_Type);
+    Py_CLEAR(state->_Mod_Type);
+    Py_CLEAR(state->_Module_Type);
+    Py_CLEAR(state->_Mult_Type);
+    Py_CLEAR(state->_Name_Type);
+    Py_CLEAR(state->_NamedExpr_Type);
+    Py_CLEAR(state->_Nonlocal_Type);
+    Py_CLEAR(state->_NotEq_Type);
+    Py_CLEAR(state->_NotIn_Type);
+    Py_CLEAR(state->_Not_Type);
+    Py_CLEAR(state->_Or_Type);
+    Py_CLEAR(state->_ParamSpec_Type);
+    Py_CLEAR(state->_Pass_Type);
+    Py_CLEAR(state->_Pow_Type);
+    Py_CLEAR(state->_RShift_Type);
+    Py_CLEAR(state->_Raise_Type);
+    Py_CLEAR(state->_Return_Type);
+    Py_CLEAR(state->_SetComp_Type);
+    Py_CLEAR(state->_Set_Type);
+    Py_CLEAR(state->_Slice_Type);
+    Py_CLEAR(state->_Starred_Type);
+    Py_CLEAR(state->_Store_Type);
+    Py_CLEAR(state->_Sub_Type);
+    Py_CLEAR(state->_Subscript_Type);
+    Py_CLEAR(state->_TemplateStr_Type);
+    Py_CLEAR(state->_TryStar_Type);
+    Py_CLEAR(state->_Try_Type);
+    Py_CLEAR(state->_Tuple_Type);
+    Py_CLEAR(state->_TypeAlias_Type);
+    Py_CLEAR(state->_TypeIgnore_Type);
+    Py_CLEAR(state->_TypeVarTuple_Type);
+    Py_CLEAR(state->_TypeVar_Type);
+    Py_CLEAR(state->_UAdd_Type);
+    Py_CLEAR(state->_USub_Type);
+    Py_CLEAR(state->_UnaryOp_Type);
+    Py_CLEAR(state->_While_Type);
+    Py_CLEAR(state->_With_Type);
+    Py_CLEAR(state->_YieldFrom_Type);
+    Py_CLEAR(state->_Yield_Type);
     Py_CLEAR(state->__dict__);
     Py_CLEAR(state->__doc__);
     Py_CLEAR(state->__match_args__);
     Py_CLEAR(state->__module__);
+    Py_CLEAR(state->_alias_Type);
+    Py_CLEAR(state->_arg_Type);
+    Py_CLEAR(state->_arguments_Type);
     Py_CLEAR(state->_attributes);
+    Py_CLEAR(state->_boolop_Type);
+    Py_CLEAR(state->_cmpop_Type);
+    Py_CLEAR(state->_comprehension_Type);
+    Py_CLEAR(state->_excepthandler_Type);
+    Py_CLEAR(state->_expr_Type);
+    Py_CLEAR(state->_expr_context_Type);
     Py_CLEAR(state->_fields);
+    Py_CLEAR(state->_keyword_Type);
+    Py_CLEAR(state->_match_case_Type);
+    Py_CLEAR(state->_mod_Type);
+    Py_CLEAR(state->_operator_Type);
+    Py_CLEAR(state->_pattern_Type);
+    Py_CLEAR(state->_stmt_Type);
+    Py_CLEAR(state->_type_ignore_Type);
+    Py_CLEAR(state->_type_param_Type);
+    Py_CLEAR(state->_unaryop_Type);
+    Py_CLEAR(state->_withitem_Type);
     Py_CLEAR(state->alias_type);
     Py_CLEAR(state->annotation);
     Py_CLEAR(state->arg);
@@ -5119,6 +5245,6023 @@ add_ast_annotations(struct ast_state *state)
     return 1;
 }
 
+#define ERROR_IF_NULL(x) if (x == NULL) goto error
+
+static Py_ssize_t ast_seq_len(asdl_seq *seq) {
+    return asdl_seq_LEN(seq);
+}
+
+static PyObject *ast_seq_get(asdl_seq *seq, Py_ssize_t i) {
+    return (PyObject *)asdl_seq_GET_UNTYPED(seq, i);
+}
+
+static int ast_seq_contains(asdl_seq *seq, PyObject *el) {
+    for (Py_ssize_t i = 0; i < seq->size; i++) {
+        PyObject *item = asdl_seq_GET_UNTYPED(seq, i);
+        if (item == el) {
+            return 1;
+        }
+        int cmp = PyObject_RichCompareBool(item, el, Py_EQ);
+        if (cmp != 0) {
+            return cmp;
+        }
+    }
+    return 0;
+}
+
+static PySequenceMethods ast_sequence_methods = {
+    .sq_length = (lenfunc)ast_seq_len,
+    .sq_item = (ssizeargfunc)ast_seq_get,
+    .sq_contains = (objobjproc)ast_seq_contains,
+};
+
+static PyMappingMethods ast_mapping_methods = {
+    .mp_length = (lenfunc)ast_seq_len,
+    .mp_subscript = NULL,
+};
+
+static void int_seq_dealloc(PyObject *self) {
+    asdl_int_seq *obj = (asdl_int_seq *)self;
+    Py_TYPE(self)->tp_free(obj);
+}
+
+PyTypeObject _int_seq_Type = {
+    .tp_name="int_seq",
+    .tp_basicsize=sizeof(asdl_int_seq) - sizeof(int),
+    .tp_itemsize=sizeof(int),
+    .tp_dealloc = &int_seq_dealloc,
+    .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
+    .tp_free = PyObject_Free,
+
+};
+
+asdl_int_seq *_PyAst_int_seq_Copy(asdl_int_seq *seq) {
+    asdl_int_seq *res = PyObject_NewVar(asdl_int_seq, &_int_seq_Type, seq->size);
+    if (res == NULL) {
+        goto error;
+    }
+    res->size = seq->size;
+    res->elements = (void**)&res->typed_elements[0];
+    for (Py_ssize_t i = 0; i < seq->size; i++) {
+        res->typed_elements[i] = seq->typed_elements[i];
+    }
+    return res;
+    error:
+    Py_XDECREF(res);
+    return NULL;
+}
+
+static void identifier_seq_dealloc(PyObject *self) {
+    asdl_identifier_seq *obj = (asdl_identifier_seq *)self;
+    for (Py_ssize_t i = 0; i < obj->size; i++) {
+        PyObject *value = (PyObject *)obj->typed_elements[i];
+        if (value) {
+            Py_DECREF(value);
+        }
+    }
+    Py_TYPE(self)->tp_free(obj);
+}
+
+PyTypeObject _identifier_seq_Type = {
+    .tp_name="identifier_seq",
+    .tp_basicsize=sizeof(asdl_identifier_seq) - sizeof(identifier),
+    .tp_itemsize=sizeof(identifier),
+    .tp_dealloc = &identifier_seq_dealloc,
+    .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
+    .tp_free = PyObject_Free,
+
+    .tp_as_sequence = &ast_sequence_methods,
+    .tp_as_mapping = &ast_mapping_methods,
+};
+
+asdl_identifier_seq *_PyAst_identifier_seq_Copy(asdl_identifier_seq *seq) {
+    asdl_identifier_seq *res = PyObject_NewVar(asdl_identifier_seq, &_identifier_seq_Type, seq->size);
+    if (res == NULL) {
+        goto error;
+    }
+    res->size = seq->size;
+    res->elements = (void**)&res->typed_elements[0];
+    for (Py_ssize_t i = 0; i < seq->size; i++) {
+        if (seq->typed_elements[i] != NULL) {
+            res->typed_elements[i] = Py_NewRef(seq->typed_elements[i]);
+            ERROR_IF_NULL(res->typed_elements[i]);
+        } else {
+            res->typed_elements[i] = NULL;
+        }
+    }
+    return res;
+    error:
+    Py_XDECREF(res);
+    return NULL;
+}
+
+static void AST_dealloc(PyObject *self) {
+    Py_TYPE(self)->tp_free(self);
+}
+static PyMemberDef AST_members[] = {
+    {0}
+};
+
+static PyType_Slot _AST_type_slots[] = {
+    {Py_tp_dealloc, &AST_dealloc},
+{Py_tp_members, AST_members},
+    {Py_tp_free, PyObject_Free},
+    {Py_tp_doc, ""},
+    {0, 0},
+};
+
+static PyType_Spec _AST_type_spec = {
+    "ast._AST",
+    sizeof(struct _object),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    _AST_type_slots
+};
+
+
+
+static void Module_dealloc(PyObject *self) {
+    mod_ty obj = (mod_ty)self;
+    Py_XDECREF(obj->v.Module.body);
+    Py_XDECREF(obj->v.Module.type_ignores);
+    Py_TYPE(self)->tp_free(obj);
+}
+static PyMemberDef Module_members[] = {
+    {"body", _Py_T_OBJECT, offsetof(struct _mod, v.Module.body), Py_READONLY,
+      NULL},
+    {"type_ignores", _Py_T_OBJECT, offsetof(struct _mod,
+      v.Module.type_ignores), Py_READONLY, NULL},
+    {0}
+};
+
+static PyType_Slot _Module_type_slots[] = {
+    {Py_tp_dealloc, &Module_dealloc},
+{Py_tp_members, Module_members},
+    {Py_tp_free, PyObject_Free},
+    {Py_tp_doc, "Module(stmt* body, type_ignore* type_ignores)"},
+    {0, 0},
+};
+
+static PyType_Spec _Module_type_spec = {
+    "ast._Module",
+    sizeof(struct _mod),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    _Module_type_slots
+};
+
+
+
+mod_ty _PyAst_Module_Copy(mod_ty self) {
+    struct ast_state *state = get_ast_state();
+    mod_ty res = PyObject_New(struct _mod, (PyTypeObject *)state->_Module_Type);
+    if (res == NULL) {
+        goto error;
+    }
+    if (self->v.Module.body != NULL) {
+        res->v.Module.body = _PyAst_stmt_seq_Copy(self->v.Module.body);
+        ERROR_IF_NULL(res->v.Module.body);
+    } else {
+        res->v.Module.body = NULL;
+    }
+    if (self->v.Module.type_ignores != NULL) {
+        res->v.Module.type_ignores =
+        _PyAst_type_ignore_seq_Copy(self->v.Module.type_ignores);
+        ERROR_IF_NULL(res->v.Module.type_ignores);
+    } else {
+        res->v.Module.type_ignores = NULL;
+    }
+    return res;
+error:
+    Py_XDECREF(res);
+    return NULL;
+}
+
+static void Interactive_dealloc(PyObject *self) {
+    mod_ty obj = (mod_ty)self;
+    Py_XDECREF(obj->v.Interactive.body);
+    Py_TYPE(self)->tp_free(obj);
+}
+static PyMemberDef Interactive_members[] = {
+    {"body", _Py_T_OBJECT, offsetof(struct _mod, v.Interactive.body),
+      Py_READONLY, NULL},
+    {0}
+};
+
+static PyType_Slot _Interactive_type_slots[] = {
+    {Py_tp_dealloc, &Interactive_dealloc},
+{Py_tp_members, Interactive_members},
+    {Py_tp_free, PyObject_Free},
+    {Py_tp_doc, "Interactive(stmt* body)"},
+    {0, 0},
+};
+
+static PyType_Spec _Interactive_type_spec = {
+    "ast._Interactive",
+    sizeof(struct _mod),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    _Interactive_type_slots
+};
+
+
+
+mod_ty _PyAst_Interactive_Copy(mod_ty self) {
+    struct ast_state *state = get_ast_state();
+    mod_ty res = PyObject_New(struct _mod, (PyTypeObject
+                              *)state->_Interactive_Type);
+    if (res == NULL) {
+        goto error;
+    }
+    if (self->v.Interactive.body != NULL) {
+        res->v.Interactive.body =
+        _PyAst_stmt_seq_Copy(self->v.Interactive.body);
+        ERROR_IF_NULL(res->v.Interactive.body);
+    } else {
+        res->v.Interactive.body = NULL;
+    }
+    return res;
+error:
+    Py_XDECREF(res);
+    return NULL;
+}
+
+static void Expression_dealloc(PyObject *self) {
+    mod_ty obj = (mod_ty)self;
+    Py_XDECREF(obj->v.Expression.body);
+    Py_TYPE(self)->tp_free(obj);
+}
+static PyMemberDef Expression_members[] = {
+    {"body", _Py_T_OBJECT, offsetof(struct _mod, v.Expression.body),
+      Py_READONLY, NULL},
+    {0}
+};
+
+static PyType_Slot _Expression_type_slots[] = {
+    {Py_tp_dealloc, &Expression_dealloc},
+{Py_tp_members, Expression_members},
+    {Py_tp_free, PyObject_Free},
+    {Py_tp_doc, "Expression(expr body)"},
+    {0, 0},
+};
+
+static PyType_Spec _Expression_type_spec = {
+    "ast._Expression",
+    sizeof(struct _mod),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    _Expression_type_slots
+};
+
+
+
+mod_ty _PyAst_Expression_Copy(mod_ty self) {
+    struct ast_state *state = get_ast_state();
+    mod_ty res = PyObject_New(struct _mod, (PyTypeObject
+                              *)state->_Expression_Type);
+    if (res == NULL) {
+        goto error;
+    }
+    if (self->v.Expression.body != NULL) {
+        res->v.Expression.body = _PyAst_expr_Copy(self->v.Expression.body);
+        ERROR_IF_NULL(res->v.Expression.body);
+    } else {
+        res->v.Expression.body = NULL;
+    }
+    return res;
+error:
+    Py_XDECREF(res);
+    return NULL;
+}
+
+static void FunctionType_dealloc(PyObject *self) {
+    mod_ty obj = (mod_ty)self;
+    Py_XDECREF(obj->v.FunctionType.argtypes);
+    Py_XDECREF(obj->v.FunctionType.returns);
+    Py_TYPE(self)->tp_free(obj);
+}
+static PyMemberDef FunctionType_members[] = {
+    {"argtypes", _Py_T_OBJECT, offsetof(struct _mod, v.FunctionType.argtypes),
+      Py_READONLY, NULL},
+    {"returns", _Py_T_OBJECT, offsetof(struct _mod, v.FunctionType.returns),
+      Py_READONLY, NULL},
+    {0}
+};
+
+static PyType_Slot _FunctionType_type_slots[] = {
+    {Py_tp_dealloc, &FunctionType_dealloc},
+{Py_tp_members, FunctionType_members},
+    {Py_tp_free, PyObject_Free},
+    {Py_tp_doc, "FunctionType(expr* argtypes, expr returns)"},
+    {0, 0},
+};
+
+static PyType_Spec _FunctionType_type_spec = {
+    "ast._FunctionType",
+    sizeof(struct _mod),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    _FunctionType_type_slots
+};
+
+
+
+mod_ty _PyAst_FunctionType_Copy(mod_ty self) {
+    struct ast_state *state = get_ast_state();
+    mod_ty res = PyObject_New(struct _mod, (PyTypeObject
+                              *)state->_FunctionType_Type);
+    if (res == NULL) {
+        goto error;
+    }
+    if (self->v.FunctionType.argtypes != NULL) {
+        res->v.FunctionType.argtypes =
+        _PyAst_expr_seq_Copy(self->v.FunctionType.argtypes);
+        ERROR_IF_NULL(res->v.FunctionType.argtypes);
+    } else {
+        res->v.FunctionType.argtypes = NULL;
+    }
+    if (self->v.FunctionType.returns != NULL) {
+        res->v.FunctionType.returns =
+        _PyAst_expr_Copy(self->v.FunctionType.returns);
+        ERROR_IF_NULL(res->v.FunctionType.returns);
+    } else {
+        res->v.FunctionType.returns = NULL;
+    }
+    return res;
+error:
+    Py_XDECREF(res);
+    return NULL;
+}
+
+
+mod_ty _PyAst_mod_Copy(mod_ty node) {
+    switch (node->kind) {
+        case Module_kind:
+            return _PyAst_Module_Copy(node);
+        case Interactive_kind:
+            return _PyAst_Interactive_Copy(node);
+        case Expression_kind:
+            return _PyAst_Expression_Copy(node);
+        case FunctionType_kind:
+            return _PyAst_FunctionType_Copy(node);
+    }
+    return NULL;
+}
+
+static void mod_dealloc(PyObject *self) {
+    mod_ty obj = (mod_ty)self;
+    Py_TYPE(self)->tp_free(obj);
+}
+static PyMemberDef mod_members[] = {
+    {0}
+};
+
+static PyType_Slot _mod_type_slots[] = {
+    {Py_tp_dealloc, &mod_dealloc},
+{Py_tp_members, mod_members},
+    {Py_tp_free, PyObject_Free},
+    {Py_tp_doc, "mod = Module(stmt* body, type_ignore* type_ignores)\n"
+        "    | Interactive(stmt* body)\n"
+        "    | Expression(expr body)\n"
+        "    | FunctionType(expr* argtypes, expr returns)"},
+    {0, 0},
+};
+
+static PyType_Spec _mod_type_spec = {
+    "ast._mod",
+    sizeof(struct _mod),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    _mod_type_slots
+};
+
+
+
+static void mod_seq_dealloc(PyObject *self) {
+    asdl_mod_seq *obj = (asdl_mod_seq *)self;
+    for (Py_ssize_t i = 0; i < obj->size; i++) {
+        PyObject *value = (PyObject *)obj->typed_elements[i];
+        if (value) {
+            Py_DECREF(value);
+        }
+    }
+    Py_TYPE(self)->tp_free(obj);
+}
+
+PyTypeObject _mod_seq_Type = {
+    .tp_name="mod_seq",
+    .tp_basicsize=sizeof(asdl_mod_seq) - sizeof(mod_ty),
+    .tp_itemsize=sizeof(mod_ty),
+    .tp_dealloc = &mod_seq_dealloc,
+    .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
+    .tp_free = PyObject_Free,
+
+    .tp_as_sequence = &ast_sequence_methods,
+    .tp_as_mapping = &ast_mapping_methods,
+};
+
+asdl_mod_seq *_PyAst_mod_seq_Copy(asdl_mod_seq *seq) {
+    asdl_mod_seq *res = PyObject_NewVar(asdl_mod_seq, &_mod_seq_Type, seq->size);
+    if (res == NULL) {
+        goto error;
+    }
+    res->size = seq->size;
+    res->elements = (void**)&res->typed_elements[0];
+    for (Py_ssize_t i = 0; i < seq->size; i++) {
+        if (seq->typed_elements[i] != NULL) {
+            res->typed_elements[i] = _PyAst_mod_Copy(seq->typed_elements[i]);
+            ERROR_IF_NULL(res->typed_elements[i]);
+        } else {
+            res->typed_elements[i] = NULL;
+        }
+    }
+    return res;
+    error:
+    Py_XDECREF(res);
+    return NULL;
+}
+
+static void FunctionDef_dealloc(PyObject *self) {
+    stmt_ty obj = (stmt_ty)self;
+    Py_XDECREF(obj->v.FunctionDef.name);
+    Py_XDECREF(obj->v.FunctionDef.args);
+    Py_XDECREF(obj->v.FunctionDef.body);
+    Py_XDECREF(obj->v.FunctionDef.decorator_list);
+    Py_XDECREF(obj->v.FunctionDef.returns);
+    Py_XDECREF(obj->v.FunctionDef.type_comment);
+    Py_XDECREF(obj->v.FunctionDef.type_params);
+    Py_TYPE(self)->tp_free(obj);
+}
+static PyMemberDef FunctionDef_members[] = {
+    {"name", _Py_T_OBJECT, offsetof(struct _stmt, v.FunctionDef.name),
+      Py_READONLY, NULL},
+    {"args", _Py_T_OBJECT, offsetof(struct _stmt, v.FunctionDef.args),
+      Py_READONLY, NULL},
+    {"body", _Py_T_OBJECT, offsetof(struct _stmt, v.FunctionDef.body),
+      Py_READONLY, NULL},
+    {"decorator_list", _Py_T_OBJECT, offsetof(struct _stmt,
+      v.FunctionDef.decorator_list), Py_READONLY, NULL},
+    {"returns", _Py_T_OBJECT, offsetof(struct _stmt, v.FunctionDef.returns),
+      Py_READONLY, NULL},
+    {"type_comment", _Py_T_OBJECT, offsetof(struct _stmt,
+      v.FunctionDef.type_comment), Py_READONLY, NULL},
+    {"type_params", _Py_T_OBJECT, offsetof(struct _stmt,
+      v.FunctionDef.type_params), Py_READONLY, NULL},
+    {0}
+};
+
+static PyType_Slot _FunctionDef_type_slots[] = {
+    {Py_tp_dealloc, &FunctionDef_dealloc},
+{Py_tp_members, FunctionDef_members},
+    {Py_tp_free, PyObject_Free},
+    {Py_tp_doc, "FunctionDef(identifier name, arguments args, stmt* body, expr* decorator_list, expr? returns, string? type_comment, type_param* type_params)"},
+    {0, 0},
+};
+
+static PyType_Spec _FunctionDef_type_spec = {
+    "ast._FunctionDef",
+    sizeof(struct _stmt),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    _FunctionDef_type_slots
+};
+
+
+
+stmt_ty _PyAst_FunctionDef_Copy(stmt_ty self) {
+    struct ast_state *state = get_ast_state();
+    stmt_ty res = PyObject_New(struct _stmt, (PyTypeObject
+                               *)state->_FunctionDef_Type);
+    if (res == NULL) {
+        goto error;
+    }
+    if (self->v.FunctionDef.name != NULL) {
+        res->v.FunctionDef.name = Py_NewRef(self->v.FunctionDef.name);
+        ERROR_IF_NULL(res->v.FunctionDef.name);
+    } else {
+        res->v.FunctionDef.name = NULL;
+    }
+    if (self->v.FunctionDef.args != NULL) {
+        res->v.FunctionDef.args =
+        _PyAst_arguments_Copy(self->v.FunctionDef.args);
+        ERROR_IF_NULL(res->v.FunctionDef.args);
+    } else {
+        res->v.FunctionDef.args = NULL;
+    }
+    if (self->v.FunctionDef.body != NULL) {
+        res->v.FunctionDef.body =
+        _PyAst_stmt_seq_Copy(self->v.FunctionDef.body);
+        ERROR_IF_NULL(res->v.FunctionDef.body);
+    } else {
+        res->v.FunctionDef.body = NULL;
+    }
+    if (self->v.FunctionDef.decorator_list != NULL) {
+        res->v.FunctionDef.decorator_list =
+        _PyAst_expr_seq_Copy(self->v.FunctionDef.decorator_list);
+        ERROR_IF_NULL(res->v.FunctionDef.decorator_list);
+    } else {
+        res->v.FunctionDef.decorator_list = NULL;
+    }
+    if (self->v.FunctionDef.returns != NULL) {
+        res->v.FunctionDef.returns =
+        _PyAst_expr_Copy(self->v.FunctionDef.returns);
+        ERROR_IF_NULL(res->v.FunctionDef.returns);
+    } else {
+        res->v.FunctionDef.returns = NULL;
+    }
+    if (self->v.FunctionDef.type_comment != NULL) {
+        res->v.FunctionDef.type_comment =
+        Py_NewRef(self->v.FunctionDef.type_comment);
+        ERROR_IF_NULL(res->v.FunctionDef.type_comment);
+    } else {
+        res->v.FunctionDef.type_comment = NULL;
+    }
+    if (self->v.FunctionDef.type_params != NULL) {
+        res->v.FunctionDef.type_params =
+        _PyAst_type_param_seq_Copy(self->v.FunctionDef.type_params);
+        ERROR_IF_NULL(res->v.FunctionDef.type_params);
+    } else {
+        res->v.FunctionDef.type_params = NULL;
+    }
+    return res;
+error:
+    Py_XDECREF(res);
+    return NULL;
+}
+
+static void AsyncFunctionDef_dealloc(PyObject *self) {
+    stmt_ty obj = (stmt_ty)self;
+    Py_XDECREF(obj->v.AsyncFunctionDef.name);
+    Py_XDECREF(obj->v.AsyncFunctionDef.args);
+    Py_XDECREF(obj->v.AsyncFunctionDef.body);
+    Py_XDECREF(obj->v.AsyncFunctionDef.decorator_list);
+    Py_XDECREF(obj->v.AsyncFunctionDef.returns);
+    Py_XDECREF(obj->v.AsyncFunctionDef.type_comment);
+    Py_XDECREF(obj->v.AsyncFunctionDef.type_params);
+    Py_TYPE(self)->tp_free(obj);
+}
+static PyMemberDef AsyncFunctionDef_members[] = {
+    {"name", _Py_T_OBJECT, offsetof(struct _stmt, v.AsyncFunctionDef.name),
+      Py_READONLY, NULL},
+    {"args", _Py_T_OBJECT, offsetof(struct _stmt, v.AsyncFunctionDef.args),
+      Py_READONLY, NULL},
+    {"body", _Py_T_OBJECT, offsetof(struct _stmt, v.AsyncFunctionDef.body),
+      Py_READONLY, NULL},
+    {"decorator_list", _Py_T_OBJECT, offsetof(struct _stmt,
+      v.AsyncFunctionDef.decorator_list), Py_READONLY, NULL},
+    {"returns", _Py_T_OBJECT, offsetof(struct _stmt,
+      v.AsyncFunctionDef.returns), Py_READONLY, NULL},
+    {"type_comment", _Py_T_OBJECT, offsetof(struct _stmt,
+      v.AsyncFunctionDef.type_comment), Py_READONLY, NULL},
+    {"type_params", _Py_T_OBJECT, offsetof(struct _stmt,
+      v.AsyncFunctionDef.type_params), Py_READONLY, NULL},
+    {0}
+};
+
+static PyType_Slot _AsyncFunctionDef_type_slots[] = {
+    {Py_tp_dealloc, &AsyncFunctionDef_dealloc},
+{Py_tp_members, AsyncFunctionDef_members},
+    {Py_tp_free, PyObject_Free},
+    {Py_tp_doc, "AsyncFunctionDef(identifier name, arguments args, stmt* body, expr* decorator_list, expr? returns, string? type_comment, type_param* type_params)"},
+    {0, 0},
+};
+
+static PyType_Spec _AsyncFunctionDef_type_spec = {
+    "ast._AsyncFunctionDef",
+    sizeof(struct _stmt),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    _AsyncFunctionDef_type_slots
+};
+
+
+
+stmt_ty _PyAst_AsyncFunctionDef_Copy(stmt_ty self) {
+    struct ast_state *state = get_ast_state();
+    stmt_ty res = PyObject_New(struct _stmt, (PyTypeObject
+                               *)state->_AsyncFunctionDef_Type);
+    if (res == NULL) {
+        goto error;
+    }
+    if (self->v.AsyncFunctionDef.name != NULL) {
+        res->v.AsyncFunctionDef.name = Py_NewRef(self->v.AsyncFunctionDef.name);
+        ERROR_IF_NULL(res->v.AsyncFunctionDef.name);
+    } else {
+        res->v.AsyncFunctionDef.name = NULL;
+    }
+    if (self->v.AsyncFunctionDef.args != NULL) {
+        res->v.AsyncFunctionDef.args =
+        _PyAst_arguments_Copy(self->v.AsyncFunctionDef.args);
+        ERROR_IF_NULL(res->v.AsyncFunctionDef.args);
+    } else {
+        res->v.AsyncFunctionDef.args = NULL;
+    }
+    if (self->v.AsyncFunctionDef.body != NULL) {
+        res->v.AsyncFunctionDef.body =
+        _PyAst_stmt_seq_Copy(self->v.AsyncFunctionDef.body);
+        ERROR_IF_NULL(res->v.AsyncFunctionDef.body);
+    } else {
+        res->v.AsyncFunctionDef.body = NULL;
+    }
+    if (self->v.AsyncFunctionDef.decorator_list != NULL) {
+        res->v.AsyncFunctionDef.decorator_list =
+        _PyAst_expr_seq_Copy(self->v.AsyncFunctionDef.decorator_list);
+        ERROR_IF_NULL(res->v.AsyncFunctionDef.decorator_list);
+    } else {
+        res->v.AsyncFunctionDef.decorator_list = NULL;
+    }
+    if (self->v.AsyncFunctionDef.returns != NULL) {
+        res->v.AsyncFunctionDef.returns =
+        _PyAst_expr_Copy(self->v.AsyncFunctionDef.returns);
+        ERROR_IF_NULL(res->v.AsyncFunctionDef.returns);
+    } else {
+        res->v.AsyncFunctionDef.returns = NULL;
+    }
+    if (self->v.AsyncFunctionDef.type_comment != NULL) {
+        res->v.AsyncFunctionDef.type_comment =
+        Py_NewRef(self->v.AsyncFunctionDef.type_comment);
+        ERROR_IF_NULL(res->v.AsyncFunctionDef.type_comment);
+    } else {
+        res->v.AsyncFunctionDef.type_comment = NULL;
+    }
+    if (self->v.AsyncFunctionDef.type_params != NULL) {
+        res->v.AsyncFunctionDef.type_params =
+        _PyAst_type_param_seq_Copy(self->v.AsyncFunctionDef.type_params);
+        ERROR_IF_NULL(res->v.AsyncFunctionDef.type_params);
+    } else {
+        res->v.AsyncFunctionDef.type_params = NULL;
+    }
+    return res;
+error:
+    Py_XDECREF(res);
+    return NULL;
+}
+
+static void ClassDef_dealloc(PyObject *self) {
+    stmt_ty obj = (stmt_ty)self;
+    Py_XDECREF(obj->v.ClassDef.name);
+    Py_XDECREF(obj->v.ClassDef.bases);
+    Py_XDECREF(obj->v.ClassDef.keywords);
+    Py_XDECREF(obj->v.ClassDef.body);
+    Py_XDECREF(obj->v.ClassDef.decorator_list);
+    Py_XDECREF(obj->v.ClassDef.type_params);
+    Py_TYPE(self)->tp_free(obj);
+}
+static PyMemberDef ClassDef_members[] = {
+    {"name", _Py_T_OBJECT, offsetof(struct _stmt, v.ClassDef.name),
+      Py_READONLY, NULL},
+    {"bases", _Py_T_OBJECT, offsetof(struct _stmt, v.ClassDef.bases),
+      Py_READONLY, NULL},
+    {"keywords", _Py_T_OBJECT, offsetof(struct _stmt, v.ClassDef.keywords),
+      Py_READONLY, NULL},
+    {"body", _Py_T_OBJECT, offsetof(struct _stmt, v.ClassDef.body),
+      Py_READONLY, NULL},
+    {"decorator_list", _Py_T_OBJECT, offsetof(struct _stmt,
+      v.ClassDef.decorator_list), Py_READONLY, NULL},
+    {"type_params", _Py_T_OBJECT, offsetof(struct _stmt,
+      v.ClassDef.type_params), Py_READONLY, NULL},
+    {0}
+};
+
+static PyType_Slot _ClassDef_type_slots[] = {
+    {Py_tp_dealloc, &ClassDef_dealloc},
+{Py_tp_members, ClassDef_members},
+    {Py_tp_free, PyObject_Free},
+    {Py_tp_doc, "ClassDef(identifier name, expr* bases, keyword* keywords, stmt* body, expr* decorator_list, type_param* type_params)"},
+    {0, 0},
+};
+
+static PyType_Spec _ClassDef_type_spec = {
+    "ast._ClassDef",
+    sizeof(struct _stmt),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    _ClassDef_type_slots
+};
+
+
+
+stmt_ty _PyAst_ClassDef_Copy(stmt_ty self) {
+    struct ast_state *state = get_ast_state();
+    stmt_ty res = PyObject_New(struct _stmt, (PyTypeObject
+                               *)state->_ClassDef_Type);
+    if (res == NULL) {
+        goto error;
+    }
+    if (self->v.ClassDef.name != NULL) {
+        res->v.ClassDef.name = Py_NewRef(self->v.ClassDef.name);
+        ERROR_IF_NULL(res->v.ClassDef.name);
+    } else {
+        res->v.ClassDef.name = NULL;
+    }
+    if (self->v.ClassDef.bases != NULL) {
+        res->v.ClassDef.bases = _PyAst_expr_seq_Copy(self->v.ClassDef.bases);
+        ERROR_IF_NULL(res->v.ClassDef.bases);
+    } else {
+        res->v.ClassDef.bases = NULL;
+    }
+    if (self->v.ClassDef.keywords != NULL) {
+        res->v.ClassDef.keywords =
+        _PyAst_keyword_seq_Copy(self->v.ClassDef.keywords);
+        ERROR_IF_NULL(res->v.ClassDef.keywords);
+    } else {
+        res->v.ClassDef.keywords = NULL;
+    }
+    if (self->v.ClassDef.body != NULL) {
+        res->v.ClassDef.body = _PyAst_stmt_seq_Copy(self->v.ClassDef.body);
+        ERROR_IF_NULL(res->v.ClassDef.body);
+    } else {
+        res->v.ClassDef.body = NULL;
+    }
+    if (self->v.ClassDef.decorator_list != NULL) {
+        res->v.ClassDef.decorator_list =
+        _PyAst_expr_seq_Copy(self->v.ClassDef.decorator_list);
+        ERROR_IF_NULL(res->v.ClassDef.decorator_list);
+    } else {
+        res->v.ClassDef.decorator_list = NULL;
+    }
+    if (self->v.ClassDef.type_params != NULL) {
+        res->v.ClassDef.type_params =
+        _PyAst_type_param_seq_Copy(self->v.ClassDef.type_params);
+        ERROR_IF_NULL(res->v.ClassDef.type_params);
+    } else {
+        res->v.ClassDef.type_params = NULL;
+    }
+    return res;
+error:
+    Py_XDECREF(res);
+    return NULL;
+}
+
+static void Return_dealloc(PyObject *self) {
+    stmt_ty obj = (stmt_ty)self;
+    Py_XDECREF(obj->v.Return.value);
+    Py_TYPE(self)->tp_free(obj);
+}
+static PyMemberDef Return_members[] = {
+    {"value", _Py_T_OBJECT, offsetof(struct _stmt, v.Return.value),
+      Py_READONLY, NULL},
+    {0}
+};
+
+static PyType_Slot _Return_type_slots[] = {
+    {Py_tp_dealloc, &Return_dealloc},
+{Py_tp_members, Return_members},
+    {Py_tp_free, PyObject_Free},
+    {Py_tp_doc, "Return(expr? value)"},
+    {0, 0},
+};
+
+static PyType_Spec _Return_type_spec = {
+    "ast._Return",
+    sizeof(struct _stmt),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    _Return_type_slots
+};
+
+
+
+stmt_ty _PyAst_Return_Copy(stmt_ty self) {
+    struct ast_state *state = get_ast_state();
+    stmt_ty res = PyObject_New(struct _stmt, (PyTypeObject
+                               *)state->_Return_Type);
+    if (res == NULL) {
+        goto error;
+    }
+    if (self->v.Return.value != NULL) {
+        res->v.Return.value = _PyAst_expr_Copy(self->v.Return.value);
+        ERROR_IF_NULL(res->v.Return.value);
+    } else {
+        res->v.Return.value = NULL;
+    }
+    return res;
+error:
+    Py_XDECREF(res);
+    return NULL;
+}
+
+static void Delete_dealloc(PyObject *self) {
+    stmt_ty obj = (stmt_ty)self;
+    Py_XDECREF(obj->v.Delete.targets);
+    Py_TYPE(self)->tp_free(obj);
+}
+static PyMemberDef Delete_members[] = {
+    {"targets", _Py_T_OBJECT, offsetof(struct _stmt, v.Delete.targets),
+      Py_READONLY, NULL},
+    {0}
+};
+
+static PyType_Slot _Delete_type_slots[] = {
+    {Py_tp_dealloc, &Delete_dealloc},
+{Py_tp_members, Delete_members},
+    {Py_tp_free, PyObject_Free},
+    {Py_tp_doc, "Delete(expr* targets)"},
+    {0, 0},
+};
+
+static PyType_Spec _Delete_type_spec = {
+    "ast._Delete",
+    sizeof(struct _stmt),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    _Delete_type_slots
+};
+
+
+
+stmt_ty _PyAst_Delete_Copy(stmt_ty self) {
+    struct ast_state *state = get_ast_state();
+    stmt_ty res = PyObject_New(struct _stmt, (PyTypeObject
+                               *)state->_Delete_Type);
+    if (res == NULL) {
+        goto error;
+    }
+    if (self->v.Delete.targets != NULL) {
+        res->v.Delete.targets = _PyAst_expr_seq_Copy(self->v.Delete.targets);
+        ERROR_IF_NULL(res->v.Delete.targets);
+    } else {
+        res->v.Delete.targets = NULL;
+    }
+    return res;
+error:
+    Py_XDECREF(res);
+    return NULL;
+}
+
+static void Assign_dealloc(PyObject *self) {
+    stmt_ty obj = (stmt_ty)self;
+    Py_XDECREF(obj->v.Assign.targets);
+    Py_XDECREF(obj->v.Assign.value);
+    Py_XDECREF(obj->v.Assign.type_comment);
+    Py_TYPE(self)->tp_free(obj);
+}
+static PyMemberDef Assign_members[] = {
+    {"targets", _Py_T_OBJECT, offsetof(struct _stmt, v.Assign.targets),
+      Py_READONLY, NULL},
+    {"value", _Py_T_OBJECT, offsetof(struct _stmt, v.Assign.value),
+      Py_READONLY, NULL},
+    {"type_comment", _Py_T_OBJECT, offsetof(struct _stmt,
+      v.Assign.type_comment), Py_READONLY, NULL},
+    {0}
+};
+
+static PyType_Slot _Assign_type_slots[] = {
+    {Py_tp_dealloc, &Assign_dealloc},
+{Py_tp_members, Assign_members},
+    {Py_tp_free, PyObject_Free},
+    {Py_tp_doc, "Assign(expr* targets, expr value, string? type_comment)"},
+    {0, 0},
+};
+
+static PyType_Spec _Assign_type_spec = {
+    "ast._Assign",
+    sizeof(struct _stmt),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    _Assign_type_slots
+};
+
+
+
+stmt_ty _PyAst_Assign_Copy(stmt_ty self) {
+    struct ast_state *state = get_ast_state();
+    stmt_ty res = PyObject_New(struct _stmt, (PyTypeObject
+                               *)state->_Assign_Type);
+    if (res == NULL) {
+        goto error;
+    }
+    if (self->v.Assign.targets != NULL) {
+        res->v.Assign.targets = _PyAst_expr_seq_Copy(self->v.Assign.targets);
+        ERROR_IF_NULL(res->v.Assign.targets);
+    } else {
+        res->v.Assign.targets = NULL;
+    }
+    if (self->v.Assign.value != NULL) {
+        res->v.Assign.value = _PyAst_expr_Copy(self->v.Assign.value);
+        ERROR_IF_NULL(res->v.Assign.value);
+    } else {
+        res->v.Assign.value = NULL;
+    }
+    if (self->v.Assign.type_comment != NULL) {
+        res->v.Assign.type_comment = Py_NewRef(self->v.Assign.type_comment);
+        ERROR_IF_NULL(res->v.Assign.type_comment);
+    } else {
+        res->v.Assign.type_comment = NULL;
+    }
+    return res;
+error:
+    Py_XDECREF(res);
+    return NULL;
+}
+
+static void TypeAlias_dealloc(PyObject *self) {
+    stmt_ty obj = (stmt_ty)self;
+    Py_XDECREF(obj->v.TypeAlias.name);
+    Py_XDECREF(obj->v.TypeAlias.type_params);
+    Py_XDECREF(obj->v.TypeAlias.value);
+    Py_TYPE(self)->tp_free(obj);
+}
+static PyMemberDef TypeAlias_members[] = {
+    {"name", _Py_T_OBJECT, offsetof(struct _stmt, v.TypeAlias.name),
+      Py_READONLY, NULL},
+    {"type_params", _Py_T_OBJECT, offsetof(struct _stmt,
+      v.TypeAlias.type_params), Py_READONLY, NULL},
+    {"value", _Py_T_OBJECT, offsetof(struct _stmt, v.TypeAlias.value),
+      Py_READONLY, NULL},
+    {0}
+};
+
+static PyType_Slot _TypeAlias_type_slots[] = {
+    {Py_tp_dealloc, &TypeAlias_dealloc},
+{Py_tp_members, TypeAlias_members},
+    {Py_tp_free, PyObject_Free},
+    {Py_tp_doc, "TypeAlias(expr name, type_param* type_params, expr value)"},
+    {0, 0},
+};
+
+static PyType_Spec _TypeAlias_type_spec = {
+    "ast._TypeAlias",
+    sizeof(struct _stmt),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    _TypeAlias_type_slots
+};
+
+
+
+stmt_ty _PyAst_TypeAlias_Copy(stmt_ty self) {
+    struct ast_state *state = get_ast_state();
+    stmt_ty res = PyObject_New(struct _stmt, (PyTypeObject
+                               *)state->_TypeAlias_Type);
+    if (res == NULL) {
+        goto error;
+    }
+    if (self->v.TypeAlias.name != NULL) {
+        res->v.TypeAlias.name = _PyAst_expr_Copy(self->v.TypeAlias.name);
+        ERROR_IF_NULL(res->v.TypeAlias.name);
+    } else {
+        res->v.TypeAlias.name = NULL;
+    }
+    if (self->v.TypeAlias.type_params != NULL) {
+        res->v.TypeAlias.type_params =
+        _PyAst_type_param_seq_Copy(self->v.TypeAlias.type_params);
+        ERROR_IF_NULL(res->v.TypeAlias.type_params);
+    } else {
+        res->v.TypeAlias.type_params = NULL;
+    }
+    if (self->v.TypeAlias.value != NULL) {
+        res->v.TypeAlias.value = _PyAst_expr_Copy(self->v.TypeAlias.value);
+        ERROR_IF_NULL(res->v.TypeAlias.value);
+    } else {
+        res->v.TypeAlias.value = NULL;
+    }
+    return res;
+error:
+    Py_XDECREF(res);
+    return NULL;
+}
+
+static void AugAssign_dealloc(PyObject *self) {
+    stmt_ty obj = (stmt_ty)self;
+    Py_XDECREF(obj->v.AugAssign.target);
+    Py_XDECREF(obj->v.AugAssign.value);
+    Py_TYPE(self)->tp_free(obj);
+}
+static PyMemberDef AugAssign_members[] = {
+    {"target", _Py_T_OBJECT, offsetof(struct _stmt, v.AugAssign.target),
+      Py_READONLY, NULL},
+    {"op", Py_T_INT, offsetof(struct _stmt, v.AugAssign.op), Py_READONLY, NULL},
+    {"value", _Py_T_OBJECT, offsetof(struct _stmt, v.AugAssign.value),
+      Py_READONLY, NULL},
+    {0}
+};
+
+static PyType_Slot _AugAssign_type_slots[] = {
+    {Py_tp_dealloc, &AugAssign_dealloc},
+{Py_tp_members, AugAssign_members},
+    {Py_tp_free, PyObject_Free},
+    {Py_tp_doc, "AugAssign(expr target, operator op, expr value)"},
+    {0, 0},
+};
+
+static PyType_Spec _AugAssign_type_spec = {
+    "ast._AugAssign",
+    sizeof(struct _stmt),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    _AugAssign_type_slots
+};
+
+
+
+stmt_ty _PyAst_AugAssign_Copy(stmt_ty self) {
+    struct ast_state *state = get_ast_state();
+    stmt_ty res = PyObject_New(struct _stmt, (PyTypeObject
+                               *)state->_AugAssign_Type);
+    if (res == NULL) {
+        goto error;
+    }
+    if (self->v.AugAssign.target != NULL) {
+        res->v.AugAssign.target = _PyAst_expr_Copy(self->v.AugAssign.target);
+        ERROR_IF_NULL(res->v.AugAssign.target);
+    } else {
+        res->v.AugAssign.target = NULL;
+    }
+    res->v.AugAssign.op = self->v.AugAssign.op;
+    if (self->v.AugAssign.value != NULL) {
+        res->v.AugAssign.value = _PyAst_expr_Copy(self->v.AugAssign.value);
+        ERROR_IF_NULL(res->v.AugAssign.value);
+    } else {
+        res->v.AugAssign.value = NULL;
+    }
+    return res;
+error:
+    Py_XDECREF(res);
+    return NULL;
+}
+
+static void AnnAssign_dealloc(PyObject *self) {
+    stmt_ty obj = (stmt_ty)self;
+    Py_XDECREF(obj->v.AnnAssign.target);
+    Py_XDECREF(obj->v.AnnAssign.annotation);
+    Py_XDECREF(obj->v.AnnAssign.value);
+    Py_TYPE(self)->tp_free(obj);
+}
+static PyMemberDef AnnAssign_members[] = {
+    {"target", _Py_T_OBJECT, offsetof(struct _stmt, v.AnnAssign.target),
+      Py_READONLY, NULL},
+    {"annotation", _Py_T_OBJECT, offsetof(struct _stmt,
+      v.AnnAssign.annotation), Py_READONLY, NULL},
+    {"value", _Py_T_OBJECT, offsetof(struct _stmt, v.AnnAssign.value),
+      Py_READONLY, NULL},
+    {"simple", Py_T_INT, offsetof(struct _stmt, v.AnnAssign.simple),
+      Py_READONLY, NULL},
+    {0}
+};
+
+static PyType_Slot _AnnAssign_type_slots[] = {
+    {Py_tp_dealloc, &AnnAssign_dealloc},
+{Py_tp_members, AnnAssign_members},
+    {Py_tp_free, PyObject_Free},
+    {Py_tp_doc, "AnnAssign(expr target, expr annotation, expr? value, int simple)"},
+    {0, 0},
+};
+
+static PyType_Spec _AnnAssign_type_spec = {
+    "ast._AnnAssign",
+    sizeof(struct _stmt),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    _AnnAssign_type_slots
+};
+
+
+
+stmt_ty _PyAst_AnnAssign_Copy(stmt_ty self) {
+    struct ast_state *state = get_ast_state();
+    stmt_ty res = PyObject_New(struct _stmt, (PyTypeObject
+                               *)state->_AnnAssign_Type);
+    if (res == NULL) {
+        goto error;
+    }
+    if (self->v.AnnAssign.target != NULL) {
+        res->v.AnnAssign.target = _PyAst_expr_Copy(self->v.AnnAssign.target);
+        ERROR_IF_NULL(res->v.AnnAssign.target);
+    } else {
+        res->v.AnnAssign.target = NULL;
+    }
+    if (self->v.AnnAssign.annotation != NULL) {
+        res->v.AnnAssign.annotation =
+        _PyAst_expr_Copy(self->v.AnnAssign.annotation);
+        ERROR_IF_NULL(res->v.AnnAssign.annotation);
+    } else {
+        res->v.AnnAssign.annotation = NULL;
+    }
+    if (self->v.AnnAssign.value != NULL) {
+        res->v.AnnAssign.value = _PyAst_expr_Copy(self->v.AnnAssign.value);
+        ERROR_IF_NULL(res->v.AnnAssign.value);
+    } else {
+        res->v.AnnAssign.value = NULL;
+    }
+    res->v.AnnAssign.simple = self->v.AnnAssign.simple;
+    return res;
+error:
+    Py_XDECREF(res);
+    return NULL;
+}
+
+static void For_dealloc(PyObject *self) {
+    stmt_ty obj = (stmt_ty)self;
+    Py_XDECREF(obj->v.For.target);
+    Py_XDECREF(obj->v.For.iter);
+    Py_XDECREF(obj->v.For.body);
+    Py_XDECREF(obj->v.For.orelse);
+    Py_XDECREF(obj->v.For.type_comment);
+    Py_TYPE(self)->tp_free(obj);
+}
+static PyMemberDef For_members[] = {
+    {"target", _Py_T_OBJECT, offsetof(struct _stmt, v.For.target), Py_READONLY,
+      NULL},
+    {"iter", _Py_T_OBJECT, offsetof(struct _stmt, v.For.iter), Py_READONLY,
+      NULL},
+    {"body", _Py_T_OBJECT, offsetof(struct _stmt, v.For.body), Py_READONLY,
+      NULL},
+    {"orelse", _Py_T_OBJECT, offsetof(struct _stmt, v.For.orelse), Py_READONLY,
+      NULL},
+    {"type_comment", _Py_T_OBJECT, offsetof(struct _stmt, v.For.type_comment),
+      Py_READONLY, NULL},
+    {0}
+};
+
+static PyType_Slot _For_type_slots[] = {
+    {Py_tp_dealloc, &For_dealloc},
+{Py_tp_members, For_members},
+    {Py_tp_free, PyObject_Free},
+    {Py_tp_doc, "For(expr target, expr iter, stmt* body, stmt* orelse, string? type_comment)"},
+    {0, 0},
+};
+
+static PyType_Spec _For_type_spec = {
+    "ast._For",
+    sizeof(struct _stmt),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    _For_type_slots
+};
+
+
+
+stmt_ty _PyAst_For_Copy(stmt_ty self) {
+    struct ast_state *state = get_ast_state();
+    stmt_ty res = PyObject_New(struct _stmt, (PyTypeObject *)state->_For_Type);
+    if (res == NULL) {
+        goto error;
+    }
+    if (self->v.For.target != NULL) {
+        res->v.For.target = _PyAst_expr_Copy(self->v.For.target);
+        ERROR_IF_NULL(res->v.For.target);
+    } else {
+        res->v.For.target = NULL;
+    }
+    if (self->v.For.iter != NULL) {
+        res->v.For.iter = _PyAst_expr_Copy(self->v.For.iter);
+        ERROR_IF_NULL(res->v.For.iter);
+    } else {
+        res->v.For.iter = NULL;
+    }
+    if (self->v.For.body != NULL) {
+        res->v.For.body = _PyAst_stmt_seq_Copy(self->v.For.body);
+        ERROR_IF_NULL(res->v.For.body);
+    } else {
+        res->v.For.body = NULL;
+    }
+    if (self->v.For.orelse != NULL) {
+        res->v.For.orelse = _PyAst_stmt_seq_Copy(self->v.For.orelse);
+        ERROR_IF_NULL(res->v.For.orelse);
+    } else {
+        res->v.For.orelse = NULL;
+    }
+    if (self->v.For.type_comment != NULL) {
+        res->v.For.type_comment = Py_NewRef(self->v.For.type_comment);
+        ERROR_IF_NULL(res->v.For.type_comment);
+    } else {
+        res->v.For.type_comment = NULL;
+    }
+    return res;
+error:
+    Py_XDECREF(res);
+    return NULL;
+}
+
+static void AsyncFor_dealloc(PyObject *self) {
+    stmt_ty obj = (stmt_ty)self;
+    Py_XDECREF(obj->v.AsyncFor.target);
+    Py_XDECREF(obj->v.AsyncFor.iter);
+    Py_XDECREF(obj->v.AsyncFor.body);
+    Py_XDECREF(obj->v.AsyncFor.orelse);
+    Py_XDECREF(obj->v.AsyncFor.type_comment);
+    Py_TYPE(self)->tp_free(obj);
+}
+static PyMemberDef AsyncFor_members[] = {
+    {"target", _Py_T_OBJECT, offsetof(struct _stmt, v.AsyncFor.target),
+      Py_READONLY, NULL},
+    {"iter", _Py_T_OBJECT, offsetof(struct _stmt, v.AsyncFor.iter),
+      Py_READONLY, NULL},
+    {"body", _Py_T_OBJECT, offsetof(struct _stmt, v.AsyncFor.body),
+      Py_READONLY, NULL},
+    {"orelse", _Py_T_OBJECT, offsetof(struct _stmt, v.AsyncFor.orelse),
+      Py_READONLY, NULL},
+    {"type_comment", _Py_T_OBJECT, offsetof(struct _stmt,
+      v.AsyncFor.type_comment), Py_READONLY, NULL},
+    {0}
+};
+
+static PyType_Slot _AsyncFor_type_slots[] = {
+    {Py_tp_dealloc, &AsyncFor_dealloc},
+{Py_tp_members, AsyncFor_members},
+    {Py_tp_free, PyObject_Free},
+    {Py_tp_doc, "AsyncFor(expr target, expr iter, stmt* body, stmt* orelse, string? type_comment)"},
+    {0, 0},
+};
+
+static PyType_Spec _AsyncFor_type_spec = {
+    "ast._AsyncFor",
+    sizeof(struct _stmt),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    _AsyncFor_type_slots
+};
+
+
+
+stmt_ty _PyAst_AsyncFor_Copy(stmt_ty self) {
+    struct ast_state *state = get_ast_state();
+    stmt_ty res = PyObject_New(struct _stmt, (PyTypeObject
+                               *)state->_AsyncFor_Type);
+    if (res == NULL) {
+        goto error;
+    }
+    if (self->v.AsyncFor.target != NULL) {
+        res->v.AsyncFor.target = _PyAst_expr_Copy(self->v.AsyncFor.target);
+        ERROR_IF_NULL(res->v.AsyncFor.target);
+    } else {
+        res->v.AsyncFor.target = NULL;
+    }
+    if (self->v.AsyncFor.iter != NULL) {
+        res->v.AsyncFor.iter = _PyAst_expr_Copy(self->v.AsyncFor.iter);
+        ERROR_IF_NULL(res->v.AsyncFor.iter);
+    } else {
+        res->v.AsyncFor.iter = NULL;
+    }
+    if (self->v.AsyncFor.body != NULL) {
+        res->v.AsyncFor.body = _PyAst_stmt_seq_Copy(self->v.AsyncFor.body);
+        ERROR_IF_NULL(res->v.AsyncFor.body);
+    } else {
+        res->v.AsyncFor.body = NULL;
+    }
+    if (self->v.AsyncFor.orelse != NULL) {
+        res->v.AsyncFor.orelse = _PyAst_stmt_seq_Copy(self->v.AsyncFor.orelse);
+        ERROR_IF_NULL(res->v.AsyncFor.orelse);
+    } else {
+        res->v.AsyncFor.orelse = NULL;
+    }
+    if (self->v.AsyncFor.type_comment != NULL) {
+        res->v.AsyncFor.type_comment = Py_NewRef(self->v.AsyncFor.type_comment);
+        ERROR_IF_NULL(res->v.AsyncFor.type_comment);
+    } else {
+        res->v.AsyncFor.type_comment = NULL;
+    }
+    return res;
+error:
+    Py_XDECREF(res);
+    return NULL;
+}
+
+static void While_dealloc(PyObject *self) {
+    stmt_ty obj = (stmt_ty)self;
+    Py_XDECREF(obj->v.While.test);
+    Py_XDECREF(obj->v.While.body);
+    Py_XDECREF(obj->v.While.orelse);
+    Py_TYPE(self)->tp_free(obj);
+}
+static PyMemberDef While_members[] = {
+    {"test", _Py_T_OBJECT, offsetof(struct _stmt, v.While.test), Py_READONLY,
+      NULL},
+    {"body", _Py_T_OBJECT, offsetof(struct _stmt, v.While.body), Py_READONLY,
+      NULL},
+    {"orelse", _Py_T_OBJECT, offsetof(struct _stmt, v.While.orelse),
+      Py_READONLY, NULL},
+    {0}
+};
+
+static PyType_Slot _While_type_slots[] = {
+    {Py_tp_dealloc, &While_dealloc},
+{Py_tp_members, While_members},
+    {Py_tp_free, PyObject_Free},
+    {Py_tp_doc, "While(expr test, stmt* body, stmt* orelse)"},
+    {0, 0},
+};
+
+static PyType_Spec _While_type_spec = {
+    "ast._While",
+    sizeof(struct _stmt),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    _While_type_slots
+};
+
+
+
+stmt_ty _PyAst_While_Copy(stmt_ty self) {
+    struct ast_state *state = get_ast_state();
+    stmt_ty res = PyObject_New(struct _stmt, (PyTypeObject
+                               *)state->_While_Type);
+    if (res == NULL) {
+        goto error;
+    }
+    if (self->v.While.test != NULL) {
+        res->v.While.test = _PyAst_expr_Copy(self->v.While.test);
+        ERROR_IF_NULL(res->v.While.test);
+    } else {
+        res->v.While.test = NULL;
+    }
+    if (self->v.While.body != NULL) {
+        res->v.While.body = _PyAst_stmt_seq_Copy(self->v.While.body);
+        ERROR_IF_NULL(res->v.While.body);
+    } else {
+        res->v.While.body = NULL;
+    }
+    if (self->v.While.orelse != NULL) {
+        res->v.While.orelse = _PyAst_stmt_seq_Copy(self->v.While.orelse);
+        ERROR_IF_NULL(res->v.While.orelse);
+    } else {
+        res->v.While.orelse = NULL;
+    }
+    return res;
+error:
+    Py_XDECREF(res);
+    return NULL;
+}
+
+static void If_dealloc(PyObject *self) {
+    stmt_ty obj = (stmt_ty)self;
+    Py_XDECREF(obj->v.If.test);
+    Py_XDECREF(obj->v.If.body);
+    Py_XDECREF(obj->v.If.orelse);
+    Py_TYPE(self)->tp_free(obj);
+}
+static PyMemberDef If_members[] = {
+    {"test", _Py_T_OBJECT, offsetof(struct _stmt, v.If.test), Py_READONLY,
+      NULL},
+    {"body", _Py_T_OBJECT, offsetof(struct _stmt, v.If.body), Py_READONLY,
+      NULL},
+    {"orelse", _Py_T_OBJECT, offsetof(struct _stmt, v.If.orelse), Py_READONLY,
+      NULL},
+    {0}
+};
+
+static PyType_Slot _If_type_slots[] = {
+    {Py_tp_dealloc, &If_dealloc},
+{Py_tp_members, If_members},
+    {Py_tp_free, PyObject_Free},
+    {Py_tp_doc, "If(expr test, stmt* body, stmt* orelse)"},
+    {0, 0},
+};
+
+static PyType_Spec _If_type_spec = {
+    "ast._If",
+    sizeof(struct _stmt),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    _If_type_slots
+};
+
+
+
+stmt_ty _PyAst_If_Copy(stmt_ty self) {
+    struct ast_state *state = get_ast_state();
+    stmt_ty res = PyObject_New(struct _stmt, (PyTypeObject *)state->_If_Type);
+    if (res == NULL) {
+        goto error;
+    }
+    if (self->v.If.test != NULL) {
+        res->v.If.test = _PyAst_expr_Copy(self->v.If.test);
+        ERROR_IF_NULL(res->v.If.test);
+    } else {
+        res->v.If.test = NULL;
+    }
+    if (self->v.If.body != NULL) {
+        res->v.If.body = _PyAst_stmt_seq_Copy(self->v.If.body);
+        ERROR_IF_NULL(res->v.If.body);
+    } else {
+        res->v.If.body = NULL;
+    }
+    if (self->v.If.orelse != NULL) {
+        res->v.If.orelse = _PyAst_stmt_seq_Copy(self->v.If.orelse);
+        ERROR_IF_NULL(res->v.If.orelse);
+    } else {
+        res->v.If.orelse = NULL;
+    }
+    return res;
+error:
+    Py_XDECREF(res);
+    return NULL;
+}
+
+static void With_dealloc(PyObject *self) {
+    stmt_ty obj = (stmt_ty)self;
+    Py_XDECREF(obj->v.With.items);
+    Py_XDECREF(obj->v.With.body);
+    Py_XDECREF(obj->v.With.type_comment);
+    Py_TYPE(self)->tp_free(obj);
+}
+static PyMemberDef With_members[] = {
+    {"items", _Py_T_OBJECT, offsetof(struct _stmt, v.With.items), Py_READONLY,
+      NULL},
+    {"body", _Py_T_OBJECT, offsetof(struct _stmt, v.With.body), Py_READONLY,
+      NULL},
+    {"type_comment", _Py_T_OBJECT, offsetof(struct _stmt, v.With.type_comment),
+      Py_READONLY, NULL},
+    {0}
+};
+
+static PyType_Slot _With_type_slots[] = {
+    {Py_tp_dealloc, &With_dealloc},
+{Py_tp_members, With_members},
+    {Py_tp_free, PyObject_Free},
+    {Py_tp_doc, "With(withitem* items, stmt* body, string? type_comment)"},
+    {0, 0},
+};
+
+static PyType_Spec _With_type_spec = {
+    "ast._With",
+    sizeof(struct _stmt),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    _With_type_slots
+};
+
+
+
+stmt_ty _PyAst_With_Copy(stmt_ty self) {
+    struct ast_state *state = get_ast_state();
+    stmt_ty res = PyObject_New(struct _stmt, (PyTypeObject *)state->_With_Type);
+    if (res == NULL) {
+        goto error;
+    }
+    if (self->v.With.items != NULL) {
+        res->v.With.items = _PyAst_withitem_seq_Copy(self->v.With.items);
+        ERROR_IF_NULL(res->v.With.items);
+    } else {
+        res->v.With.items = NULL;
+    }
+    if (self->v.With.body != NULL) {
+        res->v.With.body = _PyAst_stmt_seq_Copy(self->v.With.body);
+        ERROR_IF_NULL(res->v.With.body);
+    } else {
+        res->v.With.body = NULL;
+    }
+    if (self->v.With.type_comment != NULL) {
+        res->v.With.type_comment = Py_NewRef(self->v.With.type_comment);
+        ERROR_IF_NULL(res->v.With.type_comment);
+    } else {
+        res->v.With.type_comment = NULL;
+    }
+    return res;
+error:
+    Py_XDECREF(res);
+    return NULL;
+}
+
+static void AsyncWith_dealloc(PyObject *self) {
+    stmt_ty obj = (stmt_ty)self;
+    Py_XDECREF(obj->v.AsyncWith.items);
+    Py_XDECREF(obj->v.AsyncWith.body);
+    Py_XDECREF(obj->v.AsyncWith.type_comment);
+    Py_TYPE(self)->tp_free(obj);
+}
+static PyMemberDef AsyncWith_members[] = {
+    {"items", _Py_T_OBJECT, offsetof(struct _stmt, v.AsyncWith.items),
+      Py_READONLY, NULL},
+    {"body", _Py_T_OBJECT, offsetof(struct _stmt, v.AsyncWith.body),
+      Py_READONLY, NULL},
+    {"type_comment", _Py_T_OBJECT, offsetof(struct _stmt,
+      v.AsyncWith.type_comment), Py_READONLY, NULL},
+    {0}
+};
+
+static PyType_Slot _AsyncWith_type_slots[] = {
+    {Py_tp_dealloc, &AsyncWith_dealloc},
+{Py_tp_members, AsyncWith_members},
+    {Py_tp_free, PyObject_Free},
+    {Py_tp_doc, "AsyncWith(withitem* items, stmt* body, string? type_comment)"},
+    {0, 0},
+};
+
+static PyType_Spec _AsyncWith_type_spec = {
+    "ast._AsyncWith",
+    sizeof(struct _stmt),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    _AsyncWith_type_slots
+};
+
+
+
+stmt_ty _PyAst_AsyncWith_Copy(stmt_ty self) {
+    struct ast_state *state = get_ast_state();
+    stmt_ty res = PyObject_New(struct _stmt, (PyTypeObject
+                               *)state->_AsyncWith_Type);
+    if (res == NULL) {
+        goto error;
+    }
+    if (self->v.AsyncWith.items != NULL) {
+        res->v.AsyncWith.items =
+        _PyAst_withitem_seq_Copy(self->v.AsyncWith.items);
+        ERROR_IF_NULL(res->v.AsyncWith.items);
+    } else {
+        res->v.AsyncWith.items = NULL;
+    }
+    if (self->v.AsyncWith.body != NULL) {
+        res->v.AsyncWith.body = _PyAst_stmt_seq_Copy(self->v.AsyncWith.body);
+        ERROR_IF_NULL(res->v.AsyncWith.body);
+    } else {
+        res->v.AsyncWith.body = NULL;
+    }
+    if (self->v.AsyncWith.type_comment != NULL) {
+        res->v.AsyncWith.type_comment =
+        Py_NewRef(self->v.AsyncWith.type_comment);
+        ERROR_IF_NULL(res->v.AsyncWith.type_comment);
+    } else {
+        res->v.AsyncWith.type_comment = NULL;
+    }
+    return res;
+error:
+    Py_XDECREF(res);
+    return NULL;
+}
+
+static void Match_dealloc(PyObject *self) {
+    stmt_ty obj = (stmt_ty)self;
+    Py_XDECREF(obj->v.Match.subject);
+    Py_XDECREF(obj->v.Match.cases);
+    Py_TYPE(self)->tp_free(obj);
+}
+static PyMemberDef Match_members[] = {
+    {"subject", _Py_T_OBJECT, offsetof(struct _stmt, v.Match.subject),
+      Py_READONLY, NULL},
+    {"cases", _Py_T_OBJECT, offsetof(struct _stmt, v.Match.cases), Py_READONLY,
+      NULL},
+    {0}
+};
+
+static PyType_Slot _Match_type_slots[] = {
+    {Py_tp_dealloc, &Match_dealloc},
+{Py_tp_members, Match_members},
+    {Py_tp_free, PyObject_Free},
+    {Py_tp_doc, "Match(expr subject, match_case* cases)"},
+    {0, 0},
+};
+
+static PyType_Spec _Match_type_spec = {
+    "ast._Match",
+    sizeof(struct _stmt),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    _Match_type_slots
+};
+
+
+
+stmt_ty _PyAst_Match_Copy(stmt_ty self) {
+    struct ast_state *state = get_ast_state();
+    stmt_ty res = PyObject_New(struct _stmt, (PyTypeObject
+                               *)state->_Match_Type);
+    if (res == NULL) {
+        goto error;
+    }
+    if (self->v.Match.subject != NULL) {
+        res->v.Match.subject = _PyAst_expr_Copy(self->v.Match.subject);
+        ERROR_IF_NULL(res->v.Match.subject);
+    } else {
+        res->v.Match.subject = NULL;
+    }
+    if (self->v.Match.cases != NULL) {
+        res->v.Match.cases = _PyAst_match_case_seq_Copy(self->v.Match.cases);
+        ERROR_IF_NULL(res->v.Match.cases);
+    } else {
+        res->v.Match.cases = NULL;
+    }
+    return res;
+error:
+    Py_XDECREF(res);
+    return NULL;
+}
+
+static void Raise_dealloc(PyObject *self) {
+    stmt_ty obj = (stmt_ty)self;
+    Py_XDECREF(obj->v.Raise.exc);
+    Py_XDECREF(obj->v.Raise.cause);
+    Py_TYPE(self)->tp_free(obj);
+}
+static PyMemberDef Raise_members[] = {
+    {"exc", _Py_T_OBJECT, offsetof(struct _stmt, v.Raise.exc), Py_READONLY,
+      NULL},
+    {"cause", _Py_T_OBJECT, offsetof(struct _stmt, v.Raise.cause), Py_READONLY,
+      NULL},
+    {0}
+};
+
+static PyType_Slot _Raise_type_slots[] = {
+    {Py_tp_dealloc, &Raise_dealloc},
+{Py_tp_members, Raise_members},
+    {Py_tp_free, PyObject_Free},
+    {Py_tp_doc, "Raise(expr? exc, expr? cause)"},
+    {0, 0},
+};
+
+static PyType_Spec _Raise_type_spec = {
+    "ast._Raise",
+    sizeof(struct _stmt),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    _Raise_type_slots
+};
+
+
+
+stmt_ty _PyAst_Raise_Copy(stmt_ty self) {
+    struct ast_state *state = get_ast_state();
+    stmt_ty res = PyObject_New(struct _stmt, (PyTypeObject
+                               *)state->_Raise_Type);
+    if (res == NULL) {
+        goto error;
+    }
+    if (self->v.Raise.exc != NULL) {
+        res->v.Raise.exc = _PyAst_expr_Copy(self->v.Raise.exc);
+        ERROR_IF_NULL(res->v.Raise.exc);
+    } else {
+        res->v.Raise.exc = NULL;
+    }
+    if (self->v.Raise.cause != NULL) {
+        res->v.Raise.cause = _PyAst_expr_Copy(self->v.Raise.cause);
+        ERROR_IF_NULL(res->v.Raise.cause);
+    } else {
+        res->v.Raise.cause = NULL;
+    }
+    return res;
+error:
+    Py_XDECREF(res);
+    return NULL;
+}
+
+static void Try_dealloc(PyObject *self) {
+    stmt_ty obj = (stmt_ty)self;
+    Py_XDECREF(obj->v.Try.body);
+    Py_XDECREF(obj->v.Try.handlers);
+    Py_XDECREF(obj->v.Try.orelse);
+    Py_XDECREF(obj->v.Try.finalbody);
+    Py_TYPE(self)->tp_free(obj);
+}
+static PyMemberDef Try_members[] = {
+    {"body", _Py_T_OBJECT, offsetof(struct _stmt, v.Try.body), Py_READONLY,
+      NULL},
+    {"handlers", _Py_T_OBJECT, offsetof(struct _stmt, v.Try.handlers),
+      Py_READONLY, NULL},
+    {"orelse", _Py_T_OBJECT, offsetof(struct _stmt, v.Try.orelse), Py_READONLY,
+      NULL},
+    {"finalbody", _Py_T_OBJECT, offsetof(struct _stmt, v.Try.finalbody),
+      Py_READONLY, NULL},
+    {0}
+};
+
+static PyType_Slot _Try_type_slots[] = {
+    {Py_tp_dealloc, &Try_dealloc},
+{Py_tp_members, Try_members},
+    {Py_tp_free, PyObject_Free},
+    {Py_tp_doc, "Try(stmt* body, excepthandler* handlers, stmt* orelse, stmt* finalbody)"},
+    {0, 0},
+};
+
+static PyType_Spec _Try_type_spec = {
+    "ast._Try",
+    sizeof(struct _stmt),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    _Try_type_slots
+};
+
+
+
+stmt_ty _PyAst_Try_Copy(stmt_ty self) {
+    struct ast_state *state = get_ast_state();
+    stmt_ty res = PyObject_New(struct _stmt, (PyTypeObject *)state->_Try_Type);
+    if (res == NULL) {
+        goto error;
+    }
+    if (self->v.Try.body != NULL) {
+        res->v.Try.body = _PyAst_stmt_seq_Copy(self->v.Try.body);
+        ERROR_IF_NULL(res->v.Try.body);
+    } else {
+        res->v.Try.body = NULL;
+    }
+    if (self->v.Try.handlers != NULL) {
+        res->v.Try.handlers =
+        _PyAst_excepthandler_seq_Copy(self->v.Try.handlers);
+        ERROR_IF_NULL(res->v.Try.handlers);
+    } else {
+        res->v.Try.handlers = NULL;
+    }
+    if (self->v.Try.orelse != NULL) {
+        res->v.Try.orelse = _PyAst_stmt_seq_Copy(self->v.Try.orelse);
+        ERROR_IF_NULL(res->v.Try.orelse);
+    } else {
+        res->v.Try.orelse = NULL;
+    }
+    if (self->v.Try.finalbody != NULL) {
+        res->v.Try.finalbody = _PyAst_stmt_seq_Copy(self->v.Try.finalbody);
+        ERROR_IF_NULL(res->v.Try.finalbody);
+    } else {
+        res->v.Try.finalbody = NULL;
+    }
+    return res;
+error:
+    Py_XDECREF(res);
+    return NULL;
+}
+
+static void TryStar_dealloc(PyObject *self) {
+    stmt_ty obj = (stmt_ty)self;
+    Py_XDECREF(obj->v.TryStar.body);
+    Py_XDECREF(obj->v.TryStar.handlers);
+    Py_XDECREF(obj->v.TryStar.orelse);
+    Py_XDECREF(obj->v.TryStar.finalbody);
+    Py_TYPE(self)->tp_free(obj);
+}
+static PyMemberDef TryStar_members[] = {
+    {"body", _Py_T_OBJECT, offsetof(struct _stmt, v.TryStar.body), Py_READONLY,
+      NULL},
+    {"handlers", _Py_T_OBJECT, offsetof(struct _stmt, v.TryStar.handlers),
+      Py_READONLY, NULL},
+    {"orelse", _Py_T_OBJECT, offsetof(struct _stmt, v.TryStar.orelse),
+      Py_READONLY, NULL},
+    {"finalbody", _Py_T_OBJECT, offsetof(struct _stmt, v.TryStar.finalbody),
+      Py_READONLY, NULL},
+    {0}
+};
+
+static PyType_Slot _TryStar_type_slots[] = {
+    {Py_tp_dealloc, &TryStar_dealloc},
+{Py_tp_members, TryStar_members},
+    {Py_tp_free, PyObject_Free},
+    {Py_tp_doc, "TryStar(stmt* body, excepthandler* handlers, stmt* orelse, stmt* finalbody)"},
+    {0, 0},
+};
+
+static PyType_Spec _TryStar_type_spec = {
+    "ast._TryStar",
+    sizeof(struct _stmt),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    _TryStar_type_slots
+};
+
+
+
+stmt_ty _PyAst_TryStar_Copy(stmt_ty self) {
+    struct ast_state *state = get_ast_state();
+    stmt_ty res = PyObject_New(struct _stmt, (PyTypeObject
+                               *)state->_TryStar_Type);
+    if (res == NULL) {
+        goto error;
+    }
+    if (self->v.TryStar.body != NULL) {
+        res->v.TryStar.body = _PyAst_stmt_seq_Copy(self->v.TryStar.body);
+        ERROR_IF_NULL(res->v.TryStar.body);
+    } else {
+        res->v.TryStar.body = NULL;
+    }
+    if (self->v.TryStar.handlers != NULL) {
+        res->v.TryStar.handlers =
+        _PyAst_excepthandler_seq_Copy(self->v.TryStar.handlers);
+        ERROR_IF_NULL(res->v.TryStar.handlers);
+    } else {
+        res->v.TryStar.handlers = NULL;
+    }
+    if (self->v.TryStar.orelse != NULL) {
+        res->v.TryStar.orelse = _PyAst_stmt_seq_Copy(self->v.TryStar.orelse);
+        ERROR_IF_NULL(res->v.TryStar.orelse);
+    } else {
+        res->v.TryStar.orelse = NULL;
+    }
+    if (self->v.TryStar.finalbody != NULL) {
+        res->v.TryStar.finalbody =
+        _PyAst_stmt_seq_Copy(self->v.TryStar.finalbody);
+        ERROR_IF_NULL(res->v.TryStar.finalbody);
+    } else {
+        res->v.TryStar.finalbody = NULL;
+    }
+    return res;
+error:
+    Py_XDECREF(res);
+    return NULL;
+}
+
+static void Assert_dealloc(PyObject *self) {
+    stmt_ty obj = (stmt_ty)self;
+    Py_XDECREF(obj->v.Assert.test);
+    Py_XDECREF(obj->v.Assert.msg);
+    Py_TYPE(self)->tp_free(obj);
+}
+static PyMemberDef Assert_members[] = {
+    {"test", _Py_T_OBJECT, offsetof(struct _stmt, v.Assert.test), Py_READONLY,
+      NULL},
+    {"msg", _Py_T_OBJECT, offsetof(struct _stmt, v.Assert.msg), Py_READONLY,
+      NULL},
+    {0}
+};
+
+static PyType_Slot _Assert_type_slots[] = {
+    {Py_tp_dealloc, &Assert_dealloc},
+{Py_tp_members, Assert_members},
+    {Py_tp_free, PyObject_Free},
+    {Py_tp_doc, "Assert(expr test, expr? msg)"},
+    {0, 0},
+};
+
+static PyType_Spec _Assert_type_spec = {
+    "ast._Assert",
+    sizeof(struct _stmt),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    _Assert_type_slots
+};
+
+
+
+stmt_ty _PyAst_Assert_Copy(stmt_ty self) {
+    struct ast_state *state = get_ast_state();
+    stmt_ty res = PyObject_New(struct _stmt, (PyTypeObject
+                               *)state->_Assert_Type);
+    if (res == NULL) {
+        goto error;
+    }
+    if (self->v.Assert.test != NULL) {
+        res->v.Assert.test = _PyAst_expr_Copy(self->v.Assert.test);
+        ERROR_IF_NULL(res->v.Assert.test);
+    } else {
+        res->v.Assert.test = NULL;
+    }
+    if (self->v.Assert.msg != NULL) {
+        res->v.Assert.msg = _PyAst_expr_Copy(self->v.Assert.msg);
+        ERROR_IF_NULL(res->v.Assert.msg);
+    } else {
+        res->v.Assert.msg = NULL;
+    }
+    return res;
+error:
+    Py_XDECREF(res);
+    return NULL;
+}
+
+static void Import_dealloc(PyObject *self) {
+    stmt_ty obj = (stmt_ty)self;
+    Py_XDECREF(obj->v.Import.names);
+    Py_TYPE(self)->tp_free(obj);
+}
+static PyMemberDef Import_members[] = {
+    {"names", _Py_T_OBJECT, offsetof(struct _stmt, v.Import.names),
+      Py_READONLY, NULL},
+    {0}
+};
+
+static PyType_Slot _Import_type_slots[] = {
+    {Py_tp_dealloc, &Import_dealloc},
+{Py_tp_members, Import_members},
+    {Py_tp_free, PyObject_Free},
+    {Py_tp_doc, "Import(alias* names)"},
+    {0, 0},
+};
+
+static PyType_Spec _Import_type_spec = {
+    "ast._Import",
+    sizeof(struct _stmt),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    _Import_type_slots
+};
+
+
+
+stmt_ty _PyAst_Import_Copy(stmt_ty self) {
+    struct ast_state *state = get_ast_state();
+    stmt_ty res = PyObject_New(struct _stmt, (PyTypeObject
+                               *)state->_Import_Type);
+    if (res == NULL) {
+        goto error;
+    }
+    if (self->v.Import.names != NULL) {
+        res->v.Import.names = _PyAst_alias_seq_Copy(self->v.Import.names);
+        ERROR_IF_NULL(res->v.Import.names);
+    } else {
+        res->v.Import.names = NULL;
+    }
+    return res;
+error:
+    Py_XDECREF(res);
+    return NULL;
+}
+
+static void ImportFrom_dealloc(PyObject *self) {
+    stmt_ty obj = (stmt_ty)self;
+    Py_XDECREF(obj->v.ImportFrom.module);
+    Py_XDECREF(obj->v.ImportFrom.names);
+    Py_TYPE(self)->tp_free(obj);
+}
+static PyMemberDef ImportFrom_members[] = {
+    {"module", _Py_T_OBJECT, offsetof(struct _stmt, v.ImportFrom.module),
+      Py_READONLY, NULL},
+    {"names", _Py_T_OBJECT, offsetof(struct _stmt, v.ImportFrom.names),
+      Py_READONLY, NULL},
+    {"level", Py_T_INT, offsetof(struct _stmt, v.ImportFrom.level),
+      Py_READONLY, NULL},
+    {0}
+};
+
+static PyType_Slot _ImportFrom_type_slots[] = {
+    {Py_tp_dealloc, &ImportFrom_dealloc},
+{Py_tp_members, ImportFrom_members},
+    {Py_tp_free, PyObject_Free},
+    {Py_tp_doc, "ImportFrom(identifier? module, alias* names, int? level)"},
+    {0, 0},
+};
+
+static PyType_Spec _ImportFrom_type_spec = {
+    "ast._ImportFrom",
+    sizeof(struct _stmt),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    _ImportFrom_type_slots
+};
+
+
+
+stmt_ty _PyAst_ImportFrom_Copy(stmt_ty self) {
+    struct ast_state *state = get_ast_state();
+    stmt_ty res = PyObject_New(struct _stmt, (PyTypeObject
+                               *)state->_ImportFrom_Type);
+    if (res == NULL) {
+        goto error;
+    }
+    if (self->v.ImportFrom.module != NULL) {
+        res->v.ImportFrom.module = Py_NewRef(self->v.ImportFrom.module);
+        ERROR_IF_NULL(res->v.ImportFrom.module);
+    } else {
+        res->v.ImportFrom.module = NULL;
+    }
+    if (self->v.ImportFrom.names != NULL) {
+        res->v.ImportFrom.names =
+        _PyAst_alias_seq_Copy(self->v.ImportFrom.names);
+        ERROR_IF_NULL(res->v.ImportFrom.names);
+    } else {
+        res->v.ImportFrom.names = NULL;
+    }
+    res->v.ImportFrom.level = self->v.ImportFrom.level;
+    return res;
+error:
+    Py_XDECREF(res);
+    return NULL;
+}
+
+static void Global_dealloc(PyObject *self) {
+    stmt_ty obj = (stmt_ty)self;
+    Py_XDECREF(obj->v.Global.names);
+    Py_TYPE(self)->tp_free(obj);
+}
+static PyMemberDef Global_members[] = {
+    {"names", _Py_T_OBJECT, offsetof(struct _stmt, v.Global.names),
+      Py_READONLY, NULL},
+    {0}
+};
+
+static PyType_Slot _Global_type_slots[] = {
+    {Py_tp_dealloc, &Global_dealloc},
+{Py_tp_members, Global_members},
+    {Py_tp_free, PyObject_Free},
+    {Py_tp_doc, "Global(identifier* names)"},
+    {0, 0},
+};
+
+static PyType_Spec _Global_type_spec = {
+    "ast._Global",
+    sizeof(struct _stmt),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    _Global_type_slots
+};
+
+
+
+stmt_ty _PyAst_Global_Copy(stmt_ty self) {
+    struct ast_state *state = get_ast_state();
+    stmt_ty res = PyObject_New(struct _stmt, (PyTypeObject
+                               *)state->_Global_Type);
+    if (res == NULL) {
+        goto error;
+    }
+    if (self->v.Global.names != NULL) {
+        res->v.Global.names = _PyAst_identifier_seq_Copy(self->v.Global.names);
+        ERROR_IF_NULL(res->v.Global.names);
+    } else {
+        res->v.Global.names = NULL;
+    }
+    return res;
+error:
+    Py_XDECREF(res);
+    return NULL;
+}
+
+static void Nonlocal_dealloc(PyObject *self) {
+    stmt_ty obj = (stmt_ty)self;
+    Py_XDECREF(obj->v.Nonlocal.names);
+    Py_TYPE(self)->tp_free(obj);
+}
+static PyMemberDef Nonlocal_members[] = {
+    {"names", _Py_T_OBJECT, offsetof(struct _stmt, v.Nonlocal.names),
+      Py_READONLY, NULL},
+    {0}
+};
+
+static PyType_Slot _Nonlocal_type_slots[] = {
+    {Py_tp_dealloc, &Nonlocal_dealloc},
+{Py_tp_members, Nonlocal_members},
+    {Py_tp_free, PyObject_Free},
+    {Py_tp_doc, "Nonlocal(identifier* names)"},
+    {0, 0},
+};
+
+static PyType_Spec _Nonlocal_type_spec = {
+    "ast._Nonlocal",
+    sizeof(struct _stmt),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    _Nonlocal_type_slots
+};
+
+
+
+stmt_ty _PyAst_Nonlocal_Copy(stmt_ty self) {
+    struct ast_state *state = get_ast_state();
+    stmt_ty res = PyObject_New(struct _stmt, (PyTypeObject
+                               *)state->_Nonlocal_Type);
+    if (res == NULL) {
+        goto error;
+    }
+    if (self->v.Nonlocal.names != NULL) {
+        res->v.Nonlocal.names =
+        _PyAst_identifier_seq_Copy(self->v.Nonlocal.names);
+        ERROR_IF_NULL(res->v.Nonlocal.names);
+    } else {
+        res->v.Nonlocal.names = NULL;
+    }
+    return res;
+error:
+    Py_XDECREF(res);
+    return NULL;
+}
+
+static void Expr_dealloc(PyObject *self) {
+    stmt_ty obj = (stmt_ty)self;
+    Py_XDECREF(obj->v.Expr.value);
+    Py_TYPE(self)->tp_free(obj);
+}
+static PyMemberDef Expr_members[] = {
+    {"value", _Py_T_OBJECT, offsetof(struct _stmt, v.Expr.value), Py_READONLY,
+      NULL},
+    {0}
+};
+
+static PyType_Slot _Expr_type_slots[] = {
+    {Py_tp_dealloc, &Expr_dealloc},
+{Py_tp_members, Expr_members},
+    {Py_tp_free, PyObject_Free},
+    {Py_tp_doc, "Expr(expr value)"},
+    {0, 0},
+};
+
+static PyType_Spec _Expr_type_spec = {
+    "ast._Expr",
+    sizeof(struct _stmt),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    _Expr_type_slots
+};
+
+
+
+stmt_ty _PyAst_Expr_Copy(stmt_ty self) {
+    struct ast_state *state = get_ast_state();
+    stmt_ty res = PyObject_New(struct _stmt, (PyTypeObject *)state->_Expr_Type);
+    if (res == NULL) {
+        goto error;
+    }
+    if (self->v.Expr.value != NULL) {
+        res->v.Expr.value = _PyAst_expr_Copy(self->v.Expr.value);
+        ERROR_IF_NULL(res->v.Expr.value);
+    } else {
+        res->v.Expr.value = NULL;
+    }
+    return res;
+error:
+    Py_XDECREF(res);
+    return NULL;
+}
+
+static void Pass_dealloc(PyObject *self) {
+    stmt_ty obj = (stmt_ty)self;
+    Py_TYPE(self)->tp_free(obj);
+}
+static PyMemberDef Pass_members[] = {
+    {0}
+};
+
+static PyType_Slot _Pass_type_slots[] = {
+    {Py_tp_dealloc, &Pass_dealloc},
+{Py_tp_members, Pass_members},
+    {Py_tp_free, PyObject_Free},
+    {Py_tp_doc, "Pass"},
+    {0, 0},
+};
+
+static PyType_Spec _Pass_type_spec = {
+    "ast._Pass",
+    sizeof(struct _stmt),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    _Pass_type_slots
+};
+
+
+
+stmt_ty _PyAst_Pass_Copy(stmt_ty self) {
+    struct ast_state *state = get_ast_state();
+    stmt_ty res = PyObject_New(struct _stmt, (PyTypeObject *)state->_Pass_Type);
+    if (res == NULL) {
+        goto error;
+    }
+    return res;
+error:
+    Py_XDECREF(res);
+    return NULL;
+}
+
+static void Break_dealloc(PyObject *self) {
+    stmt_ty obj = (stmt_ty)self;
+    Py_TYPE(self)->tp_free(obj);
+}
+static PyMemberDef Break_members[] = {
+    {0}
+};
+
+static PyType_Slot _Break_type_slots[] = {
+    {Py_tp_dealloc, &Break_dealloc},
+{Py_tp_members, Break_members},
+    {Py_tp_free, PyObject_Free},
+    {Py_tp_doc, "Break"},
+    {0, 0},
+};
+
+static PyType_Spec _Break_type_spec = {
+    "ast._Break",
+    sizeof(struct _stmt),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    _Break_type_slots
+};
+
+
+
+stmt_ty _PyAst_Break_Copy(stmt_ty self) {
+    struct ast_state *state = get_ast_state();
+    stmt_ty res = PyObject_New(struct _stmt, (PyTypeObject
+                               *)state->_Break_Type);
+    if (res == NULL) {
+        goto error;
+    }
+    return res;
+error:
+    Py_XDECREF(res);
+    return NULL;
+}
+
+static void Continue_dealloc(PyObject *self) {
+    stmt_ty obj = (stmt_ty)self;
+    Py_TYPE(self)->tp_free(obj);
+}
+static PyMemberDef Continue_members[] = {
+    {0}
+};
+
+static PyType_Slot _Continue_type_slots[] = {
+    {Py_tp_dealloc, &Continue_dealloc},
+{Py_tp_members, Continue_members},
+    {Py_tp_free, PyObject_Free},
+    {Py_tp_doc, "Continue"},
+    {0, 0},
+};
+
+static PyType_Spec _Continue_type_spec = {
+    "ast._Continue",
+    sizeof(struct _stmt),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    _Continue_type_slots
+};
+
+
+
+stmt_ty _PyAst_Continue_Copy(stmt_ty self) {
+    struct ast_state *state = get_ast_state();
+    stmt_ty res = PyObject_New(struct _stmt, (PyTypeObject
+                               *)state->_Continue_Type);
+    if (res == NULL) {
+        goto error;
+    }
+    return res;
+error:
+    Py_XDECREF(res);
+    return NULL;
+}
+
+
+stmt_ty _PyAst_stmt_Copy(stmt_ty node) {
+    switch (node->kind) {
+        case FunctionDef_kind:
+            return _PyAst_FunctionDef_Copy(node);
+        case AsyncFunctionDef_kind:
+            return _PyAst_AsyncFunctionDef_Copy(node);
+        case ClassDef_kind:
+            return _PyAst_ClassDef_Copy(node);
+        case Return_kind:
+            return _PyAst_Return_Copy(node);
+        case Delete_kind:
+            return _PyAst_Delete_Copy(node);
+        case Assign_kind:
+            return _PyAst_Assign_Copy(node);
+        case TypeAlias_kind:
+            return _PyAst_TypeAlias_Copy(node);
+        case AugAssign_kind:
+            return _PyAst_AugAssign_Copy(node);
+        case AnnAssign_kind:
+            return _PyAst_AnnAssign_Copy(node);
+        case For_kind:
+            return _PyAst_For_Copy(node);
+        case AsyncFor_kind:
+            return _PyAst_AsyncFor_Copy(node);
+        case While_kind:
+            return _PyAst_While_Copy(node);
+        case If_kind:
+            return _PyAst_If_Copy(node);
+        case With_kind:
+            return _PyAst_With_Copy(node);
+        case AsyncWith_kind:
+            return _PyAst_AsyncWith_Copy(node);
+        case Match_kind:
+            return _PyAst_Match_Copy(node);
+        case Raise_kind:
+            return _PyAst_Raise_Copy(node);
+        case Try_kind:
+            return _PyAst_Try_Copy(node);
+        case TryStar_kind:
+            return _PyAst_TryStar_Copy(node);
+        case Assert_kind:
+            return _PyAst_Assert_Copy(node);
+        case Import_kind:
+            return _PyAst_Import_Copy(node);
+        case ImportFrom_kind:
+            return _PyAst_ImportFrom_Copy(node);
+        case Global_kind:
+            return _PyAst_Global_Copy(node);
+        case Nonlocal_kind:
+            return _PyAst_Nonlocal_Copy(node);
+        case Expr_kind:
+            return _PyAst_Expr_Copy(node);
+        case Pass_kind:
+            return _PyAst_Pass_Copy(node);
+        case Break_kind:
+            return _PyAst_Break_Copy(node);
+        case Continue_kind:
+            return _PyAst_Continue_Copy(node);
+    }
+    return NULL;
+}
+
+static void stmt_dealloc(PyObject *self) {
+    stmt_ty obj = (stmt_ty)self;
+    Py_TYPE(self)->tp_free(obj);
+}
+static PyMemberDef stmt_members[] = {
+    {0}
+};
+
+static PyType_Slot _stmt_type_slots[] = {
+    {Py_tp_dealloc, &stmt_dealloc},
+{Py_tp_members, stmt_members},
+    {Py_tp_free, PyObject_Free},
+    {Py_tp_doc, "stmt = FunctionDef(identifier name, arguments args, stmt* body, expr* decorator_list, expr? returns, string? type_comment, type_param* type_params)\n"
+        "     | AsyncFunctionDef(identifier name, arguments args, stmt* body, expr* decorator_list, expr? returns, string? type_comment, type_param* type_params)\n"
+        "     | ClassDef(identifier name, expr* bases, keyword* keywords, stmt* body, expr* decorator_list, type_param* type_params)\n"
+        "     | Return(expr? value)\n"
+        "     | Delete(expr* targets)\n"
+        "     | Assign(expr* targets, expr value, string? type_comment)\n"
+        "     | TypeAlias(expr name, type_param* type_params, expr value)\n"
+        "     | AugAssign(expr target, operator op, expr value)\n"
+        "     | AnnAssign(expr target, expr annotation, expr? value, int simple)\n"
+        "     | For(expr target, expr iter, stmt* body, stmt* orelse, string? type_comment)\n"
+        "     | AsyncFor(expr target, expr iter, stmt* body, stmt* orelse, string? type_comment)\n"
+        "     | While(expr test, stmt* body, stmt* orelse)\n"
+        "     | If(expr test, stmt* body, stmt* orelse)\n"
+        "     | With(withitem* items, stmt* body, string? type_comment)\n"
+        "     | AsyncWith(withitem* items, stmt* body, string? type_comment)\n"
+        "     | Match(expr subject, match_case* cases)\n"
+        "     | Raise(expr? exc, expr? cause)\n"
+        "     | Try(stmt* body, excepthandler* handlers, stmt* orelse, stmt* finalbody)\n"
+        "     | TryStar(stmt* body, excepthandler* handlers, stmt* orelse, stmt* finalbody)\n"
+        "     | Assert(expr test, expr? msg)\n"
+        "     | Import(alias* names)\n"
+        "     | ImportFrom(identifier? module, alias* names, int? level)\n"
+        "     | Global(identifier* names)\n"
+        "     | Nonlocal(identifier* names)\n"
+        "     | Expr(expr value)\n"
+        "     | Pass\n"
+        "     | Break\n"
+        "     | Continue"},
+    {0, 0},
+};
+
+static PyType_Spec _stmt_type_spec = {
+    "ast._stmt",
+    sizeof(struct _stmt),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    _stmt_type_slots
+};
+
+
+
+static void stmt_seq_dealloc(PyObject *self) {
+    asdl_stmt_seq *obj = (asdl_stmt_seq *)self;
+    for (Py_ssize_t i = 0; i < obj->size; i++) {
+        PyObject *value = (PyObject *)obj->typed_elements[i];
+        if (value) {
+            Py_DECREF(value);
+        }
+    }
+    Py_TYPE(self)->tp_free(obj);
+}
+
+PyTypeObject _stmt_seq_Type = {
+    .tp_name="stmt_seq",
+    .tp_basicsize=sizeof(asdl_stmt_seq) - sizeof(stmt_ty),
+    .tp_itemsize=sizeof(stmt_ty),
+    .tp_dealloc = &stmt_seq_dealloc,
+    .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
+    .tp_free = PyObject_Free,
+
+    .tp_as_sequence = &ast_sequence_methods,
+    .tp_as_mapping = &ast_mapping_methods,
+};
+
+asdl_stmt_seq *_PyAst_stmt_seq_Copy(asdl_stmt_seq *seq) {
+    asdl_stmt_seq *res = PyObject_NewVar(asdl_stmt_seq, &_stmt_seq_Type, seq->size);
+    if (res == NULL) {
+        goto error;
+    }
+    res->size = seq->size;
+    res->elements = (void**)&res->typed_elements[0];
+    for (Py_ssize_t i = 0; i < seq->size; i++) {
+        if (seq->typed_elements[i] != NULL) {
+            res->typed_elements[i] = _PyAst_stmt_Copy(seq->typed_elements[i]);
+            ERROR_IF_NULL(res->typed_elements[i]);
+        } else {
+            res->typed_elements[i] = NULL;
+        }
+    }
+    return res;
+    error:
+    Py_XDECREF(res);
+    return NULL;
+}
+
+static void BoolOp_dealloc(PyObject *self) {
+    expr_ty obj = (expr_ty)self;
+    Py_XDECREF(obj->v.BoolOp.values);
+    Py_TYPE(self)->tp_free(obj);
+}
+static PyMemberDef BoolOp_members[] = {
+    {"op", Py_T_INT, offsetof(struct _expr, v.BoolOp.op), Py_READONLY, NULL},
+    {"values", _Py_T_OBJECT, offsetof(struct _expr, v.BoolOp.values),
+      Py_READONLY, NULL},
+    {0}
+};
+
+static PyType_Slot _BoolOp_type_slots[] = {
+    {Py_tp_dealloc, &BoolOp_dealloc},
+{Py_tp_members, BoolOp_members},
+    {Py_tp_free, PyObject_Free},
+    {Py_tp_doc, "BoolOp(boolop op, expr* values)"},
+    {0, 0},
+};
+
+static PyType_Spec _BoolOp_type_spec = {
+    "ast._BoolOp",
+    sizeof(struct _expr),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    _BoolOp_type_slots
+};
+
+
+
+expr_ty _PyAst_BoolOp_Copy(expr_ty self) {
+    struct ast_state *state = get_ast_state();
+    expr_ty res = PyObject_New(struct _expr, (PyTypeObject
+                               *)state->_BoolOp_Type);
+    if (res == NULL) {
+        goto error;
+    }
+    res->v.BoolOp.op = self->v.BoolOp.op;
+    if (self->v.BoolOp.values != NULL) {
+        res->v.BoolOp.values = _PyAst_expr_seq_Copy(self->v.BoolOp.values);
+        ERROR_IF_NULL(res->v.BoolOp.values);
+    } else {
+        res->v.BoolOp.values = NULL;
+    }
+    return res;
+error:
+    Py_XDECREF(res);
+    return NULL;
+}
+
+static void NamedExpr_dealloc(PyObject *self) {
+    expr_ty obj = (expr_ty)self;
+    Py_XDECREF(obj->v.NamedExpr.target);
+    Py_XDECREF(obj->v.NamedExpr.value);
+    Py_TYPE(self)->tp_free(obj);
+}
+static PyMemberDef NamedExpr_members[] = {
+    {"target", _Py_T_OBJECT, offsetof(struct _expr, v.NamedExpr.target),
+      Py_READONLY, NULL},
+    {"value", _Py_T_OBJECT, offsetof(struct _expr, v.NamedExpr.value),
+      Py_READONLY, NULL},
+    {0}
+};
+
+static PyType_Slot _NamedExpr_type_slots[] = {
+    {Py_tp_dealloc, &NamedExpr_dealloc},
+{Py_tp_members, NamedExpr_members},
+    {Py_tp_free, PyObject_Free},
+    {Py_tp_doc, "NamedExpr(expr target, expr value)"},
+    {0, 0},
+};
+
+static PyType_Spec _NamedExpr_type_spec = {
+    "ast._NamedExpr",
+    sizeof(struct _expr),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    _NamedExpr_type_slots
+};
+
+
+
+expr_ty _PyAst_NamedExpr_Copy(expr_ty self) {
+    struct ast_state *state = get_ast_state();
+    expr_ty res = PyObject_New(struct _expr, (PyTypeObject
+                               *)state->_NamedExpr_Type);
+    if (res == NULL) {
+        goto error;
+    }
+    if (self->v.NamedExpr.target != NULL) {
+        res->v.NamedExpr.target = _PyAst_expr_Copy(self->v.NamedExpr.target);
+        ERROR_IF_NULL(res->v.NamedExpr.target);
+    } else {
+        res->v.NamedExpr.target = NULL;
+    }
+    if (self->v.NamedExpr.value != NULL) {
+        res->v.NamedExpr.value = _PyAst_expr_Copy(self->v.NamedExpr.value);
+        ERROR_IF_NULL(res->v.NamedExpr.value);
+    } else {
+        res->v.NamedExpr.value = NULL;
+    }
+    return res;
+error:
+    Py_XDECREF(res);
+    return NULL;
+}
+
+static void BinOp_dealloc(PyObject *self) {
+    expr_ty obj = (expr_ty)self;
+    Py_XDECREF(obj->v.BinOp.left);
+    Py_XDECREF(obj->v.BinOp.right);
+    Py_TYPE(self)->tp_free(obj);
+}
+static PyMemberDef BinOp_members[] = {
+    {"left", _Py_T_OBJECT, offsetof(struct _expr, v.BinOp.left), Py_READONLY,
+      NULL},
+    {"op", Py_T_INT, offsetof(struct _expr, v.BinOp.op), Py_READONLY, NULL},
+    {"right", _Py_T_OBJECT, offsetof(struct _expr, v.BinOp.right), Py_READONLY,
+      NULL},
+    {0}
+};
+
+static PyType_Slot _BinOp_type_slots[] = {
+    {Py_tp_dealloc, &BinOp_dealloc},
+{Py_tp_members, BinOp_members},
+    {Py_tp_free, PyObject_Free},
+    {Py_tp_doc, "BinOp(expr left, operator op, expr right)"},
+    {0, 0},
+};
+
+static PyType_Spec _BinOp_type_spec = {
+    "ast._BinOp",
+    sizeof(struct _expr),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    _BinOp_type_slots
+};
+
+
+
+expr_ty _PyAst_BinOp_Copy(expr_ty self) {
+    struct ast_state *state = get_ast_state();
+    expr_ty res = PyObject_New(struct _expr, (PyTypeObject
+                               *)state->_BinOp_Type);
+    if (res == NULL) {
+        goto error;
+    }
+    if (self->v.BinOp.left != NULL) {
+        res->v.BinOp.left = _PyAst_expr_Copy(self->v.BinOp.left);
+        ERROR_IF_NULL(res->v.BinOp.left);
+    } else {
+        res->v.BinOp.left = NULL;
+    }
+    res->v.BinOp.op = self->v.BinOp.op;
+    if (self->v.BinOp.right != NULL) {
+        res->v.BinOp.right = _PyAst_expr_Copy(self->v.BinOp.right);
+        ERROR_IF_NULL(res->v.BinOp.right);
+    } else {
+        res->v.BinOp.right = NULL;
+    }
+    return res;
+error:
+    Py_XDECREF(res);
+    return NULL;
+}
+
+static void UnaryOp_dealloc(PyObject *self) {
+    expr_ty obj = (expr_ty)self;
+    Py_XDECREF(obj->v.UnaryOp.operand);
+    Py_TYPE(self)->tp_free(obj);
+}
+static PyMemberDef UnaryOp_members[] = {
+    {"op", Py_T_INT, offsetof(struct _expr, v.UnaryOp.op), Py_READONLY, NULL},
+    {"operand", _Py_T_OBJECT, offsetof(struct _expr, v.UnaryOp.operand),
+      Py_READONLY, NULL},
+    {0}
+};
+
+static PyType_Slot _UnaryOp_type_slots[] = {
+    {Py_tp_dealloc, &UnaryOp_dealloc},
+{Py_tp_members, UnaryOp_members},
+    {Py_tp_free, PyObject_Free},
+    {Py_tp_doc, "UnaryOp(unaryop op, expr operand)"},
+    {0, 0},
+};
+
+static PyType_Spec _UnaryOp_type_spec = {
+    "ast._UnaryOp",
+    sizeof(struct _expr),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    _UnaryOp_type_slots
+};
+
+
+
+expr_ty _PyAst_UnaryOp_Copy(expr_ty self) {
+    struct ast_state *state = get_ast_state();
+    expr_ty res = PyObject_New(struct _expr, (PyTypeObject
+                               *)state->_UnaryOp_Type);
+    if (res == NULL) {
+        goto error;
+    }
+    res->v.UnaryOp.op = self->v.UnaryOp.op;
+    if (self->v.UnaryOp.operand != NULL) {
+        res->v.UnaryOp.operand = _PyAst_expr_Copy(self->v.UnaryOp.operand);
+        ERROR_IF_NULL(res->v.UnaryOp.operand);
+    } else {
+        res->v.UnaryOp.operand = NULL;
+    }
+    return res;
+error:
+    Py_XDECREF(res);
+    return NULL;
+}
+
+static void Lambda_dealloc(PyObject *self) {
+    expr_ty obj = (expr_ty)self;
+    Py_XDECREF(obj->v.Lambda.args);
+    Py_XDECREF(obj->v.Lambda.body);
+    Py_TYPE(self)->tp_free(obj);
+}
+static PyMemberDef Lambda_members[] = {
+    {"args", _Py_T_OBJECT, offsetof(struct _expr, v.Lambda.args), Py_READONLY,
+      NULL},
+    {"body", _Py_T_OBJECT, offsetof(struct _expr, v.Lambda.body), Py_READONLY,
+      NULL},
+    {0}
+};
+
+static PyType_Slot _Lambda_type_slots[] = {
+    {Py_tp_dealloc, &Lambda_dealloc},
+{Py_tp_members, Lambda_members},
+    {Py_tp_free, PyObject_Free},
+    {Py_tp_doc, "Lambda(arguments args, expr body)"},
+    {0, 0},
+};
+
+static PyType_Spec _Lambda_type_spec = {
+    "ast._Lambda",
+    sizeof(struct _expr),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    _Lambda_type_slots
+};
+
+
+
+expr_ty _PyAst_Lambda_Copy(expr_ty self) {
+    struct ast_state *state = get_ast_state();
+    expr_ty res = PyObject_New(struct _expr, (PyTypeObject
+                               *)state->_Lambda_Type);
+    if (res == NULL) {
+        goto error;
+    }
+    if (self->v.Lambda.args != NULL) {
+        res->v.Lambda.args = _PyAst_arguments_Copy(self->v.Lambda.args);
+        ERROR_IF_NULL(res->v.Lambda.args);
+    } else {
+        res->v.Lambda.args = NULL;
+    }
+    if (self->v.Lambda.body != NULL) {
+        res->v.Lambda.body = _PyAst_expr_Copy(self->v.Lambda.body);
+        ERROR_IF_NULL(res->v.Lambda.body);
+    } else {
+        res->v.Lambda.body = NULL;
+    }
+    return res;
+error:
+    Py_XDECREF(res);
+    return NULL;
+}
+
+static void IfExp_dealloc(PyObject *self) {
+    expr_ty obj = (expr_ty)self;
+    Py_XDECREF(obj->v.IfExp.test);
+    Py_XDECREF(obj->v.IfExp.body);
+    Py_XDECREF(obj->v.IfExp.orelse);
+    Py_TYPE(self)->tp_free(obj);
+}
+static PyMemberDef IfExp_members[] = {
+    {"test", _Py_T_OBJECT, offsetof(struct _expr, v.IfExp.test), Py_READONLY,
+      NULL},
+    {"body", _Py_T_OBJECT, offsetof(struct _expr, v.IfExp.body), Py_READONLY,
+      NULL},
+    {"orelse", _Py_T_OBJECT, offsetof(struct _expr, v.IfExp.orelse),
+      Py_READONLY, NULL},
+    {0}
+};
+
+static PyType_Slot _IfExp_type_slots[] = {
+    {Py_tp_dealloc, &IfExp_dealloc},
+{Py_tp_members, IfExp_members},
+    {Py_tp_free, PyObject_Free},
+    {Py_tp_doc, "IfExp(expr test, expr body, expr orelse)"},
+    {0, 0},
+};
+
+static PyType_Spec _IfExp_type_spec = {
+    "ast._IfExp",
+    sizeof(struct _expr),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    _IfExp_type_slots
+};
+
+
+
+expr_ty _PyAst_IfExp_Copy(expr_ty self) {
+    struct ast_state *state = get_ast_state();
+    expr_ty res = PyObject_New(struct _expr, (PyTypeObject
+                               *)state->_IfExp_Type);
+    if (res == NULL) {
+        goto error;
+    }
+    if (self->v.IfExp.test != NULL) {
+        res->v.IfExp.test = _PyAst_expr_Copy(self->v.IfExp.test);
+        ERROR_IF_NULL(res->v.IfExp.test);
+    } else {
+        res->v.IfExp.test = NULL;
+    }
+    if (self->v.IfExp.body != NULL) {
+        res->v.IfExp.body = _PyAst_expr_Copy(self->v.IfExp.body);
+        ERROR_IF_NULL(res->v.IfExp.body);
+    } else {
+        res->v.IfExp.body = NULL;
+    }
+    if (self->v.IfExp.orelse != NULL) {
+        res->v.IfExp.orelse = _PyAst_expr_Copy(self->v.IfExp.orelse);
+        ERROR_IF_NULL(res->v.IfExp.orelse);
+    } else {
+        res->v.IfExp.orelse = NULL;
+    }
+    return res;
+error:
+    Py_XDECREF(res);
+    return NULL;
+}
+
+static void Dict_dealloc(PyObject *self) {
+    expr_ty obj = (expr_ty)self;
+    Py_XDECREF(obj->v.Dict.keys);
+    Py_XDECREF(obj->v.Dict.values);
+    Py_TYPE(self)->tp_free(obj);
+}
+static PyMemberDef Dict_members[] = {
+    {"keys", _Py_T_OBJECT, offsetof(struct _expr, v.Dict.keys), Py_READONLY,
+      NULL},
+    {"values", _Py_T_OBJECT, offsetof(struct _expr, v.Dict.values),
+      Py_READONLY, NULL},
+    {0}
+};
+
+static PyType_Slot _Dict_type_slots[] = {
+    {Py_tp_dealloc, &Dict_dealloc},
+{Py_tp_members, Dict_members},
+    {Py_tp_free, PyObject_Free},
+    {Py_tp_doc, "Dict(expr?* keys, expr* values)"},
+    {0, 0},
+};
+
+static PyType_Spec _Dict_type_spec = {
+    "ast._Dict",
+    sizeof(struct _expr),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    _Dict_type_slots
+};
+
+
+
+expr_ty _PyAst_Dict_Copy(expr_ty self) {
+    struct ast_state *state = get_ast_state();
+    expr_ty res = PyObject_New(struct _expr, (PyTypeObject *)state->_Dict_Type);
+    if (res == NULL) {
+        goto error;
+    }
+    if (self->v.Dict.keys != NULL) {
+        res->v.Dict.keys = _PyAst_expr_seq_Copy(self->v.Dict.keys);
+        ERROR_IF_NULL(res->v.Dict.keys);
+    } else {
+        res->v.Dict.keys = NULL;
+    }
+    if (self->v.Dict.values != NULL) {
+        res->v.Dict.values = _PyAst_expr_seq_Copy(self->v.Dict.values);
+        ERROR_IF_NULL(res->v.Dict.values);
+    } else {
+        res->v.Dict.values = NULL;
+    }
+    return res;
+error:
+    Py_XDECREF(res);
+    return NULL;
+}
+
+static void Set_dealloc(PyObject *self) {
+    expr_ty obj = (expr_ty)self;
+    Py_XDECREF(obj->v.Set.elts);
+    Py_TYPE(self)->tp_free(obj);
+}
+static PyMemberDef Set_members[] = {
+    {"elts", _Py_T_OBJECT, offsetof(struct _expr, v.Set.elts), Py_READONLY,
+      NULL},
+    {0}
+};
+
+static PyType_Slot _Set_type_slots[] = {
+    {Py_tp_dealloc, &Set_dealloc},
+{Py_tp_members, Set_members},
+    {Py_tp_free, PyObject_Free},
+    {Py_tp_doc, "Set(expr* elts)"},
+    {0, 0},
+};
+
+static PyType_Spec _Set_type_spec = {
+    "ast._Set",
+    sizeof(struct _expr),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    _Set_type_slots
+};
+
+
+
+expr_ty _PyAst_Set_Copy(expr_ty self) {
+    struct ast_state *state = get_ast_state();
+    expr_ty res = PyObject_New(struct _expr, (PyTypeObject *)state->_Set_Type);
+    if (res == NULL) {
+        goto error;
+    }
+    if (self->v.Set.elts != NULL) {
+        res->v.Set.elts = _PyAst_expr_seq_Copy(self->v.Set.elts);
+        ERROR_IF_NULL(res->v.Set.elts);
+    } else {
+        res->v.Set.elts = NULL;
+    }
+    return res;
+error:
+    Py_XDECREF(res);
+    return NULL;
+}
+
+static void ListComp_dealloc(PyObject *self) {
+    expr_ty obj = (expr_ty)self;
+    Py_XDECREF(obj->v.ListComp.elt);
+    Py_XDECREF(obj->v.ListComp.generators);
+    Py_TYPE(self)->tp_free(obj);
+}
+static PyMemberDef ListComp_members[] = {
+    {"elt", _Py_T_OBJECT, offsetof(struct _expr, v.ListComp.elt), Py_READONLY,
+      NULL},
+    {"generators", _Py_T_OBJECT, offsetof(struct _expr, v.ListComp.generators),
+      Py_READONLY, NULL},
+    {0}
+};
+
+static PyType_Slot _ListComp_type_slots[] = {
+    {Py_tp_dealloc, &ListComp_dealloc},
+{Py_tp_members, ListComp_members},
+    {Py_tp_free, PyObject_Free},
+    {Py_tp_doc, "ListComp(expr elt, comprehension* generators)"},
+    {0, 0},
+};
+
+static PyType_Spec _ListComp_type_spec = {
+    "ast._ListComp",
+    sizeof(struct _expr),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    _ListComp_type_slots
+};
+
+
+
+expr_ty _PyAst_ListComp_Copy(expr_ty self) {
+    struct ast_state *state = get_ast_state();
+    expr_ty res = PyObject_New(struct _expr, (PyTypeObject
+                               *)state->_ListComp_Type);
+    if (res == NULL) {
+        goto error;
+    }
+    if (self->v.ListComp.elt != NULL) {
+        res->v.ListComp.elt = _PyAst_expr_Copy(self->v.ListComp.elt);
+        ERROR_IF_NULL(res->v.ListComp.elt);
+    } else {
+        res->v.ListComp.elt = NULL;
+    }
+    if (self->v.ListComp.generators != NULL) {
+        res->v.ListComp.generators =
+        _PyAst_comprehension_seq_Copy(self->v.ListComp.generators);
+        ERROR_IF_NULL(res->v.ListComp.generators);
+    } else {
+        res->v.ListComp.generators = NULL;
+    }
+    return res;
+error:
+    Py_XDECREF(res);
+    return NULL;
+}
+
+static void SetComp_dealloc(PyObject *self) {
+    expr_ty obj = (expr_ty)self;
+    Py_XDECREF(obj->v.SetComp.elt);
+    Py_XDECREF(obj->v.SetComp.generators);
+    Py_TYPE(self)->tp_free(obj);
+}
+static PyMemberDef SetComp_members[] = {
+    {"elt", _Py_T_OBJECT, offsetof(struct _expr, v.SetComp.elt), Py_READONLY,
+      NULL},
+    {"generators", _Py_T_OBJECT, offsetof(struct _expr, v.SetComp.generators),
+      Py_READONLY, NULL},
+    {0}
+};
+
+static PyType_Slot _SetComp_type_slots[] = {
+    {Py_tp_dealloc, &SetComp_dealloc},
+{Py_tp_members, SetComp_members},
+    {Py_tp_free, PyObject_Free},
+    {Py_tp_doc, "SetComp(expr elt, comprehension* generators)"},
+    {0, 0},
+};
+
+static PyType_Spec _SetComp_type_spec = {
+    "ast._SetComp",
+    sizeof(struct _expr),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    _SetComp_type_slots
+};
+
+
+
+expr_ty _PyAst_SetComp_Copy(expr_ty self) {
+    struct ast_state *state = get_ast_state();
+    expr_ty res = PyObject_New(struct _expr, (PyTypeObject
+                               *)state->_SetComp_Type);
+    if (res == NULL) {
+        goto error;
+    }
+    if (self->v.SetComp.elt != NULL) {
+        res->v.SetComp.elt = _PyAst_expr_Copy(self->v.SetComp.elt);
+        ERROR_IF_NULL(res->v.SetComp.elt);
+    } else {
+        res->v.SetComp.elt = NULL;
+    }
+    if (self->v.SetComp.generators != NULL) {
+        res->v.SetComp.generators =
+        _PyAst_comprehension_seq_Copy(self->v.SetComp.generators);
+        ERROR_IF_NULL(res->v.SetComp.generators);
+    } else {
+        res->v.SetComp.generators = NULL;
+    }
+    return res;
+error:
+    Py_XDECREF(res);
+    return NULL;
+}
+
+static void DictComp_dealloc(PyObject *self) {
+    expr_ty obj = (expr_ty)self;
+    Py_XDECREF(obj->v.DictComp.key);
+    Py_XDECREF(obj->v.DictComp.value);
+    Py_XDECREF(obj->v.DictComp.generators);
+    Py_TYPE(self)->tp_free(obj);
+}
+static PyMemberDef DictComp_members[] = {
+    {"key", _Py_T_OBJECT, offsetof(struct _expr, v.DictComp.key), Py_READONLY,
+      NULL},
+    {"value", _Py_T_OBJECT, offsetof(struct _expr, v.DictComp.value),
+      Py_READONLY, NULL},
+    {"generators", _Py_T_OBJECT, offsetof(struct _expr, v.DictComp.generators),
+      Py_READONLY, NULL},
+    {0}
+};
+
+static PyType_Slot _DictComp_type_slots[] = {
+    {Py_tp_dealloc, &DictComp_dealloc},
+{Py_tp_members, DictComp_members},
+    {Py_tp_free, PyObject_Free},
+    {Py_tp_doc, "DictComp(expr key, expr value, comprehension* generators)"},
+    {0, 0},
+};
+
+static PyType_Spec _DictComp_type_spec = {
+    "ast._DictComp",
+    sizeof(struct _expr),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    _DictComp_type_slots
+};
+
+
+
+expr_ty _PyAst_DictComp_Copy(expr_ty self) {
+    struct ast_state *state = get_ast_state();
+    expr_ty res = PyObject_New(struct _expr, (PyTypeObject
+                               *)state->_DictComp_Type);
+    if (res == NULL) {
+        goto error;
+    }
+    if (self->v.DictComp.key != NULL) {
+        res->v.DictComp.key = _PyAst_expr_Copy(self->v.DictComp.key);
+        ERROR_IF_NULL(res->v.DictComp.key);
+    } else {
+        res->v.DictComp.key = NULL;
+    }
+    if (self->v.DictComp.value != NULL) {
+        res->v.DictComp.value = _PyAst_expr_Copy(self->v.DictComp.value);
+        ERROR_IF_NULL(res->v.DictComp.value);
+    } else {
+        res->v.DictComp.value = NULL;
+    }
+    if (self->v.DictComp.generators != NULL) {
+        res->v.DictComp.generators =
+        _PyAst_comprehension_seq_Copy(self->v.DictComp.generators);
+        ERROR_IF_NULL(res->v.DictComp.generators);
+    } else {
+        res->v.DictComp.generators = NULL;
+    }
+    return res;
+error:
+    Py_XDECREF(res);
+    return NULL;
+}
+
+static void GeneratorExp_dealloc(PyObject *self) {
+    expr_ty obj = (expr_ty)self;
+    Py_XDECREF(obj->v.GeneratorExp.elt);
+    Py_XDECREF(obj->v.GeneratorExp.generators);
+    Py_TYPE(self)->tp_free(obj);
+}
+static PyMemberDef GeneratorExp_members[] = {
+    {"elt", _Py_T_OBJECT, offsetof(struct _expr, v.GeneratorExp.elt),
+      Py_READONLY, NULL},
+    {"generators", _Py_T_OBJECT, offsetof(struct _expr,
+      v.GeneratorExp.generators), Py_READONLY, NULL},
+    {0}
+};
+
+static PyType_Slot _GeneratorExp_type_slots[] = {
+    {Py_tp_dealloc, &GeneratorExp_dealloc},
+{Py_tp_members, GeneratorExp_members},
+    {Py_tp_free, PyObject_Free},
+    {Py_tp_doc, "GeneratorExp(expr elt, comprehension* generators)"},
+    {0, 0},
+};
+
+static PyType_Spec _GeneratorExp_type_spec = {
+    "ast._GeneratorExp",
+    sizeof(struct _expr),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    _GeneratorExp_type_slots
+};
+
+
+
+expr_ty _PyAst_GeneratorExp_Copy(expr_ty self) {
+    struct ast_state *state = get_ast_state();
+    expr_ty res = PyObject_New(struct _expr, (PyTypeObject
+                               *)state->_GeneratorExp_Type);
+    if (res == NULL) {
+        goto error;
+    }
+    if (self->v.GeneratorExp.elt != NULL) {
+        res->v.GeneratorExp.elt = _PyAst_expr_Copy(self->v.GeneratorExp.elt);
+        ERROR_IF_NULL(res->v.GeneratorExp.elt);
+    } else {
+        res->v.GeneratorExp.elt = NULL;
+    }
+    if (self->v.GeneratorExp.generators != NULL) {
+        res->v.GeneratorExp.generators =
+        _PyAst_comprehension_seq_Copy(self->v.GeneratorExp.generators);
+        ERROR_IF_NULL(res->v.GeneratorExp.generators);
+    } else {
+        res->v.GeneratorExp.generators = NULL;
+    }
+    return res;
+error:
+    Py_XDECREF(res);
+    return NULL;
+}
+
+static void Await_dealloc(PyObject *self) {
+    expr_ty obj = (expr_ty)self;
+    Py_XDECREF(obj->v.Await.value);
+    Py_TYPE(self)->tp_free(obj);
+}
+static PyMemberDef Await_members[] = {
+    {"value", _Py_T_OBJECT, offsetof(struct _expr, v.Await.value), Py_READONLY,
+      NULL},
+    {0}
+};
+
+static PyType_Slot _Await_type_slots[] = {
+    {Py_tp_dealloc, &Await_dealloc},
+{Py_tp_members, Await_members},
+    {Py_tp_free, PyObject_Free},
+    {Py_tp_doc, "Await(expr value)"},
+    {0, 0},
+};
+
+static PyType_Spec _Await_type_spec = {
+    "ast._Await",
+    sizeof(struct _expr),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    _Await_type_slots
+};
+
+
+
+expr_ty _PyAst_Await_Copy(expr_ty self) {
+    struct ast_state *state = get_ast_state();
+    expr_ty res = PyObject_New(struct _expr, (PyTypeObject
+                               *)state->_Await_Type);
+    if (res == NULL) {
+        goto error;
+    }
+    if (self->v.Await.value != NULL) {
+        res->v.Await.value = _PyAst_expr_Copy(self->v.Await.value);
+        ERROR_IF_NULL(res->v.Await.value);
+    } else {
+        res->v.Await.value = NULL;
+    }
+    return res;
+error:
+    Py_XDECREF(res);
+    return NULL;
+}
+
+static void Yield_dealloc(PyObject *self) {
+    expr_ty obj = (expr_ty)self;
+    Py_XDECREF(obj->v.Yield.value);
+    Py_TYPE(self)->tp_free(obj);
+}
+static PyMemberDef Yield_members[] = {
+    {"value", _Py_T_OBJECT, offsetof(struct _expr, v.Yield.value), Py_READONLY,
+      NULL},
+    {0}
+};
+
+static PyType_Slot _Yield_type_slots[] = {
+    {Py_tp_dealloc, &Yield_dealloc},
+{Py_tp_members, Yield_members},
+    {Py_tp_free, PyObject_Free},
+    {Py_tp_doc, "Yield(expr? value)"},
+    {0, 0},
+};
+
+static PyType_Spec _Yield_type_spec = {
+    "ast._Yield",
+    sizeof(struct _expr),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    _Yield_type_slots
+};
+
+
+
+expr_ty _PyAst_Yield_Copy(expr_ty self) {
+    struct ast_state *state = get_ast_state();
+    expr_ty res = PyObject_New(struct _expr, (PyTypeObject
+                               *)state->_Yield_Type);
+    if (res == NULL) {
+        goto error;
+    }
+    if (self->v.Yield.value != NULL) {
+        res->v.Yield.value = _PyAst_expr_Copy(self->v.Yield.value);
+        ERROR_IF_NULL(res->v.Yield.value);
+    } else {
+        res->v.Yield.value = NULL;
+    }
+    return res;
+error:
+    Py_XDECREF(res);
+    return NULL;
+}
+
+static void YieldFrom_dealloc(PyObject *self) {
+    expr_ty obj = (expr_ty)self;
+    Py_XDECREF(obj->v.YieldFrom.value);
+    Py_TYPE(self)->tp_free(obj);
+}
+static PyMemberDef YieldFrom_members[] = {
+    {"value", _Py_T_OBJECT, offsetof(struct _expr, v.YieldFrom.value),
+      Py_READONLY, NULL},
+    {0}
+};
+
+static PyType_Slot _YieldFrom_type_slots[] = {
+    {Py_tp_dealloc, &YieldFrom_dealloc},
+{Py_tp_members, YieldFrom_members},
+    {Py_tp_free, PyObject_Free},
+    {Py_tp_doc, "YieldFrom(expr value)"},
+    {0, 0},
+};
+
+static PyType_Spec _YieldFrom_type_spec = {
+    "ast._YieldFrom",
+    sizeof(struct _expr),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    _YieldFrom_type_slots
+};
+
+
+
+expr_ty _PyAst_YieldFrom_Copy(expr_ty self) {
+    struct ast_state *state = get_ast_state();
+    expr_ty res = PyObject_New(struct _expr, (PyTypeObject
+                               *)state->_YieldFrom_Type);
+    if (res == NULL) {
+        goto error;
+    }
+    if (self->v.YieldFrom.value != NULL) {
+        res->v.YieldFrom.value = _PyAst_expr_Copy(self->v.YieldFrom.value);
+        ERROR_IF_NULL(res->v.YieldFrom.value);
+    } else {
+        res->v.YieldFrom.value = NULL;
+    }
+    return res;
+error:
+    Py_XDECREF(res);
+    return NULL;
+}
+
+static void Compare_dealloc(PyObject *self) {
+    expr_ty obj = (expr_ty)self;
+    Py_XDECREF(obj->v.Compare.left);
+    Py_XDECREF(obj->v.Compare.comparators);
+    Py_TYPE(self)->tp_free(obj);
+}
+static PyMemberDef Compare_members[] = {
+    {"left", _Py_T_OBJECT, offsetof(struct _expr, v.Compare.left), Py_READONLY,
+      NULL},
+    {"ops", Py_T_INT, offsetof(struct _expr, v.Compare.ops), Py_READONLY, NULL},
+    {"comparators", _Py_T_OBJECT, offsetof(struct _expr,
+      v.Compare.comparators), Py_READONLY, NULL},
+    {0}
+};
+
+static PyType_Slot _Compare_type_slots[] = {
+    {Py_tp_dealloc, &Compare_dealloc},
+{Py_tp_members, Compare_members},
+    {Py_tp_free, PyObject_Free},
+    {Py_tp_doc, "Compare(expr left, cmpop* ops, expr* comparators)"},
+    {0, 0},
+};
+
+static PyType_Spec _Compare_type_spec = {
+    "ast._Compare",
+    sizeof(struct _expr),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    _Compare_type_slots
+};
+
+
+
+expr_ty _PyAst_Compare_Copy(expr_ty self) {
+    struct ast_state *state = get_ast_state();
+    expr_ty res = PyObject_New(struct _expr, (PyTypeObject
+                               *)state->_Compare_Type);
+    if (res == NULL) {
+        goto error;
+    }
+    if (self->v.Compare.left != NULL) {
+        res->v.Compare.left = _PyAst_expr_Copy(self->v.Compare.left);
+        ERROR_IF_NULL(res->v.Compare.left);
+    } else {
+        res->v.Compare.left = NULL;
+    }
+    if (self->v.Compare.ops != NULL) {
+        res->v.Compare.ops = _PyAst_int_seq_Copy(self->v.Compare.ops);
+        ERROR_IF_NULL(res->v.Compare.ops);
+    } else {
+        res->v.Compare.ops = NULL;
+    }
+    if (self->v.Compare.comparators != NULL) {
+        res->v.Compare.comparators =
+        _PyAst_expr_seq_Copy(self->v.Compare.comparators);
+        ERROR_IF_NULL(res->v.Compare.comparators);
+    } else {
+        res->v.Compare.comparators = NULL;
+    }
+    return res;
+error:
+    Py_XDECREF(res);
+    return NULL;
+}
+
+static void Call_dealloc(PyObject *self) {
+    expr_ty obj = (expr_ty)self;
+    Py_XDECREF(obj->v.Call.func);
+    Py_XDECREF(obj->v.Call.args);
+    Py_XDECREF(obj->v.Call.keywords);
+    Py_TYPE(self)->tp_free(obj);
+}
+static PyMemberDef Call_members[] = {
+    {"func", _Py_T_OBJECT, offsetof(struct _expr, v.Call.func), Py_READONLY,
+      NULL},
+    {"args", _Py_T_OBJECT, offsetof(struct _expr, v.Call.args), Py_READONLY,
+      NULL},
+    {"keywords", _Py_T_OBJECT, offsetof(struct _expr, v.Call.keywords),
+      Py_READONLY, NULL},
+    {0}
+};
+
+static PyType_Slot _Call_type_slots[] = {
+    {Py_tp_dealloc, &Call_dealloc},
+{Py_tp_members, Call_members},
+    {Py_tp_free, PyObject_Free},
+    {Py_tp_doc, "Call(expr func, expr* args, keyword* keywords)"},
+    {0, 0},
+};
+
+static PyType_Spec _Call_type_spec = {
+    "ast._Call",
+    sizeof(struct _expr),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    _Call_type_slots
+};
+
+
+
+expr_ty _PyAst_Call_Copy(expr_ty self) {
+    struct ast_state *state = get_ast_state();
+    expr_ty res = PyObject_New(struct _expr, (PyTypeObject *)state->_Call_Type);
+    if (res == NULL) {
+        goto error;
+    }
+    if (self->v.Call.func != NULL) {
+        res->v.Call.func = _PyAst_expr_Copy(self->v.Call.func);
+        ERROR_IF_NULL(res->v.Call.func);
+    } else {
+        res->v.Call.func = NULL;
+    }
+    if (self->v.Call.args != NULL) {
+        res->v.Call.args = _PyAst_expr_seq_Copy(self->v.Call.args);
+        ERROR_IF_NULL(res->v.Call.args);
+    } else {
+        res->v.Call.args = NULL;
+    }
+    if (self->v.Call.keywords != NULL) {
+        res->v.Call.keywords = _PyAst_keyword_seq_Copy(self->v.Call.keywords);
+        ERROR_IF_NULL(res->v.Call.keywords);
+    } else {
+        res->v.Call.keywords = NULL;
+    }
+    return res;
+error:
+    Py_XDECREF(res);
+    return NULL;
+}
+
+static void FormattedValue_dealloc(PyObject *self) {
+    expr_ty obj = (expr_ty)self;
+    Py_XDECREF(obj->v.FormattedValue.value);
+    Py_XDECREF(obj->v.FormattedValue.format_spec);
+    Py_TYPE(self)->tp_free(obj);
+}
+static PyMemberDef FormattedValue_members[] = {
+    {"value", _Py_T_OBJECT, offsetof(struct _expr, v.FormattedValue.value),
+      Py_READONLY, NULL},
+    {"conversion", Py_T_INT, offsetof(struct _expr,
+      v.FormattedValue.conversion), Py_READONLY, NULL},
+    {"format_spec", _Py_T_OBJECT, offsetof(struct _expr,
+      v.FormattedValue.format_spec), Py_READONLY, NULL},
+    {0}
+};
+
+static PyType_Slot _FormattedValue_type_slots[] = {
+    {Py_tp_dealloc, &FormattedValue_dealloc},
+{Py_tp_members, FormattedValue_members},
+    {Py_tp_free, PyObject_Free},
+    {Py_tp_doc, "FormattedValue(expr value, int conversion, expr? format_spec)"},
+    {0, 0},
+};
+
+static PyType_Spec _FormattedValue_type_spec = {
+    "ast._FormattedValue",
+    sizeof(struct _expr),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    _FormattedValue_type_slots
+};
+
+
+
+expr_ty _PyAst_FormattedValue_Copy(expr_ty self) {
+    struct ast_state *state = get_ast_state();
+    expr_ty res = PyObject_New(struct _expr, (PyTypeObject
+                               *)state->_FormattedValue_Type);
+    if (res == NULL) {
+        goto error;
+    }
+    if (self->v.FormattedValue.value != NULL) {
+        res->v.FormattedValue.value =
+        _PyAst_expr_Copy(self->v.FormattedValue.value);
+        ERROR_IF_NULL(res->v.FormattedValue.value);
+    } else {
+        res->v.FormattedValue.value = NULL;
+    }
+    res->v.FormattedValue.conversion = self->v.FormattedValue.conversion;
+    if (self->v.FormattedValue.format_spec != NULL) {
+        res->v.FormattedValue.format_spec =
+        _PyAst_expr_Copy(self->v.FormattedValue.format_spec);
+        ERROR_IF_NULL(res->v.FormattedValue.format_spec);
+    } else {
+        res->v.FormattedValue.format_spec = NULL;
+    }
+    return res;
+error:
+    Py_XDECREF(res);
+    return NULL;
+}
+
+static void Interpolation_dealloc(PyObject *self) {
+    expr_ty obj = (expr_ty)self;
+    Py_XDECREF(obj->v.Interpolation.value);
+    Py_XDECREF(obj->v.Interpolation.str);
+    Py_XDECREF(obj->v.Interpolation.format_spec);
+    Py_TYPE(self)->tp_free(obj);
+}
+static PyMemberDef Interpolation_members[] = {
+    {"value", _Py_T_OBJECT, offsetof(struct _expr, v.Interpolation.value),
+      Py_READONLY, NULL},
+    {"str", _Py_T_OBJECT, offsetof(struct _expr, v.Interpolation.str),
+      Py_READONLY, NULL},
+    {"conversion", Py_T_INT, offsetof(struct _expr,
+      v.Interpolation.conversion), Py_READONLY, NULL},
+    {"format_spec", _Py_T_OBJECT, offsetof(struct _expr,
+      v.Interpolation.format_spec), Py_READONLY, NULL},
+    {0}
+};
+
+static PyType_Slot _Interpolation_type_slots[] = {
+    {Py_tp_dealloc, &Interpolation_dealloc},
+{Py_tp_members, Interpolation_members},
+    {Py_tp_free, PyObject_Free},
+    {Py_tp_doc, "Interpolation(expr value, constant str, int conversion, expr? format_spec)"},
+    {0, 0},
+};
+
+static PyType_Spec _Interpolation_type_spec = {
+    "ast._Interpolation",
+    sizeof(struct _expr),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    _Interpolation_type_slots
+};
+
+
+
+expr_ty _PyAst_Interpolation_Copy(expr_ty self) {
+    struct ast_state *state = get_ast_state();
+    expr_ty res = PyObject_New(struct _expr, (PyTypeObject
+                               *)state->_Interpolation_Type);
+    if (res == NULL) {
+        goto error;
+    }
+    if (self->v.Interpolation.value != NULL) {
+        res->v.Interpolation.value =
+        _PyAst_expr_Copy(self->v.Interpolation.value);
+        ERROR_IF_NULL(res->v.Interpolation.value);
+    } else {
+        res->v.Interpolation.value = NULL;
+    }
+    if (self->v.Interpolation.str != NULL) {
+        res->v.Interpolation.str = Py_NewRef(self->v.Interpolation.str);
+        ERROR_IF_NULL(res->v.Interpolation.str);
+    } else {
+        res->v.Interpolation.str = NULL;
+    }
+    res->v.Interpolation.conversion = self->v.Interpolation.conversion;
+    if (self->v.Interpolation.format_spec != NULL) {
+        res->v.Interpolation.format_spec =
+        _PyAst_expr_Copy(self->v.Interpolation.format_spec);
+        ERROR_IF_NULL(res->v.Interpolation.format_spec);
+    } else {
+        res->v.Interpolation.format_spec = NULL;
+    }
+    return res;
+error:
+    Py_XDECREF(res);
+    return NULL;
+}
+
+static void JoinedStr_dealloc(PyObject *self) {
+    expr_ty obj = (expr_ty)self;
+    Py_XDECREF(obj->v.JoinedStr.values);
+    Py_TYPE(self)->tp_free(obj);
+}
+static PyMemberDef JoinedStr_members[] = {
+    {"values", _Py_T_OBJECT, offsetof(struct _expr, v.JoinedStr.values),
+      Py_READONLY, NULL},
+    {0}
+};
+
+static PyType_Slot _JoinedStr_type_slots[] = {
+    {Py_tp_dealloc, &JoinedStr_dealloc},
+{Py_tp_members, JoinedStr_members},
+    {Py_tp_free, PyObject_Free},
+    {Py_tp_doc, "JoinedStr(expr* values)"},
+    {0, 0},
+};
+
+static PyType_Spec _JoinedStr_type_spec = {
+    "ast._JoinedStr",
+    sizeof(struct _expr),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    _JoinedStr_type_slots
+};
+
+
+
+expr_ty _PyAst_JoinedStr_Copy(expr_ty self) {
+    struct ast_state *state = get_ast_state();
+    expr_ty res = PyObject_New(struct _expr, (PyTypeObject
+                               *)state->_JoinedStr_Type);
+    if (res == NULL) {
+        goto error;
+    }
+    if (self->v.JoinedStr.values != NULL) {
+        res->v.JoinedStr.values =
+        _PyAst_expr_seq_Copy(self->v.JoinedStr.values);
+        ERROR_IF_NULL(res->v.JoinedStr.values);
+    } else {
+        res->v.JoinedStr.values = NULL;
+    }
+    return res;
+error:
+    Py_XDECREF(res);
+    return NULL;
+}
+
+static void TemplateStr_dealloc(PyObject *self) {
+    expr_ty obj = (expr_ty)self;
+    Py_XDECREF(obj->v.TemplateStr.values);
+    Py_TYPE(self)->tp_free(obj);
+}
+static PyMemberDef TemplateStr_members[] = {
+    {"values", _Py_T_OBJECT, offsetof(struct _expr, v.TemplateStr.values),
+      Py_READONLY, NULL},
+    {0}
+};
+
+static PyType_Slot _TemplateStr_type_slots[] = {
+    {Py_tp_dealloc, &TemplateStr_dealloc},
+{Py_tp_members, TemplateStr_members},
+    {Py_tp_free, PyObject_Free},
+    {Py_tp_doc, "TemplateStr(expr* values)"},
+    {0, 0},
+};
+
+static PyType_Spec _TemplateStr_type_spec = {
+    "ast._TemplateStr",
+    sizeof(struct _expr),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    _TemplateStr_type_slots
+};
+
+
+
+expr_ty _PyAst_TemplateStr_Copy(expr_ty self) {
+    struct ast_state *state = get_ast_state();
+    expr_ty res = PyObject_New(struct _expr, (PyTypeObject
+                               *)state->_TemplateStr_Type);
+    if (res == NULL) {
+        goto error;
+    }
+    if (self->v.TemplateStr.values != NULL) {
+        res->v.TemplateStr.values =
+        _PyAst_expr_seq_Copy(self->v.TemplateStr.values);
+        ERROR_IF_NULL(res->v.TemplateStr.values);
+    } else {
+        res->v.TemplateStr.values = NULL;
+    }
+    return res;
+error:
+    Py_XDECREF(res);
+    return NULL;
+}
+
+static void Constant_dealloc(PyObject *self) {
+    expr_ty obj = (expr_ty)self;
+    Py_XDECREF(obj->v.Constant.value);
+    Py_XDECREF(obj->v.Constant.kind);
+    Py_TYPE(self)->tp_free(obj);
+}
+static PyMemberDef Constant_members[] = {
+    {"value", _Py_T_OBJECT, offsetof(struct _expr, v.Constant.value),
+      Py_READONLY, NULL},
+    {"kind", _Py_T_OBJECT, offsetof(struct _expr, v.Constant.kind),
+      Py_READONLY, NULL},
+    {0}
+};
+
+static PyType_Slot _Constant_type_slots[] = {
+    {Py_tp_dealloc, &Constant_dealloc},
+{Py_tp_members, Constant_members},
+    {Py_tp_free, PyObject_Free},
+    {Py_tp_doc, "Constant(constant value, string? kind)"},
+    {0, 0},
+};
+
+static PyType_Spec _Constant_type_spec = {
+    "ast._Constant",
+    sizeof(struct _expr),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    _Constant_type_slots
+};
+
+
+
+expr_ty _PyAst_Constant_Copy(expr_ty self) {
+    struct ast_state *state = get_ast_state();
+    expr_ty res = PyObject_New(struct _expr, (PyTypeObject
+                               *)state->_Constant_Type);
+    if (res == NULL) {
+        goto error;
+    }
+    if (self->v.Constant.value != NULL) {
+        res->v.Constant.value = Py_NewRef(self->v.Constant.value);
+        ERROR_IF_NULL(res->v.Constant.value);
+    } else {
+        res->v.Constant.value = NULL;
+    }
+    if (self->v.Constant.kind != NULL) {
+        res->v.Constant.kind = Py_NewRef(self->v.Constant.kind);
+        ERROR_IF_NULL(res->v.Constant.kind);
+    } else {
+        res->v.Constant.kind = NULL;
+    }
+    return res;
+error:
+    Py_XDECREF(res);
+    return NULL;
+}
+
+static void Attribute_dealloc(PyObject *self) {
+    expr_ty obj = (expr_ty)self;
+    Py_XDECREF(obj->v.Attribute.value);
+    Py_XDECREF(obj->v.Attribute.attr);
+    Py_TYPE(self)->tp_free(obj);
+}
+static PyMemberDef Attribute_members[] = {
+    {"value", _Py_T_OBJECT, offsetof(struct _expr, v.Attribute.value),
+      Py_READONLY, NULL},
+    {"attr", _Py_T_OBJECT, offsetof(struct _expr, v.Attribute.attr),
+      Py_READONLY, NULL},
+    {"ctx", Py_T_INT, offsetof(struct _expr, v.Attribute.ctx), Py_READONLY,
+      NULL},
+    {0}
+};
+
+static PyType_Slot _Attribute_type_slots[] = {
+    {Py_tp_dealloc, &Attribute_dealloc},
+{Py_tp_members, Attribute_members},
+    {Py_tp_free, PyObject_Free},
+    {Py_tp_doc, "Attribute(expr value, identifier attr, expr_context ctx)"},
+    {0, 0},
+};
+
+static PyType_Spec _Attribute_type_spec = {
+    "ast._Attribute",
+    sizeof(struct _expr),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    _Attribute_type_slots
+};
+
+
+
+expr_ty _PyAst_Attribute_Copy(expr_ty self) {
+    struct ast_state *state = get_ast_state();
+    expr_ty res = PyObject_New(struct _expr, (PyTypeObject
+                               *)state->_Attribute_Type);
+    if (res == NULL) {
+        goto error;
+    }
+    if (self->v.Attribute.value != NULL) {
+        res->v.Attribute.value = _PyAst_expr_Copy(self->v.Attribute.value);
+        ERROR_IF_NULL(res->v.Attribute.value);
+    } else {
+        res->v.Attribute.value = NULL;
+    }
+    if (self->v.Attribute.attr != NULL) {
+        res->v.Attribute.attr = Py_NewRef(self->v.Attribute.attr);
+        ERROR_IF_NULL(res->v.Attribute.attr);
+    } else {
+        res->v.Attribute.attr = NULL;
+    }
+    res->v.Attribute.ctx = self->v.Attribute.ctx;
+    return res;
+error:
+    Py_XDECREF(res);
+    return NULL;
+}
+
+static void Subscript_dealloc(PyObject *self) {
+    expr_ty obj = (expr_ty)self;
+    Py_XDECREF(obj->v.Subscript.value);
+    Py_XDECREF(obj->v.Subscript.slice);
+    Py_TYPE(self)->tp_free(obj);
+}
+static PyMemberDef Subscript_members[] = {
+    {"value", _Py_T_OBJECT, offsetof(struct _expr, v.Subscript.value),
+      Py_READONLY, NULL},
+    {"slice", _Py_T_OBJECT, offsetof(struct _expr, v.Subscript.slice),
+      Py_READONLY, NULL},
+    {"ctx", Py_T_INT, offsetof(struct _expr, v.Subscript.ctx), Py_READONLY,
+      NULL},
+    {0}
+};
+
+static PyType_Slot _Subscript_type_slots[] = {
+    {Py_tp_dealloc, &Subscript_dealloc},
+{Py_tp_members, Subscript_members},
+    {Py_tp_free, PyObject_Free},
+    {Py_tp_doc, "Subscript(expr value, expr slice, expr_context ctx)"},
+    {0, 0},
+};
+
+static PyType_Spec _Subscript_type_spec = {
+    "ast._Subscript",
+    sizeof(struct _expr),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    _Subscript_type_slots
+};
+
+
+
+expr_ty _PyAst_Subscript_Copy(expr_ty self) {
+    struct ast_state *state = get_ast_state();
+    expr_ty res = PyObject_New(struct _expr, (PyTypeObject
+                               *)state->_Subscript_Type);
+    if (res == NULL) {
+        goto error;
+    }
+    if (self->v.Subscript.value != NULL) {
+        res->v.Subscript.value = _PyAst_expr_Copy(self->v.Subscript.value);
+        ERROR_IF_NULL(res->v.Subscript.value);
+    } else {
+        res->v.Subscript.value = NULL;
+    }
+    if (self->v.Subscript.slice != NULL) {
+        res->v.Subscript.slice = _PyAst_expr_Copy(self->v.Subscript.slice);
+        ERROR_IF_NULL(res->v.Subscript.slice);
+    } else {
+        res->v.Subscript.slice = NULL;
+    }
+    res->v.Subscript.ctx = self->v.Subscript.ctx;
+    return res;
+error:
+    Py_XDECREF(res);
+    return NULL;
+}
+
+static void Starred_dealloc(PyObject *self) {
+    expr_ty obj = (expr_ty)self;
+    Py_XDECREF(obj->v.Starred.value);
+    Py_TYPE(self)->tp_free(obj);
+}
+static PyMemberDef Starred_members[] = {
+    {"value", _Py_T_OBJECT, offsetof(struct _expr, v.Starred.value),
+      Py_READONLY, NULL},
+    {"ctx", Py_T_INT, offsetof(struct _expr, v.Starred.ctx), Py_READONLY, NULL},
+    {0}
+};
+
+static PyType_Slot _Starred_type_slots[] = {
+    {Py_tp_dealloc, &Starred_dealloc},
+{Py_tp_members, Starred_members},
+    {Py_tp_free, PyObject_Free},
+    {Py_tp_doc, "Starred(expr value, expr_context ctx)"},
+    {0, 0},
+};
+
+static PyType_Spec _Starred_type_spec = {
+    "ast._Starred",
+    sizeof(struct _expr),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    _Starred_type_slots
+};
+
+
+
+expr_ty _PyAst_Starred_Copy(expr_ty self) {
+    struct ast_state *state = get_ast_state();
+    expr_ty res = PyObject_New(struct _expr, (PyTypeObject
+                               *)state->_Starred_Type);
+    if (res == NULL) {
+        goto error;
+    }
+    if (self->v.Starred.value != NULL) {
+        res->v.Starred.value = _PyAst_expr_Copy(self->v.Starred.value);
+        ERROR_IF_NULL(res->v.Starred.value);
+    } else {
+        res->v.Starred.value = NULL;
+    }
+    res->v.Starred.ctx = self->v.Starred.ctx;
+    return res;
+error:
+    Py_XDECREF(res);
+    return NULL;
+}
+
+static void Name_dealloc(PyObject *self) {
+    expr_ty obj = (expr_ty)self;
+    Py_XDECREF(obj->v.Name.id);
+    Py_TYPE(self)->tp_free(obj);
+}
+static PyMemberDef Name_members[] = {
+    {"id", _Py_T_OBJECT, offsetof(struct _expr, v.Name.id), Py_READONLY, NULL},
+    {"ctx", Py_T_INT, offsetof(struct _expr, v.Name.ctx), Py_READONLY, NULL},
+    {0}
+};
+
+static PyType_Slot _Name_type_slots[] = {
+    {Py_tp_dealloc, &Name_dealloc},
+{Py_tp_members, Name_members},
+    {Py_tp_free, PyObject_Free},
+    {Py_tp_doc, "Name(identifier id, expr_context ctx)"},
+    {0, 0},
+};
+
+static PyType_Spec _Name_type_spec = {
+    "ast._Name",
+    sizeof(struct _expr),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    _Name_type_slots
+};
+
+
+
+expr_ty _PyAst_Name_Copy(expr_ty self) {
+    struct ast_state *state = get_ast_state();
+    expr_ty res = PyObject_New(struct _expr, (PyTypeObject *)state->_Name_Type);
+    if (res == NULL) {
+        goto error;
+    }
+    if (self->v.Name.id != NULL) {
+        res->v.Name.id = Py_NewRef(self->v.Name.id);
+        ERROR_IF_NULL(res->v.Name.id);
+    } else {
+        res->v.Name.id = NULL;
+    }
+    res->v.Name.ctx = self->v.Name.ctx;
+    return res;
+error:
+    Py_XDECREF(res);
+    return NULL;
+}
+
+static void List_dealloc(PyObject *self) {
+    expr_ty obj = (expr_ty)self;
+    Py_XDECREF(obj->v.List.elts);
+    Py_TYPE(self)->tp_free(obj);
+}
+static PyMemberDef List_members[] = {
+    {"elts", _Py_T_OBJECT, offsetof(struct _expr, v.List.elts), Py_READONLY,
+      NULL},
+    {"ctx", Py_T_INT, offsetof(struct _expr, v.List.ctx), Py_READONLY, NULL},
+    {0}
+};
+
+static PyType_Slot _List_type_slots[] = {
+    {Py_tp_dealloc, &List_dealloc},
+{Py_tp_members, List_members},
+    {Py_tp_free, PyObject_Free},
+    {Py_tp_doc, "List(expr* elts, expr_context ctx)"},
+    {0, 0},
+};
+
+static PyType_Spec _List_type_spec = {
+    "ast._List",
+    sizeof(struct _expr),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    _List_type_slots
+};
+
+
+
+expr_ty _PyAst_List_Copy(expr_ty self) {
+    struct ast_state *state = get_ast_state();
+    expr_ty res = PyObject_New(struct _expr, (PyTypeObject *)state->_List_Type);
+    if (res == NULL) {
+        goto error;
+    }
+    if (self->v.List.elts != NULL) {
+        res->v.List.elts = _PyAst_expr_seq_Copy(self->v.List.elts);
+        ERROR_IF_NULL(res->v.List.elts);
+    } else {
+        res->v.List.elts = NULL;
+    }
+    res->v.List.ctx = self->v.List.ctx;
+    return res;
+error:
+    Py_XDECREF(res);
+    return NULL;
+}
+
+static void Tuple_dealloc(PyObject *self) {
+    expr_ty obj = (expr_ty)self;
+    Py_XDECREF(obj->v.Tuple.elts);
+    Py_TYPE(self)->tp_free(obj);
+}
+static PyMemberDef Tuple_members[] = {
+    {"elts", _Py_T_OBJECT, offsetof(struct _expr, v.Tuple.elts), Py_READONLY,
+      NULL},
+    {"ctx", Py_T_INT, offsetof(struct _expr, v.Tuple.ctx), Py_READONLY, NULL},
+    {0}
+};
+
+static PyType_Slot _Tuple_type_slots[] = {
+    {Py_tp_dealloc, &Tuple_dealloc},
+{Py_tp_members, Tuple_members},
+    {Py_tp_free, PyObject_Free},
+    {Py_tp_doc, "Tuple(expr* elts, expr_context ctx)"},
+    {0, 0},
+};
+
+static PyType_Spec _Tuple_type_spec = {
+    "ast._Tuple",
+    sizeof(struct _expr),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    _Tuple_type_slots
+};
+
+
+
+expr_ty _PyAst_Tuple_Copy(expr_ty self) {
+    struct ast_state *state = get_ast_state();
+    expr_ty res = PyObject_New(struct _expr, (PyTypeObject
+                               *)state->_Tuple_Type);
+    if (res == NULL) {
+        goto error;
+    }
+    if (self->v.Tuple.elts != NULL) {
+        res->v.Tuple.elts = _PyAst_expr_seq_Copy(self->v.Tuple.elts);
+        ERROR_IF_NULL(res->v.Tuple.elts);
+    } else {
+        res->v.Tuple.elts = NULL;
+    }
+    res->v.Tuple.ctx = self->v.Tuple.ctx;
+    return res;
+error:
+    Py_XDECREF(res);
+    return NULL;
+}
+
+static void Slice_dealloc(PyObject *self) {
+    expr_ty obj = (expr_ty)self;
+    Py_XDECREF(obj->v.Slice.lower);
+    Py_XDECREF(obj->v.Slice.upper);
+    Py_XDECREF(obj->v.Slice.step);
+    Py_TYPE(self)->tp_free(obj);
+}
+static PyMemberDef Slice_members[] = {
+    {"lower", _Py_T_OBJECT, offsetof(struct _expr, v.Slice.lower), Py_READONLY,
+      NULL},
+    {"upper", _Py_T_OBJECT, offsetof(struct _expr, v.Slice.upper), Py_READONLY,
+      NULL},
+    {"step", _Py_T_OBJECT, offsetof(struct _expr, v.Slice.step), Py_READONLY,
+      NULL},
+    {0}
+};
+
+static PyType_Slot _Slice_type_slots[] = {
+    {Py_tp_dealloc, &Slice_dealloc},
+{Py_tp_members, Slice_members},
+    {Py_tp_free, PyObject_Free},
+    {Py_tp_doc, "Slice(expr? lower, expr? upper, expr? step)"},
+    {0, 0},
+};
+
+static PyType_Spec _Slice_type_spec = {
+    "ast._Slice",
+    sizeof(struct _expr),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    _Slice_type_slots
+};
+
+
+
+expr_ty _PyAst_Slice_Copy(expr_ty self) {
+    struct ast_state *state = get_ast_state();
+    expr_ty res = PyObject_New(struct _expr, (PyTypeObject
+                               *)state->_Slice_Type);
+    if (res == NULL) {
+        goto error;
+    }
+    if (self->v.Slice.lower != NULL) {
+        res->v.Slice.lower = _PyAst_expr_Copy(self->v.Slice.lower);
+        ERROR_IF_NULL(res->v.Slice.lower);
+    } else {
+        res->v.Slice.lower = NULL;
+    }
+    if (self->v.Slice.upper != NULL) {
+        res->v.Slice.upper = _PyAst_expr_Copy(self->v.Slice.upper);
+        ERROR_IF_NULL(res->v.Slice.upper);
+    } else {
+        res->v.Slice.upper = NULL;
+    }
+    if (self->v.Slice.step != NULL) {
+        res->v.Slice.step = _PyAst_expr_Copy(self->v.Slice.step);
+        ERROR_IF_NULL(res->v.Slice.step);
+    } else {
+        res->v.Slice.step = NULL;
+    }
+    return res;
+error:
+    Py_XDECREF(res);
+    return NULL;
+}
+
+
+expr_ty _PyAst_expr_Copy(expr_ty node) {
+    switch (node->kind) {
+        case BoolOp_kind:
+            return _PyAst_BoolOp_Copy(node);
+        case NamedExpr_kind:
+            return _PyAst_NamedExpr_Copy(node);
+        case BinOp_kind:
+            return _PyAst_BinOp_Copy(node);
+        case UnaryOp_kind:
+            return _PyAst_UnaryOp_Copy(node);
+        case Lambda_kind:
+            return _PyAst_Lambda_Copy(node);
+        case IfExp_kind:
+            return _PyAst_IfExp_Copy(node);
+        case Dict_kind:
+            return _PyAst_Dict_Copy(node);
+        case Set_kind:
+            return _PyAst_Set_Copy(node);
+        case ListComp_kind:
+            return _PyAst_ListComp_Copy(node);
+        case SetComp_kind:
+            return _PyAst_SetComp_Copy(node);
+        case DictComp_kind:
+            return _PyAst_DictComp_Copy(node);
+        case GeneratorExp_kind:
+            return _PyAst_GeneratorExp_Copy(node);
+        case Await_kind:
+            return _PyAst_Await_Copy(node);
+        case Yield_kind:
+            return _PyAst_Yield_Copy(node);
+        case YieldFrom_kind:
+            return _PyAst_YieldFrom_Copy(node);
+        case Compare_kind:
+            return _PyAst_Compare_Copy(node);
+        case Call_kind:
+            return _PyAst_Call_Copy(node);
+        case FormattedValue_kind:
+            return _PyAst_FormattedValue_Copy(node);
+        case Interpolation_kind:
+            return _PyAst_Interpolation_Copy(node);
+        case JoinedStr_kind:
+            return _PyAst_JoinedStr_Copy(node);
+        case TemplateStr_kind:
+            return _PyAst_TemplateStr_Copy(node);
+        case Constant_kind:
+            return _PyAst_Constant_Copy(node);
+        case Attribute_kind:
+            return _PyAst_Attribute_Copy(node);
+        case Subscript_kind:
+            return _PyAst_Subscript_Copy(node);
+        case Starred_kind:
+            return _PyAst_Starred_Copy(node);
+        case Name_kind:
+            return _PyAst_Name_Copy(node);
+        case List_kind:
+            return _PyAst_List_Copy(node);
+        case Tuple_kind:
+            return _PyAst_Tuple_Copy(node);
+        case Slice_kind:
+            return _PyAst_Slice_Copy(node);
+    }
+    return NULL;
+}
+
+static void expr_dealloc(PyObject *self) {
+    expr_ty obj = (expr_ty)self;
+    Py_TYPE(self)->tp_free(obj);
+}
+static PyMemberDef expr_members[] = {
+    {0}
+};
+
+static PyType_Slot _expr_type_slots[] = {
+    {Py_tp_dealloc, &expr_dealloc},
+{Py_tp_members, expr_members},
+    {Py_tp_free, PyObject_Free},
+    {Py_tp_doc, "expr = BoolOp(boolop op, expr* values)\n"
+        "     | NamedExpr(expr target, expr value)\n"
+        "     | BinOp(expr left, operator op, expr right)\n"
+        "     | UnaryOp(unaryop op, expr operand)\n"
+        "     | Lambda(arguments args, expr body)\n"
+        "     | IfExp(expr test, expr body, expr orelse)\n"
+        "     | Dict(expr?* keys, expr* values)\n"
+        "     | Set(expr* elts)\n"
+        "     | ListComp(expr elt, comprehension* generators)\n"
+        "     | SetComp(expr elt, comprehension* generators)\n"
+        "     | DictComp(expr key, expr value, comprehension* generators)\n"
+        "     | GeneratorExp(expr elt, comprehension* generators)\n"
+        "     | Await(expr value)\n"
+        "     | Yield(expr? value)\n"
+        "     | YieldFrom(expr value)\n"
+        "     | Compare(expr left, cmpop* ops, expr* comparators)\n"
+        "     | Call(expr func, expr* args, keyword* keywords)\n"
+        "     | FormattedValue(expr value, int conversion, expr? format_spec)\n"
+        "     | Interpolation(expr value, constant str, int conversion, expr? format_spec)\n"
+        "     | JoinedStr(expr* values)\n"
+        "     | TemplateStr(expr* values)\n"
+        "     | Constant(constant value, string? kind)\n"
+        "     | Attribute(expr value, identifier attr, expr_context ctx)\n"
+        "     | Subscript(expr value, expr slice, expr_context ctx)\n"
+        "     | Starred(expr value, expr_context ctx)\n"
+        "     | Name(identifier id, expr_context ctx)\n"
+        "     | List(expr* elts, expr_context ctx)\n"
+        "     | Tuple(expr* elts, expr_context ctx)\n"
+        "     | Slice(expr? lower, expr? upper, expr? step)"},
+    {0, 0},
+};
+
+static PyType_Spec _expr_type_spec = {
+    "ast._expr",
+    sizeof(struct _expr),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    _expr_type_slots
+};
+
+
+
+static void expr_seq_dealloc(PyObject *self) {
+    asdl_expr_seq *obj = (asdl_expr_seq *)self;
+    for (Py_ssize_t i = 0; i < obj->size; i++) {
+        PyObject *value = (PyObject *)obj->typed_elements[i];
+        if (value) {
+            Py_DECREF(value);
+        }
+    }
+    Py_TYPE(self)->tp_free(obj);
+}
+
+PyTypeObject _expr_seq_Type = {
+    .tp_name="expr_seq",
+    .tp_basicsize=sizeof(asdl_expr_seq) - sizeof(expr_ty),
+    .tp_itemsize=sizeof(expr_ty),
+    .tp_dealloc = &expr_seq_dealloc,
+    .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
+    .tp_free = PyObject_Free,
+
+    .tp_as_sequence = &ast_sequence_methods,
+    .tp_as_mapping = &ast_mapping_methods,
+};
+
+asdl_expr_seq *_PyAst_expr_seq_Copy(asdl_expr_seq *seq) {
+    asdl_expr_seq *res = PyObject_NewVar(asdl_expr_seq, &_expr_seq_Type, seq->size);
+    if (res == NULL) {
+        goto error;
+    }
+    res->size = seq->size;
+    res->elements = (void**)&res->typed_elements[0];
+    for (Py_ssize_t i = 0; i < seq->size; i++) {
+        if (seq->typed_elements[i] != NULL) {
+            res->typed_elements[i] = _PyAst_expr_Copy(seq->typed_elements[i]);
+            ERROR_IF_NULL(res->typed_elements[i]);
+        } else {
+            res->typed_elements[i] = NULL;
+        }
+    }
+    return res;
+    error:
+    Py_XDECREF(res);
+    return NULL;
+}
+
+static void comprehension_seq_dealloc(PyObject *self) {
+    asdl_comprehension_seq *obj = (asdl_comprehension_seq *)self;
+    for (Py_ssize_t i = 0; i < obj->size; i++) {
+        PyObject *value = (PyObject *)obj->typed_elements[i];
+        if (value) {
+            Py_DECREF(value);
+        }
+    }
+    Py_TYPE(self)->tp_free(obj);
+}
+
+PyTypeObject _comprehension_seq_Type = {
+    .tp_name="comprehension_seq",
+    .tp_basicsize=sizeof(asdl_comprehension_seq) - sizeof(comprehension_ty),
+    .tp_itemsize=sizeof(comprehension_ty),
+    .tp_dealloc = &comprehension_seq_dealloc,
+    .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
+    .tp_free = PyObject_Free,
+
+    .tp_as_sequence = &ast_sequence_methods,
+    .tp_as_mapping = &ast_mapping_methods,
+};
+
+asdl_comprehension_seq *_PyAst_comprehension_seq_Copy(asdl_comprehension_seq
+                                                      *seq) {
+    asdl_comprehension_seq *res = PyObject_NewVar(asdl_comprehension_seq, &_comprehension_seq_Type, seq->size);
+    if (res == NULL) {
+        goto error;
+    }
+    res->size = seq->size;
+    res->elements = (void**)&res->typed_elements[0];
+    for (Py_ssize_t i = 0; i < seq->size; i++) {
+        if (seq->typed_elements[i] != NULL) {
+            res->typed_elements[i] =
+            _PyAst_comprehension_Copy(seq->typed_elements[i]);
+            ERROR_IF_NULL(res->typed_elements[i]);
+        } else {
+            res->typed_elements[i] = NULL;
+        }
+    }
+    return res;
+    error:
+    Py_XDECREF(res);
+    return NULL;
+}
+
+static void comprehension_dealloc(PyObject *self) {
+    comprehension_ty obj = (comprehension_ty)self;
+    Py_XDECREF(obj->target);
+    Py_XDECREF(obj->iter);
+    Py_XDECREF(obj->ifs);
+    Py_TYPE(self)->tp_free(obj);
+}
+static PyMemberDef comprehension_members[] = {
+    {0}
+};
+
+static PyType_Slot _comprehension_type_slots[] = {
+    {Py_tp_dealloc, &comprehension_dealloc},
+{Py_tp_members, comprehension_members},
+    {Py_tp_free, PyObject_Free},
+    {Py_tp_doc, "comprehension(expr target, expr iter, expr* ifs, int is_async)"},
+    {0, 0},
+};
+
+static PyType_Spec _comprehension_type_spec = {
+    "ast._comprehension",
+    sizeof(struct _comprehension),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    _comprehension_type_slots
+};
+
+
+
+comprehension_ty _PyAst_comprehension_Copy(comprehension_ty self) {
+    struct ast_state *state = get_ast_state();
+    comprehension_ty res = PyObject_New(struct _comprehension, (PyTypeObject
+                                        *)state->_comprehension_Type);
+    if (res == NULL) {
+        goto error;
+    }
+    if (self->target != NULL) {
+        res->target = _PyAst_expr_Copy(self->target);
+        ERROR_IF_NULL(res->target);
+    } else {
+        res->target = NULL;
+    }
+    if (self->iter != NULL) {
+        res->iter = _PyAst_expr_Copy(self->iter);
+        ERROR_IF_NULL(res->iter);
+    } else {
+        res->iter = NULL;
+    }
+    if (self->ifs != NULL) {
+        res->ifs = _PyAst_expr_seq_Copy(self->ifs);
+        ERROR_IF_NULL(res->ifs);
+    } else {
+        res->ifs = NULL;
+    }
+    res->is_async = self->is_async;
+    return res;
+error:
+    Py_XDECREF(res);
+    return NULL;
+}
+
+static void ExceptHandler_dealloc(PyObject *self) {
+    excepthandler_ty obj = (excepthandler_ty)self;
+    Py_XDECREF(obj->v.ExceptHandler.type);
+    Py_XDECREF(obj->v.ExceptHandler.name);
+    Py_XDECREF(obj->v.ExceptHandler.body);
+    Py_TYPE(self)->tp_free(obj);
+}
+static PyMemberDef ExceptHandler_members[] = {
+    {"type", _Py_T_OBJECT, offsetof(struct _excepthandler,
+      v.ExceptHandler.type), Py_READONLY, NULL},
+    {"name", _Py_T_OBJECT, offsetof(struct _excepthandler,
+      v.ExceptHandler.name), Py_READONLY, NULL},
+    {"body", _Py_T_OBJECT, offsetof(struct _excepthandler,
+      v.ExceptHandler.body), Py_READONLY, NULL},
+    {0}
+};
+
+static PyType_Slot _ExceptHandler_type_slots[] = {
+    {Py_tp_dealloc, &ExceptHandler_dealloc},
+{Py_tp_members, ExceptHandler_members},
+    {Py_tp_free, PyObject_Free},
+    {Py_tp_doc, "ExceptHandler(expr? type, identifier? name, stmt* body)"},
+    {0, 0},
+};
+
+static PyType_Spec _ExceptHandler_type_spec = {
+    "ast._ExceptHandler",
+    sizeof(struct _excepthandler),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    _ExceptHandler_type_slots
+};
+
+
+
+excepthandler_ty _PyAst_ExceptHandler_Copy(excepthandler_ty self) {
+    struct ast_state *state = get_ast_state();
+    excepthandler_ty res = PyObject_New(struct _excepthandler, (PyTypeObject
+                                        *)state->_ExceptHandler_Type);
+    if (res == NULL) {
+        goto error;
+    }
+    if (self->v.ExceptHandler.type != NULL) {
+        res->v.ExceptHandler.type =
+        _PyAst_expr_Copy(self->v.ExceptHandler.type);
+        ERROR_IF_NULL(res->v.ExceptHandler.type);
+    } else {
+        res->v.ExceptHandler.type = NULL;
+    }
+    if (self->v.ExceptHandler.name != NULL) {
+        res->v.ExceptHandler.name = Py_NewRef(self->v.ExceptHandler.name);
+        ERROR_IF_NULL(res->v.ExceptHandler.name);
+    } else {
+        res->v.ExceptHandler.name = NULL;
+    }
+    if (self->v.ExceptHandler.body != NULL) {
+        res->v.ExceptHandler.body =
+        _PyAst_stmt_seq_Copy(self->v.ExceptHandler.body);
+        ERROR_IF_NULL(res->v.ExceptHandler.body);
+    } else {
+        res->v.ExceptHandler.body = NULL;
+    }
+    return res;
+error:
+    Py_XDECREF(res);
+    return NULL;
+}
+
+
+excepthandler_ty _PyAst_excepthandler_Copy(excepthandler_ty node) {
+    switch (node->kind) {
+        case ExceptHandler_kind:
+            return _PyAst_ExceptHandler_Copy(node);
+    }
+    return NULL;
+}
+
+static void excepthandler_dealloc(PyObject *self) {
+    excepthandler_ty obj = (excepthandler_ty)self;
+    Py_TYPE(self)->tp_free(obj);
+}
+static PyMemberDef excepthandler_members[] = {
+    {0}
+};
+
+static PyType_Slot _excepthandler_type_slots[] = {
+    {Py_tp_dealloc, &excepthandler_dealloc},
+{Py_tp_members, excepthandler_members},
+    {Py_tp_free, PyObject_Free},
+    {Py_tp_doc, "excepthandler = ExceptHandler(expr? type, identifier? name, stmt* body)"},
+    {0, 0},
+};
+
+static PyType_Spec _excepthandler_type_spec = {
+    "ast._excepthandler",
+    sizeof(struct _excepthandler),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    _excepthandler_type_slots
+};
+
+
+
+static void excepthandler_seq_dealloc(PyObject *self) {
+    asdl_excepthandler_seq *obj = (asdl_excepthandler_seq *)self;
+    for (Py_ssize_t i = 0; i < obj->size; i++) {
+        PyObject *value = (PyObject *)obj->typed_elements[i];
+        if (value) {
+            Py_DECREF(value);
+        }
+    }
+    Py_TYPE(self)->tp_free(obj);
+}
+
+PyTypeObject _excepthandler_seq_Type = {
+    .tp_name="excepthandler_seq",
+    .tp_basicsize=sizeof(asdl_excepthandler_seq) - sizeof(excepthandler_ty),
+    .tp_itemsize=sizeof(excepthandler_ty),
+    .tp_dealloc = &excepthandler_seq_dealloc,
+    .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
+    .tp_free = PyObject_Free,
+
+    .tp_as_sequence = &ast_sequence_methods,
+    .tp_as_mapping = &ast_mapping_methods,
+};
+
+asdl_excepthandler_seq *_PyAst_excepthandler_seq_Copy(asdl_excepthandler_seq
+                                                      *seq) {
+    asdl_excepthandler_seq *res = PyObject_NewVar(asdl_excepthandler_seq, &_excepthandler_seq_Type, seq->size);
+    if (res == NULL) {
+        goto error;
+    }
+    res->size = seq->size;
+    res->elements = (void**)&res->typed_elements[0];
+    for (Py_ssize_t i = 0; i < seq->size; i++) {
+        if (seq->typed_elements[i] != NULL) {
+            res->typed_elements[i] =
+            _PyAst_excepthandler_Copy(seq->typed_elements[i]);
+            ERROR_IF_NULL(res->typed_elements[i]);
+        } else {
+            res->typed_elements[i] = NULL;
+        }
+    }
+    return res;
+    error:
+    Py_XDECREF(res);
+    return NULL;
+}
+
+static void arguments_seq_dealloc(PyObject *self) {
+    asdl_arguments_seq *obj = (asdl_arguments_seq *)self;
+    for (Py_ssize_t i = 0; i < obj->size; i++) {
+        PyObject *value = (PyObject *)obj->typed_elements[i];
+        if (value) {
+            Py_DECREF(value);
+        }
+    }
+    Py_TYPE(self)->tp_free(obj);
+}
+
+PyTypeObject _arguments_seq_Type = {
+    .tp_name="arguments_seq",
+    .tp_basicsize=sizeof(asdl_arguments_seq) - sizeof(arguments_ty),
+    .tp_itemsize=sizeof(arguments_ty),
+    .tp_dealloc = &arguments_seq_dealloc,
+    .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
+    .tp_free = PyObject_Free,
+
+    .tp_as_sequence = &ast_sequence_methods,
+    .tp_as_mapping = &ast_mapping_methods,
+};
+
+asdl_arguments_seq *_PyAst_arguments_seq_Copy(asdl_arguments_seq *seq) {
+    asdl_arguments_seq *res = PyObject_NewVar(asdl_arguments_seq, &_arguments_seq_Type, seq->size);
+    if (res == NULL) {
+        goto error;
+    }
+    res->size = seq->size;
+    res->elements = (void**)&res->typed_elements[0];
+    for (Py_ssize_t i = 0; i < seq->size; i++) {
+        if (seq->typed_elements[i] != NULL) {
+            res->typed_elements[i] =
+            _PyAst_arguments_Copy(seq->typed_elements[i]);
+            ERROR_IF_NULL(res->typed_elements[i]);
+        } else {
+            res->typed_elements[i] = NULL;
+        }
+    }
+    return res;
+    error:
+    Py_XDECREF(res);
+    return NULL;
+}
+
+static void arguments_dealloc(PyObject *self) {
+    arguments_ty obj = (arguments_ty)self;
+    Py_XDECREF(obj->posonlyargs);
+    Py_XDECREF(obj->args);
+    Py_XDECREF(obj->vararg);
+    Py_XDECREF(obj->kwonlyargs);
+    Py_XDECREF(obj->kw_defaults);
+    Py_XDECREF(obj->kwarg);
+    Py_XDECREF(obj->defaults);
+    Py_TYPE(self)->tp_free(obj);
+}
+static PyMemberDef arguments_members[] = {
+    {0}
+};
+
+static PyType_Slot _arguments_type_slots[] = {
+    {Py_tp_dealloc, &arguments_dealloc},
+{Py_tp_members, arguments_members},
+    {Py_tp_free, PyObject_Free},
+    {Py_tp_doc, "arguments(arg* posonlyargs, arg* args, arg? vararg, arg* kwonlyargs, expr* kw_defaults, arg? kwarg, expr* defaults)"},
+    {0, 0},
+};
+
+static PyType_Spec _arguments_type_spec = {
+    "ast._arguments",
+    sizeof(struct _arguments),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    _arguments_type_slots
+};
+
+
+
+arguments_ty _PyAst_arguments_Copy(arguments_ty self) {
+    struct ast_state *state = get_ast_state();
+    arguments_ty res = PyObject_New(struct _arguments, (PyTypeObject
+                                    *)state->_arguments_Type);
+    if (res == NULL) {
+        goto error;
+    }
+    if (self->posonlyargs != NULL) {
+        res->posonlyargs = _PyAst_arg_seq_Copy(self->posonlyargs);
+        ERROR_IF_NULL(res->posonlyargs);
+    } else {
+        res->posonlyargs = NULL;
+    }
+    if (self->args != NULL) {
+        res->args = _PyAst_arg_seq_Copy(self->args);
+        ERROR_IF_NULL(res->args);
+    } else {
+        res->args = NULL;
+    }
+    if (self->vararg != NULL) {
+        res->vararg = _PyAst_arg_Copy(self->vararg);
+        ERROR_IF_NULL(res->vararg);
+    } else {
+        res->vararg = NULL;
+    }
+    if (self->kwonlyargs != NULL) {
+        res->kwonlyargs = _PyAst_arg_seq_Copy(self->kwonlyargs);
+        ERROR_IF_NULL(res->kwonlyargs);
+    } else {
+        res->kwonlyargs = NULL;
+    }
+    if (self->kw_defaults != NULL) {
+        res->kw_defaults = _PyAst_expr_seq_Copy(self->kw_defaults);
+        ERROR_IF_NULL(res->kw_defaults);
+    } else {
+        res->kw_defaults = NULL;
+    }
+    if (self->kwarg != NULL) {
+        res->kwarg = _PyAst_arg_Copy(self->kwarg);
+        ERROR_IF_NULL(res->kwarg);
+    } else {
+        res->kwarg = NULL;
+    }
+    if (self->defaults != NULL) {
+        res->defaults = _PyAst_expr_seq_Copy(self->defaults);
+        ERROR_IF_NULL(res->defaults);
+    } else {
+        res->defaults = NULL;
+    }
+    return res;
+error:
+    Py_XDECREF(res);
+    return NULL;
+}
+
+static void arg_seq_dealloc(PyObject *self) {
+    asdl_arg_seq *obj = (asdl_arg_seq *)self;
+    for (Py_ssize_t i = 0; i < obj->size; i++) {
+        PyObject *value = (PyObject *)obj->typed_elements[i];
+        if (value) {
+            Py_DECREF(value);
+        }
+    }
+    Py_TYPE(self)->tp_free(obj);
+}
+
+PyTypeObject _arg_seq_Type = {
+    .tp_name="arg_seq",
+    .tp_basicsize=sizeof(asdl_arg_seq) - sizeof(arg_ty),
+    .tp_itemsize=sizeof(arg_ty),
+    .tp_dealloc = &arg_seq_dealloc,
+    .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
+    .tp_free = PyObject_Free,
+
+    .tp_as_sequence = &ast_sequence_methods,
+    .tp_as_mapping = &ast_mapping_methods,
+};
+
+asdl_arg_seq *_PyAst_arg_seq_Copy(asdl_arg_seq *seq) {
+    asdl_arg_seq *res = PyObject_NewVar(asdl_arg_seq, &_arg_seq_Type, seq->size);
+    if (res == NULL) {
+        goto error;
+    }
+    res->size = seq->size;
+    res->elements = (void**)&res->typed_elements[0];
+    for (Py_ssize_t i = 0; i < seq->size; i++) {
+        if (seq->typed_elements[i] != NULL) {
+            res->typed_elements[i] = _PyAst_arg_Copy(seq->typed_elements[i]);
+            ERROR_IF_NULL(res->typed_elements[i]);
+        } else {
+            res->typed_elements[i] = NULL;
+        }
+    }
+    return res;
+    error:
+    Py_XDECREF(res);
+    return NULL;
+}
+
+static void arg_dealloc(PyObject *self) {
+    arg_ty obj = (arg_ty)self;
+    Py_XDECREF(obj->arg);
+    Py_XDECREF(obj->annotation);
+    Py_XDECREF(obj->type_comment);
+    Py_TYPE(self)->tp_free(obj);
+}
+static PyMemberDef arg_members[] = {
+    {0}
+};
+
+static PyType_Slot _arg_type_slots[] = {
+    {Py_tp_dealloc, &arg_dealloc},
+{Py_tp_members, arg_members},
+    {Py_tp_free, PyObject_Free},
+    {Py_tp_doc, "arg(identifier arg, expr? annotation, string? type_comment)"},
+    {0, 0},
+};
+
+static PyType_Spec _arg_type_spec = {
+    "ast._arg",
+    sizeof(struct _arg),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    _arg_type_slots
+};
+
+
+
+arg_ty _PyAst_arg_Copy(arg_ty self) {
+    struct ast_state *state = get_ast_state();
+    arg_ty res = PyObject_New(struct _arg, (PyTypeObject *)state->_arg_Type);
+    if (res == NULL) {
+        goto error;
+    }
+    if (self->arg != NULL) {
+        res->arg = Py_NewRef(self->arg);
+        ERROR_IF_NULL(res->arg);
+    } else {
+        res->arg = NULL;
+    }
+    if (self->annotation != NULL) {
+        res->annotation = _PyAst_expr_Copy(self->annotation);
+        ERROR_IF_NULL(res->annotation);
+    } else {
+        res->annotation = NULL;
+    }
+    if (self->type_comment != NULL) {
+        res->type_comment = Py_NewRef(self->type_comment);
+        ERROR_IF_NULL(res->type_comment);
+    } else {
+        res->type_comment = NULL;
+    }
+    return res;
+error:
+    Py_XDECREF(res);
+    return NULL;
+}
+
+static void keyword_seq_dealloc(PyObject *self) {
+    asdl_keyword_seq *obj = (asdl_keyword_seq *)self;
+    for (Py_ssize_t i = 0; i < obj->size; i++) {
+        PyObject *value = (PyObject *)obj->typed_elements[i];
+        if (value) {
+            Py_DECREF(value);
+        }
+    }
+    Py_TYPE(self)->tp_free(obj);
+}
+
+PyTypeObject _keyword_seq_Type = {
+    .tp_name="keyword_seq",
+    .tp_basicsize=sizeof(asdl_keyword_seq) - sizeof(keyword_ty),
+    .tp_itemsize=sizeof(keyword_ty),
+    .tp_dealloc = &keyword_seq_dealloc,
+    .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
+    .tp_free = PyObject_Free,
+
+    .tp_as_sequence = &ast_sequence_methods,
+    .tp_as_mapping = &ast_mapping_methods,
+};
+
+asdl_keyword_seq *_PyAst_keyword_seq_Copy(asdl_keyword_seq *seq) {
+    asdl_keyword_seq *res = PyObject_NewVar(asdl_keyword_seq, &_keyword_seq_Type, seq->size);
+    if (res == NULL) {
+        goto error;
+    }
+    res->size = seq->size;
+    res->elements = (void**)&res->typed_elements[0];
+    for (Py_ssize_t i = 0; i < seq->size; i++) {
+        if (seq->typed_elements[i] != NULL) {
+            res->typed_elements[i] =
+            _PyAst_keyword_Copy(seq->typed_elements[i]);
+            ERROR_IF_NULL(res->typed_elements[i]);
+        } else {
+            res->typed_elements[i] = NULL;
+        }
+    }
+    return res;
+    error:
+    Py_XDECREF(res);
+    return NULL;
+}
+
+static void keyword_dealloc(PyObject *self) {
+    keyword_ty obj = (keyword_ty)self;
+    Py_XDECREF(obj->arg);
+    Py_XDECREF(obj->value);
+    Py_TYPE(self)->tp_free(obj);
+}
+static PyMemberDef keyword_members[] = {
+    {0}
+};
+
+static PyType_Slot _keyword_type_slots[] = {
+    {Py_tp_dealloc, &keyword_dealloc},
+{Py_tp_members, keyword_members},
+    {Py_tp_free, PyObject_Free},
+    {Py_tp_doc, "keyword(identifier? arg, expr value)"},
+    {0, 0},
+};
+
+static PyType_Spec _keyword_type_spec = {
+    "ast._keyword",
+    sizeof(struct _keyword),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    _keyword_type_slots
+};
+
+
+
+keyword_ty _PyAst_keyword_Copy(keyword_ty self) {
+    struct ast_state *state = get_ast_state();
+    keyword_ty res = PyObject_New(struct _keyword, (PyTypeObject
+                                  *)state->_keyword_Type);
+    if (res == NULL) {
+        goto error;
+    }
+    if (self->arg != NULL) {
+        res->arg = Py_NewRef(self->arg);
+        ERROR_IF_NULL(res->arg);
+    } else {
+        res->arg = NULL;
+    }
+    if (self->value != NULL) {
+        res->value = _PyAst_expr_Copy(self->value);
+        ERROR_IF_NULL(res->value);
+    } else {
+        res->value = NULL;
+    }
+    return res;
+error:
+    Py_XDECREF(res);
+    return NULL;
+}
+
+static void alias_seq_dealloc(PyObject *self) {
+    asdl_alias_seq *obj = (asdl_alias_seq *)self;
+    for (Py_ssize_t i = 0; i < obj->size; i++) {
+        PyObject *value = (PyObject *)obj->typed_elements[i];
+        if (value) {
+            Py_DECREF(value);
+        }
+    }
+    Py_TYPE(self)->tp_free(obj);
+}
+
+PyTypeObject _alias_seq_Type = {
+    .tp_name="alias_seq",
+    .tp_basicsize=sizeof(asdl_alias_seq) - sizeof(alias_ty),
+    .tp_itemsize=sizeof(alias_ty),
+    .tp_dealloc = &alias_seq_dealloc,
+    .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
+    .tp_free = PyObject_Free,
+
+    .tp_as_sequence = &ast_sequence_methods,
+    .tp_as_mapping = &ast_mapping_methods,
+};
+
+asdl_alias_seq *_PyAst_alias_seq_Copy(asdl_alias_seq *seq) {
+    asdl_alias_seq *res = PyObject_NewVar(asdl_alias_seq, &_alias_seq_Type, seq->size);
+    if (res == NULL) {
+        goto error;
+    }
+    res->size = seq->size;
+    res->elements = (void**)&res->typed_elements[0];
+    for (Py_ssize_t i = 0; i < seq->size; i++) {
+        if (seq->typed_elements[i] != NULL) {
+            res->typed_elements[i] = _PyAst_alias_Copy(seq->typed_elements[i]);
+            ERROR_IF_NULL(res->typed_elements[i]);
+        } else {
+            res->typed_elements[i] = NULL;
+        }
+    }
+    return res;
+    error:
+    Py_XDECREF(res);
+    return NULL;
+}
+
+static void alias_dealloc(PyObject *self) {
+    alias_ty obj = (alias_ty)self;
+    Py_XDECREF(obj->name);
+    Py_XDECREF(obj->asname);
+    Py_TYPE(self)->tp_free(obj);
+}
+static PyMemberDef alias_members[] = {
+    {0}
+};
+
+static PyType_Slot _alias_type_slots[] = {
+    {Py_tp_dealloc, &alias_dealloc},
+{Py_tp_members, alias_members},
+    {Py_tp_free, PyObject_Free},
+    {Py_tp_doc, "alias(identifier name, identifier? asname)"},
+    {0, 0},
+};
+
+static PyType_Spec _alias_type_spec = {
+    "ast._alias",
+    sizeof(struct _alias),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    _alias_type_slots
+};
+
+
+
+alias_ty _PyAst_alias_Copy(alias_ty self) {
+    struct ast_state *state = get_ast_state();
+    alias_ty res = PyObject_New(struct _alias, (PyTypeObject
+                                *)state->_alias_Type);
+    if (res == NULL) {
+        goto error;
+    }
+    if (self->name != NULL) {
+        res->name = Py_NewRef(self->name);
+        ERROR_IF_NULL(res->name);
+    } else {
+        res->name = NULL;
+    }
+    if (self->asname != NULL) {
+        res->asname = Py_NewRef(self->asname);
+        ERROR_IF_NULL(res->asname);
+    } else {
+        res->asname = NULL;
+    }
+    return res;
+error:
+    Py_XDECREF(res);
+    return NULL;
+}
+
+static void withitem_seq_dealloc(PyObject *self) {
+    asdl_withitem_seq *obj = (asdl_withitem_seq *)self;
+    for (Py_ssize_t i = 0; i < obj->size; i++) {
+        PyObject *value = (PyObject *)obj->typed_elements[i];
+        if (value) {
+            Py_DECREF(value);
+        }
+    }
+    Py_TYPE(self)->tp_free(obj);
+}
+
+PyTypeObject _withitem_seq_Type = {
+    .tp_name="withitem_seq",
+    .tp_basicsize=sizeof(asdl_withitem_seq) - sizeof(withitem_ty),
+    .tp_itemsize=sizeof(withitem_ty),
+    .tp_dealloc = &withitem_seq_dealloc,
+    .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
+    .tp_free = PyObject_Free,
+
+    .tp_as_sequence = &ast_sequence_methods,
+    .tp_as_mapping = &ast_mapping_methods,
+};
+
+asdl_withitem_seq *_PyAst_withitem_seq_Copy(asdl_withitem_seq *seq) {
+    asdl_withitem_seq *res = PyObject_NewVar(asdl_withitem_seq, &_withitem_seq_Type, seq->size);
+    if (res == NULL) {
+        goto error;
+    }
+    res->size = seq->size;
+    res->elements = (void**)&res->typed_elements[0];
+    for (Py_ssize_t i = 0; i < seq->size; i++) {
+        if (seq->typed_elements[i] != NULL) {
+            res->typed_elements[i] =
+            _PyAst_withitem_Copy(seq->typed_elements[i]);
+            ERROR_IF_NULL(res->typed_elements[i]);
+        } else {
+            res->typed_elements[i] = NULL;
+        }
+    }
+    return res;
+    error:
+    Py_XDECREF(res);
+    return NULL;
+}
+
+static void withitem_dealloc(PyObject *self) {
+    withitem_ty obj = (withitem_ty)self;
+    Py_XDECREF(obj->context_expr);
+    Py_XDECREF(obj->optional_vars);
+    Py_TYPE(self)->tp_free(obj);
+}
+static PyMemberDef withitem_members[] = {
+    {0}
+};
+
+static PyType_Slot _withitem_type_slots[] = {
+    {Py_tp_dealloc, &withitem_dealloc},
+{Py_tp_members, withitem_members},
+    {Py_tp_free, PyObject_Free},
+    {Py_tp_doc, "withitem(expr context_expr, expr? optional_vars)"},
+    {0, 0},
+};
+
+static PyType_Spec _withitem_type_spec = {
+    "ast._withitem",
+    sizeof(struct _withitem),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    _withitem_type_slots
+};
+
+
+
+withitem_ty _PyAst_withitem_Copy(withitem_ty self) {
+    struct ast_state *state = get_ast_state();
+    withitem_ty res = PyObject_New(struct _withitem, (PyTypeObject
+                                   *)state->_withitem_Type);
+    if (res == NULL) {
+        goto error;
+    }
+    if (self->context_expr != NULL) {
+        res->context_expr = _PyAst_expr_Copy(self->context_expr);
+        ERROR_IF_NULL(res->context_expr);
+    } else {
+        res->context_expr = NULL;
+    }
+    if (self->optional_vars != NULL) {
+        res->optional_vars = _PyAst_expr_Copy(self->optional_vars);
+        ERROR_IF_NULL(res->optional_vars);
+    } else {
+        res->optional_vars = NULL;
+    }
+    return res;
+error:
+    Py_XDECREF(res);
+    return NULL;
+}
+
+static void match_case_seq_dealloc(PyObject *self) {
+    asdl_match_case_seq *obj = (asdl_match_case_seq *)self;
+    for (Py_ssize_t i = 0; i < obj->size; i++) {
+        PyObject *value = (PyObject *)obj->typed_elements[i];
+        if (value) {
+            Py_DECREF(value);
+        }
+    }
+    Py_TYPE(self)->tp_free(obj);
+}
+
+PyTypeObject _match_case_seq_Type = {
+    .tp_name="match_case_seq",
+    .tp_basicsize=sizeof(asdl_match_case_seq) - sizeof(match_case_ty),
+    .tp_itemsize=sizeof(match_case_ty),
+    .tp_dealloc = &match_case_seq_dealloc,
+    .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
+    .tp_free = PyObject_Free,
+
+    .tp_as_sequence = &ast_sequence_methods,
+    .tp_as_mapping = &ast_mapping_methods,
+};
+
+asdl_match_case_seq *_PyAst_match_case_seq_Copy(asdl_match_case_seq *seq) {
+    asdl_match_case_seq *res = PyObject_NewVar(asdl_match_case_seq, &_match_case_seq_Type, seq->size);
+    if (res == NULL) {
+        goto error;
+    }
+    res->size = seq->size;
+    res->elements = (void**)&res->typed_elements[0];
+    for (Py_ssize_t i = 0; i < seq->size; i++) {
+        if (seq->typed_elements[i] != NULL) {
+            res->typed_elements[i] =
+            _PyAst_match_case_Copy(seq->typed_elements[i]);
+            ERROR_IF_NULL(res->typed_elements[i]);
+        } else {
+            res->typed_elements[i] = NULL;
+        }
+    }
+    return res;
+    error:
+    Py_XDECREF(res);
+    return NULL;
+}
+
+static void match_case_dealloc(PyObject *self) {
+    match_case_ty obj = (match_case_ty)self;
+    Py_XDECREF(obj->pattern);
+    Py_XDECREF(obj->guard);
+    Py_XDECREF(obj->body);
+    Py_TYPE(self)->tp_free(obj);
+}
+static PyMemberDef match_case_members[] = {
+    {0}
+};
+
+static PyType_Slot _match_case_type_slots[] = {
+    {Py_tp_dealloc, &match_case_dealloc},
+{Py_tp_members, match_case_members},
+    {Py_tp_free, PyObject_Free},
+    {Py_tp_doc, "match_case(pattern pattern, expr? guard, stmt* body)"},
+    {0, 0},
+};
+
+static PyType_Spec _match_case_type_spec = {
+    "ast._match_case",
+    sizeof(struct _match_case),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    _match_case_type_slots
+};
+
+
+
+match_case_ty _PyAst_match_case_Copy(match_case_ty self) {
+    struct ast_state *state = get_ast_state();
+    match_case_ty res = PyObject_New(struct _match_case, (PyTypeObject
+                                     *)state->_match_case_Type);
+    if (res == NULL) {
+        goto error;
+    }
+    if (self->pattern != NULL) {
+        res->pattern = _PyAst_pattern_Copy(self->pattern);
+        ERROR_IF_NULL(res->pattern);
+    } else {
+        res->pattern = NULL;
+    }
+    if (self->guard != NULL) {
+        res->guard = _PyAst_expr_Copy(self->guard);
+        ERROR_IF_NULL(res->guard);
+    } else {
+        res->guard = NULL;
+    }
+    if (self->body != NULL) {
+        res->body = _PyAst_stmt_seq_Copy(self->body);
+        ERROR_IF_NULL(res->body);
+    } else {
+        res->body = NULL;
+    }
+    return res;
+error:
+    Py_XDECREF(res);
+    return NULL;
+}
+
+static void MatchValue_dealloc(PyObject *self) {
+    pattern_ty obj = (pattern_ty)self;
+    Py_XDECREF(obj->v.MatchValue.value);
+    Py_TYPE(self)->tp_free(obj);
+}
+static PyMemberDef MatchValue_members[] = {
+    {"value", _Py_T_OBJECT, offsetof(struct _pattern, v.MatchValue.value),
+      Py_READONLY, NULL},
+    {0}
+};
+
+static PyType_Slot _MatchValue_type_slots[] = {
+    {Py_tp_dealloc, &MatchValue_dealloc},
+{Py_tp_members, MatchValue_members},
+    {Py_tp_free, PyObject_Free},
+    {Py_tp_doc, "MatchValue(expr value)"},
+    {0, 0},
+};
+
+static PyType_Spec _MatchValue_type_spec = {
+    "ast._MatchValue",
+    sizeof(struct _pattern),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    _MatchValue_type_slots
+};
+
+
+
+pattern_ty _PyAst_MatchValue_Copy(pattern_ty self) {
+    struct ast_state *state = get_ast_state();
+    pattern_ty res = PyObject_New(struct _pattern, (PyTypeObject
+                                  *)state->_MatchValue_Type);
+    if (res == NULL) {
+        goto error;
+    }
+    if (self->v.MatchValue.value != NULL) {
+        res->v.MatchValue.value = _PyAst_expr_Copy(self->v.MatchValue.value);
+        ERROR_IF_NULL(res->v.MatchValue.value);
+    } else {
+        res->v.MatchValue.value = NULL;
+    }
+    return res;
+error:
+    Py_XDECREF(res);
+    return NULL;
+}
+
+static void MatchSingleton_dealloc(PyObject *self) {
+    pattern_ty obj = (pattern_ty)self;
+    Py_XDECREF(obj->v.MatchSingleton.value);
+    Py_TYPE(self)->tp_free(obj);
+}
+static PyMemberDef MatchSingleton_members[] = {
+    {"value", _Py_T_OBJECT, offsetof(struct _pattern, v.MatchSingleton.value),
+      Py_READONLY, NULL},
+    {0}
+};
+
+static PyType_Slot _MatchSingleton_type_slots[] = {
+    {Py_tp_dealloc, &MatchSingleton_dealloc},
+{Py_tp_members, MatchSingleton_members},
+    {Py_tp_free, PyObject_Free},
+    {Py_tp_doc, "MatchSingleton(constant value)"},
+    {0, 0},
+};
+
+static PyType_Spec _MatchSingleton_type_spec = {
+    "ast._MatchSingleton",
+    sizeof(struct _pattern),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    _MatchSingleton_type_slots
+};
+
+
+
+pattern_ty _PyAst_MatchSingleton_Copy(pattern_ty self) {
+    struct ast_state *state = get_ast_state();
+    pattern_ty res = PyObject_New(struct _pattern, (PyTypeObject
+                                  *)state->_MatchSingleton_Type);
+    if (res == NULL) {
+        goto error;
+    }
+    if (self->v.MatchSingleton.value != NULL) {
+        res->v.MatchSingleton.value = Py_NewRef(self->v.MatchSingleton.value);
+        ERROR_IF_NULL(res->v.MatchSingleton.value);
+    } else {
+        res->v.MatchSingleton.value = NULL;
+    }
+    return res;
+error:
+    Py_XDECREF(res);
+    return NULL;
+}
+
+static void MatchSequence_dealloc(PyObject *self) {
+    pattern_ty obj = (pattern_ty)self;
+    Py_XDECREF(obj->v.MatchSequence.patterns);
+    Py_TYPE(self)->tp_free(obj);
+}
+static PyMemberDef MatchSequence_members[] = {
+    {"patterns", _Py_T_OBJECT, offsetof(struct _pattern,
+      v.MatchSequence.patterns), Py_READONLY, NULL},
+    {0}
+};
+
+static PyType_Slot _MatchSequence_type_slots[] = {
+    {Py_tp_dealloc, &MatchSequence_dealloc},
+{Py_tp_members, MatchSequence_members},
+    {Py_tp_free, PyObject_Free},
+    {Py_tp_doc, "MatchSequence(pattern* patterns)"},
+    {0, 0},
+};
+
+static PyType_Spec _MatchSequence_type_spec = {
+    "ast._MatchSequence",
+    sizeof(struct _pattern),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    _MatchSequence_type_slots
+};
+
+
+
+pattern_ty _PyAst_MatchSequence_Copy(pattern_ty self) {
+    struct ast_state *state = get_ast_state();
+    pattern_ty res = PyObject_New(struct _pattern, (PyTypeObject
+                                  *)state->_MatchSequence_Type);
+    if (res == NULL) {
+        goto error;
+    }
+    if (self->v.MatchSequence.patterns != NULL) {
+        res->v.MatchSequence.patterns =
+        _PyAst_pattern_seq_Copy(self->v.MatchSequence.patterns);
+        ERROR_IF_NULL(res->v.MatchSequence.patterns);
+    } else {
+        res->v.MatchSequence.patterns = NULL;
+    }
+    return res;
+error:
+    Py_XDECREF(res);
+    return NULL;
+}
+
+static void MatchMapping_dealloc(PyObject *self) {
+    pattern_ty obj = (pattern_ty)self;
+    Py_XDECREF(obj->v.MatchMapping.keys);
+    Py_XDECREF(obj->v.MatchMapping.patterns);
+    Py_XDECREF(obj->v.MatchMapping.rest);
+    Py_TYPE(self)->tp_free(obj);
+}
+static PyMemberDef MatchMapping_members[] = {
+    {"keys", _Py_T_OBJECT, offsetof(struct _pattern, v.MatchMapping.keys),
+      Py_READONLY, NULL},
+    {"patterns", _Py_T_OBJECT, offsetof(struct _pattern,
+      v.MatchMapping.patterns), Py_READONLY, NULL},
+    {"rest", _Py_T_OBJECT, offsetof(struct _pattern, v.MatchMapping.rest),
+      Py_READONLY, NULL},
+    {0}
+};
+
+static PyType_Slot _MatchMapping_type_slots[] = {
+    {Py_tp_dealloc, &MatchMapping_dealloc},
+{Py_tp_members, MatchMapping_members},
+    {Py_tp_free, PyObject_Free},
+    {Py_tp_doc, "MatchMapping(expr* keys, pattern* patterns, identifier? rest)"},
+    {0, 0},
+};
+
+static PyType_Spec _MatchMapping_type_spec = {
+    "ast._MatchMapping",
+    sizeof(struct _pattern),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    _MatchMapping_type_slots
+};
+
+
+
+pattern_ty _PyAst_MatchMapping_Copy(pattern_ty self) {
+    struct ast_state *state = get_ast_state();
+    pattern_ty res = PyObject_New(struct _pattern, (PyTypeObject
+                                  *)state->_MatchMapping_Type);
+    if (res == NULL) {
+        goto error;
+    }
+    if (self->v.MatchMapping.keys != NULL) {
+        res->v.MatchMapping.keys =
+        _PyAst_expr_seq_Copy(self->v.MatchMapping.keys);
+        ERROR_IF_NULL(res->v.MatchMapping.keys);
+    } else {
+        res->v.MatchMapping.keys = NULL;
+    }
+    if (self->v.MatchMapping.patterns != NULL) {
+        res->v.MatchMapping.patterns =
+        _PyAst_pattern_seq_Copy(self->v.MatchMapping.patterns);
+        ERROR_IF_NULL(res->v.MatchMapping.patterns);
+    } else {
+        res->v.MatchMapping.patterns = NULL;
+    }
+    if (self->v.MatchMapping.rest != NULL) {
+        res->v.MatchMapping.rest = Py_NewRef(self->v.MatchMapping.rest);
+        ERROR_IF_NULL(res->v.MatchMapping.rest);
+    } else {
+        res->v.MatchMapping.rest = NULL;
+    }
+    return res;
+error:
+    Py_XDECREF(res);
+    return NULL;
+}
+
+static void MatchClass_dealloc(PyObject *self) {
+    pattern_ty obj = (pattern_ty)self;
+    Py_XDECREF(obj->v.MatchClass.cls);
+    Py_XDECREF(obj->v.MatchClass.patterns);
+    Py_XDECREF(obj->v.MatchClass.kwd_attrs);
+    Py_XDECREF(obj->v.MatchClass.kwd_patterns);
+    Py_TYPE(self)->tp_free(obj);
+}
+static PyMemberDef MatchClass_members[] = {
+    {"cls", _Py_T_OBJECT, offsetof(struct _pattern, v.MatchClass.cls),
+      Py_READONLY, NULL},
+    {"patterns", _Py_T_OBJECT, offsetof(struct _pattern,
+      v.MatchClass.patterns), Py_READONLY, NULL},
+    {"kwd_attrs", _Py_T_OBJECT, offsetof(struct _pattern,
+      v.MatchClass.kwd_attrs), Py_READONLY, NULL},
+    {"kwd_patterns", _Py_T_OBJECT, offsetof(struct _pattern,
+      v.MatchClass.kwd_patterns), Py_READONLY, NULL},
+    {0}
+};
+
+static PyType_Slot _MatchClass_type_slots[] = {
+    {Py_tp_dealloc, &MatchClass_dealloc},
+{Py_tp_members, MatchClass_members},
+    {Py_tp_free, PyObject_Free},
+    {Py_tp_doc, "MatchClass(expr cls, pattern* patterns, identifier* kwd_attrs, pattern* kwd_patterns)"},
+    {0, 0},
+};
+
+static PyType_Spec _MatchClass_type_spec = {
+    "ast._MatchClass",
+    sizeof(struct _pattern),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    _MatchClass_type_slots
+};
+
+
+
+pattern_ty _PyAst_MatchClass_Copy(pattern_ty self) {
+    struct ast_state *state = get_ast_state();
+    pattern_ty res = PyObject_New(struct _pattern, (PyTypeObject
+                                  *)state->_MatchClass_Type);
+    if (res == NULL) {
+        goto error;
+    }
+    if (self->v.MatchClass.cls != NULL) {
+        res->v.MatchClass.cls = _PyAst_expr_Copy(self->v.MatchClass.cls);
+        ERROR_IF_NULL(res->v.MatchClass.cls);
+    } else {
+        res->v.MatchClass.cls = NULL;
+    }
+    if (self->v.MatchClass.patterns != NULL) {
+        res->v.MatchClass.patterns =
+        _PyAst_pattern_seq_Copy(self->v.MatchClass.patterns);
+        ERROR_IF_NULL(res->v.MatchClass.patterns);
+    } else {
+        res->v.MatchClass.patterns = NULL;
+    }
+    if (self->v.MatchClass.kwd_attrs != NULL) {
+        res->v.MatchClass.kwd_attrs =
+        _PyAst_identifier_seq_Copy(self->v.MatchClass.kwd_attrs);
+        ERROR_IF_NULL(res->v.MatchClass.kwd_attrs);
+    } else {
+        res->v.MatchClass.kwd_attrs = NULL;
+    }
+    if (self->v.MatchClass.kwd_patterns != NULL) {
+        res->v.MatchClass.kwd_patterns =
+        _PyAst_pattern_seq_Copy(self->v.MatchClass.kwd_patterns);
+        ERROR_IF_NULL(res->v.MatchClass.kwd_patterns);
+    } else {
+        res->v.MatchClass.kwd_patterns = NULL;
+    }
+    return res;
+error:
+    Py_XDECREF(res);
+    return NULL;
+}
+
+static void MatchStar_dealloc(PyObject *self) {
+    pattern_ty obj = (pattern_ty)self;
+    Py_XDECREF(obj->v.MatchStar.name);
+    Py_TYPE(self)->tp_free(obj);
+}
+static PyMemberDef MatchStar_members[] = {
+    {"name", _Py_T_OBJECT, offsetof(struct _pattern, v.MatchStar.name),
+      Py_READONLY, NULL},
+    {0}
+};
+
+static PyType_Slot _MatchStar_type_slots[] = {
+    {Py_tp_dealloc, &MatchStar_dealloc},
+{Py_tp_members, MatchStar_members},
+    {Py_tp_free, PyObject_Free},
+    {Py_tp_doc, "MatchStar(identifier? name)"},
+    {0, 0},
+};
+
+static PyType_Spec _MatchStar_type_spec = {
+    "ast._MatchStar",
+    sizeof(struct _pattern),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    _MatchStar_type_slots
+};
+
+
+
+pattern_ty _PyAst_MatchStar_Copy(pattern_ty self) {
+    struct ast_state *state = get_ast_state();
+    pattern_ty res = PyObject_New(struct _pattern, (PyTypeObject
+                                  *)state->_MatchStar_Type);
+    if (res == NULL) {
+        goto error;
+    }
+    if (self->v.MatchStar.name != NULL) {
+        res->v.MatchStar.name = Py_NewRef(self->v.MatchStar.name);
+        ERROR_IF_NULL(res->v.MatchStar.name);
+    } else {
+        res->v.MatchStar.name = NULL;
+    }
+    return res;
+error:
+    Py_XDECREF(res);
+    return NULL;
+}
+
+static void MatchAs_dealloc(PyObject *self) {
+    pattern_ty obj = (pattern_ty)self;
+    Py_XDECREF(obj->v.MatchAs.pattern);
+    Py_XDECREF(obj->v.MatchAs.name);
+    Py_TYPE(self)->tp_free(obj);
+}
+static PyMemberDef MatchAs_members[] = {
+    {"pattern", _Py_T_OBJECT, offsetof(struct _pattern, v.MatchAs.pattern),
+      Py_READONLY, NULL},
+    {"name", _Py_T_OBJECT, offsetof(struct _pattern, v.MatchAs.name),
+      Py_READONLY, NULL},
+    {0}
+};
+
+static PyType_Slot _MatchAs_type_slots[] = {
+    {Py_tp_dealloc, &MatchAs_dealloc},
+{Py_tp_members, MatchAs_members},
+    {Py_tp_free, PyObject_Free},
+    {Py_tp_doc, "MatchAs(pattern? pattern, identifier? name)"},
+    {0, 0},
+};
+
+static PyType_Spec _MatchAs_type_spec = {
+    "ast._MatchAs",
+    sizeof(struct _pattern),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    _MatchAs_type_slots
+};
+
+
+
+pattern_ty _PyAst_MatchAs_Copy(pattern_ty self) {
+    struct ast_state *state = get_ast_state();
+    pattern_ty res = PyObject_New(struct _pattern, (PyTypeObject
+                                  *)state->_MatchAs_Type);
+    if (res == NULL) {
+        goto error;
+    }
+    if (self->v.MatchAs.pattern != NULL) {
+        res->v.MatchAs.pattern = _PyAst_pattern_Copy(self->v.MatchAs.pattern);
+        ERROR_IF_NULL(res->v.MatchAs.pattern);
+    } else {
+        res->v.MatchAs.pattern = NULL;
+    }
+    if (self->v.MatchAs.name != NULL) {
+        res->v.MatchAs.name = Py_NewRef(self->v.MatchAs.name);
+        ERROR_IF_NULL(res->v.MatchAs.name);
+    } else {
+        res->v.MatchAs.name = NULL;
+    }
+    return res;
+error:
+    Py_XDECREF(res);
+    return NULL;
+}
+
+static void MatchOr_dealloc(PyObject *self) {
+    pattern_ty obj = (pattern_ty)self;
+    Py_XDECREF(obj->v.MatchOr.patterns);
+    Py_TYPE(self)->tp_free(obj);
+}
+static PyMemberDef MatchOr_members[] = {
+    {"patterns", _Py_T_OBJECT, offsetof(struct _pattern, v.MatchOr.patterns),
+      Py_READONLY, NULL},
+    {0}
+};
+
+static PyType_Slot _MatchOr_type_slots[] = {
+    {Py_tp_dealloc, &MatchOr_dealloc},
+{Py_tp_members, MatchOr_members},
+    {Py_tp_free, PyObject_Free},
+    {Py_tp_doc, "MatchOr(pattern* patterns)"},
+    {0, 0},
+};
+
+static PyType_Spec _MatchOr_type_spec = {
+    "ast._MatchOr",
+    sizeof(struct _pattern),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    _MatchOr_type_slots
+};
+
+
+
+pattern_ty _PyAst_MatchOr_Copy(pattern_ty self) {
+    struct ast_state *state = get_ast_state();
+    pattern_ty res = PyObject_New(struct _pattern, (PyTypeObject
+                                  *)state->_MatchOr_Type);
+    if (res == NULL) {
+        goto error;
+    }
+    if (self->v.MatchOr.patterns != NULL) {
+        res->v.MatchOr.patterns =
+        _PyAst_pattern_seq_Copy(self->v.MatchOr.patterns);
+        ERROR_IF_NULL(res->v.MatchOr.patterns);
+    } else {
+        res->v.MatchOr.patterns = NULL;
+    }
+    return res;
+error:
+    Py_XDECREF(res);
+    return NULL;
+}
+
+
+pattern_ty _PyAst_pattern_Copy(pattern_ty node) {
+    switch (node->kind) {
+        case MatchValue_kind:
+            return _PyAst_MatchValue_Copy(node);
+        case MatchSingleton_kind:
+            return _PyAst_MatchSingleton_Copy(node);
+        case MatchSequence_kind:
+            return _PyAst_MatchSequence_Copy(node);
+        case MatchMapping_kind:
+            return _PyAst_MatchMapping_Copy(node);
+        case MatchClass_kind:
+            return _PyAst_MatchClass_Copy(node);
+        case MatchStar_kind:
+            return _PyAst_MatchStar_Copy(node);
+        case MatchAs_kind:
+            return _PyAst_MatchAs_Copy(node);
+        case MatchOr_kind:
+            return _PyAst_MatchOr_Copy(node);
+    }
+    return NULL;
+}
+
+static void pattern_dealloc(PyObject *self) {
+    pattern_ty obj = (pattern_ty)self;
+    Py_TYPE(self)->tp_free(obj);
+}
+static PyMemberDef pattern_members[] = {
+    {0}
+};
+
+static PyType_Slot _pattern_type_slots[] = {
+    {Py_tp_dealloc, &pattern_dealloc},
+{Py_tp_members, pattern_members},
+    {Py_tp_free, PyObject_Free},
+    {Py_tp_doc, "pattern = MatchValue(expr value)\n"
+        "        | MatchSingleton(constant value)\n"
+        "        | MatchSequence(pattern* patterns)\n"
+        "        | MatchMapping(expr* keys, pattern* patterns, identifier? rest)\n"
+        "        | MatchClass(expr cls, pattern* patterns, identifier* kwd_attrs, pattern* kwd_patterns)\n"
+        "        | MatchStar(identifier? name)\n"
+        "        | MatchAs(pattern? pattern, identifier? name)\n"
+        "        | MatchOr(pattern* patterns)"},
+    {0, 0},
+};
+
+static PyType_Spec _pattern_type_spec = {
+    "ast._pattern",
+    sizeof(struct _pattern),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    _pattern_type_slots
+};
+
+
+
+static void pattern_seq_dealloc(PyObject *self) {
+    asdl_pattern_seq *obj = (asdl_pattern_seq *)self;
+    for (Py_ssize_t i = 0; i < obj->size; i++) {
+        PyObject *value = (PyObject *)obj->typed_elements[i];
+        if (value) {
+            Py_DECREF(value);
+        }
+    }
+    Py_TYPE(self)->tp_free(obj);
+}
+
+PyTypeObject _pattern_seq_Type = {
+    .tp_name="pattern_seq",
+    .tp_basicsize=sizeof(asdl_pattern_seq) - sizeof(pattern_ty),
+    .tp_itemsize=sizeof(pattern_ty),
+    .tp_dealloc = &pattern_seq_dealloc,
+    .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
+    .tp_free = PyObject_Free,
+
+    .tp_as_sequence = &ast_sequence_methods,
+    .tp_as_mapping = &ast_mapping_methods,
+};
+
+asdl_pattern_seq *_PyAst_pattern_seq_Copy(asdl_pattern_seq *seq) {
+    asdl_pattern_seq *res = PyObject_NewVar(asdl_pattern_seq, &_pattern_seq_Type, seq->size);
+    if (res == NULL) {
+        goto error;
+    }
+    res->size = seq->size;
+    res->elements = (void**)&res->typed_elements[0];
+    for (Py_ssize_t i = 0; i < seq->size; i++) {
+        if (seq->typed_elements[i] != NULL) {
+            res->typed_elements[i] =
+            _PyAst_pattern_Copy(seq->typed_elements[i]);
+            ERROR_IF_NULL(res->typed_elements[i]);
+        } else {
+            res->typed_elements[i] = NULL;
+        }
+    }
+    return res;
+    error:
+    Py_XDECREF(res);
+    return NULL;
+}
+
+static void TypeIgnore_dealloc(PyObject *self) {
+    type_ignore_ty obj = (type_ignore_ty)self;
+    Py_XDECREF(obj->v.TypeIgnore.tag);
+    Py_TYPE(self)->tp_free(obj);
+}
+static PyMemberDef TypeIgnore_members[] = {
+    {"lineno", Py_T_INT, offsetof(struct _type_ignore, v.TypeIgnore.lineno),
+      Py_READONLY, NULL},
+    {"tag", _Py_T_OBJECT, offsetof(struct _type_ignore, v.TypeIgnore.tag),
+      Py_READONLY, NULL},
+    {0}
+};
+
+static PyType_Slot _TypeIgnore_type_slots[] = {
+    {Py_tp_dealloc, &TypeIgnore_dealloc},
+{Py_tp_members, TypeIgnore_members},
+    {Py_tp_free, PyObject_Free},
+    {Py_tp_doc, "TypeIgnore(int lineno, string tag)"},
+    {0, 0},
+};
+
+static PyType_Spec _TypeIgnore_type_spec = {
+    "ast._TypeIgnore",
+    sizeof(struct _type_ignore),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    _TypeIgnore_type_slots
+};
+
+
+
+type_ignore_ty _PyAst_TypeIgnore_Copy(type_ignore_ty self) {
+    struct ast_state *state = get_ast_state();
+    type_ignore_ty res = PyObject_New(struct _type_ignore, (PyTypeObject
+                                      *)state->_TypeIgnore_Type);
+    if (res == NULL) {
+        goto error;
+    }
+    res->v.TypeIgnore.lineno = self->v.TypeIgnore.lineno;
+    if (self->v.TypeIgnore.tag != NULL) {
+        res->v.TypeIgnore.tag = Py_NewRef(self->v.TypeIgnore.tag);
+        ERROR_IF_NULL(res->v.TypeIgnore.tag);
+    } else {
+        res->v.TypeIgnore.tag = NULL;
+    }
+    return res;
+error:
+    Py_XDECREF(res);
+    return NULL;
+}
+
+
+type_ignore_ty _PyAst_type_ignore_Copy(type_ignore_ty node) {
+    switch (node->kind) {
+        case TypeIgnore_kind:
+            return _PyAst_TypeIgnore_Copy(node);
+    }
+    return NULL;
+}
+
+static void type_ignore_dealloc(PyObject *self) {
+    type_ignore_ty obj = (type_ignore_ty)self;
+    Py_TYPE(self)->tp_free(obj);
+}
+static PyMemberDef type_ignore_members[] = {
+    {0}
+};
+
+static PyType_Slot _type_ignore_type_slots[] = {
+    {Py_tp_dealloc, &type_ignore_dealloc},
+{Py_tp_members, type_ignore_members},
+    {Py_tp_free, PyObject_Free},
+    {Py_tp_doc, "type_ignore = TypeIgnore(int lineno, string tag)"},
+    {0, 0},
+};
+
+static PyType_Spec _type_ignore_type_spec = {
+    "ast._type_ignore",
+    sizeof(struct _type_ignore),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    _type_ignore_type_slots
+};
+
+
+
+static void type_ignore_seq_dealloc(PyObject *self) {
+    asdl_type_ignore_seq *obj = (asdl_type_ignore_seq *)self;
+    for (Py_ssize_t i = 0; i < obj->size; i++) {
+        PyObject *value = (PyObject *)obj->typed_elements[i];
+        if (value) {
+            Py_DECREF(value);
+        }
+    }
+    Py_TYPE(self)->tp_free(obj);
+}
+
+PyTypeObject _type_ignore_seq_Type = {
+    .tp_name="type_ignore_seq",
+    .tp_basicsize=sizeof(asdl_type_ignore_seq) - sizeof(type_ignore_ty),
+    .tp_itemsize=sizeof(type_ignore_ty),
+    .tp_dealloc = &type_ignore_seq_dealloc,
+    .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
+    .tp_free = PyObject_Free,
+
+    .tp_as_sequence = &ast_sequence_methods,
+    .tp_as_mapping = &ast_mapping_methods,
+};
+
+asdl_type_ignore_seq *_PyAst_type_ignore_seq_Copy(asdl_type_ignore_seq *seq) {
+    asdl_type_ignore_seq *res = PyObject_NewVar(asdl_type_ignore_seq, &_type_ignore_seq_Type, seq->size);
+    if (res == NULL) {
+        goto error;
+    }
+    res->size = seq->size;
+    res->elements = (void**)&res->typed_elements[0];
+    for (Py_ssize_t i = 0; i < seq->size; i++) {
+        if (seq->typed_elements[i] != NULL) {
+            res->typed_elements[i] =
+            _PyAst_type_ignore_Copy(seq->typed_elements[i]);
+            ERROR_IF_NULL(res->typed_elements[i]);
+        } else {
+            res->typed_elements[i] = NULL;
+        }
+    }
+    return res;
+    error:
+    Py_XDECREF(res);
+    return NULL;
+}
+
+static void TypeVar_dealloc(PyObject *self) {
+    type_param_ty obj = (type_param_ty)self;
+    Py_XDECREF(obj->v.TypeVar.name);
+    Py_XDECREF(obj->v.TypeVar.bound);
+    Py_XDECREF(obj->v.TypeVar.default_value);
+    Py_TYPE(self)->tp_free(obj);
+}
+static PyMemberDef TypeVar_members[] = {
+    {"name", _Py_T_OBJECT, offsetof(struct _type_param, v.TypeVar.name),
+      Py_READONLY, NULL},
+    {"bound", _Py_T_OBJECT, offsetof(struct _type_param, v.TypeVar.bound),
+      Py_READONLY, NULL},
+    {"default_value", _Py_T_OBJECT, offsetof(struct _type_param,
+      v.TypeVar.default_value), Py_READONLY, NULL},
+    {0}
+};
+
+static PyType_Slot _TypeVar_type_slots[] = {
+    {Py_tp_dealloc, &TypeVar_dealloc},
+{Py_tp_members, TypeVar_members},
+    {Py_tp_free, PyObject_Free},
+    {Py_tp_doc, "TypeVar(identifier name, expr? bound, expr? default_value)"},
+    {0, 0},
+};
+
+static PyType_Spec _TypeVar_type_spec = {
+    "ast._TypeVar",
+    sizeof(struct _type_param),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    _TypeVar_type_slots
+};
+
+
+
+type_param_ty _PyAst_TypeVar_Copy(type_param_ty self) {
+    struct ast_state *state = get_ast_state();
+    type_param_ty res = PyObject_New(struct _type_param, (PyTypeObject
+                                     *)state->_TypeVar_Type);
+    if (res == NULL) {
+        goto error;
+    }
+    if (self->v.TypeVar.name != NULL) {
+        res->v.TypeVar.name = Py_NewRef(self->v.TypeVar.name);
+        ERROR_IF_NULL(res->v.TypeVar.name);
+    } else {
+        res->v.TypeVar.name = NULL;
+    }
+    if (self->v.TypeVar.bound != NULL) {
+        res->v.TypeVar.bound = _PyAst_expr_Copy(self->v.TypeVar.bound);
+        ERROR_IF_NULL(res->v.TypeVar.bound);
+    } else {
+        res->v.TypeVar.bound = NULL;
+    }
+    if (self->v.TypeVar.default_value != NULL) {
+        res->v.TypeVar.default_value =
+        _PyAst_expr_Copy(self->v.TypeVar.default_value);
+        ERROR_IF_NULL(res->v.TypeVar.default_value);
+    } else {
+        res->v.TypeVar.default_value = NULL;
+    }
+    return res;
+error:
+    Py_XDECREF(res);
+    return NULL;
+}
+
+static void ParamSpec_dealloc(PyObject *self) {
+    type_param_ty obj = (type_param_ty)self;
+    Py_XDECREF(obj->v.ParamSpec.name);
+    Py_XDECREF(obj->v.ParamSpec.default_value);
+    Py_TYPE(self)->tp_free(obj);
+}
+static PyMemberDef ParamSpec_members[] = {
+    {"name", _Py_T_OBJECT, offsetof(struct _type_param, v.ParamSpec.name),
+      Py_READONLY, NULL},
+    {"default_value", _Py_T_OBJECT, offsetof(struct _type_param,
+      v.ParamSpec.default_value), Py_READONLY, NULL},
+    {0}
+};
+
+static PyType_Slot _ParamSpec_type_slots[] = {
+    {Py_tp_dealloc, &ParamSpec_dealloc},
+{Py_tp_members, ParamSpec_members},
+    {Py_tp_free, PyObject_Free},
+    {Py_tp_doc, "ParamSpec(identifier name, expr? default_value)"},
+    {0, 0},
+};
+
+static PyType_Spec _ParamSpec_type_spec = {
+    "ast._ParamSpec",
+    sizeof(struct _type_param),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    _ParamSpec_type_slots
+};
+
+
+
+type_param_ty _PyAst_ParamSpec_Copy(type_param_ty self) {
+    struct ast_state *state = get_ast_state();
+    type_param_ty res = PyObject_New(struct _type_param, (PyTypeObject
+                                     *)state->_ParamSpec_Type);
+    if (res == NULL) {
+        goto error;
+    }
+    if (self->v.ParamSpec.name != NULL) {
+        res->v.ParamSpec.name = Py_NewRef(self->v.ParamSpec.name);
+        ERROR_IF_NULL(res->v.ParamSpec.name);
+    } else {
+        res->v.ParamSpec.name = NULL;
+    }
+    if (self->v.ParamSpec.default_value != NULL) {
+        res->v.ParamSpec.default_value =
+        _PyAst_expr_Copy(self->v.ParamSpec.default_value);
+        ERROR_IF_NULL(res->v.ParamSpec.default_value);
+    } else {
+        res->v.ParamSpec.default_value = NULL;
+    }
+    return res;
+error:
+    Py_XDECREF(res);
+    return NULL;
+}
+
+static void TypeVarTuple_dealloc(PyObject *self) {
+    type_param_ty obj = (type_param_ty)self;
+    Py_XDECREF(obj->v.TypeVarTuple.name);
+    Py_XDECREF(obj->v.TypeVarTuple.default_value);
+    Py_TYPE(self)->tp_free(obj);
+}
+static PyMemberDef TypeVarTuple_members[] = {
+    {"name", _Py_T_OBJECT, offsetof(struct _type_param, v.TypeVarTuple.name),
+      Py_READONLY, NULL},
+    {"default_value", _Py_T_OBJECT, offsetof(struct _type_param,
+      v.TypeVarTuple.default_value), Py_READONLY, NULL},
+    {0}
+};
+
+static PyType_Slot _TypeVarTuple_type_slots[] = {
+    {Py_tp_dealloc, &TypeVarTuple_dealloc},
+{Py_tp_members, TypeVarTuple_members},
+    {Py_tp_free, PyObject_Free},
+    {Py_tp_doc, "TypeVarTuple(identifier name, expr? default_value)"},
+    {0, 0},
+};
+
+static PyType_Spec _TypeVarTuple_type_spec = {
+    "ast._TypeVarTuple",
+    sizeof(struct _type_param),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    _TypeVarTuple_type_slots
+};
+
+
+
+type_param_ty _PyAst_TypeVarTuple_Copy(type_param_ty self) {
+    struct ast_state *state = get_ast_state();
+    type_param_ty res = PyObject_New(struct _type_param, (PyTypeObject
+                                     *)state->_TypeVarTuple_Type);
+    if (res == NULL) {
+        goto error;
+    }
+    if (self->v.TypeVarTuple.name != NULL) {
+        res->v.TypeVarTuple.name = Py_NewRef(self->v.TypeVarTuple.name);
+        ERROR_IF_NULL(res->v.TypeVarTuple.name);
+    } else {
+        res->v.TypeVarTuple.name = NULL;
+    }
+    if (self->v.TypeVarTuple.default_value != NULL) {
+        res->v.TypeVarTuple.default_value =
+        _PyAst_expr_Copy(self->v.TypeVarTuple.default_value);
+        ERROR_IF_NULL(res->v.TypeVarTuple.default_value);
+    } else {
+        res->v.TypeVarTuple.default_value = NULL;
+    }
+    return res;
+error:
+    Py_XDECREF(res);
+    return NULL;
+}
+
+
+type_param_ty _PyAst_type_param_Copy(type_param_ty node) {
+    switch (node->kind) {
+        case TypeVar_kind:
+            return _PyAst_TypeVar_Copy(node);
+        case ParamSpec_kind:
+            return _PyAst_ParamSpec_Copy(node);
+        case TypeVarTuple_kind:
+            return _PyAst_TypeVarTuple_Copy(node);
+    }
+    return NULL;
+}
+
+static void type_param_dealloc(PyObject *self) {
+    type_param_ty obj = (type_param_ty)self;
+    Py_TYPE(self)->tp_free(obj);
+}
+static PyMemberDef type_param_members[] = {
+    {0}
+};
+
+static PyType_Slot _type_param_type_slots[] = {
+    {Py_tp_dealloc, &type_param_dealloc},
+{Py_tp_members, type_param_members},
+    {Py_tp_free, PyObject_Free},
+    {Py_tp_doc, "type_param = TypeVar(identifier name, expr? bound, expr? default_value)\n"
+        "           | ParamSpec(identifier name, expr? default_value)\n"
+        "           | TypeVarTuple(identifier name, expr? default_value)"},
+    {0, 0},
+};
+
+static PyType_Spec _type_param_type_spec = {
+    "ast._type_param",
+    sizeof(struct _type_param),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_IMMUTABLETYPE,
+    _type_param_type_slots
+};
+
+
+
+static void type_param_seq_dealloc(PyObject *self) {
+    asdl_type_param_seq *obj = (asdl_type_param_seq *)self;
+    for (Py_ssize_t i = 0; i < obj->size; i++) {
+        PyObject *value = (PyObject *)obj->typed_elements[i];
+        if (value) {
+            Py_DECREF(value);
+        }
+    }
+    Py_TYPE(self)->tp_free(obj);
+}
+
+PyTypeObject _type_param_seq_Type = {
+    .tp_name="type_param_seq",
+    .tp_basicsize=sizeof(asdl_type_param_seq) - sizeof(type_param_ty),
+    .tp_itemsize=sizeof(type_param_ty),
+    .tp_dealloc = &type_param_seq_dealloc,
+    .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
+    .tp_free = PyObject_Free,
+
+    .tp_as_sequence = &ast_sequence_methods,
+    .tp_as_mapping = &ast_mapping_methods,
+};
+
+asdl_type_param_seq *_PyAst_type_param_seq_Copy(asdl_type_param_seq *seq) {
+    asdl_type_param_seq *res = PyObject_NewVar(asdl_type_param_seq, &_type_param_seq_Type, seq->size);
+    if (res == NULL) {
+        goto error;
+    }
+    res->size = seq->size;
+    res->elements = (void**)&res->typed_elements[0];
+    for (Py_ssize_t i = 0; i < seq->size; i++) {
+        if (seq->typed_elements[i] != NULL) {
+            res->typed_elements[i] =
+            _PyAst_type_param_Copy(seq->typed_elements[i]);
+            ERROR_IF_NULL(res->typed_elements[i]);
+        } else {
+            res->typed_elements[i] = NULL;
+        }
+    }
+    return res;
+    error:
+    Py_XDECREF(res);
+    return NULL;
+}
+
+
 
 
 typedef struct {
@@ -5996,14 +12139,12 @@ static PyType_Spec AST_type_spec = {
 };
 
 static PyObject *
-make_type(struct ast_state *state, const char *type, PyObject* base,
-          const char* const* fields, int num_fields, const char *doc)
+make_fields(const char* const* fields, int num_fields)
 {
-    PyObject *fnames, *result;
-    int i;
+    PyObject *fnames;
     fnames = PyTuple_New(num_fields);
     if (!fnames) return NULL;
-    for (i = 0; i < num_fields; i++) {
+    for (int i = 0; i < num_fields; i++) {
         PyObject *field = PyUnicode_InternFromString(fields[i]);
         if (!field) {
             Py_DECREF(fnames);
@@ -6011,6 +12152,31 @@ make_type(struct ast_state *state, const char *type, PyObject* base,
         }
         PyTuple_SET_ITEM(fnames, i, field);
     }
+    return fnames;
+}
+
+static int
+add_fields(PyObject *type, const char* const* fields, int num_fields)
+{
+    PyObject *fnames = make_fields(fields, num_fields);
+    if (!fnames) return -1;
+
+    PyTypeObject *t = (PyTypeObject*)type;
+    if (PyDict_SetItemString(t->tp_dict, "_fields", fnames) < 0) {
+        Py_DECREF(fnames);
+        return -1;
+    }
+    Py_DECREF(fnames);
+    return 0;
+}
+
+static PyObject *
+make_type(struct ast_state *state, const char *type, PyObject* base,
+          const char* const* fields, int num_fields, const char *doc)
+{
+    PyObject *fnames = make_fields(fields, num_fields), *result;
+    if (!fnames) return NULL;
+
     result = PyObject_CallFunction((PyObject*)&PyType_Type, "s(O){OOOOOOOs}",
                     type, base,
                     state->_fields, fnames,
@@ -6173,6 +12339,11 @@ init_types(void *arg)
     if (add_ast_fields(state) < 0) {
         return -1;
     }
+    state->_AST_Type = PyType_FromSpec(&_AST_type_spec);
+    if (state->_AST_Type == NULL) {
+        return -1;
+    }
+    PyObject *t;
     state->mod_type = make_type(state, "mod", state->AST_type, NULL, 0,
         "mod = Module(stmt* body, type_ignore* type_ignores)\n"
         "    | Interactive(stmt* body)\n"
@@ -6180,23 +12351,45 @@ init_types(void *arg)
         "    | FunctionType(expr* argtypes, expr returns)");
     if (!state->mod_type) return -1;
     if (add_attributes(state, state->mod_type, NULL, 0) < 0) return -1;
+    t = PyType_FromSpecWithBases(&_mod_type_spec, state->_AST_Type);
+    state->_mod_Type = t;
+    if (state->_mod_Type == NULL) return -1;
     state->Module_type = make_type(state, "Module", state->mod_type,
                                    Module_fields, 2,
         "Module(stmt* body, type_ignore* type_ignores)");
     if (!state->Module_type) return -1;
+    t = PyType_FromSpecWithBases(&_Module_type_spec, state->_mod_Type);
+    state->_Module_Type = t;
+    if (state->_Module_Type == NULL) return -1;
+    if (add_fields(state->_Module_Type, Module_fields, 2) < 0) return -1;
     state->Interactive_type = make_type(state, "Interactive", state->mod_type,
                                         Interactive_fields, 1,
         "Interactive(stmt* body)");
     if (!state->Interactive_type) return -1;
+    t = PyType_FromSpecWithBases(&_Interactive_type_spec, state->_mod_Type);
+    state->_Interactive_Type = t;
+    if (state->_Interactive_Type == NULL) return -1;
+    if (add_fields(state->_Interactive_Type, Interactive_fields, 1) < 0) return
+        -1;
     state->Expression_type = make_type(state, "Expression", state->mod_type,
                                        Expression_fields, 1,
         "Expression(expr body)");
     if (!state->Expression_type) return -1;
+    t = PyType_FromSpecWithBases(&_Expression_type_spec, state->_mod_Type);
+    state->_Expression_Type = t;
+    if (state->_Expression_Type == NULL) return -1;
+    if (add_fields(state->_Expression_Type, Expression_fields, 1) < 0) return
+        -1;
     state->FunctionType_type = make_type(state, "FunctionType",
                                          state->mod_type, FunctionType_fields,
                                          2,
         "FunctionType(expr* argtypes, expr returns)");
     if (!state->FunctionType_type) return -1;
+    t = PyType_FromSpecWithBases(&_FunctionType_type_spec, state->_mod_Type);
+    state->_FunctionType_Type = t;
+    if (state->_FunctionType_Type == NULL) return -1;
+    if (add_fields(state->_FunctionType_Type, FunctionType_fields, 2) < 0)
+        return -1;
     state->stmt_type = make_type(state, "stmt", state->AST_type, NULL, 0,
         "stmt = FunctionDef(identifier name, arguments args, stmt* body, expr* decorator_list, expr? returns, string? type_comment, type_param* type_params)\n"
         "     | AsyncFunctionDef(identifier name, arguments args, stmt* body, expr* decorator_list, expr? returns, string? type_comment, type_param* type_params)\n"
@@ -6234,6 +12427,9 @@ init_types(void *arg)
     if (PyObject_SetAttr(state->stmt_type, state->end_col_offset, Py_None) ==
         -1)
         return -1;
+    t = PyType_FromSpecWithBases(&_stmt_type_spec, state->_AST_Type);
+    state->_stmt_Type = t;
+    if (state->_stmt_Type == NULL) return -1;
     state->FunctionDef_type = make_type(state, "FunctionDef", state->stmt_type,
                                         FunctionDef_fields, 7,
         "FunctionDef(identifier name, arguments args, stmt* body, expr* decorator_list, expr? returns, string? type_comment, type_param* type_params)");
@@ -6244,6 +12440,11 @@ init_types(void *arg)
     if (PyObject_SetAttr(state->FunctionDef_type, state->type_comment, Py_None)
         == -1)
         return -1;
+    t = PyType_FromSpecWithBases(&_FunctionDef_type_spec, state->_stmt_Type);
+    state->_FunctionDef_Type = t;
+    if (state->_FunctionDef_Type == NULL) return -1;
+    if (add_fields(state->_FunctionDef_Type, FunctionDef_fields, 7) < 0) return
+        -1;
     state->AsyncFunctionDef_type = make_type(state, "AsyncFunctionDef",
                                              state->stmt_type,
                                              AsyncFunctionDef_fields, 7,
@@ -6255,20 +12456,38 @@ init_types(void *arg)
     if (PyObject_SetAttr(state->AsyncFunctionDef_type, state->type_comment,
         Py_None) == -1)
         return -1;
+    t = PyType_FromSpecWithBases(&_AsyncFunctionDef_type_spec,
+                                 state->_stmt_Type);
+    state->_AsyncFunctionDef_Type = t;
+    if (state->_AsyncFunctionDef_Type == NULL) return -1;
+    if (add_fields(state->_AsyncFunctionDef_Type, AsyncFunctionDef_fields, 7) <
+        0) return -1;
     state->ClassDef_type = make_type(state, "ClassDef", state->stmt_type,
                                      ClassDef_fields, 6,
         "ClassDef(identifier name, expr* bases, keyword* keywords, stmt* body, expr* decorator_list, type_param* type_params)");
     if (!state->ClassDef_type) return -1;
+    t = PyType_FromSpecWithBases(&_ClassDef_type_spec, state->_stmt_Type);
+    state->_ClassDef_Type = t;
+    if (state->_ClassDef_Type == NULL) return -1;
+    if (add_fields(state->_ClassDef_Type, ClassDef_fields, 6) < 0) return -1;
     state->Return_type = make_type(state, "Return", state->stmt_type,
                                    Return_fields, 1,
         "Return(expr? value)");
     if (!state->Return_type) return -1;
     if (PyObject_SetAttr(state->Return_type, state->value, Py_None) == -1)
         return -1;
+    t = PyType_FromSpecWithBases(&_Return_type_spec, state->_stmt_Type);
+    state->_Return_Type = t;
+    if (state->_Return_Type == NULL) return -1;
+    if (add_fields(state->_Return_Type, Return_fields, 1) < 0) return -1;
     state->Delete_type = make_type(state, "Delete", state->stmt_type,
                                    Delete_fields, 1,
         "Delete(expr* targets)");
     if (!state->Delete_type) return -1;
+    t = PyType_FromSpecWithBases(&_Delete_type_spec, state->_stmt_Type);
+    state->_Delete_Type = t;
+    if (state->_Delete_Type == NULL) return -1;
+    if (add_fields(state->_Delete_Type, Delete_fields, 1) < 0) return -1;
     state->Assign_type = make_type(state, "Assign", state->stmt_type,
                                    Assign_fields, 3,
         "Assign(expr* targets, expr value, string? type_comment)");
@@ -6276,25 +12495,45 @@ init_types(void *arg)
     if (PyObject_SetAttr(state->Assign_type, state->type_comment, Py_None) ==
         -1)
         return -1;
+    t = PyType_FromSpecWithBases(&_Assign_type_spec, state->_stmt_Type);
+    state->_Assign_Type = t;
+    if (state->_Assign_Type == NULL) return -1;
+    if (add_fields(state->_Assign_Type, Assign_fields, 3) < 0) return -1;
     state->TypeAlias_type = make_type(state, "TypeAlias", state->stmt_type,
                                       TypeAlias_fields, 3,
         "TypeAlias(expr name, type_param* type_params, expr value)");
     if (!state->TypeAlias_type) return -1;
+    t = PyType_FromSpecWithBases(&_TypeAlias_type_spec, state->_stmt_Type);
+    state->_TypeAlias_Type = t;
+    if (state->_TypeAlias_Type == NULL) return -1;
+    if (add_fields(state->_TypeAlias_Type, TypeAlias_fields, 3) < 0) return -1;
     state->AugAssign_type = make_type(state, "AugAssign", state->stmt_type,
                                       AugAssign_fields, 3,
         "AugAssign(expr target, operator op, expr value)");
     if (!state->AugAssign_type) return -1;
+    t = PyType_FromSpecWithBases(&_AugAssign_type_spec, state->_stmt_Type);
+    state->_AugAssign_Type = t;
+    if (state->_AugAssign_Type == NULL) return -1;
+    if (add_fields(state->_AugAssign_Type, AugAssign_fields, 3) < 0) return -1;
     state->AnnAssign_type = make_type(state, "AnnAssign", state->stmt_type,
                                       AnnAssign_fields, 4,
         "AnnAssign(expr target, expr annotation, expr? value, int simple)");
     if (!state->AnnAssign_type) return -1;
     if (PyObject_SetAttr(state->AnnAssign_type, state->value, Py_None) == -1)
         return -1;
+    t = PyType_FromSpecWithBases(&_AnnAssign_type_spec, state->_stmt_Type);
+    state->_AnnAssign_Type = t;
+    if (state->_AnnAssign_Type == NULL) return -1;
+    if (add_fields(state->_AnnAssign_Type, AnnAssign_fields, 4) < 0) return -1;
     state->For_type = make_type(state, "For", state->stmt_type, For_fields, 5,
         "For(expr target, expr iter, stmt* body, stmt* orelse, string? type_comment)");
     if (!state->For_type) return -1;
     if (PyObject_SetAttr(state->For_type, state->type_comment, Py_None) == -1)
         return -1;
+    t = PyType_FromSpecWithBases(&_For_type_spec, state->_stmt_Type);
+    state->_For_Type = t;
+    if (state->_For_Type == NULL) return -1;
+    if (add_fields(state->_For_Type, For_fields, 5) < 0) return -1;
     state->AsyncFor_type = make_type(state, "AsyncFor", state->stmt_type,
                                      AsyncFor_fields, 5,
         "AsyncFor(expr target, expr iter, stmt* body, stmt* orelse, string? type_comment)");
@@ -6302,19 +12541,35 @@ init_types(void *arg)
     if (PyObject_SetAttr(state->AsyncFor_type, state->type_comment, Py_None) ==
         -1)
         return -1;
+    t = PyType_FromSpecWithBases(&_AsyncFor_type_spec, state->_stmt_Type);
+    state->_AsyncFor_Type = t;
+    if (state->_AsyncFor_Type == NULL) return -1;
+    if (add_fields(state->_AsyncFor_Type, AsyncFor_fields, 5) < 0) return -1;
     state->While_type = make_type(state, "While", state->stmt_type,
                                   While_fields, 3,
         "While(expr test, stmt* body, stmt* orelse)");
     if (!state->While_type) return -1;
+    t = PyType_FromSpecWithBases(&_While_type_spec, state->_stmt_Type);
+    state->_While_Type = t;
+    if (state->_While_Type == NULL) return -1;
+    if (add_fields(state->_While_Type, While_fields, 3) < 0) return -1;
     state->If_type = make_type(state, "If", state->stmt_type, If_fields, 3,
         "If(expr test, stmt* body, stmt* orelse)");
     if (!state->If_type) return -1;
+    t = PyType_FromSpecWithBases(&_If_type_spec, state->_stmt_Type);
+    state->_If_Type = t;
+    if (state->_If_Type == NULL) return -1;
+    if (add_fields(state->_If_Type, If_fields, 3) < 0) return -1;
     state->With_type = make_type(state, "With", state->stmt_type, With_fields,
                                  3,
         "With(withitem* items, stmt* body, string? type_comment)");
     if (!state->With_type) return -1;
     if (PyObject_SetAttr(state->With_type, state->type_comment, Py_None) == -1)
         return -1;
+    t = PyType_FromSpecWithBases(&_With_type_spec, state->_stmt_Type);
+    state->_With_Type = t;
+    if (state->_With_Type == NULL) return -1;
+    if (add_fields(state->_With_Type, With_fields, 3) < 0) return -1;
     state->AsyncWith_type = make_type(state, "AsyncWith", state->stmt_type,
                                       AsyncWith_fields, 3,
         "AsyncWith(withitem* items, stmt* body, string? type_comment)");
@@ -6322,10 +12577,18 @@ init_types(void *arg)
     if (PyObject_SetAttr(state->AsyncWith_type, state->type_comment, Py_None)
         == -1)
         return -1;
+    t = PyType_FromSpecWithBases(&_AsyncWith_type_spec, state->_stmt_Type);
+    state->_AsyncWith_Type = t;
+    if (state->_AsyncWith_Type == NULL) return -1;
+    if (add_fields(state->_AsyncWith_Type, AsyncWith_fields, 3) < 0) return -1;
     state->Match_type = make_type(state, "Match", state->stmt_type,
                                   Match_fields, 2,
         "Match(expr subject, match_case* cases)");
     if (!state->Match_type) return -1;
+    t = PyType_FromSpecWithBases(&_Match_type_spec, state->_stmt_Type);
+    state->_Match_Type = t;
+    if (state->_Match_Type == NULL) return -1;
+    if (add_fields(state->_Match_Type, Match_fields, 2) < 0) return -1;
     state->Raise_type = make_type(state, "Raise", state->stmt_type,
                                   Raise_fields, 2,
         "Raise(expr? exc, expr? cause)");
@@ -6334,23 +12597,43 @@ init_types(void *arg)
         return -1;
     if (PyObject_SetAttr(state->Raise_type, state->cause, Py_None) == -1)
         return -1;
+    t = PyType_FromSpecWithBases(&_Raise_type_spec, state->_stmt_Type);
+    state->_Raise_Type = t;
+    if (state->_Raise_Type == NULL) return -1;
+    if (add_fields(state->_Raise_Type, Raise_fields, 2) < 0) return -1;
     state->Try_type = make_type(state, "Try", state->stmt_type, Try_fields, 4,
         "Try(stmt* body, excepthandler* handlers, stmt* orelse, stmt* finalbody)");
     if (!state->Try_type) return -1;
+    t = PyType_FromSpecWithBases(&_Try_type_spec, state->_stmt_Type);
+    state->_Try_Type = t;
+    if (state->_Try_Type == NULL) return -1;
+    if (add_fields(state->_Try_Type, Try_fields, 4) < 0) return -1;
     state->TryStar_type = make_type(state, "TryStar", state->stmt_type,
                                     TryStar_fields, 4,
         "TryStar(stmt* body, excepthandler* handlers, stmt* orelse, stmt* finalbody)");
     if (!state->TryStar_type) return -1;
+    t = PyType_FromSpecWithBases(&_TryStar_type_spec, state->_stmt_Type);
+    state->_TryStar_Type = t;
+    if (state->_TryStar_Type == NULL) return -1;
+    if (add_fields(state->_TryStar_Type, TryStar_fields, 4) < 0) return -1;
     state->Assert_type = make_type(state, "Assert", state->stmt_type,
                                    Assert_fields, 2,
         "Assert(expr test, expr? msg)");
     if (!state->Assert_type) return -1;
     if (PyObject_SetAttr(state->Assert_type, state->msg, Py_None) == -1)
         return -1;
+    t = PyType_FromSpecWithBases(&_Assert_type_spec, state->_stmt_Type);
+    state->_Assert_Type = t;
+    if (state->_Assert_Type == NULL) return -1;
+    if (add_fields(state->_Assert_Type, Assert_fields, 2) < 0) return -1;
     state->Import_type = make_type(state, "Import", state->stmt_type,
                                    Import_fields, 1,
         "Import(alias* names)");
     if (!state->Import_type) return -1;
+    t = PyType_FromSpecWithBases(&_Import_type_spec, state->_stmt_Type);
+    state->_Import_Type = t;
+    if (state->_Import_Type == NULL) return -1;
+    if (add_fields(state->_Import_Type, Import_fields, 1) < 0) return -1;
     state->ImportFrom_type = make_type(state, "ImportFrom", state->stmt_type,
                                        ImportFrom_fields, 3,
         "ImportFrom(identifier? module, alias* names, int? level)");
@@ -6359,28 +12642,57 @@ init_types(void *arg)
         return -1;
     if (PyObject_SetAttr(state->ImportFrom_type, state->level, Py_None) == -1)
         return -1;
+    t = PyType_FromSpecWithBases(&_ImportFrom_type_spec, state->_stmt_Type);
+    state->_ImportFrom_Type = t;
+    if (state->_ImportFrom_Type == NULL) return -1;
+    if (add_fields(state->_ImportFrom_Type, ImportFrom_fields, 3) < 0) return
+        -1;
     state->Global_type = make_type(state, "Global", state->stmt_type,
                                    Global_fields, 1,
         "Global(identifier* names)");
     if (!state->Global_type) return -1;
+    t = PyType_FromSpecWithBases(&_Global_type_spec, state->_stmt_Type);
+    state->_Global_Type = t;
+    if (state->_Global_Type == NULL) return -1;
+    if (add_fields(state->_Global_Type, Global_fields, 1) < 0) return -1;
     state->Nonlocal_type = make_type(state, "Nonlocal", state->stmt_type,
                                      Nonlocal_fields, 1,
         "Nonlocal(identifier* names)");
     if (!state->Nonlocal_type) return -1;
+    t = PyType_FromSpecWithBases(&_Nonlocal_type_spec, state->_stmt_Type);
+    state->_Nonlocal_Type = t;
+    if (state->_Nonlocal_Type == NULL) return -1;
+    if (add_fields(state->_Nonlocal_Type, Nonlocal_fields, 1) < 0) return -1;
     state->Expr_type = make_type(state, "Expr", state->stmt_type, Expr_fields,
                                  1,
         "Expr(expr value)");
     if (!state->Expr_type) return -1;
+    t = PyType_FromSpecWithBases(&_Expr_type_spec, state->_stmt_Type);
+    state->_Expr_Type = t;
+    if (state->_Expr_Type == NULL) return -1;
+    if (add_fields(state->_Expr_Type, Expr_fields, 1) < 0) return -1;
     state->Pass_type = make_type(state, "Pass", state->stmt_type, NULL, 0,
         "Pass");
     if (!state->Pass_type) return -1;
+    t = PyType_FromSpecWithBases(&_Pass_type_spec, state->_stmt_Type);
+    state->_Pass_Type = t;
+    if (state->_Pass_Type == NULL) return -1;
+    if (add_fields(state->_Pass_Type, NULL, 0) < 0) return -1;
     state->Break_type = make_type(state, "Break", state->stmt_type, NULL, 0,
         "Break");
     if (!state->Break_type) return -1;
+    t = PyType_FromSpecWithBases(&_Break_type_spec, state->_stmt_Type);
+    state->_Break_Type = t;
+    if (state->_Break_Type == NULL) return -1;
+    if (add_fields(state->_Break_Type, NULL, 0) < 0) return -1;
     state->Continue_type = make_type(state, "Continue", state->stmt_type, NULL,
                                      0,
         "Continue");
     if (!state->Continue_type) return -1;
+    t = PyType_FromSpecWithBases(&_Continue_type_spec, state->_stmt_Type);
+    state->_Continue_Type = t;
+    if (state->_Continue_Type == NULL) return -1;
+    if (add_fields(state->_Continue_Type, NULL, 0) < 0) return -1;
     state->expr_type = make_type(state, "expr", state->AST_type, NULL, 0,
         "expr = BoolOp(boolop op, expr* values)\n"
         "     | NamedExpr(expr target, expr value)\n"
@@ -6419,76 +12731,148 @@ init_types(void *arg)
     if (PyObject_SetAttr(state->expr_type, state->end_col_offset, Py_None) ==
         -1)
         return -1;
+    t = PyType_FromSpecWithBases(&_expr_type_spec, state->_AST_Type);
+    state->_expr_Type = t;
+    if (state->_expr_Type == NULL) return -1;
     state->BoolOp_type = make_type(state, "BoolOp", state->expr_type,
                                    BoolOp_fields, 2,
         "BoolOp(boolop op, expr* values)");
     if (!state->BoolOp_type) return -1;
+    t = PyType_FromSpecWithBases(&_BoolOp_type_spec, state->_expr_Type);
+    state->_BoolOp_Type = t;
+    if (state->_BoolOp_Type == NULL) return -1;
+    if (add_fields(state->_BoolOp_Type, BoolOp_fields, 2) < 0) return -1;
     state->NamedExpr_type = make_type(state, "NamedExpr", state->expr_type,
                                       NamedExpr_fields, 2,
         "NamedExpr(expr target, expr value)");
     if (!state->NamedExpr_type) return -1;
+    t = PyType_FromSpecWithBases(&_NamedExpr_type_spec, state->_expr_Type);
+    state->_NamedExpr_Type = t;
+    if (state->_NamedExpr_Type == NULL) return -1;
+    if (add_fields(state->_NamedExpr_Type, NamedExpr_fields, 2) < 0) return -1;
     state->BinOp_type = make_type(state, "BinOp", state->expr_type,
                                   BinOp_fields, 3,
         "BinOp(expr left, operator op, expr right)");
     if (!state->BinOp_type) return -1;
+    t = PyType_FromSpecWithBases(&_BinOp_type_spec, state->_expr_Type);
+    state->_BinOp_Type = t;
+    if (state->_BinOp_Type == NULL) return -1;
+    if (add_fields(state->_BinOp_Type, BinOp_fields, 3) < 0) return -1;
     state->UnaryOp_type = make_type(state, "UnaryOp", state->expr_type,
                                     UnaryOp_fields, 2,
         "UnaryOp(unaryop op, expr operand)");
     if (!state->UnaryOp_type) return -1;
+    t = PyType_FromSpecWithBases(&_UnaryOp_type_spec, state->_expr_Type);
+    state->_UnaryOp_Type = t;
+    if (state->_UnaryOp_Type == NULL) return -1;
+    if (add_fields(state->_UnaryOp_Type, UnaryOp_fields, 2) < 0) return -1;
     state->Lambda_type = make_type(state, "Lambda", state->expr_type,
                                    Lambda_fields, 2,
         "Lambda(arguments args, expr body)");
     if (!state->Lambda_type) return -1;
+    t = PyType_FromSpecWithBases(&_Lambda_type_spec, state->_expr_Type);
+    state->_Lambda_Type = t;
+    if (state->_Lambda_Type == NULL) return -1;
+    if (add_fields(state->_Lambda_Type, Lambda_fields, 2) < 0) return -1;
     state->IfExp_type = make_type(state, "IfExp", state->expr_type,
                                   IfExp_fields, 3,
         "IfExp(expr test, expr body, expr orelse)");
     if (!state->IfExp_type) return -1;
+    t = PyType_FromSpecWithBases(&_IfExp_type_spec, state->_expr_Type);
+    state->_IfExp_Type = t;
+    if (state->_IfExp_Type == NULL) return -1;
+    if (add_fields(state->_IfExp_Type, IfExp_fields, 3) < 0) return -1;
     state->Dict_type = make_type(state, "Dict", state->expr_type, Dict_fields,
                                  2,
         "Dict(expr?* keys, expr* values)");
     if (!state->Dict_type) return -1;
+    t = PyType_FromSpecWithBases(&_Dict_type_spec, state->_expr_Type);
+    state->_Dict_Type = t;
+    if (state->_Dict_Type == NULL) return -1;
+    if (add_fields(state->_Dict_Type, Dict_fields, 2) < 0) return -1;
     state->Set_type = make_type(state, "Set", state->expr_type, Set_fields, 1,
         "Set(expr* elts)");
     if (!state->Set_type) return -1;
+    t = PyType_FromSpecWithBases(&_Set_type_spec, state->_expr_Type);
+    state->_Set_Type = t;
+    if (state->_Set_Type == NULL) return -1;
+    if (add_fields(state->_Set_Type, Set_fields, 1) < 0) return -1;
     state->ListComp_type = make_type(state, "ListComp", state->expr_type,
                                      ListComp_fields, 2,
         "ListComp(expr elt, comprehension* generators)");
     if (!state->ListComp_type) return -1;
+    t = PyType_FromSpecWithBases(&_ListComp_type_spec, state->_expr_Type);
+    state->_ListComp_Type = t;
+    if (state->_ListComp_Type == NULL) return -1;
+    if (add_fields(state->_ListComp_Type, ListComp_fields, 2) < 0) return -1;
     state->SetComp_type = make_type(state, "SetComp", state->expr_type,
                                     SetComp_fields, 2,
         "SetComp(expr elt, comprehension* generators)");
     if (!state->SetComp_type) return -1;
+    t = PyType_FromSpecWithBases(&_SetComp_type_spec, state->_expr_Type);
+    state->_SetComp_Type = t;
+    if (state->_SetComp_Type == NULL) return -1;
+    if (add_fields(state->_SetComp_Type, SetComp_fields, 2) < 0) return -1;
     state->DictComp_type = make_type(state, "DictComp", state->expr_type,
                                      DictComp_fields, 3,
         "DictComp(expr key, expr value, comprehension* generators)");
     if (!state->DictComp_type) return -1;
+    t = PyType_FromSpecWithBases(&_DictComp_type_spec, state->_expr_Type);
+    state->_DictComp_Type = t;
+    if (state->_DictComp_Type == NULL) return -1;
+    if (add_fields(state->_DictComp_Type, DictComp_fields, 3) < 0) return -1;
     state->GeneratorExp_type = make_type(state, "GeneratorExp",
                                          state->expr_type, GeneratorExp_fields,
                                          2,
         "GeneratorExp(expr elt, comprehension* generators)");
     if (!state->GeneratorExp_type) return -1;
+    t = PyType_FromSpecWithBases(&_GeneratorExp_type_spec, state->_expr_Type);
+    state->_GeneratorExp_Type = t;
+    if (state->_GeneratorExp_Type == NULL) return -1;
+    if (add_fields(state->_GeneratorExp_Type, GeneratorExp_fields, 2) < 0)
+        return -1;
     state->Await_type = make_type(state, "Await", state->expr_type,
                                   Await_fields, 1,
         "Await(expr value)");
     if (!state->Await_type) return -1;
+    t = PyType_FromSpecWithBases(&_Await_type_spec, state->_expr_Type);
+    state->_Await_Type = t;
+    if (state->_Await_Type == NULL) return -1;
+    if (add_fields(state->_Await_Type, Await_fields, 1) < 0) return -1;
     state->Yield_type = make_type(state, "Yield", state->expr_type,
                                   Yield_fields, 1,
         "Yield(expr? value)");
     if (!state->Yield_type) return -1;
     if (PyObject_SetAttr(state->Yield_type, state->value, Py_None) == -1)
         return -1;
+    t = PyType_FromSpecWithBases(&_Yield_type_spec, state->_expr_Type);
+    state->_Yield_Type = t;
+    if (state->_Yield_Type == NULL) return -1;
+    if (add_fields(state->_Yield_Type, Yield_fields, 1) < 0) return -1;
     state->YieldFrom_type = make_type(state, "YieldFrom", state->expr_type,
                                       YieldFrom_fields, 1,
         "YieldFrom(expr value)");
     if (!state->YieldFrom_type) return -1;
+    t = PyType_FromSpecWithBases(&_YieldFrom_type_spec, state->_expr_Type);
+    state->_YieldFrom_Type = t;
+    if (state->_YieldFrom_Type == NULL) return -1;
+    if (add_fields(state->_YieldFrom_Type, YieldFrom_fields, 1) < 0) return -1;
     state->Compare_type = make_type(state, "Compare", state->expr_type,
                                     Compare_fields, 3,
         "Compare(expr left, cmpop* ops, expr* comparators)");
     if (!state->Compare_type) return -1;
+    t = PyType_FromSpecWithBases(&_Compare_type_spec, state->_expr_Type);
+    state->_Compare_Type = t;
+    if (state->_Compare_Type == NULL) return -1;
+    if (add_fields(state->_Compare_Type, Compare_fields, 3) < 0) return -1;
     state->Call_type = make_type(state, "Call", state->expr_type, Call_fields,
                                  3,
         "Call(expr func, expr* args, keyword* keywords)");
     if (!state->Call_type) return -1;
+    t = PyType_FromSpecWithBases(&_Call_type_spec, state->_expr_Type);
+    state->_Call_Type = t;
+    if (state->_Call_Type == NULL) return -1;
+    if (add_fields(state->_Call_Type, Call_fields, 3) < 0) return -1;
     state->FormattedValue_type = make_type(state, "FormattedValue",
                                            state->expr_type,
                                            FormattedValue_fields, 3,
@@ -6496,6 +12880,11 @@ init_types(void *arg)
     if (!state->FormattedValue_type) return -1;
     if (PyObject_SetAttr(state->FormattedValue_type, state->format_spec,
         Py_None) == -1)
+        return -1;
+    t = PyType_FromSpecWithBases(&_FormattedValue_type_spec, state->_expr_Type);
+    state->_FormattedValue_Type = t;
+    if (state->_FormattedValue_Type == NULL) return -1;
+    if (add_fields(state->_FormattedValue_Type, FormattedValue_fields, 3) < 0)
         return -1;
     state->Interpolation_type = make_type(state, "Interpolation",
                                           state->expr_type,
@@ -6505,44 +12894,86 @@ init_types(void *arg)
     if (PyObject_SetAttr(state->Interpolation_type, state->format_spec,
         Py_None) == -1)
         return -1;
+    t = PyType_FromSpecWithBases(&_Interpolation_type_spec, state->_expr_Type);
+    state->_Interpolation_Type = t;
+    if (state->_Interpolation_Type == NULL) return -1;
+    if (add_fields(state->_Interpolation_Type, Interpolation_fields, 4) < 0)
+        return -1;
     state->JoinedStr_type = make_type(state, "JoinedStr", state->expr_type,
                                       JoinedStr_fields, 1,
         "JoinedStr(expr* values)");
     if (!state->JoinedStr_type) return -1;
+    t = PyType_FromSpecWithBases(&_JoinedStr_type_spec, state->_expr_Type);
+    state->_JoinedStr_Type = t;
+    if (state->_JoinedStr_Type == NULL) return -1;
+    if (add_fields(state->_JoinedStr_Type, JoinedStr_fields, 1) < 0) return -1;
     state->TemplateStr_type = make_type(state, "TemplateStr", state->expr_type,
                                         TemplateStr_fields, 1,
         "TemplateStr(expr* values)");
     if (!state->TemplateStr_type) return -1;
+    t = PyType_FromSpecWithBases(&_TemplateStr_type_spec, state->_expr_Type);
+    state->_TemplateStr_Type = t;
+    if (state->_TemplateStr_Type == NULL) return -1;
+    if (add_fields(state->_TemplateStr_Type, TemplateStr_fields, 1) < 0) return
+        -1;
     state->Constant_type = make_type(state, "Constant", state->expr_type,
                                      Constant_fields, 2,
         "Constant(constant value, string? kind)");
     if (!state->Constant_type) return -1;
     if (PyObject_SetAttr(state->Constant_type, state->kind, Py_None) == -1)
         return -1;
+    t = PyType_FromSpecWithBases(&_Constant_type_spec, state->_expr_Type);
+    state->_Constant_Type = t;
+    if (state->_Constant_Type == NULL) return -1;
+    if (add_fields(state->_Constant_Type, Constant_fields, 2) < 0) return -1;
     state->Attribute_type = make_type(state, "Attribute", state->expr_type,
                                       Attribute_fields, 3,
         "Attribute(expr value, identifier attr, expr_context ctx)");
     if (!state->Attribute_type) return -1;
+    t = PyType_FromSpecWithBases(&_Attribute_type_spec, state->_expr_Type);
+    state->_Attribute_Type = t;
+    if (state->_Attribute_Type == NULL) return -1;
+    if (add_fields(state->_Attribute_Type, Attribute_fields, 3) < 0) return -1;
     state->Subscript_type = make_type(state, "Subscript", state->expr_type,
                                       Subscript_fields, 3,
         "Subscript(expr value, expr slice, expr_context ctx)");
     if (!state->Subscript_type) return -1;
+    t = PyType_FromSpecWithBases(&_Subscript_type_spec, state->_expr_Type);
+    state->_Subscript_Type = t;
+    if (state->_Subscript_Type == NULL) return -1;
+    if (add_fields(state->_Subscript_Type, Subscript_fields, 3) < 0) return -1;
     state->Starred_type = make_type(state, "Starred", state->expr_type,
                                     Starred_fields, 2,
         "Starred(expr value, expr_context ctx)");
     if (!state->Starred_type) return -1;
+    t = PyType_FromSpecWithBases(&_Starred_type_spec, state->_expr_Type);
+    state->_Starred_Type = t;
+    if (state->_Starred_Type == NULL) return -1;
+    if (add_fields(state->_Starred_Type, Starred_fields, 2) < 0) return -1;
     state->Name_type = make_type(state, "Name", state->expr_type, Name_fields,
                                  2,
         "Name(identifier id, expr_context ctx)");
     if (!state->Name_type) return -1;
+    t = PyType_FromSpecWithBases(&_Name_type_spec, state->_expr_Type);
+    state->_Name_Type = t;
+    if (state->_Name_Type == NULL) return -1;
+    if (add_fields(state->_Name_Type, Name_fields, 2) < 0) return -1;
     state->List_type = make_type(state, "List", state->expr_type, List_fields,
                                  2,
         "List(expr* elts, expr_context ctx)");
     if (!state->List_type) return -1;
+    t = PyType_FromSpecWithBases(&_List_type_spec, state->_expr_Type);
+    state->_List_Type = t;
+    if (state->_List_Type == NULL) return -1;
+    if (add_fields(state->_List_Type, List_fields, 2) < 0) return -1;
     state->Tuple_type = make_type(state, "Tuple", state->expr_type,
                                   Tuple_fields, 2,
         "Tuple(expr* elts, expr_context ctx)");
     if (!state->Tuple_type) return -1;
+    t = PyType_FromSpecWithBases(&_Tuple_type_spec, state->_expr_Type);
+    state->_Tuple_Type = t;
+    if (state->_Tuple_Type == NULL) return -1;
+    if (add_fields(state->_Tuple_Type, Tuple_fields, 2) < 0) return -1;
     state->Slice_type = make_type(state, "Slice", state->expr_type,
                                   Slice_fields, 3,
         "Slice(expr? lower, expr? upper, expr? step)");
@@ -6553,6 +12984,10 @@ init_types(void *arg)
         return -1;
     if (PyObject_SetAttr(state->Slice_type, state->step, Py_None) == -1)
         return -1;
+    t = PyType_FromSpecWithBases(&_Slice_type_spec, state->_expr_Type);
+    state->_Slice_Type = t;
+    if (state->_Slice_Type == NULL) return -1;
+    if (add_fields(state->_Slice_Type, Slice_fields, 3) < 0) return -1;
     state->expr_context_type = make_type(state, "expr_context",
                                          state->AST_type, NULL, 0,
         "expr_context = Load | Store | Del");
@@ -6790,6 +13225,11 @@ init_types(void *arg)
     if (!state->comprehension_type) return -1;
     if (add_attributes(state, state->comprehension_type, NULL, 0) < 0) return
         -1;
+    t = PyType_FromSpecWithBases(&_comprehension_type_spec, state->_AST_Type);
+    state->_comprehension_Type = t;
+    if (state->_comprehension_Type == NULL) return -1;
+    if (add_fields(state->_comprehension_Type, comprehension_fields, 4) < 0)
+        return -1;
     state->excepthandler_type = make_type(state, "excepthandler",
                                           state->AST_type, NULL, 0,
         "excepthandler = ExceptHandler(expr? type, identifier? name, stmt* body)");
@@ -6802,6 +13242,9 @@ init_types(void *arg)
     if (PyObject_SetAttr(state->excepthandler_type, state->end_col_offset,
         Py_None) == -1)
         return -1;
+    t = PyType_FromSpecWithBases(&_excepthandler_type_spec, state->_AST_Type);
+    state->_excepthandler_Type = t;
+    if (state->_excepthandler_Type == NULL) return -1;
     state->ExceptHandler_type = make_type(state, "ExceptHandler",
                                           state->excepthandler_type,
                                           ExceptHandler_fields, 3,
@@ -6810,6 +13253,12 @@ init_types(void *arg)
     if (PyObject_SetAttr(state->ExceptHandler_type, state->type, Py_None) == -1)
         return -1;
     if (PyObject_SetAttr(state->ExceptHandler_type, state->name, Py_None) == -1)
+        return -1;
+    t = PyType_FromSpecWithBases(&_ExceptHandler_type_spec,
+                                 state->_excepthandler_Type);
+    state->_ExceptHandler_Type = t;
+    if (state->_ExceptHandler_Type == NULL) return -1;
+    if (add_fields(state->_ExceptHandler_Type, ExceptHandler_fields, 3) < 0)
         return -1;
     state->arguments_type = make_type(state, "arguments", state->AST_type,
                                       arguments_fields, 7,
@@ -6820,6 +13269,10 @@ init_types(void *arg)
         return -1;
     if (PyObject_SetAttr(state->arguments_type, state->kwarg, Py_None) == -1)
         return -1;
+    t = PyType_FromSpecWithBases(&_arguments_type_spec, state->_AST_Type);
+    state->_arguments_Type = t;
+    if (state->_arguments_Type == NULL) return -1;
+    if (add_fields(state->_arguments_Type, arguments_fields, 7) < 0) return -1;
     state->arg_type = make_type(state, "arg", state->AST_type, arg_fields, 3,
         "arg(identifier arg, expr? annotation, string? type_comment)");
     if (!state->arg_type) return -1;
@@ -6833,6 +13286,10 @@ init_types(void *arg)
         return -1;
     if (PyObject_SetAttr(state->arg_type, state->end_col_offset, Py_None) == -1)
         return -1;
+    t = PyType_FromSpecWithBases(&_arg_type_spec, state->_AST_Type);
+    state->_arg_Type = t;
+    if (state->_arg_Type == NULL) return -1;
+    if (add_fields(state->_arg_Type, arg_fields, 3) < 0) return -1;
     state->keyword_type = make_type(state, "keyword", state->AST_type,
                                     keyword_fields, 2,
         "keyword(identifier? arg, expr value)");
@@ -6846,6 +13303,10 @@ init_types(void *arg)
     if (PyObject_SetAttr(state->keyword_type, state->end_col_offset, Py_None)
         == -1)
         return -1;
+    t = PyType_FromSpecWithBases(&_keyword_type_spec, state->_AST_Type);
+    state->_keyword_Type = t;
+    if (state->_keyword_Type == NULL) return -1;
+    if (add_fields(state->_keyword_Type, keyword_fields, 2) < 0) return -1;
     state->alias_type = make_type(state, "alias", state->AST_type,
                                   alias_fields, 2,
         "alias(identifier name, identifier? asname)");
@@ -6859,6 +13320,10 @@ init_types(void *arg)
     if (PyObject_SetAttr(state->alias_type, state->end_col_offset, Py_None) ==
         -1)
         return -1;
+    t = PyType_FromSpecWithBases(&_alias_type_spec, state->_AST_Type);
+    state->_alias_Type = t;
+    if (state->_alias_Type == NULL) return -1;
+    if (add_fields(state->_alias_Type, alias_fields, 2) < 0) return -1;
     state->withitem_type = make_type(state, "withitem", state->AST_type,
                                      withitem_fields, 2,
         "withitem(expr context_expr, expr? optional_vars)");
@@ -6867,6 +13332,10 @@ init_types(void *arg)
     if (PyObject_SetAttr(state->withitem_type, state->optional_vars, Py_None)
         == -1)
         return -1;
+    t = PyType_FromSpecWithBases(&_withitem_type_spec, state->_AST_Type);
+    state->_withitem_Type = t;
+    if (state->_withitem_Type == NULL) return -1;
+    if (add_fields(state->_withitem_Type, withitem_fields, 2) < 0) return -1;
     state->match_case_type = make_type(state, "match_case", state->AST_type,
                                        match_case_fields, 3,
         "match_case(pattern pattern, expr? guard, stmt* body)");
@@ -6874,6 +13343,11 @@ init_types(void *arg)
     if (add_attributes(state, state->match_case_type, NULL, 0) < 0) return -1;
     if (PyObject_SetAttr(state->match_case_type, state->guard, Py_None) == -1)
         return -1;
+    t = PyType_FromSpecWithBases(&_match_case_type_spec, state->_AST_Type);
+    state->_match_case_Type = t;
+    if (state->_match_case_Type == NULL) return -1;
+    if (add_fields(state->_match_case_Type, match_case_fields, 3) < 0) return
+        -1;
     state->pattern_type = make_type(state, "pattern", state->AST_type, NULL, 0,
         "pattern = MatchValue(expr value)\n"
         "        | MatchSingleton(constant value)\n"
@@ -6886,21 +13360,41 @@ init_types(void *arg)
     if (!state->pattern_type) return -1;
     if (add_attributes(state, state->pattern_type, pattern_attributes, 4) < 0)
         return -1;
+    t = PyType_FromSpecWithBases(&_pattern_type_spec, state->_AST_Type);
+    state->_pattern_Type = t;
+    if (state->_pattern_Type == NULL) return -1;
     state->MatchValue_type = make_type(state, "MatchValue",
                                        state->pattern_type, MatchValue_fields,
                                        1,
         "MatchValue(expr value)");
     if (!state->MatchValue_type) return -1;
+    t = PyType_FromSpecWithBases(&_MatchValue_type_spec, state->_pattern_Type);
+    state->_MatchValue_Type = t;
+    if (state->_MatchValue_Type == NULL) return -1;
+    if (add_fields(state->_MatchValue_Type, MatchValue_fields, 1) < 0) return
+        -1;
     state->MatchSingleton_type = make_type(state, "MatchSingleton",
                                            state->pattern_type,
                                            MatchSingleton_fields, 1,
         "MatchSingleton(constant value)");
     if (!state->MatchSingleton_type) return -1;
+    t = PyType_FromSpecWithBases(&_MatchSingleton_type_spec,
+                                 state->_pattern_Type);
+    state->_MatchSingleton_Type = t;
+    if (state->_MatchSingleton_Type == NULL) return -1;
+    if (add_fields(state->_MatchSingleton_Type, MatchSingleton_fields, 1) < 0)
+        return -1;
     state->MatchSequence_type = make_type(state, "MatchSequence",
                                           state->pattern_type,
                                           MatchSequence_fields, 1,
         "MatchSequence(pattern* patterns)");
     if (!state->MatchSequence_type) return -1;
+    t = PyType_FromSpecWithBases(&_MatchSequence_type_spec,
+                                 state->_pattern_Type);
+    state->_MatchSequence_Type = t;
+    if (state->_MatchSequence_Type == NULL) return -1;
+    if (add_fields(state->_MatchSequence_Type, MatchSequence_fields, 1) < 0)
+        return -1;
     state->MatchMapping_type = make_type(state, "MatchMapping",
                                          state->pattern_type,
                                          MatchMapping_fields, 3,
@@ -6908,17 +13402,32 @@ init_types(void *arg)
     if (!state->MatchMapping_type) return -1;
     if (PyObject_SetAttr(state->MatchMapping_type, state->rest, Py_None) == -1)
         return -1;
+    t = PyType_FromSpecWithBases(&_MatchMapping_type_spec,
+                                 state->_pattern_Type);
+    state->_MatchMapping_Type = t;
+    if (state->_MatchMapping_Type == NULL) return -1;
+    if (add_fields(state->_MatchMapping_Type, MatchMapping_fields, 3) < 0)
+        return -1;
     state->MatchClass_type = make_type(state, "MatchClass",
                                        state->pattern_type, MatchClass_fields,
                                        4,
         "MatchClass(expr cls, pattern* patterns, identifier* kwd_attrs, pattern* kwd_patterns)");
     if (!state->MatchClass_type) return -1;
+    t = PyType_FromSpecWithBases(&_MatchClass_type_spec, state->_pattern_Type);
+    state->_MatchClass_Type = t;
+    if (state->_MatchClass_Type == NULL) return -1;
+    if (add_fields(state->_MatchClass_Type, MatchClass_fields, 4) < 0) return
+        -1;
     state->MatchStar_type = make_type(state, "MatchStar", state->pattern_type,
                                       MatchStar_fields, 1,
         "MatchStar(identifier? name)");
     if (!state->MatchStar_type) return -1;
     if (PyObject_SetAttr(state->MatchStar_type, state->name, Py_None) == -1)
         return -1;
+    t = PyType_FromSpecWithBases(&_MatchStar_type_spec, state->_pattern_Type);
+    state->_MatchStar_Type = t;
+    if (state->_MatchStar_Type == NULL) return -1;
+    if (add_fields(state->_MatchStar_Type, MatchStar_fields, 1) < 0) return -1;
     state->MatchAs_type = make_type(state, "MatchAs", state->pattern_type,
                                     MatchAs_fields, 2,
         "MatchAs(pattern? pattern, identifier? name)");
@@ -6927,20 +13436,37 @@ init_types(void *arg)
         return -1;
     if (PyObject_SetAttr(state->MatchAs_type, state->name, Py_None) == -1)
         return -1;
+    t = PyType_FromSpecWithBases(&_MatchAs_type_spec, state->_pattern_Type);
+    state->_MatchAs_Type = t;
+    if (state->_MatchAs_Type == NULL) return -1;
+    if (add_fields(state->_MatchAs_Type, MatchAs_fields, 2) < 0) return -1;
     state->MatchOr_type = make_type(state, "MatchOr", state->pattern_type,
                                     MatchOr_fields, 1,
         "MatchOr(pattern* patterns)");
     if (!state->MatchOr_type) return -1;
+    t = PyType_FromSpecWithBases(&_MatchOr_type_spec, state->_pattern_Type);
+    state->_MatchOr_Type = t;
+    if (state->_MatchOr_Type == NULL) return -1;
+    if (add_fields(state->_MatchOr_Type, MatchOr_fields, 1) < 0) return -1;
     state->type_ignore_type = make_type(state, "type_ignore", state->AST_type,
                                         NULL, 0,
         "type_ignore = TypeIgnore(int lineno, string tag)");
     if (!state->type_ignore_type) return -1;
     if (add_attributes(state, state->type_ignore_type, NULL, 0) < 0) return -1;
+    t = PyType_FromSpecWithBases(&_type_ignore_type_spec, state->_AST_Type);
+    state->_type_ignore_Type = t;
+    if (state->_type_ignore_Type == NULL) return -1;
     state->TypeIgnore_type = make_type(state, "TypeIgnore",
                                        state->type_ignore_type,
                                        TypeIgnore_fields, 2,
         "TypeIgnore(int lineno, string tag)");
     if (!state->TypeIgnore_type) return -1;
+    t = PyType_FromSpecWithBases(&_TypeIgnore_type_spec,
+                                 state->_type_ignore_Type);
+    state->_TypeIgnore_Type = t;
+    if (state->_TypeIgnore_Type == NULL) return -1;
+    if (add_fields(state->_TypeIgnore_Type, TypeIgnore_fields, 2) < 0) return
+        -1;
     state->type_param_type = make_type(state, "type_param", state->AST_type,
                                        NULL, 0,
         "type_param = TypeVar(identifier name, expr? bound, expr? default_value)\n"
@@ -6949,6 +13475,9 @@ init_types(void *arg)
     if (!state->type_param_type) return -1;
     if (add_attributes(state, state->type_param_type, type_param_attributes, 4)
         < 0) return -1;
+    t = PyType_FromSpecWithBases(&_type_param_type_spec, state->_AST_Type);
+    state->_type_param_Type = t;
+    if (state->_type_param_Type == NULL) return -1;
     state->TypeVar_type = make_type(state, "TypeVar", state->type_param_type,
                                     TypeVar_fields, 3,
         "TypeVar(identifier name, expr? bound, expr? default_value)");
@@ -6958,6 +13487,10 @@ init_types(void *arg)
     if (PyObject_SetAttr(state->TypeVar_type, state->default_value, Py_None) ==
         -1)
         return -1;
+    t = PyType_FromSpecWithBases(&_TypeVar_type_spec, state->_type_param_Type);
+    state->_TypeVar_Type = t;
+    if (state->_TypeVar_Type == NULL) return -1;
+    if (add_fields(state->_TypeVar_Type, TypeVar_fields, 3) < 0) return -1;
     state->ParamSpec_type = make_type(state, "ParamSpec",
                                       state->type_param_type, ParamSpec_fields,
                                       2,
@@ -6966,6 +13499,11 @@ init_types(void *arg)
     if (PyObject_SetAttr(state->ParamSpec_type, state->default_value, Py_None)
         == -1)
         return -1;
+    t = PyType_FromSpecWithBases(&_ParamSpec_type_spec,
+                                 state->_type_param_Type);
+    state->_ParamSpec_Type = t;
+    if (state->_ParamSpec_Type == NULL) return -1;
+    if (add_fields(state->_ParamSpec_Type, ParamSpec_fields, 2) < 0) return -1;
     state->TypeVarTuple_type = make_type(state, "TypeVarTuple",
                                          state->type_param_type,
                                          TypeVarTuple_fields, 2,
@@ -6973,6 +13511,12 @@ init_types(void *arg)
     if (!state->TypeVarTuple_type) return -1;
     if (PyObject_SetAttr(state->TypeVarTuple_type, state->default_value,
         Py_None) == -1)
+        return -1;
+    t = PyType_FromSpecWithBases(&_TypeVarTuple_type_spec,
+                                 state->_type_param_Type);
+    state->_TypeVarTuple_Type = t;
+    if (state->_TypeVarTuple_Type == NULL) return -1;
+    if (add_fields(state->_TypeVarTuple_Type, TypeVarTuple_fields, 2) < 0)
         return -1;
 
     if (!add_ast_annotations(state)) {
@@ -18002,198 +24546,398 @@ astmodule_exec(PyObject *m)
     if (PyModule_AddObjectRef(m, "mod", state->mod_type) < 0) {
         return -1;
     }
+    if (PyModule_AddObjectRef(m, "_mod", state->_mod_Type) < 0) {
+        return -1;
+    }
     if (PyModule_AddObjectRef(m, "Module", state->Module_type) < 0) {
+        return -1;
+    }
+    if (PyModule_AddObjectRef(m, "_Module", state->_Module_Type) < 0) {
         return -1;
     }
     if (PyModule_AddObjectRef(m, "Interactive", state->Interactive_type) < 0) {
         return -1;
     }
+    if (PyModule_AddObjectRef(m, "_Interactive", state->_Interactive_Type) < 0)
+        {
+        return -1;
+    }
     if (PyModule_AddObjectRef(m, "Expression", state->Expression_type) < 0) {
+        return -1;
+    }
+    if (PyModule_AddObjectRef(m, "_Expression", state->_Expression_Type) < 0) {
         return -1;
     }
     if (PyModule_AddObjectRef(m, "FunctionType", state->FunctionType_type) < 0)
         {
         return -1;
     }
+    if (PyModule_AddObjectRef(m, "_FunctionType", state->_FunctionType_Type) <
+        0) {
+        return -1;
+    }
     if (PyModule_AddObjectRef(m, "stmt", state->stmt_type) < 0) {
         return -1;
     }
+    if (PyModule_AddObjectRef(m, "_stmt", state->_stmt_Type) < 0) {
+        return -1;
+    }
     if (PyModule_AddObjectRef(m, "FunctionDef", state->FunctionDef_type) < 0) {
+        return -1;
+    }
+    if (PyModule_AddObjectRef(m, "_FunctionDef", state->_FunctionDef_Type) < 0)
+        {
         return -1;
     }
     if (PyModule_AddObjectRef(m, "AsyncFunctionDef",
         state->AsyncFunctionDef_type) < 0) {
         return -1;
     }
+    if (PyModule_AddObjectRef(m, "_AsyncFunctionDef",
+        state->_AsyncFunctionDef_Type) < 0) {
+        return -1;
+    }
     if (PyModule_AddObjectRef(m, "ClassDef", state->ClassDef_type) < 0) {
+        return -1;
+    }
+    if (PyModule_AddObjectRef(m, "_ClassDef", state->_ClassDef_Type) < 0) {
         return -1;
     }
     if (PyModule_AddObjectRef(m, "Return", state->Return_type) < 0) {
         return -1;
     }
+    if (PyModule_AddObjectRef(m, "_Return", state->_Return_Type) < 0) {
+        return -1;
+    }
     if (PyModule_AddObjectRef(m, "Delete", state->Delete_type) < 0) {
+        return -1;
+    }
+    if (PyModule_AddObjectRef(m, "_Delete", state->_Delete_Type) < 0) {
         return -1;
     }
     if (PyModule_AddObjectRef(m, "Assign", state->Assign_type) < 0) {
         return -1;
     }
+    if (PyModule_AddObjectRef(m, "_Assign", state->_Assign_Type) < 0) {
+        return -1;
+    }
     if (PyModule_AddObjectRef(m, "TypeAlias", state->TypeAlias_type) < 0) {
+        return -1;
+    }
+    if (PyModule_AddObjectRef(m, "_TypeAlias", state->_TypeAlias_Type) < 0) {
         return -1;
     }
     if (PyModule_AddObjectRef(m, "AugAssign", state->AugAssign_type) < 0) {
         return -1;
     }
+    if (PyModule_AddObjectRef(m, "_AugAssign", state->_AugAssign_Type) < 0) {
+        return -1;
+    }
     if (PyModule_AddObjectRef(m, "AnnAssign", state->AnnAssign_type) < 0) {
+        return -1;
+    }
+    if (PyModule_AddObjectRef(m, "_AnnAssign", state->_AnnAssign_Type) < 0) {
         return -1;
     }
     if (PyModule_AddObjectRef(m, "For", state->For_type) < 0) {
         return -1;
     }
+    if (PyModule_AddObjectRef(m, "_For", state->_For_Type) < 0) {
+        return -1;
+    }
     if (PyModule_AddObjectRef(m, "AsyncFor", state->AsyncFor_type) < 0) {
+        return -1;
+    }
+    if (PyModule_AddObjectRef(m, "_AsyncFor", state->_AsyncFor_Type) < 0) {
         return -1;
     }
     if (PyModule_AddObjectRef(m, "While", state->While_type) < 0) {
         return -1;
     }
+    if (PyModule_AddObjectRef(m, "_While", state->_While_Type) < 0) {
+        return -1;
+    }
     if (PyModule_AddObjectRef(m, "If", state->If_type) < 0) {
+        return -1;
+    }
+    if (PyModule_AddObjectRef(m, "_If", state->_If_Type) < 0) {
         return -1;
     }
     if (PyModule_AddObjectRef(m, "With", state->With_type) < 0) {
         return -1;
     }
+    if (PyModule_AddObjectRef(m, "_With", state->_With_Type) < 0) {
+        return -1;
+    }
     if (PyModule_AddObjectRef(m, "AsyncWith", state->AsyncWith_type) < 0) {
+        return -1;
+    }
+    if (PyModule_AddObjectRef(m, "_AsyncWith", state->_AsyncWith_Type) < 0) {
         return -1;
     }
     if (PyModule_AddObjectRef(m, "Match", state->Match_type) < 0) {
         return -1;
     }
+    if (PyModule_AddObjectRef(m, "_Match", state->_Match_Type) < 0) {
+        return -1;
+    }
     if (PyModule_AddObjectRef(m, "Raise", state->Raise_type) < 0) {
+        return -1;
+    }
+    if (PyModule_AddObjectRef(m, "_Raise", state->_Raise_Type) < 0) {
         return -1;
     }
     if (PyModule_AddObjectRef(m, "Try", state->Try_type) < 0) {
         return -1;
     }
+    if (PyModule_AddObjectRef(m, "_Try", state->_Try_Type) < 0) {
+        return -1;
+    }
     if (PyModule_AddObjectRef(m, "TryStar", state->TryStar_type) < 0) {
+        return -1;
+    }
+    if (PyModule_AddObjectRef(m, "_TryStar", state->_TryStar_Type) < 0) {
         return -1;
     }
     if (PyModule_AddObjectRef(m, "Assert", state->Assert_type) < 0) {
         return -1;
     }
+    if (PyModule_AddObjectRef(m, "_Assert", state->_Assert_Type) < 0) {
+        return -1;
+    }
     if (PyModule_AddObjectRef(m, "Import", state->Import_type) < 0) {
+        return -1;
+    }
+    if (PyModule_AddObjectRef(m, "_Import", state->_Import_Type) < 0) {
         return -1;
     }
     if (PyModule_AddObjectRef(m, "ImportFrom", state->ImportFrom_type) < 0) {
         return -1;
     }
+    if (PyModule_AddObjectRef(m, "_ImportFrom", state->_ImportFrom_Type) < 0) {
+        return -1;
+    }
     if (PyModule_AddObjectRef(m, "Global", state->Global_type) < 0) {
+        return -1;
+    }
+    if (PyModule_AddObjectRef(m, "_Global", state->_Global_Type) < 0) {
         return -1;
     }
     if (PyModule_AddObjectRef(m, "Nonlocal", state->Nonlocal_type) < 0) {
         return -1;
     }
+    if (PyModule_AddObjectRef(m, "_Nonlocal", state->_Nonlocal_Type) < 0) {
+        return -1;
+    }
     if (PyModule_AddObjectRef(m, "Expr", state->Expr_type) < 0) {
+        return -1;
+    }
+    if (PyModule_AddObjectRef(m, "_Expr", state->_Expr_Type) < 0) {
         return -1;
     }
     if (PyModule_AddObjectRef(m, "Pass", state->Pass_type) < 0) {
         return -1;
     }
+    if (PyModule_AddObjectRef(m, "_Pass", state->_Pass_Type) < 0) {
+        return -1;
+    }
     if (PyModule_AddObjectRef(m, "Break", state->Break_type) < 0) {
+        return -1;
+    }
+    if (PyModule_AddObjectRef(m, "_Break", state->_Break_Type) < 0) {
         return -1;
     }
     if (PyModule_AddObjectRef(m, "Continue", state->Continue_type) < 0) {
         return -1;
     }
+    if (PyModule_AddObjectRef(m, "_Continue", state->_Continue_Type) < 0) {
+        return -1;
+    }
     if (PyModule_AddObjectRef(m, "expr", state->expr_type) < 0) {
+        return -1;
+    }
+    if (PyModule_AddObjectRef(m, "_expr", state->_expr_Type) < 0) {
         return -1;
     }
     if (PyModule_AddObjectRef(m, "BoolOp", state->BoolOp_type) < 0) {
         return -1;
     }
+    if (PyModule_AddObjectRef(m, "_BoolOp", state->_BoolOp_Type) < 0) {
+        return -1;
+    }
     if (PyModule_AddObjectRef(m, "NamedExpr", state->NamedExpr_type) < 0) {
+        return -1;
+    }
+    if (PyModule_AddObjectRef(m, "_NamedExpr", state->_NamedExpr_Type) < 0) {
         return -1;
     }
     if (PyModule_AddObjectRef(m, "BinOp", state->BinOp_type) < 0) {
         return -1;
     }
+    if (PyModule_AddObjectRef(m, "_BinOp", state->_BinOp_Type) < 0) {
+        return -1;
+    }
     if (PyModule_AddObjectRef(m, "UnaryOp", state->UnaryOp_type) < 0) {
+        return -1;
+    }
+    if (PyModule_AddObjectRef(m, "_UnaryOp", state->_UnaryOp_Type) < 0) {
         return -1;
     }
     if (PyModule_AddObjectRef(m, "Lambda", state->Lambda_type) < 0) {
         return -1;
     }
+    if (PyModule_AddObjectRef(m, "_Lambda", state->_Lambda_Type) < 0) {
+        return -1;
+    }
     if (PyModule_AddObjectRef(m, "IfExp", state->IfExp_type) < 0) {
+        return -1;
+    }
+    if (PyModule_AddObjectRef(m, "_IfExp", state->_IfExp_Type) < 0) {
         return -1;
     }
     if (PyModule_AddObjectRef(m, "Dict", state->Dict_type) < 0) {
         return -1;
     }
+    if (PyModule_AddObjectRef(m, "_Dict", state->_Dict_Type) < 0) {
+        return -1;
+    }
     if (PyModule_AddObjectRef(m, "Set", state->Set_type) < 0) {
+        return -1;
+    }
+    if (PyModule_AddObjectRef(m, "_Set", state->_Set_Type) < 0) {
         return -1;
     }
     if (PyModule_AddObjectRef(m, "ListComp", state->ListComp_type) < 0) {
         return -1;
     }
+    if (PyModule_AddObjectRef(m, "_ListComp", state->_ListComp_Type) < 0) {
+        return -1;
+    }
     if (PyModule_AddObjectRef(m, "SetComp", state->SetComp_type) < 0) {
         return -1;
     }
+    if (PyModule_AddObjectRef(m, "_SetComp", state->_SetComp_Type) < 0) {
+        return -1;
+    }
     if (PyModule_AddObjectRef(m, "DictComp", state->DictComp_type) < 0) {
+        return -1;
+    }
+    if (PyModule_AddObjectRef(m, "_DictComp", state->_DictComp_Type) < 0) {
         return -1;
     }
     if (PyModule_AddObjectRef(m, "GeneratorExp", state->GeneratorExp_type) < 0)
         {
         return -1;
     }
+    if (PyModule_AddObjectRef(m, "_GeneratorExp", state->_GeneratorExp_Type) <
+        0) {
+        return -1;
+    }
     if (PyModule_AddObjectRef(m, "Await", state->Await_type) < 0) {
+        return -1;
+    }
+    if (PyModule_AddObjectRef(m, "_Await", state->_Await_Type) < 0) {
         return -1;
     }
     if (PyModule_AddObjectRef(m, "Yield", state->Yield_type) < 0) {
         return -1;
     }
+    if (PyModule_AddObjectRef(m, "_Yield", state->_Yield_Type) < 0) {
+        return -1;
+    }
     if (PyModule_AddObjectRef(m, "YieldFrom", state->YieldFrom_type) < 0) {
+        return -1;
+    }
+    if (PyModule_AddObjectRef(m, "_YieldFrom", state->_YieldFrom_Type) < 0) {
         return -1;
     }
     if (PyModule_AddObjectRef(m, "Compare", state->Compare_type) < 0) {
         return -1;
     }
+    if (PyModule_AddObjectRef(m, "_Compare", state->_Compare_Type) < 0) {
+        return -1;
+    }
     if (PyModule_AddObjectRef(m, "Call", state->Call_type) < 0) {
+        return -1;
+    }
+    if (PyModule_AddObjectRef(m, "_Call", state->_Call_Type) < 0) {
         return -1;
     }
     if (PyModule_AddObjectRef(m, "FormattedValue", state->FormattedValue_type)
         < 0) {
         return -1;
     }
+    if (PyModule_AddObjectRef(m, "_FormattedValue",
+        state->_FormattedValue_Type) < 0) {
+        return -1;
+    }
     if (PyModule_AddObjectRef(m, "Interpolation", state->Interpolation_type) <
         0) {
+        return -1;
+    }
+    if (PyModule_AddObjectRef(m, "_Interpolation", state->_Interpolation_Type)
+        < 0) {
         return -1;
     }
     if (PyModule_AddObjectRef(m, "JoinedStr", state->JoinedStr_type) < 0) {
         return -1;
     }
+    if (PyModule_AddObjectRef(m, "_JoinedStr", state->_JoinedStr_Type) < 0) {
+        return -1;
+    }
     if (PyModule_AddObjectRef(m, "TemplateStr", state->TemplateStr_type) < 0) {
+        return -1;
+    }
+    if (PyModule_AddObjectRef(m, "_TemplateStr", state->_TemplateStr_Type) < 0)
+        {
         return -1;
     }
     if (PyModule_AddObjectRef(m, "Constant", state->Constant_type) < 0) {
         return -1;
     }
+    if (PyModule_AddObjectRef(m, "_Constant", state->_Constant_Type) < 0) {
+        return -1;
+    }
     if (PyModule_AddObjectRef(m, "Attribute", state->Attribute_type) < 0) {
+        return -1;
+    }
+    if (PyModule_AddObjectRef(m, "_Attribute", state->_Attribute_Type) < 0) {
         return -1;
     }
     if (PyModule_AddObjectRef(m, "Subscript", state->Subscript_type) < 0) {
         return -1;
     }
+    if (PyModule_AddObjectRef(m, "_Subscript", state->_Subscript_Type) < 0) {
+        return -1;
+    }
     if (PyModule_AddObjectRef(m, "Starred", state->Starred_type) < 0) {
+        return -1;
+    }
+    if (PyModule_AddObjectRef(m, "_Starred", state->_Starred_Type) < 0) {
         return -1;
     }
     if (PyModule_AddObjectRef(m, "Name", state->Name_type) < 0) {
         return -1;
     }
+    if (PyModule_AddObjectRef(m, "_Name", state->_Name_Type) < 0) {
+        return -1;
+    }
     if (PyModule_AddObjectRef(m, "List", state->List_type) < 0) {
+        return -1;
+    }
+    if (PyModule_AddObjectRef(m, "_List", state->_List_Type) < 0) {
         return -1;
     }
     if (PyModule_AddObjectRef(m, "Tuple", state->Tuple_type) < 0) {
         return -1;
     }
+    if (PyModule_AddObjectRef(m, "_Tuple", state->_Tuple_Type) < 0) {
+        return -1;
+    }
     if (PyModule_AddObjectRef(m, "Slice", state->Slice_type) < 0) {
+        return -1;
+    }
+    if (PyModule_AddObjectRef(m, "_Slice", state->_Slice_Type) < 0) {
         return -1;
     }
     if (PyModule_AddObjectRef(m, "expr_context", state->expr_context_type) < 0)
@@ -18312,79 +25056,159 @@ astmodule_exec(PyObject *m)
         0) {
         return -1;
     }
+    if (PyModule_AddObjectRef(m, "_comprehension", state->_comprehension_Type)
+        < 0) {
+        return -1;
+    }
     if (PyModule_AddObjectRef(m, "excepthandler", state->excepthandler_type) <
         0) {
+        return -1;
+    }
+    if (PyModule_AddObjectRef(m, "_excepthandler", state->_excepthandler_Type)
+        < 0) {
         return -1;
     }
     if (PyModule_AddObjectRef(m, "ExceptHandler", state->ExceptHandler_type) <
         0) {
         return -1;
     }
+    if (PyModule_AddObjectRef(m, "_ExceptHandler", state->_ExceptHandler_Type)
+        < 0) {
+        return -1;
+    }
     if (PyModule_AddObjectRef(m, "arguments", state->arguments_type) < 0) {
+        return -1;
+    }
+    if (PyModule_AddObjectRef(m, "_arguments", state->_arguments_Type) < 0) {
         return -1;
     }
     if (PyModule_AddObjectRef(m, "arg", state->arg_type) < 0) {
         return -1;
     }
+    if (PyModule_AddObjectRef(m, "_arg", state->_arg_Type) < 0) {
+        return -1;
+    }
     if (PyModule_AddObjectRef(m, "keyword", state->keyword_type) < 0) {
+        return -1;
+    }
+    if (PyModule_AddObjectRef(m, "_keyword", state->_keyword_Type) < 0) {
         return -1;
     }
     if (PyModule_AddObjectRef(m, "alias", state->alias_type) < 0) {
         return -1;
     }
+    if (PyModule_AddObjectRef(m, "_alias", state->_alias_Type) < 0) {
+        return -1;
+    }
     if (PyModule_AddObjectRef(m, "withitem", state->withitem_type) < 0) {
+        return -1;
+    }
+    if (PyModule_AddObjectRef(m, "_withitem", state->_withitem_Type) < 0) {
         return -1;
     }
     if (PyModule_AddObjectRef(m, "match_case", state->match_case_type) < 0) {
         return -1;
     }
+    if (PyModule_AddObjectRef(m, "_match_case", state->_match_case_Type) < 0) {
+        return -1;
+    }
     if (PyModule_AddObjectRef(m, "pattern", state->pattern_type) < 0) {
         return -1;
     }
+    if (PyModule_AddObjectRef(m, "_pattern", state->_pattern_Type) < 0) {
+        return -1;
+    }
     if (PyModule_AddObjectRef(m, "MatchValue", state->MatchValue_type) < 0) {
+        return -1;
+    }
+    if (PyModule_AddObjectRef(m, "_MatchValue", state->_MatchValue_Type) < 0) {
         return -1;
     }
     if (PyModule_AddObjectRef(m, "MatchSingleton", state->MatchSingleton_type)
         < 0) {
         return -1;
     }
+    if (PyModule_AddObjectRef(m, "_MatchSingleton",
+        state->_MatchSingleton_Type) < 0) {
+        return -1;
+    }
     if (PyModule_AddObjectRef(m, "MatchSequence", state->MatchSequence_type) <
         0) {
+        return -1;
+    }
+    if (PyModule_AddObjectRef(m, "_MatchSequence", state->_MatchSequence_Type)
+        < 0) {
         return -1;
     }
     if (PyModule_AddObjectRef(m, "MatchMapping", state->MatchMapping_type) < 0)
         {
         return -1;
     }
+    if (PyModule_AddObjectRef(m, "_MatchMapping", state->_MatchMapping_Type) <
+        0) {
+        return -1;
+    }
     if (PyModule_AddObjectRef(m, "MatchClass", state->MatchClass_type) < 0) {
+        return -1;
+    }
+    if (PyModule_AddObjectRef(m, "_MatchClass", state->_MatchClass_Type) < 0) {
         return -1;
     }
     if (PyModule_AddObjectRef(m, "MatchStar", state->MatchStar_type) < 0) {
         return -1;
     }
+    if (PyModule_AddObjectRef(m, "_MatchStar", state->_MatchStar_Type) < 0) {
+        return -1;
+    }
     if (PyModule_AddObjectRef(m, "MatchAs", state->MatchAs_type) < 0) {
+        return -1;
+    }
+    if (PyModule_AddObjectRef(m, "_MatchAs", state->_MatchAs_Type) < 0) {
         return -1;
     }
     if (PyModule_AddObjectRef(m, "MatchOr", state->MatchOr_type) < 0) {
         return -1;
     }
+    if (PyModule_AddObjectRef(m, "_MatchOr", state->_MatchOr_Type) < 0) {
+        return -1;
+    }
     if (PyModule_AddObjectRef(m, "type_ignore", state->type_ignore_type) < 0) {
+        return -1;
+    }
+    if (PyModule_AddObjectRef(m, "_type_ignore", state->_type_ignore_Type) < 0)
+        {
         return -1;
     }
     if (PyModule_AddObjectRef(m, "TypeIgnore", state->TypeIgnore_type) < 0) {
         return -1;
     }
+    if (PyModule_AddObjectRef(m, "_TypeIgnore", state->_TypeIgnore_Type) < 0) {
+        return -1;
+    }
     if (PyModule_AddObjectRef(m, "type_param", state->type_param_type) < 0) {
+        return -1;
+    }
+    if (PyModule_AddObjectRef(m, "_type_param", state->_type_param_Type) < 0) {
         return -1;
     }
     if (PyModule_AddObjectRef(m, "TypeVar", state->TypeVar_type) < 0) {
         return -1;
     }
+    if (PyModule_AddObjectRef(m, "_TypeVar", state->_TypeVar_Type) < 0) {
+        return -1;
+    }
     if (PyModule_AddObjectRef(m, "ParamSpec", state->ParamSpec_type) < 0) {
+        return -1;
+    }
+    if (PyModule_AddObjectRef(m, "_ParamSpec", state->_ParamSpec_Type) < 0) {
         return -1;
     }
     if (PyModule_AddObjectRef(m, "TypeVarTuple", state->TypeVarTuple_type) < 0)
         {
+        return -1;
+    }
+    if (PyModule_AddObjectRef(m, "_TypeVarTuple", state->_TypeVarTuple_Type) <
+        0) {
         return -1;
     }
     return 0;
@@ -18481,5 +25305,3 @@ int PyAST_Check(PyObject* obj)
     }
     return PyObject_IsInstance(obj, state->AST_type);
 }
-
-

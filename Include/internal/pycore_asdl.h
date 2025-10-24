@@ -22,6 +22,7 @@ typedef PyObject * constant;
 */
 
 #define _ASDL_SEQ_HEAD \
+    PyObject_HEAD      \
     Py_ssize_t size;   \
     void **elements;
 

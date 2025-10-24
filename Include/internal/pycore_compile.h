@@ -35,7 +35,7 @@ PyAPI_FUNC(PyCodeObject*) _PyAST_Compile(
     struct _arena *arena);
 
 /* AST preprocessing */
-extern int _PyCompile_AstPreprocess(
+PyAPI_FUNC(int) _PyCompile_AstPreprocess(
     struct _mod *mod,
     PyObject *filename,
     PyCompilerFlags *flags,
