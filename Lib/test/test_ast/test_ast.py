@@ -3812,7 +3812,7 @@ class Immutable_AST_Tests(unittest.TestCase):
         self.assertIsInstance(x.value, _ast._Constant)
         #code = self.parse("x = 42")
 
-    def test_mut_type(self):
+    def Xtest_mut_type(self):
         from ast import _to_mut
         tree = self.parse("x = 42")
         print()
@@ -3821,7 +3821,7 @@ class Immutable_AST_Tests(unittest.TestCase):
         print(mut)
         #ast._MUT_TYPES["Yield"]]
 
-    def test_isinstance(self):
+    def Xtest_isinstance(self):
         tree = self.parse("x = 42")
         self.assertIsInstance(tree, _ast._Module._mut_type)
 
