@@ -173,7 +173,9 @@ void _PyAST_Fini(PyInterpreterState *interp)
     Py_CLEAR(state->YieldFrom_type);
     Py_CLEAR(state->Yield_type);
     Py_CLEAR(state->_AST_type);
+    Py_CLEAR(state->_Add_singleton);
     Py_CLEAR(state->_Add_type);
+    Py_CLEAR(state->_And_singleton);
     Py_CLEAR(state->_And_type);
     Py_CLEAR(state->_AnnAssign_type);
     Py_CLEAR(state->_Assert_type);
@@ -185,8 +187,11 @@ void _PyAST_Fini(PyInterpreterState *interp)
     Py_CLEAR(state->_AugAssign_type);
     Py_CLEAR(state->_Await_type);
     Py_CLEAR(state->_BinOp_type);
+    Py_CLEAR(state->_BitAnd_singleton);
     Py_CLEAR(state->_BitAnd_type);
+    Py_CLEAR(state->_BitOr_singleton);
     Py_CLEAR(state->_BitOr_type);
+    Py_CLEAR(state->_BitXor_singleton);
     Py_CLEAR(state->_BitXor_type);
     Py_CLEAR(state->_BoolOp_type);
     Py_CLEAR(state->_Break_type);
@@ -195,15 +200,19 @@ void _PyAST_Fini(PyInterpreterState *interp)
     Py_CLEAR(state->_Compare_type);
     Py_CLEAR(state->_Constant_type);
     Py_CLEAR(state->_Continue_type);
+    Py_CLEAR(state->_Del_singleton);
     Py_CLEAR(state->_Del_type);
     Py_CLEAR(state->_Delete_type);
     Py_CLEAR(state->_DictComp_type);
     Py_CLEAR(state->_Dict_type);
+    Py_CLEAR(state->_Div_singleton);
     Py_CLEAR(state->_Div_type);
+    Py_CLEAR(state->_Eq_singleton);
     Py_CLEAR(state->_Eq_type);
     Py_CLEAR(state->_ExceptHandler_type);
     Py_CLEAR(state->_Expr_type);
     Py_CLEAR(state->_Expression_type);
+    Py_CLEAR(state->_FloorDiv_singleton);
     Py_CLEAR(state->_FloorDiv_type);
     Py_CLEAR(state->_For_type);
     Py_CLEAR(state->_FormattedValue_type);
@@ -211,26 +220,37 @@ void _PyAST_Fini(PyInterpreterState *interp)
     Py_CLEAR(state->_FunctionType_type);
     Py_CLEAR(state->_GeneratorExp_type);
     Py_CLEAR(state->_Global_type);
+    Py_CLEAR(state->_GtE_singleton);
     Py_CLEAR(state->_GtE_type);
+    Py_CLEAR(state->_Gt_singleton);
     Py_CLEAR(state->_Gt_type);
     Py_CLEAR(state->_IfExp_type);
     Py_CLEAR(state->_If_type);
     Py_CLEAR(state->_ImportFrom_type);
     Py_CLEAR(state->_Import_type);
+    Py_CLEAR(state->_In_singleton);
     Py_CLEAR(state->_In_type);
     Py_CLEAR(state->_Interactive_type);
     Py_CLEAR(state->_Interpolation_type);
+    Py_CLEAR(state->_Invert_singleton);
     Py_CLEAR(state->_Invert_type);
+    Py_CLEAR(state->_IsNot_singleton);
     Py_CLEAR(state->_IsNot_type);
+    Py_CLEAR(state->_Is_singleton);
     Py_CLEAR(state->_Is_type);
     Py_CLEAR(state->_JoinedStr_type);
+    Py_CLEAR(state->_LShift_singleton);
     Py_CLEAR(state->_LShift_type);
     Py_CLEAR(state->_Lambda_type);
     Py_CLEAR(state->_ListComp_type);
     Py_CLEAR(state->_List_type);
+    Py_CLEAR(state->_Load_singleton);
     Py_CLEAR(state->_Load_type);
+    Py_CLEAR(state->_LtE_singleton);
     Py_CLEAR(state->_LtE_type);
+    Py_CLEAR(state->_Lt_singleton);
     Py_CLEAR(state->_Lt_type);
+    Py_CLEAR(state->_MatMult_singleton);
     Py_CLEAR(state->_MatMult_type);
     Py_CLEAR(state->_MatchAs_type);
     Py_CLEAR(state->_MatchClass_type);
@@ -241,19 +261,27 @@ void _PyAST_Fini(PyInterpreterState *interp)
     Py_CLEAR(state->_MatchStar_type);
     Py_CLEAR(state->_MatchValue_type);
     Py_CLEAR(state->_Match_type);
+    Py_CLEAR(state->_Mod_singleton);
     Py_CLEAR(state->_Mod_type);
     Py_CLEAR(state->_Module_type);
+    Py_CLEAR(state->_Mult_singleton);
     Py_CLEAR(state->_Mult_type);
     Py_CLEAR(state->_Name_type);
     Py_CLEAR(state->_NamedExpr_type);
     Py_CLEAR(state->_Nonlocal_type);
+    Py_CLEAR(state->_NotEq_singleton);
     Py_CLEAR(state->_NotEq_type);
+    Py_CLEAR(state->_NotIn_singleton);
     Py_CLEAR(state->_NotIn_type);
+    Py_CLEAR(state->_Not_singleton);
     Py_CLEAR(state->_Not_type);
+    Py_CLEAR(state->_Or_singleton);
     Py_CLEAR(state->_Or_type);
     Py_CLEAR(state->_ParamSpec_type);
     Py_CLEAR(state->_Pass_type);
+    Py_CLEAR(state->_Pow_singleton);
     Py_CLEAR(state->_Pow_type);
+    Py_CLEAR(state->_RShift_singleton);
     Py_CLEAR(state->_RShift_type);
     Py_CLEAR(state->_Raise_type);
     Py_CLEAR(state->_Return_type);
@@ -261,7 +289,9 @@ void _PyAST_Fini(PyInterpreterState *interp)
     Py_CLEAR(state->_Set_type);
     Py_CLEAR(state->_Slice_type);
     Py_CLEAR(state->_Starred_type);
+    Py_CLEAR(state->_Store_singleton);
     Py_CLEAR(state->_Store_type);
+    Py_CLEAR(state->_Sub_singleton);
     Py_CLEAR(state->_Sub_type);
     Py_CLEAR(state->_Subscript_type);
     Py_CLEAR(state->_TemplateStr_type);
@@ -272,7 +302,9 @@ void _PyAST_Fini(PyInterpreterState *interp)
     Py_CLEAR(state->_TypeIgnore_type);
     Py_CLEAR(state->_TypeVarTuple_type);
     Py_CLEAR(state->_TypeVar_type);
+    Py_CLEAR(state->_UAdd_singleton);
     Py_CLEAR(state->_UAdd_type);
+    Py_CLEAR(state->_USub_singleton);
     Py_CLEAR(state->_USub_type);
     Py_CLEAR(state->_UnaryOp_type);
     Py_CLEAR(state->_While_type);
@@ -1009,6 +1041,18 @@ add_ast_annotations(struct ast_state *state)
         Py_DECREF(Module_annotations);
         return 0;
     }
+    cond = PyObject_SetAttrString(state->_Module_type, "_field_types",
+                                  Module_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(Module_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_Module_type, "__annotations__",
+                                  Module_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(Module_annotations);
+        return 0;
+    }
     Py_DECREF(Module_annotations);
     PyObject *Interactive_annotations = PyDict_New();
     if (!Interactive_annotations) return 0;
@@ -1039,6 +1083,18 @@ add_ast_annotations(struct ast_state *state)
         Py_DECREF(Interactive_annotations);
         return 0;
     }
+    cond = PyObject_SetAttrString(state->_Interactive_type, "_field_types",
+                                  Interactive_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(Interactive_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_Interactive_type, "__annotations__",
+                                  Interactive_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(Interactive_annotations);
+        return 0;
+    }
     Py_DECREF(Interactive_annotations);
     PyObject *Expression_annotations = PyDict_New();
     if (!Expression_annotations) return 0;
@@ -1059,6 +1115,18 @@ add_ast_annotations(struct ast_state *state)
         return 0;
     }
     cond = PyObject_SetAttrString(state->Expression_type, "__annotations__",
+                                  Expression_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(Expression_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_Expression_type, "_field_types",
+                                  Expression_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(Expression_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_Expression_type, "__annotations__",
                                   Expression_annotations) == 0;
     if (!cond) {
         Py_DECREF(Expression_annotations);
@@ -1101,6 +1169,18 @@ add_ast_annotations(struct ast_state *state)
         return 0;
     }
     cond = PyObject_SetAttrString(state->FunctionType_type, "__annotations__",
+                                  FunctionType_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(FunctionType_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_FunctionType_type, "_field_types",
+                                  FunctionType_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(FunctionType_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_FunctionType_type, "__annotations__",
                                   FunctionType_annotations) == 0;
     if (!cond) {
         Py_DECREF(FunctionType_annotations);
@@ -1215,6 +1295,18 @@ add_ast_annotations(struct ast_state *state)
         return 0;
     }
     cond = PyObject_SetAttrString(state->FunctionDef_type, "__annotations__",
+                                  FunctionDef_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(FunctionDef_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_FunctionDef_type, "_field_types",
+                                  FunctionDef_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(FunctionDef_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_FunctionDef_type, "__annotations__",
                                   FunctionDef_annotations) == 0;
     if (!cond) {
         Py_DECREF(FunctionDef_annotations);
@@ -1338,6 +1430,20 @@ add_ast_annotations(struct ast_state *state)
         Py_DECREF(AsyncFunctionDef_annotations);
         return 0;
     }
+    cond = PyObject_SetAttrString(state->_AsyncFunctionDef_type,
+                                  "_field_types", AsyncFunctionDef_annotations)
+                                  == 0;
+    if (!cond) {
+        Py_DECREF(AsyncFunctionDef_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_AsyncFunctionDef_type,
+                                  "__annotations__",
+                                  AsyncFunctionDef_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(AsyncFunctionDef_annotations);
+        return 0;
+    }
     Py_DECREF(AsyncFunctionDef_annotations);
     PyObject *ClassDef_annotations = PyDict_New();
     if (!ClassDef_annotations) return 0;
@@ -1441,6 +1547,18 @@ add_ast_annotations(struct ast_state *state)
         Py_DECREF(ClassDef_annotations);
         return 0;
     }
+    cond = PyObject_SetAttrString(state->_ClassDef_type, "_field_types",
+                                  ClassDef_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(ClassDef_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_ClassDef_type, "__annotations__",
+                                  ClassDef_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(ClassDef_annotations);
+        return 0;
+    }
     Py_DECREF(ClassDef_annotations);
     PyObject *Return_annotations = PyDict_New();
     if (!Return_annotations) return 0;
@@ -1471,6 +1589,18 @@ add_ast_annotations(struct ast_state *state)
         Py_DECREF(Return_annotations);
         return 0;
     }
+    cond = PyObject_SetAttrString(state->_Return_type, "_field_types",
+                                  Return_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(Return_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_Return_type, "__annotations__",
+                                  Return_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(Return_annotations);
+        return 0;
+    }
     Py_DECREF(Return_annotations);
     PyObject *Delete_annotations = PyDict_New();
     if (!Delete_annotations) return 0;
@@ -1496,6 +1626,18 @@ add_ast_annotations(struct ast_state *state)
         return 0;
     }
     cond = PyObject_SetAttrString(state->Delete_type, "__annotations__",
+                                  Delete_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(Delete_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_Delete_type, "_field_types",
+                                  Delete_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(Delete_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_Delete_type, "__annotations__",
                                   Delete_annotations) == 0;
     if (!cond) {
         Py_DECREF(Delete_annotations);
@@ -1557,6 +1699,18 @@ add_ast_annotations(struct ast_state *state)
         Py_DECREF(Assign_annotations);
         return 0;
     }
+    cond = PyObject_SetAttrString(state->_Assign_type, "_field_types",
+                                  Assign_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(Assign_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_Assign_type, "__annotations__",
+                                  Assign_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(Assign_annotations);
+        return 0;
+    }
     Py_DECREF(Assign_annotations);
     PyObject *TypeAlias_annotations = PyDict_New();
     if (!TypeAlias_annotations) return 0;
@@ -1608,6 +1762,18 @@ add_ast_annotations(struct ast_state *state)
         Py_DECREF(TypeAlias_annotations);
         return 0;
     }
+    cond = PyObject_SetAttrString(state->_TypeAlias_type, "_field_types",
+                                  TypeAlias_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(TypeAlias_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_TypeAlias_type, "__annotations__",
+                                  TypeAlias_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(TypeAlias_annotations);
+        return 0;
+    }
     Py_DECREF(TypeAlias_annotations);
     PyObject *AugAssign_annotations = PyDict_New();
     if (!AugAssign_annotations) return 0;
@@ -1648,6 +1814,18 @@ add_ast_annotations(struct ast_state *state)
         return 0;
     }
     cond = PyObject_SetAttrString(state->AugAssign_type, "__annotations__",
+                                  AugAssign_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(AugAssign_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_AugAssign_type, "_field_types",
+                                  AugAssign_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(AugAssign_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_AugAssign_type, "__annotations__",
                                   AugAssign_annotations) == 0;
     if (!cond) {
         Py_DECREF(AugAssign_annotations);
@@ -1709,6 +1887,18 @@ add_ast_annotations(struct ast_state *state)
         return 0;
     }
     cond = PyObject_SetAttrString(state->AnnAssign_type, "__annotations__",
+                                  AnnAssign_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(AnnAssign_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_AnnAssign_type, "_field_types",
+                                  AnnAssign_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(AnnAssign_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_AnnAssign_type, "__annotations__",
                                   AnnAssign_annotations) == 0;
     if (!cond) {
         Py_DECREF(AnnAssign_annotations);
@@ -1789,6 +1979,18 @@ add_ast_annotations(struct ast_state *state)
         return 0;
     }
     cond = PyObject_SetAttrString(state->For_type, "__annotations__",
+                                  For_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(For_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_For_type, "_field_types",
+                                  For_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(For_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_For_type, "__annotations__",
                                   For_annotations) == 0;
     if (!cond) {
         Py_DECREF(For_annotations);
@@ -1875,6 +2077,18 @@ add_ast_annotations(struct ast_state *state)
         Py_DECREF(AsyncFor_annotations);
         return 0;
     }
+    cond = PyObject_SetAttrString(state->_AsyncFor_type, "_field_types",
+                                  AsyncFor_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(AsyncFor_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_AsyncFor_type, "__annotations__",
+                                  AsyncFor_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(AsyncFor_annotations);
+        return 0;
+    }
     Py_DECREF(AsyncFor_annotations);
     PyObject *While_annotations = PyDict_New();
     if (!While_annotations) return 0;
@@ -1930,6 +2144,18 @@ add_ast_annotations(struct ast_state *state)
         Py_DECREF(While_annotations);
         return 0;
     }
+    cond = PyObject_SetAttrString(state->_While_type, "_field_types",
+                                  While_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(While_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_While_type, "__annotations__",
+                                  While_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(While_annotations);
+        return 0;
+    }
     Py_DECREF(While_annotations);
     PyObject *If_annotations = PyDict_New();
     if (!If_annotations) return 0;
@@ -1980,6 +2206,18 @@ add_ast_annotations(struct ast_state *state)
         return 0;
     }
     cond = PyObject_SetAttrString(state->If_type, "__annotations__",
+                                  If_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(If_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_If_type, "_field_types",
+                                  If_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(If_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_If_type, "__annotations__",
                                   If_annotations) == 0;
     if (!cond) {
         Py_DECREF(If_annotations);
@@ -2046,6 +2284,18 @@ add_ast_annotations(struct ast_state *state)
         Py_DECREF(With_annotations);
         return 0;
     }
+    cond = PyObject_SetAttrString(state->_With_type, "_field_types",
+                                  With_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(With_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_With_type, "__annotations__",
+                                  With_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(With_annotations);
+        return 0;
+    }
     Py_DECREF(With_annotations);
     PyObject *AsyncWith_annotations = PyDict_New();
     if (!AsyncWith_annotations) return 0;
@@ -2107,6 +2357,18 @@ add_ast_annotations(struct ast_state *state)
         Py_DECREF(AsyncWith_annotations);
         return 0;
     }
+    cond = PyObject_SetAttrString(state->_AsyncWith_type, "_field_types",
+                                  AsyncWith_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(AsyncWith_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_AsyncWith_type, "__annotations__",
+                                  AsyncWith_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(AsyncWith_annotations);
+        return 0;
+    }
     Py_DECREF(AsyncWith_annotations);
     PyObject *Match_annotations = PyDict_New();
     if (!Match_annotations) return 0;
@@ -2142,6 +2404,18 @@ add_ast_annotations(struct ast_state *state)
         return 0;
     }
     cond = PyObject_SetAttrString(state->Match_type, "__annotations__",
+                                  Match_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(Match_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_Match_type, "_field_types",
+                                  Match_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(Match_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_Match_type, "__annotations__",
                                   Match_annotations) == 0;
     if (!cond) {
         Py_DECREF(Match_annotations);
@@ -2187,6 +2461,18 @@ add_ast_annotations(struct ast_state *state)
         return 0;
     }
     cond = PyObject_SetAttrString(state->Raise_type, "__annotations__",
+                                  Raise_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(Raise_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_Raise_type, "_field_types",
+                                  Raise_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(Raise_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_Raise_type, "__annotations__",
                                   Raise_annotations) == 0;
     if (!cond) {
         Py_DECREF(Raise_annotations);
@@ -2262,6 +2548,18 @@ add_ast_annotations(struct ast_state *state)
         return 0;
     }
     cond = PyObject_SetAttrString(state->Try_type, "__annotations__",
+                                  Try_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(Try_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_Try_type, "_field_types",
+                                  Try_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(Try_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_Try_type, "__annotations__",
                                   Try_annotations) == 0;
     if (!cond) {
         Py_DECREF(Try_annotations);
@@ -2343,6 +2641,18 @@ add_ast_annotations(struct ast_state *state)
         Py_DECREF(TryStar_annotations);
         return 0;
     }
+    cond = PyObject_SetAttrString(state->_TryStar_type, "_field_types",
+                                  TryStar_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(TryStar_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_TryStar_type, "__annotations__",
+                                  TryStar_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(TryStar_annotations);
+        return 0;
+    }
     Py_DECREF(TryStar_annotations);
     PyObject *Assert_annotations = PyDict_New();
     if (!Assert_annotations) return 0;
@@ -2383,6 +2693,18 @@ add_ast_annotations(struct ast_state *state)
         Py_DECREF(Assert_annotations);
         return 0;
     }
+    cond = PyObject_SetAttrString(state->_Assert_type, "_field_types",
+                                  Assert_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(Assert_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_Assert_type, "__annotations__",
+                                  Assert_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(Assert_annotations);
+        return 0;
+    }
     Py_DECREF(Assert_annotations);
     PyObject *Import_annotations = PyDict_New();
     if (!Import_annotations) return 0;
@@ -2408,6 +2730,18 @@ add_ast_annotations(struct ast_state *state)
         return 0;
     }
     cond = PyObject_SetAttrString(state->Import_type, "__annotations__",
+                                  Import_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(Import_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_Import_type, "_field_types",
+                                  Import_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(Import_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_Import_type, "__annotations__",
                                   Import_annotations) == 0;
     if (!cond) {
         Py_DECREF(Import_annotations);
@@ -2474,6 +2808,18 @@ add_ast_annotations(struct ast_state *state)
         Py_DECREF(ImportFrom_annotations);
         return 0;
     }
+    cond = PyObject_SetAttrString(state->_ImportFrom_type, "_field_types",
+                                  ImportFrom_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(ImportFrom_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_ImportFrom_type, "__annotations__",
+                                  ImportFrom_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(ImportFrom_annotations);
+        return 0;
+    }
     Py_DECREF(ImportFrom_annotations);
     PyObject *Global_annotations = PyDict_New();
     if (!Global_annotations) return 0;
@@ -2499,6 +2845,18 @@ add_ast_annotations(struct ast_state *state)
         return 0;
     }
     cond = PyObject_SetAttrString(state->Global_type, "__annotations__",
+                                  Global_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(Global_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_Global_type, "_field_types",
+                                  Global_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(Global_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_Global_type, "__annotations__",
                                   Global_annotations) == 0;
     if (!cond) {
         Py_DECREF(Global_annotations);
@@ -2534,6 +2892,18 @@ add_ast_annotations(struct ast_state *state)
         Py_DECREF(Nonlocal_annotations);
         return 0;
     }
+    cond = PyObject_SetAttrString(state->_Nonlocal_type, "_field_types",
+                                  Nonlocal_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(Nonlocal_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_Nonlocal_type, "__annotations__",
+                                  Nonlocal_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(Nonlocal_annotations);
+        return 0;
+    }
     Py_DECREF(Nonlocal_annotations);
     PyObject *Expr_annotations = PyDict_New();
     if (!Expr_annotations) return 0;
@@ -2559,6 +2929,18 @@ add_ast_annotations(struct ast_state *state)
         Py_DECREF(Expr_annotations);
         return 0;
     }
+    cond = PyObject_SetAttrString(state->_Expr_type, "_field_types",
+                                  Expr_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(Expr_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_Expr_type, "__annotations__",
+                                  Expr_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(Expr_annotations);
+        return 0;
+    }
     Py_DECREF(Expr_annotations);
     PyObject *Pass_annotations = PyDict_New();
     if (!Pass_annotations) return 0;
@@ -2569,6 +2951,18 @@ add_ast_annotations(struct ast_state *state)
         return 0;
     }
     cond = PyObject_SetAttrString(state->Pass_type, "__annotations__",
+                                  Pass_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(Pass_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_Pass_type, "_field_types",
+                                  Pass_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(Pass_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_Pass_type, "__annotations__",
                                   Pass_annotations) == 0;
     if (!cond) {
         Py_DECREF(Pass_annotations);
@@ -2589,6 +2983,18 @@ add_ast_annotations(struct ast_state *state)
         Py_DECREF(Break_annotations);
         return 0;
     }
+    cond = PyObject_SetAttrString(state->_Break_type, "_field_types",
+                                  Break_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(Break_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_Break_type, "__annotations__",
+                                  Break_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(Break_annotations);
+        return 0;
+    }
     Py_DECREF(Break_annotations);
     PyObject *Continue_annotations = PyDict_New();
     if (!Continue_annotations) return 0;
@@ -2599,6 +3005,18 @@ add_ast_annotations(struct ast_state *state)
         return 0;
     }
     cond = PyObject_SetAttrString(state->Continue_type, "__annotations__",
+                                  Continue_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(Continue_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_Continue_type, "_field_types",
+                                  Continue_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(Continue_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_Continue_type, "__annotations__",
                                   Continue_annotations) == 0;
     if (!cond) {
         Py_DECREF(Continue_annotations);
@@ -2644,6 +3062,18 @@ add_ast_annotations(struct ast_state *state)
         Py_DECREF(BoolOp_annotations);
         return 0;
     }
+    cond = PyObject_SetAttrString(state->_BoolOp_type, "_field_types",
+                                  BoolOp_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(BoolOp_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_BoolOp_type, "__annotations__",
+                                  BoolOp_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(BoolOp_annotations);
+        return 0;
+    }
     Py_DECREF(BoolOp_annotations);
     PyObject *NamedExpr_annotations = PyDict_New();
     if (!NamedExpr_annotations) return 0;
@@ -2674,6 +3104,18 @@ add_ast_annotations(struct ast_state *state)
         return 0;
     }
     cond = PyObject_SetAttrString(state->NamedExpr_type, "__annotations__",
+                                  NamedExpr_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(NamedExpr_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_NamedExpr_type, "_field_types",
+                                  NamedExpr_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(NamedExpr_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_NamedExpr_type, "__annotations__",
                                   NamedExpr_annotations) == 0;
     if (!cond) {
         Py_DECREF(NamedExpr_annotations);
@@ -2724,6 +3166,18 @@ add_ast_annotations(struct ast_state *state)
         Py_DECREF(BinOp_annotations);
         return 0;
     }
+    cond = PyObject_SetAttrString(state->_BinOp_type, "_field_types",
+                                  BinOp_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(BinOp_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_BinOp_type, "__annotations__",
+                                  BinOp_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(BinOp_annotations);
+        return 0;
+    }
     Py_DECREF(BinOp_annotations);
     PyObject *UnaryOp_annotations = PyDict_New();
     if (!UnaryOp_annotations) return 0;
@@ -2759,6 +3213,18 @@ add_ast_annotations(struct ast_state *state)
         Py_DECREF(UnaryOp_annotations);
         return 0;
     }
+    cond = PyObject_SetAttrString(state->_UnaryOp_type, "_field_types",
+                                  UnaryOp_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(UnaryOp_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_UnaryOp_type, "__annotations__",
+                                  UnaryOp_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(UnaryOp_annotations);
+        return 0;
+    }
     Py_DECREF(UnaryOp_annotations);
     PyObject *Lambda_annotations = PyDict_New();
     if (!Lambda_annotations) return 0;
@@ -2789,6 +3255,18 @@ add_ast_annotations(struct ast_state *state)
         return 0;
     }
     cond = PyObject_SetAttrString(state->Lambda_type, "__annotations__",
+                                  Lambda_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(Lambda_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_Lambda_type, "_field_types",
+                                  Lambda_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(Lambda_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_Lambda_type, "__annotations__",
                                   Lambda_annotations) == 0;
     if (!cond) {
         Py_DECREF(Lambda_annotations);
@@ -2839,6 +3317,18 @@ add_ast_annotations(struct ast_state *state)
         Py_DECREF(IfExp_annotations);
         return 0;
     }
+    cond = PyObject_SetAttrString(state->_IfExp_type, "_field_types",
+                                  IfExp_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(IfExp_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_IfExp_type, "__annotations__",
+                                  IfExp_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(IfExp_annotations);
+        return 0;
+    }
     Py_DECREF(IfExp_annotations);
     PyObject *Dict_annotations = PyDict_New();
     if (!Dict_annotations) return 0;
@@ -2884,6 +3374,18 @@ add_ast_annotations(struct ast_state *state)
         Py_DECREF(Dict_annotations);
         return 0;
     }
+    cond = PyObject_SetAttrString(state->_Dict_type, "_field_types",
+                                  Dict_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(Dict_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_Dict_type, "__annotations__",
+                                  Dict_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(Dict_annotations);
+        return 0;
+    }
     Py_DECREF(Dict_annotations);
     PyObject *Set_annotations = PyDict_New();
     if (!Set_annotations) return 0;
@@ -2909,6 +3411,18 @@ add_ast_annotations(struct ast_state *state)
         return 0;
     }
     cond = PyObject_SetAttrString(state->Set_type, "__annotations__",
+                                  Set_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(Set_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_Set_type, "_field_types",
+                                  Set_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(Set_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_Set_type, "__annotations__",
                                   Set_annotations) == 0;
     if (!cond) {
         Py_DECREF(Set_annotations);
@@ -2955,6 +3469,18 @@ add_ast_annotations(struct ast_state *state)
         Py_DECREF(ListComp_annotations);
         return 0;
     }
+    cond = PyObject_SetAttrString(state->_ListComp_type, "_field_types",
+                                  ListComp_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(ListComp_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_ListComp_type, "__annotations__",
+                                  ListComp_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(ListComp_annotations);
+        return 0;
+    }
     Py_DECREF(ListComp_annotations);
     PyObject *SetComp_annotations = PyDict_New();
     if (!SetComp_annotations) return 0;
@@ -2991,6 +3517,18 @@ add_ast_annotations(struct ast_state *state)
         return 0;
     }
     cond = PyObject_SetAttrString(state->SetComp_type, "__annotations__",
+                                  SetComp_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(SetComp_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_SetComp_type, "_field_types",
+                                  SetComp_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(SetComp_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_SetComp_type, "__annotations__",
                                   SetComp_annotations) == 0;
     if (!cond) {
         Py_DECREF(SetComp_annotations);
@@ -3047,6 +3585,18 @@ add_ast_annotations(struct ast_state *state)
         Py_DECREF(DictComp_annotations);
         return 0;
     }
+    cond = PyObject_SetAttrString(state->_DictComp_type, "_field_types",
+                                  DictComp_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(DictComp_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_DictComp_type, "__annotations__",
+                                  DictComp_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(DictComp_annotations);
+        return 0;
+    }
     Py_DECREF(DictComp_annotations);
     PyObject *GeneratorExp_annotations = PyDict_New();
     if (!GeneratorExp_annotations) return 0;
@@ -3088,6 +3638,18 @@ add_ast_annotations(struct ast_state *state)
         Py_DECREF(GeneratorExp_annotations);
         return 0;
     }
+    cond = PyObject_SetAttrString(state->_GeneratorExp_type, "_field_types",
+                                  GeneratorExp_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(GeneratorExp_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_GeneratorExp_type, "__annotations__",
+                                  GeneratorExp_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(GeneratorExp_annotations);
+        return 0;
+    }
     Py_DECREF(GeneratorExp_annotations);
     PyObject *Await_annotations = PyDict_New();
     if (!Await_annotations) return 0;
@@ -3108,6 +3670,18 @@ add_ast_annotations(struct ast_state *state)
         return 0;
     }
     cond = PyObject_SetAttrString(state->Await_type, "__annotations__",
+                                  Await_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(Await_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_Await_type, "_field_types",
+                                  Await_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(Await_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_Await_type, "__annotations__",
                                   Await_annotations) == 0;
     if (!cond) {
         Py_DECREF(Await_annotations);
@@ -3143,6 +3717,18 @@ add_ast_annotations(struct ast_state *state)
         Py_DECREF(Yield_annotations);
         return 0;
     }
+    cond = PyObject_SetAttrString(state->_Yield_type, "_field_types",
+                                  Yield_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(Yield_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_Yield_type, "__annotations__",
+                                  Yield_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(Yield_annotations);
+        return 0;
+    }
     Py_DECREF(Yield_annotations);
     PyObject *YieldFrom_annotations = PyDict_New();
     if (!YieldFrom_annotations) return 0;
@@ -3163,6 +3749,18 @@ add_ast_annotations(struct ast_state *state)
         return 0;
     }
     cond = PyObject_SetAttrString(state->YieldFrom_type, "__annotations__",
+                                  YieldFrom_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(YieldFrom_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_YieldFrom_type, "_field_types",
+                                  YieldFrom_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(YieldFrom_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_YieldFrom_type, "__annotations__",
                                   YieldFrom_annotations) == 0;
     if (!cond) {
         Py_DECREF(YieldFrom_annotations);
@@ -3224,6 +3822,18 @@ add_ast_annotations(struct ast_state *state)
         Py_DECREF(Compare_annotations);
         return 0;
     }
+    cond = PyObject_SetAttrString(state->_Compare_type, "_field_types",
+                                  Compare_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(Compare_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_Compare_type, "__annotations__",
+                                  Compare_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(Compare_annotations);
+        return 0;
+    }
     Py_DECREF(Compare_annotations);
     PyObject *Call_annotations = PyDict_New();
     if (!Call_annotations) return 0;
@@ -3279,6 +3889,18 @@ add_ast_annotations(struct ast_state *state)
         Py_DECREF(Call_annotations);
         return 0;
     }
+    cond = PyObject_SetAttrString(state->_Call_type, "_field_types",
+                                  Call_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(Call_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_Call_type, "__annotations__",
+                                  Call_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(Call_annotations);
+        return 0;
+    }
     Py_DECREF(Call_annotations);
     PyObject *FormattedValue_annotations = PyDict_New();
     if (!FormattedValue_annotations) return 0;
@@ -3327,6 +3949,19 @@ add_ast_annotations(struct ast_state *state)
         return 0;
     }
     cond = PyObject_SetAttrString(state->FormattedValue_type,
+                                  "__annotations__",
+                                  FormattedValue_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(FormattedValue_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_FormattedValue_type, "_field_types",
+                                  FormattedValue_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(FormattedValue_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_FormattedValue_type,
                                   "__annotations__",
                                   FormattedValue_annotations) == 0;
     if (!cond) {
@@ -3397,6 +4032,19 @@ add_ast_annotations(struct ast_state *state)
         Py_DECREF(Interpolation_annotations);
         return 0;
     }
+    cond = PyObject_SetAttrString(state->_Interpolation_type, "_field_types",
+                                  Interpolation_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(Interpolation_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_Interpolation_type,
+                                  "__annotations__", Interpolation_annotations)
+                                  == 0;
+    if (!cond) {
+        Py_DECREF(Interpolation_annotations);
+        return 0;
+    }
     Py_DECREF(Interpolation_annotations);
     PyObject *JoinedStr_annotations = PyDict_New();
     if (!JoinedStr_annotations) return 0;
@@ -3422,6 +4070,18 @@ add_ast_annotations(struct ast_state *state)
         return 0;
     }
     cond = PyObject_SetAttrString(state->JoinedStr_type, "__annotations__",
+                                  JoinedStr_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(JoinedStr_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_JoinedStr_type, "_field_types",
+                                  JoinedStr_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(JoinedStr_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_JoinedStr_type, "__annotations__",
                                   JoinedStr_annotations) == 0;
     if (!cond) {
         Py_DECREF(JoinedStr_annotations);
@@ -3453,6 +4113,18 @@ add_ast_annotations(struct ast_state *state)
         return 0;
     }
     cond = PyObject_SetAttrString(state->TemplateStr_type, "__annotations__",
+                                  TemplateStr_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(TemplateStr_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_TemplateStr_type, "_field_types",
+                                  TemplateStr_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(TemplateStr_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_TemplateStr_type, "__annotations__",
                                   TemplateStr_annotations) == 0;
     if (!cond) {
         Py_DECREF(TemplateStr_annotations);
@@ -3493,6 +4165,18 @@ add_ast_annotations(struct ast_state *state)
         return 0;
     }
     cond = PyObject_SetAttrString(state->Constant_type, "__annotations__",
+                                  Constant_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(Constant_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_Constant_type, "_field_types",
+                                  Constant_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(Constant_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_Constant_type, "__annotations__",
                                   Constant_annotations) == 0;
     if (!cond) {
         Py_DECREF(Constant_annotations);
@@ -3543,6 +4227,18 @@ add_ast_annotations(struct ast_state *state)
         Py_DECREF(Attribute_annotations);
         return 0;
     }
+    cond = PyObject_SetAttrString(state->_Attribute_type, "_field_types",
+                                  Attribute_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(Attribute_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_Attribute_type, "__annotations__",
+                                  Attribute_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(Attribute_annotations);
+        return 0;
+    }
     Py_DECREF(Attribute_annotations);
     PyObject *Subscript_annotations = PyDict_New();
     if (!Subscript_annotations) return 0;
@@ -3588,6 +4284,18 @@ add_ast_annotations(struct ast_state *state)
         Py_DECREF(Subscript_annotations);
         return 0;
     }
+    cond = PyObject_SetAttrString(state->_Subscript_type, "_field_types",
+                                  Subscript_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(Subscript_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_Subscript_type, "__annotations__",
+                                  Subscript_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(Subscript_annotations);
+        return 0;
+    }
     Py_DECREF(Subscript_annotations);
     PyObject *Starred_annotations = PyDict_New();
     if (!Starred_annotations) return 0;
@@ -3623,6 +4331,18 @@ add_ast_annotations(struct ast_state *state)
         Py_DECREF(Starred_annotations);
         return 0;
     }
+    cond = PyObject_SetAttrString(state->_Starred_type, "_field_types",
+                                  Starred_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(Starred_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_Starred_type, "__annotations__",
+                                  Starred_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(Starred_annotations);
+        return 0;
+    }
     Py_DECREF(Starred_annotations);
     PyObject *Name_annotations = PyDict_New();
     if (!Name_annotations) return 0;
@@ -3653,6 +4373,18 @@ add_ast_annotations(struct ast_state *state)
         return 0;
     }
     cond = PyObject_SetAttrString(state->Name_type, "__annotations__",
+                                  Name_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(Name_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_Name_type, "_field_types",
+                                  Name_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(Name_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_Name_type, "__annotations__",
                                   Name_annotations) == 0;
     if (!cond) {
         Py_DECREF(Name_annotations);
@@ -3698,6 +4430,18 @@ add_ast_annotations(struct ast_state *state)
         Py_DECREF(List_annotations);
         return 0;
     }
+    cond = PyObject_SetAttrString(state->_List_type, "_field_types",
+                                  List_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(List_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_List_type, "__annotations__",
+                                  List_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(List_annotations);
+        return 0;
+    }
     Py_DECREF(List_annotations);
     PyObject *Tuple_annotations = PyDict_New();
     if (!Tuple_annotations) return 0;
@@ -3733,6 +4477,18 @@ add_ast_annotations(struct ast_state *state)
         return 0;
     }
     cond = PyObject_SetAttrString(state->Tuple_type, "__annotations__",
+                                  Tuple_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(Tuple_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_Tuple_type, "_field_types",
+                                  Tuple_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(Tuple_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_Tuple_type, "__annotations__",
                                   Tuple_annotations) == 0;
     if (!cond) {
         Py_DECREF(Tuple_annotations);
@@ -3798,6 +4554,18 @@ add_ast_annotations(struct ast_state *state)
         Py_DECREF(Slice_annotations);
         return 0;
     }
+    cond = PyObject_SetAttrString(state->_Slice_type, "_field_types",
+                                  Slice_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(Slice_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_Slice_type, "__annotations__",
+                                  Slice_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(Slice_annotations);
+        return 0;
+    }
     Py_DECREF(Slice_annotations);
     PyObject *Load_annotations = PyDict_New();
     if (!Load_annotations) return 0;
@@ -3808,6 +4576,18 @@ add_ast_annotations(struct ast_state *state)
         return 0;
     }
     cond = PyObject_SetAttrString(state->Load_type, "__annotations__",
+                                  Load_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(Load_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_Load_type, "_field_types",
+                                  Load_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(Load_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_Load_type, "__annotations__",
                                   Load_annotations) == 0;
     if (!cond) {
         Py_DECREF(Load_annotations);
@@ -3828,6 +4608,18 @@ add_ast_annotations(struct ast_state *state)
         Py_DECREF(Store_annotations);
         return 0;
     }
+    cond = PyObject_SetAttrString(state->_Store_type, "_field_types",
+                                  Store_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(Store_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_Store_type, "__annotations__",
+                                  Store_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(Store_annotations);
+        return 0;
+    }
     Py_DECREF(Store_annotations);
     PyObject *Del_annotations = PyDict_New();
     if (!Del_annotations) return 0;
@@ -3838,6 +4630,18 @@ add_ast_annotations(struct ast_state *state)
         return 0;
     }
     cond = PyObject_SetAttrString(state->Del_type, "__annotations__",
+                                  Del_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(Del_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_Del_type, "_field_types",
+                                  Del_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(Del_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_Del_type, "__annotations__",
                                   Del_annotations) == 0;
     if (!cond) {
         Py_DECREF(Del_annotations);
@@ -3858,6 +4662,18 @@ add_ast_annotations(struct ast_state *state)
         Py_DECREF(And_annotations);
         return 0;
     }
+    cond = PyObject_SetAttrString(state->_And_type, "_field_types",
+                                  And_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(And_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_And_type, "__annotations__",
+                                  And_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(And_annotations);
+        return 0;
+    }
     Py_DECREF(And_annotations);
     PyObject *Or_annotations = PyDict_New();
     if (!Or_annotations) return 0;
@@ -3868,6 +4684,18 @@ add_ast_annotations(struct ast_state *state)
         return 0;
     }
     cond = PyObject_SetAttrString(state->Or_type, "__annotations__",
+                                  Or_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(Or_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_Or_type, "_field_types",
+                                  Or_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(Or_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_Or_type, "__annotations__",
                                   Or_annotations) == 0;
     if (!cond) {
         Py_DECREF(Or_annotations);
@@ -3888,6 +4716,18 @@ add_ast_annotations(struct ast_state *state)
         Py_DECREF(Add_annotations);
         return 0;
     }
+    cond = PyObject_SetAttrString(state->_Add_type, "_field_types",
+                                  Add_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(Add_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_Add_type, "__annotations__",
+                                  Add_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(Add_annotations);
+        return 0;
+    }
     Py_DECREF(Add_annotations);
     PyObject *Sub_annotations = PyDict_New();
     if (!Sub_annotations) return 0;
@@ -3898,6 +4738,18 @@ add_ast_annotations(struct ast_state *state)
         return 0;
     }
     cond = PyObject_SetAttrString(state->Sub_type, "__annotations__",
+                                  Sub_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(Sub_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_Sub_type, "_field_types",
+                                  Sub_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(Sub_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_Sub_type, "__annotations__",
                                   Sub_annotations) == 0;
     if (!cond) {
         Py_DECREF(Sub_annotations);
@@ -3918,6 +4770,18 @@ add_ast_annotations(struct ast_state *state)
         Py_DECREF(Mult_annotations);
         return 0;
     }
+    cond = PyObject_SetAttrString(state->_Mult_type, "_field_types",
+                                  Mult_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(Mult_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_Mult_type, "__annotations__",
+                                  Mult_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(Mult_annotations);
+        return 0;
+    }
     Py_DECREF(Mult_annotations);
     PyObject *MatMult_annotations = PyDict_New();
     if (!MatMult_annotations) return 0;
@@ -3928,6 +4792,18 @@ add_ast_annotations(struct ast_state *state)
         return 0;
     }
     cond = PyObject_SetAttrString(state->MatMult_type, "__annotations__",
+                                  MatMult_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(MatMult_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_MatMult_type, "_field_types",
+                                  MatMult_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(MatMult_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_MatMult_type, "__annotations__",
                                   MatMult_annotations) == 0;
     if (!cond) {
         Py_DECREF(MatMult_annotations);
@@ -3948,6 +4824,18 @@ add_ast_annotations(struct ast_state *state)
         Py_DECREF(Div_annotations);
         return 0;
     }
+    cond = PyObject_SetAttrString(state->_Div_type, "_field_types",
+                                  Div_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(Div_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_Div_type, "__annotations__",
+                                  Div_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(Div_annotations);
+        return 0;
+    }
     Py_DECREF(Div_annotations);
     PyObject *Mod_annotations = PyDict_New();
     if (!Mod_annotations) return 0;
@@ -3958,6 +4846,18 @@ add_ast_annotations(struct ast_state *state)
         return 0;
     }
     cond = PyObject_SetAttrString(state->Mod_type, "__annotations__",
+                                  Mod_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(Mod_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_Mod_type, "_field_types",
+                                  Mod_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(Mod_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_Mod_type, "__annotations__",
                                   Mod_annotations) == 0;
     if (!cond) {
         Py_DECREF(Mod_annotations);
@@ -3978,6 +4878,18 @@ add_ast_annotations(struct ast_state *state)
         Py_DECREF(Pow_annotations);
         return 0;
     }
+    cond = PyObject_SetAttrString(state->_Pow_type, "_field_types",
+                                  Pow_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(Pow_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_Pow_type, "__annotations__",
+                                  Pow_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(Pow_annotations);
+        return 0;
+    }
     Py_DECREF(Pow_annotations);
     PyObject *LShift_annotations = PyDict_New();
     if (!LShift_annotations) return 0;
@@ -3988,6 +4900,18 @@ add_ast_annotations(struct ast_state *state)
         return 0;
     }
     cond = PyObject_SetAttrString(state->LShift_type, "__annotations__",
+                                  LShift_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(LShift_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_LShift_type, "_field_types",
+                                  LShift_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(LShift_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_LShift_type, "__annotations__",
                                   LShift_annotations) == 0;
     if (!cond) {
         Py_DECREF(LShift_annotations);
@@ -4008,6 +4932,18 @@ add_ast_annotations(struct ast_state *state)
         Py_DECREF(RShift_annotations);
         return 0;
     }
+    cond = PyObject_SetAttrString(state->_RShift_type, "_field_types",
+                                  RShift_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(RShift_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_RShift_type, "__annotations__",
+                                  RShift_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(RShift_annotations);
+        return 0;
+    }
     Py_DECREF(RShift_annotations);
     PyObject *BitOr_annotations = PyDict_New();
     if (!BitOr_annotations) return 0;
@@ -4018,6 +4954,18 @@ add_ast_annotations(struct ast_state *state)
         return 0;
     }
     cond = PyObject_SetAttrString(state->BitOr_type, "__annotations__",
+                                  BitOr_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(BitOr_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_BitOr_type, "_field_types",
+                                  BitOr_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(BitOr_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_BitOr_type, "__annotations__",
                                   BitOr_annotations) == 0;
     if (!cond) {
         Py_DECREF(BitOr_annotations);
@@ -4038,6 +4986,18 @@ add_ast_annotations(struct ast_state *state)
         Py_DECREF(BitXor_annotations);
         return 0;
     }
+    cond = PyObject_SetAttrString(state->_BitXor_type, "_field_types",
+                                  BitXor_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(BitXor_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_BitXor_type, "__annotations__",
+                                  BitXor_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(BitXor_annotations);
+        return 0;
+    }
     Py_DECREF(BitXor_annotations);
     PyObject *BitAnd_annotations = PyDict_New();
     if (!BitAnd_annotations) return 0;
@@ -4048,6 +5008,18 @@ add_ast_annotations(struct ast_state *state)
         return 0;
     }
     cond = PyObject_SetAttrString(state->BitAnd_type, "__annotations__",
+                                  BitAnd_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(BitAnd_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_BitAnd_type, "_field_types",
+                                  BitAnd_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(BitAnd_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_BitAnd_type, "__annotations__",
                                   BitAnd_annotations) == 0;
     if (!cond) {
         Py_DECREF(BitAnd_annotations);
@@ -4068,6 +5040,18 @@ add_ast_annotations(struct ast_state *state)
         Py_DECREF(FloorDiv_annotations);
         return 0;
     }
+    cond = PyObject_SetAttrString(state->_FloorDiv_type, "_field_types",
+                                  FloorDiv_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(FloorDiv_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_FloorDiv_type, "__annotations__",
+                                  FloorDiv_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(FloorDiv_annotations);
+        return 0;
+    }
     Py_DECREF(FloorDiv_annotations);
     PyObject *Invert_annotations = PyDict_New();
     if (!Invert_annotations) return 0;
@@ -4078,6 +5062,18 @@ add_ast_annotations(struct ast_state *state)
         return 0;
     }
     cond = PyObject_SetAttrString(state->Invert_type, "__annotations__",
+                                  Invert_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(Invert_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_Invert_type, "_field_types",
+                                  Invert_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(Invert_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_Invert_type, "__annotations__",
                                   Invert_annotations) == 0;
     if (!cond) {
         Py_DECREF(Invert_annotations);
@@ -4098,6 +5094,18 @@ add_ast_annotations(struct ast_state *state)
         Py_DECREF(Not_annotations);
         return 0;
     }
+    cond = PyObject_SetAttrString(state->_Not_type, "_field_types",
+                                  Not_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(Not_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_Not_type, "__annotations__",
+                                  Not_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(Not_annotations);
+        return 0;
+    }
     Py_DECREF(Not_annotations);
     PyObject *UAdd_annotations = PyDict_New();
     if (!UAdd_annotations) return 0;
@@ -4108,6 +5116,18 @@ add_ast_annotations(struct ast_state *state)
         return 0;
     }
     cond = PyObject_SetAttrString(state->UAdd_type, "__annotations__",
+                                  UAdd_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(UAdd_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_UAdd_type, "_field_types",
+                                  UAdd_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(UAdd_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_UAdd_type, "__annotations__",
                                   UAdd_annotations) == 0;
     if (!cond) {
         Py_DECREF(UAdd_annotations);
@@ -4128,6 +5148,18 @@ add_ast_annotations(struct ast_state *state)
         Py_DECREF(USub_annotations);
         return 0;
     }
+    cond = PyObject_SetAttrString(state->_USub_type, "_field_types",
+                                  USub_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(USub_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_USub_type, "__annotations__",
+                                  USub_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(USub_annotations);
+        return 0;
+    }
     Py_DECREF(USub_annotations);
     PyObject *Eq_annotations = PyDict_New();
     if (!Eq_annotations) return 0;
@@ -4138,6 +5170,18 @@ add_ast_annotations(struct ast_state *state)
         return 0;
     }
     cond = PyObject_SetAttrString(state->Eq_type, "__annotations__",
+                                  Eq_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(Eq_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_Eq_type, "_field_types",
+                                  Eq_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(Eq_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_Eq_type, "__annotations__",
                                   Eq_annotations) == 0;
     if (!cond) {
         Py_DECREF(Eq_annotations);
@@ -4158,6 +5202,18 @@ add_ast_annotations(struct ast_state *state)
         Py_DECREF(NotEq_annotations);
         return 0;
     }
+    cond = PyObject_SetAttrString(state->_NotEq_type, "_field_types",
+                                  NotEq_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(NotEq_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_NotEq_type, "__annotations__",
+                                  NotEq_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(NotEq_annotations);
+        return 0;
+    }
     Py_DECREF(NotEq_annotations);
     PyObject *Lt_annotations = PyDict_New();
     if (!Lt_annotations) return 0;
@@ -4168,6 +5224,18 @@ add_ast_annotations(struct ast_state *state)
         return 0;
     }
     cond = PyObject_SetAttrString(state->Lt_type, "__annotations__",
+                                  Lt_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(Lt_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_Lt_type, "_field_types",
+                                  Lt_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(Lt_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_Lt_type, "__annotations__",
                                   Lt_annotations) == 0;
     if (!cond) {
         Py_DECREF(Lt_annotations);
@@ -4188,6 +5256,18 @@ add_ast_annotations(struct ast_state *state)
         Py_DECREF(LtE_annotations);
         return 0;
     }
+    cond = PyObject_SetAttrString(state->_LtE_type, "_field_types",
+                                  LtE_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(LtE_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_LtE_type, "__annotations__",
+                                  LtE_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(LtE_annotations);
+        return 0;
+    }
     Py_DECREF(LtE_annotations);
     PyObject *Gt_annotations = PyDict_New();
     if (!Gt_annotations) return 0;
@@ -4198,6 +5278,18 @@ add_ast_annotations(struct ast_state *state)
         return 0;
     }
     cond = PyObject_SetAttrString(state->Gt_type, "__annotations__",
+                                  Gt_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(Gt_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_Gt_type, "_field_types",
+                                  Gt_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(Gt_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_Gt_type, "__annotations__",
                                   Gt_annotations) == 0;
     if (!cond) {
         Py_DECREF(Gt_annotations);
@@ -4218,6 +5310,18 @@ add_ast_annotations(struct ast_state *state)
         Py_DECREF(GtE_annotations);
         return 0;
     }
+    cond = PyObject_SetAttrString(state->_GtE_type, "_field_types",
+                                  GtE_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(GtE_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_GtE_type, "__annotations__",
+                                  GtE_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(GtE_annotations);
+        return 0;
+    }
     Py_DECREF(GtE_annotations);
     PyObject *Is_annotations = PyDict_New();
     if (!Is_annotations) return 0;
@@ -4228,6 +5332,18 @@ add_ast_annotations(struct ast_state *state)
         return 0;
     }
     cond = PyObject_SetAttrString(state->Is_type, "__annotations__",
+                                  Is_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(Is_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_Is_type, "_field_types",
+                                  Is_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(Is_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_Is_type, "__annotations__",
                                   Is_annotations) == 0;
     if (!cond) {
         Py_DECREF(Is_annotations);
@@ -4248,6 +5364,18 @@ add_ast_annotations(struct ast_state *state)
         Py_DECREF(IsNot_annotations);
         return 0;
     }
+    cond = PyObject_SetAttrString(state->_IsNot_type, "_field_types",
+                                  IsNot_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(IsNot_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_IsNot_type, "__annotations__",
+                                  IsNot_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(IsNot_annotations);
+        return 0;
+    }
     Py_DECREF(IsNot_annotations);
     PyObject *In_annotations = PyDict_New();
     if (!In_annotations) return 0;
@@ -4263,6 +5391,18 @@ add_ast_annotations(struct ast_state *state)
         Py_DECREF(In_annotations);
         return 0;
     }
+    cond = PyObject_SetAttrString(state->_In_type, "_field_types",
+                                  In_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(In_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_In_type, "__annotations__",
+                                  In_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(In_annotations);
+        return 0;
+    }
     Py_DECREF(In_annotations);
     PyObject *NotIn_annotations = PyDict_New();
     if (!NotIn_annotations) return 0;
@@ -4273,6 +5413,18 @@ add_ast_annotations(struct ast_state *state)
         return 0;
     }
     cond = PyObject_SetAttrString(state->NotIn_type, "__annotations__",
+                                  NotIn_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(NotIn_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_NotIn_type, "_field_types",
+                                  NotIn_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(NotIn_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_NotIn_type, "__annotations__",
                                   NotIn_annotations) == 0;
     if (!cond) {
         Py_DECREF(NotIn_annotations);
@@ -4342,6 +5494,19 @@ add_ast_annotations(struct ast_state *state)
         Py_DECREF(comprehension_annotations);
         return 0;
     }
+    cond = PyObject_SetAttrString(state->_comprehension_type, "_field_types",
+                                  comprehension_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(comprehension_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_comprehension_type,
+                                  "__annotations__", comprehension_annotations)
+                                  == 0;
+    if (!cond) {
+        Py_DECREF(comprehension_annotations);
+        return 0;
+    }
     Py_DECREF(comprehension_annotations);
     PyObject *ExceptHandler_annotations = PyDict_New();
     if (!ExceptHandler_annotations) return 0;
@@ -4401,6 +5566,19 @@ add_ast_annotations(struct ast_state *state)
     }
     cond = PyObject_SetAttrString(state->ExceptHandler_type, "__annotations__",
                                   ExceptHandler_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(ExceptHandler_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_ExceptHandler_type, "_field_types",
+                                  ExceptHandler_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(ExceptHandler_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_ExceptHandler_type,
+                                  "__annotations__", ExceptHandler_annotations)
+                                  == 0;
     if (!cond) {
         Py_DECREF(ExceptHandler_annotations);
         return 0;
@@ -4529,6 +5707,18 @@ add_ast_annotations(struct ast_state *state)
         Py_DECREF(arguments_annotations);
         return 0;
     }
+    cond = PyObject_SetAttrString(state->_arguments_type, "_field_types",
+                                  arguments_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(arguments_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_arguments_type, "__annotations__",
+                                  arguments_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(arguments_annotations);
+        return 0;
+    }
     Py_DECREF(arguments_annotations);
     PyObject *arg_annotations = PyDict_New();
     if (!arg_annotations) return 0;
@@ -4584,6 +5774,18 @@ add_ast_annotations(struct ast_state *state)
         Py_DECREF(arg_annotations);
         return 0;
     }
+    cond = PyObject_SetAttrString(state->_arg_type, "_field_types",
+                                  arg_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(arg_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_arg_type, "__annotations__",
+                                  arg_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(arg_annotations);
+        return 0;
+    }
     Py_DECREF(arg_annotations);
     PyObject *keyword_annotations = PyDict_New();
     if (!keyword_annotations) return 0;
@@ -4619,6 +5821,18 @@ add_ast_annotations(struct ast_state *state)
         return 0;
     }
     cond = PyObject_SetAttrString(state->keyword_type, "__annotations__",
+                                  keyword_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(keyword_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_keyword_type, "_field_types",
+                                  keyword_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(keyword_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_keyword_type, "__annotations__",
                                   keyword_annotations) == 0;
     if (!cond) {
         Py_DECREF(keyword_annotations);
@@ -4664,6 +5878,18 @@ add_ast_annotations(struct ast_state *state)
         Py_DECREF(alias_annotations);
         return 0;
     }
+    cond = PyObject_SetAttrString(state->_alias_type, "_field_types",
+                                  alias_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(alias_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_alias_type, "__annotations__",
+                                  alias_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(alias_annotations);
+        return 0;
+    }
     Py_DECREF(alias_annotations);
     PyObject *withitem_annotations = PyDict_New();
     if (!withitem_annotations) return 0;
@@ -4701,6 +5927,18 @@ add_ast_annotations(struct ast_state *state)
         return 0;
     }
     cond = PyObject_SetAttrString(state->withitem_type, "__annotations__",
+                                  withitem_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(withitem_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_withitem_type, "_field_types",
+                                  withitem_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(withitem_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_withitem_type, "__annotations__",
                                   withitem_annotations) == 0;
     if (!cond) {
         Py_DECREF(withitem_annotations);
@@ -4762,6 +6000,18 @@ add_ast_annotations(struct ast_state *state)
         Py_DECREF(match_case_annotations);
         return 0;
     }
+    cond = PyObject_SetAttrString(state->_match_case_type, "_field_types",
+                                  match_case_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(match_case_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_match_case_type, "__annotations__",
+                                  match_case_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(match_case_annotations);
+        return 0;
+    }
     Py_DECREF(match_case_annotations);
     PyObject *MatchValue_annotations = PyDict_New();
     if (!MatchValue_annotations) return 0;
@@ -4782,6 +6032,18 @@ add_ast_annotations(struct ast_state *state)
         return 0;
     }
     cond = PyObject_SetAttrString(state->MatchValue_type, "__annotations__",
+                                  MatchValue_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(MatchValue_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_MatchValue_type, "_field_types",
+                                  MatchValue_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(MatchValue_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_MatchValue_type, "__annotations__",
                                   MatchValue_annotations) == 0;
     if (!cond) {
         Py_DECREF(MatchValue_annotations);
@@ -4808,6 +6070,19 @@ add_ast_annotations(struct ast_state *state)
         return 0;
     }
     cond = PyObject_SetAttrString(state->MatchSingleton_type,
+                                  "__annotations__",
+                                  MatchSingleton_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(MatchSingleton_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_MatchSingleton_type, "_field_types",
+                                  MatchSingleton_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(MatchSingleton_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_MatchSingleton_type,
                                   "__annotations__",
                                   MatchSingleton_annotations) == 0;
     if (!cond) {
@@ -4841,6 +6116,19 @@ add_ast_annotations(struct ast_state *state)
     }
     cond = PyObject_SetAttrString(state->MatchSequence_type, "__annotations__",
                                   MatchSequence_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(MatchSequence_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_MatchSequence_type, "_field_types",
+                                  MatchSequence_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(MatchSequence_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_MatchSequence_type,
+                                  "__annotations__", MatchSequence_annotations)
+                                  == 0;
     if (!cond) {
         Py_DECREF(MatchSequence_annotations);
         return 0;
@@ -4903,6 +6191,18 @@ add_ast_annotations(struct ast_state *state)
         return 0;
     }
     cond = PyObject_SetAttrString(state->MatchMapping_type, "__annotations__",
+                                  MatchMapping_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(MatchMapping_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_MatchMapping_type, "_field_types",
+                                  MatchMapping_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(MatchMapping_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_MatchMapping_type, "__annotations__",
                                   MatchMapping_annotations) == 0;
     if (!cond) {
         Py_DECREF(MatchMapping_annotations);
@@ -4981,6 +6281,18 @@ add_ast_annotations(struct ast_state *state)
         Py_DECREF(MatchClass_annotations);
         return 0;
     }
+    cond = PyObject_SetAttrString(state->_MatchClass_type, "_field_types",
+                                  MatchClass_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(MatchClass_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_MatchClass_type, "__annotations__",
+                                  MatchClass_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(MatchClass_annotations);
+        return 0;
+    }
     Py_DECREF(MatchClass_annotations);
     PyObject *MatchStar_annotations = PyDict_New();
     if (!MatchStar_annotations) return 0;
@@ -5006,6 +6318,18 @@ add_ast_annotations(struct ast_state *state)
         return 0;
     }
     cond = PyObject_SetAttrString(state->MatchStar_type, "__annotations__",
+                                  MatchStar_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(MatchStar_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_MatchStar_type, "_field_types",
+                                  MatchStar_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(MatchStar_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_MatchStar_type, "__annotations__",
                                   MatchStar_annotations) == 0;
     if (!cond) {
         Py_DECREF(MatchStar_annotations);
@@ -5056,6 +6380,18 @@ add_ast_annotations(struct ast_state *state)
         Py_DECREF(MatchAs_annotations);
         return 0;
     }
+    cond = PyObject_SetAttrString(state->_MatchAs_type, "_field_types",
+                                  MatchAs_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(MatchAs_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_MatchAs_type, "__annotations__",
+                                  MatchAs_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(MatchAs_annotations);
+        return 0;
+    }
     Py_DECREF(MatchAs_annotations);
     PyObject *MatchOr_annotations = PyDict_New();
     if (!MatchOr_annotations) return 0;
@@ -5081,6 +6417,18 @@ add_ast_annotations(struct ast_state *state)
         return 0;
     }
     cond = PyObject_SetAttrString(state->MatchOr_type, "__annotations__",
+                                  MatchOr_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(MatchOr_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_MatchOr_type, "_field_types",
+                                  MatchOr_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(MatchOr_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_MatchOr_type, "__annotations__",
                                   MatchOr_annotations) == 0;
     if (!cond) {
         Py_DECREF(MatchOr_annotations);
@@ -5117,6 +6465,18 @@ add_ast_annotations(struct ast_state *state)
         return 0;
     }
     cond = PyObject_SetAttrString(state->TypeIgnore_type, "__annotations__",
+                                  TypeIgnore_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(TypeIgnore_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_TypeIgnore_type, "_field_types",
+                                  TypeIgnore_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(TypeIgnore_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_TypeIgnore_type, "__annotations__",
                                   TypeIgnore_annotations) == 0;
     if (!cond) {
         Py_DECREF(TypeIgnore_annotations);
@@ -5178,6 +6538,18 @@ add_ast_annotations(struct ast_state *state)
         Py_DECREF(TypeVar_annotations);
         return 0;
     }
+    cond = PyObject_SetAttrString(state->_TypeVar_type, "_field_types",
+                                  TypeVar_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(TypeVar_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_TypeVar_type, "__annotations__",
+                                  TypeVar_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(TypeVar_annotations);
+        return 0;
+    }
     Py_DECREF(TypeVar_annotations);
     PyObject *ParamSpec_annotations = PyDict_New();
     if (!ParamSpec_annotations) return 0;
@@ -5214,6 +6586,18 @@ add_ast_annotations(struct ast_state *state)
         return 0;
     }
     cond = PyObject_SetAttrString(state->ParamSpec_type, "__annotations__",
+                                  ParamSpec_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(ParamSpec_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_ParamSpec_type, "_field_types",
+                                  ParamSpec_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(ParamSpec_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_ParamSpec_type, "__annotations__",
                                   ParamSpec_annotations) == 0;
     if (!cond) {
         Py_DECREF(ParamSpec_annotations);
@@ -5256,6 +6640,18 @@ add_ast_annotations(struct ast_state *state)
         return 0;
     }
     cond = PyObject_SetAttrString(state->TypeVarTuple_type, "__annotations__",
+                                  TypeVarTuple_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(TypeVarTuple_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_TypeVarTuple_type, "_field_types",
+                                  TypeVarTuple_annotations) == 0;
+    if (!cond) {
+        Py_DECREF(TypeVarTuple_annotations);
+        return 0;
+    }
+    cond = PyObject_SetAttrString(state->_TypeVarTuple_type, "__annotations__",
                                   TypeVarTuple_annotations) == 0;
     if (!cond) {
         Py_DECREF(TypeVarTuple_annotations);
@@ -5448,9 +6844,11 @@ static int ast_seq_contains(asdl_seq *seq, PyObject *el) {
 }
 
 static void int_seq_dealloc(PyObject *self) {
-    asdl_int_seq *obj = (asdl_int_seq *)self;
-    Py_TYPE(self)->tp_free(obj);
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
 }
+
 
 static PyType_Slot _PyAST_int_seq_type_slots[] = {
     {Py_tp_dealloc, &int_seq_dealloc},
@@ -5492,8 +6890,11 @@ static void identifier_seq_dealloc(PyObject *self) {
             Py_DECREF(value);
         }
     }
-    Py_TYPE(self)->tp_free(obj);
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
 }
+
 
 static PyType_Slot _PyAST_identifier_seq_type_slots[] = {
     {Py_tp_dealloc, &identifier_seq_dealloc},
@@ -5555,7 +6956,8 @@ static PyMemberDef AST_members[] = {
 
 static PyType_Slot _AST_type_slots[] = {
     {Py_tp_dealloc, &AST_dealloc},
-{Py_tp_members, AST_members},
+{Py_tp_repr, ast_repr},
+    {Py_tp_members, AST_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, ""},
     {Py_tp_new, AST_new},
@@ -5611,8 +7013,11 @@ static void Module_dealloc(PyObject *self) {
     mod_ty obj = (mod_ty)self;
     Py_XDECREF(obj->v.Module.body);
     Py_XDECREF(obj->v.Module.type_ignores);
-    Py_TYPE(self)->tp_free(obj);
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
 }
+
 static PyMemberDef Module_members[] = {
     {"body", _Py_T_OBJECT, offsetof(struct _mod, v.Module.body), Py_READONLY,
       NULL},
@@ -5623,7 +7028,7 @@ static PyMemberDef Module_members[] = {
 
 static PyType_Slot _Module_type_slots[] = {
     {Py_tp_dealloc, &Module_dealloc},
-{Py_tp_members, Module_members},
+    {Py_tp_members, Module_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "Module(stmt* body, type_ignore* type_ignores)"},
     {Py_tp_new, Module_new},
@@ -5694,8 +7099,11 @@ Interactive_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
 static void Interactive_dealloc(PyObject *self) {
     mod_ty obj = (mod_ty)self;
     Py_XDECREF(obj->v.Interactive.body);
-    Py_TYPE(self)->tp_free(obj);
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
 }
+
 static PyMemberDef Interactive_members[] = {
     {"body", _Py_T_OBJECT, offsetof(struct _mod, v.Interactive.body),
       Py_READONLY, NULL},
@@ -5704,7 +7112,7 @@ static PyMemberDef Interactive_members[] = {
 
 static PyType_Slot _Interactive_type_slots[] = {
     {Py_tp_dealloc, &Interactive_dealloc},
-{Py_tp_members, Interactive_members},
+    {Py_tp_members, Interactive_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "Interactive(stmt* body)"},
     {Py_tp_new, Interactive_new},
@@ -5769,8 +7177,11 @@ Expression_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
 static void Expression_dealloc(PyObject *self) {
     mod_ty obj = (mod_ty)self;
     Py_XDECREF(obj->v.Expression.body);
-    Py_TYPE(self)->tp_free(obj);
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
 }
+
 static PyMemberDef Expression_members[] = {
     {"body", _Py_T_OBJECT, offsetof(struct _mod, v.Expression.body),
       Py_READONLY, NULL},
@@ -5779,7 +7190,7 @@ static PyMemberDef Expression_members[] = {
 
 static PyType_Slot _Expression_type_slots[] = {
     {Py_tp_dealloc, &Expression_dealloc},
-{Py_tp_members, Expression_members},
+    {Py_tp_members, Expression_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "Expression(expr body)"},
     {Py_tp_new, Expression_new},
@@ -5853,8 +7264,11 @@ static void FunctionType_dealloc(PyObject *self) {
     mod_ty obj = (mod_ty)self;
     Py_XDECREF(obj->v.FunctionType.argtypes);
     Py_XDECREF(obj->v.FunctionType.returns);
-    Py_TYPE(self)->tp_free(obj);
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
 }
+
 static PyMemberDef FunctionType_members[] = {
     {"argtypes", _Py_T_OBJECT, offsetof(struct _mod, v.FunctionType.argtypes),
       Py_READONLY, NULL},
@@ -5865,7 +7279,7 @@ static PyMemberDef FunctionType_members[] = {
 
 static PyType_Slot _FunctionType_type_slots[] = {
     {Py_tp_dealloc, &FunctionType_dealloc},
-{Py_tp_members, FunctionType_members},
+    {Py_tp_members, FunctionType_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "FunctionType(expr* argtypes, expr returns)"},
     {Py_tp_new, FunctionType_new},
@@ -5935,16 +7349,18 @@ mod_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
 }
 
 static void mod_dealloc(PyObject *self) {
-    mod_ty obj = (mod_ty)self;
-    Py_TYPE(self)->tp_free(obj);
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
 }
+
 static PyMemberDef mod_members[] = {
     {0}
 };
 
 static PyType_Slot _mod_type_slots[] = {
     {Py_tp_dealloc, &mod_dealloc},
-{Py_tp_members, mod_members},
+    {Py_tp_members, mod_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "mod = Module(stmt* body, type_ignore* type_ignores)\n"
         "    | Interactive(stmt* body)\n"
@@ -5972,8 +7388,11 @@ static void mod_seq_dealloc(PyObject *self) {
             Py_DECREF(value);
         }
     }
-    Py_TYPE(self)->tp_free(obj);
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
 }
+
 
 static PyType_Slot _PyAST_mod_seq_type_slots[] = {
     {Py_tp_dealloc, &mod_seq_dealloc},
@@ -6104,8 +7523,11 @@ static void FunctionDef_dealloc(PyObject *self) {
     Py_XDECREF(obj->v.FunctionDef.returns);
     Py_XDECREF(obj->v.FunctionDef.type_comment);
     Py_XDECREF(obj->v.FunctionDef.type_params);
-    Py_TYPE(self)->tp_free(obj);
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
 }
+
 static PyMemberDef FunctionDef_members[] = {
     {"name", _Py_T_OBJECT, offsetof(struct _stmt, v.FunctionDef.name),
       Py_READONLY, NULL},
@@ -6126,7 +7548,7 @@ static PyMemberDef FunctionDef_members[] = {
 
 static PyType_Slot _FunctionDef_type_slots[] = {
     {Py_tp_dealloc, &FunctionDef_dealloc},
-{Py_tp_members, FunctionDef_members},
+    {Py_tp_members, FunctionDef_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "FunctionDef(identifier name, arguments args, stmt* body, expr* decorator_list, expr? returns, string? type_comment, type_param* type_params)"},
     {Py_tp_new, FunctionDef_new},
@@ -6293,8 +7715,11 @@ static void AsyncFunctionDef_dealloc(PyObject *self) {
     Py_XDECREF(obj->v.AsyncFunctionDef.returns);
     Py_XDECREF(obj->v.AsyncFunctionDef.type_comment);
     Py_XDECREF(obj->v.AsyncFunctionDef.type_params);
-    Py_TYPE(self)->tp_free(obj);
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
 }
+
 static PyMemberDef AsyncFunctionDef_members[] = {
     {"name", _Py_T_OBJECT, offsetof(struct _stmt, v.AsyncFunctionDef.name),
       Py_READONLY, NULL},
@@ -6315,7 +7740,7 @@ static PyMemberDef AsyncFunctionDef_members[] = {
 
 static PyType_Slot _AsyncFunctionDef_type_slots[] = {
     {Py_tp_dealloc, &AsyncFunctionDef_dealloc},
-{Py_tp_members, AsyncFunctionDef_members},
+    {Py_tp_members, AsyncFunctionDef_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "AsyncFunctionDef(identifier name, arguments args, stmt* body, expr* decorator_list, expr? returns, string? type_comment, type_param* type_params)"},
     {Py_tp_new, AsyncFunctionDef_new},
@@ -6471,8 +7896,11 @@ static void ClassDef_dealloc(PyObject *self) {
     Py_XDECREF(obj->v.ClassDef.body);
     Py_XDECREF(obj->v.ClassDef.decorator_list);
     Py_XDECREF(obj->v.ClassDef.type_params);
-    Py_TYPE(self)->tp_free(obj);
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
 }
+
 static PyMemberDef ClassDef_members[] = {
     {"name", _Py_T_OBJECT, offsetof(struct _stmt, v.ClassDef.name),
       Py_READONLY, NULL},
@@ -6491,7 +7919,7 @@ static PyMemberDef ClassDef_members[] = {
 
 static PyType_Slot _ClassDef_type_slots[] = {
     {Py_tp_dealloc, &ClassDef_dealloc},
-{Py_tp_members, ClassDef_members},
+    {Py_tp_members, ClassDef_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "ClassDef(identifier name, expr* bases, keyword* keywords, stmt* body, expr* decorator_list, type_param* type_params)"},
     {Py_tp_new, ClassDef_new},
@@ -6588,8 +8016,11 @@ Return_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
 static void Return_dealloc(PyObject *self) {
     stmt_ty obj = (stmt_ty)self;
     Py_XDECREF(obj->v.Return.value);
-    Py_TYPE(self)->tp_free(obj);
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
 }
+
 static PyMemberDef Return_members[] = {
     {"value", _Py_T_OBJECT, offsetof(struct _stmt, v.Return.value),
       Py_READONLY, NULL},
@@ -6598,7 +8029,7 @@ static PyMemberDef Return_members[] = {
 
 static PyType_Slot _Return_type_slots[] = {
     {Py_tp_dealloc, &Return_dealloc},
-{Py_tp_members, Return_members},
+    {Py_tp_members, Return_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "Return(expr? value)"},
     {Py_tp_new, Return_new},
@@ -6663,8 +8094,11 @@ Delete_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
 static void Delete_dealloc(PyObject *self) {
     stmt_ty obj = (stmt_ty)self;
     Py_XDECREF(obj->v.Delete.targets);
-    Py_TYPE(self)->tp_free(obj);
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
 }
+
 static PyMemberDef Delete_members[] = {
     {"targets", _Py_T_OBJECT, offsetof(struct _stmt, v.Delete.targets),
       Py_READONLY, NULL},
@@ -6673,7 +8107,7 @@ static PyMemberDef Delete_members[] = {
 
 static PyType_Slot _Delete_type_slots[] = {
     {Py_tp_dealloc, &Delete_dealloc},
-{Py_tp_members, Delete_members},
+    {Py_tp_members, Delete_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "Delete(expr* targets)"},
     {Py_tp_new, Delete_new},
@@ -6757,8 +8191,11 @@ static void Assign_dealloc(PyObject *self) {
     Py_XDECREF(obj->v.Assign.targets);
     Py_XDECREF(obj->v.Assign.value);
     Py_XDECREF(obj->v.Assign.type_comment);
-    Py_TYPE(self)->tp_free(obj);
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
 }
+
 static PyMemberDef Assign_members[] = {
     {"targets", _Py_T_OBJECT, offsetof(struct _stmt, v.Assign.targets),
       Py_READONLY, NULL},
@@ -6771,7 +8208,7 @@ static PyMemberDef Assign_members[] = {
 
 static PyType_Slot _Assign_type_slots[] = {
     {Py_tp_dealloc, &Assign_dealloc},
-{Py_tp_members, Assign_members},
+    {Py_tp_members, Assign_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "Assign(expr* targets, expr value, string? type_comment)"},
     {Py_tp_new, Assign_new},
@@ -6866,8 +8303,11 @@ static void TypeAlias_dealloc(PyObject *self) {
     Py_XDECREF(obj->v.TypeAlias.name);
     Py_XDECREF(obj->v.TypeAlias.type_params);
     Py_XDECREF(obj->v.TypeAlias.value);
-    Py_TYPE(self)->tp_free(obj);
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
 }
+
 static PyMemberDef TypeAlias_members[] = {
     {"name", _Py_T_OBJECT, offsetof(struct _stmt, v.TypeAlias.name),
       Py_READONLY, NULL},
@@ -6880,7 +8320,7 @@ static PyMemberDef TypeAlias_members[] = {
 
 static PyType_Slot _TypeAlias_type_slots[] = {
     {Py_tp_dealloc, &TypeAlias_dealloc},
-{Py_tp_members, TypeAlias_members},
+    {Py_tp_members, TypeAlias_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "TypeAlias(expr name, type_param* type_params, expr value)"},
     {Py_tp_new, TypeAlias_new},
@@ -6976,8 +8416,11 @@ static void AugAssign_dealloc(PyObject *self) {
     stmt_ty obj = (stmt_ty)self;
     Py_XDECREF(obj->v.AugAssign.target);
     Py_XDECREF(obj->v.AugAssign.value);
-    Py_TYPE(self)->tp_free(obj);
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
 }
+
 static PyMemberDef AugAssign_members[] = {
     {"target", _Py_T_OBJECT, offsetof(struct _stmt, v.AugAssign.target),
       Py_READONLY, NULL},
@@ -6989,7 +8432,7 @@ static PyMemberDef AugAssign_members[] = {
 
 static PyType_Slot _AugAssign_type_slots[] = {
     {Py_tp_dealloc, &AugAssign_dealloc},
-{Py_tp_members, AugAssign_members},
+    {Py_tp_members, AugAssign_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "AugAssign(expr target, operator op, expr value)"},
     {Py_tp_new, AugAssign_new},
@@ -7088,8 +8531,11 @@ static void AnnAssign_dealloc(PyObject *self) {
     Py_XDECREF(obj->v.AnnAssign.target);
     Py_XDECREF(obj->v.AnnAssign.annotation);
     Py_XDECREF(obj->v.AnnAssign.value);
-    Py_TYPE(self)->tp_free(obj);
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
 }
+
 static PyMemberDef AnnAssign_members[] = {
     {"target", _Py_T_OBJECT, offsetof(struct _stmt, v.AnnAssign.target),
       Py_READONLY, NULL},
@@ -7104,7 +8550,7 @@ static PyMemberDef AnnAssign_members[] = {
 
 static PyType_Slot _AnnAssign_type_slots[] = {
     {Py_tp_dealloc, &AnnAssign_dealloc},
-{Py_tp_members, AnnAssign_members},
+    {Py_tp_members, AnnAssign_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "AnnAssign(expr target, expr annotation, expr? value, int simple)"},
     {Py_tp_new, AnnAssign_new},
@@ -7220,8 +8666,11 @@ static void For_dealloc(PyObject *self) {
     Py_XDECREF(obj->v.For.body);
     Py_XDECREF(obj->v.For.orelse);
     Py_XDECREF(obj->v.For.type_comment);
-    Py_TYPE(self)->tp_free(obj);
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
 }
+
 static PyMemberDef For_members[] = {
     {"target", _Py_T_OBJECT, offsetof(struct _stmt, v.For.target), Py_READONLY,
       NULL},
@@ -7238,7 +8687,7 @@ static PyMemberDef For_members[] = {
 
 static PyType_Slot _For_type_slots[] = {
     {Py_tp_dealloc, &For_dealloc},
-{Py_tp_members, For_members},
+    {Py_tp_members, For_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "For(expr target, expr iter, stmt* body, stmt* orelse, string? type_comment)"},
     {Py_tp_new, For_new},
@@ -7364,8 +8813,11 @@ static void AsyncFor_dealloc(PyObject *self) {
     Py_XDECREF(obj->v.AsyncFor.body);
     Py_XDECREF(obj->v.AsyncFor.orelse);
     Py_XDECREF(obj->v.AsyncFor.type_comment);
-    Py_TYPE(self)->tp_free(obj);
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
 }
+
 static PyMemberDef AsyncFor_members[] = {
     {"target", _Py_T_OBJECT, offsetof(struct _stmt, v.AsyncFor.target),
       Py_READONLY, NULL},
@@ -7382,7 +8834,7 @@ static PyMemberDef AsyncFor_members[] = {
 
 static PyType_Slot _AsyncFor_type_slots[] = {
     {Py_tp_dealloc, &AsyncFor_dealloc},
-{Py_tp_members, AsyncFor_members},
+    {Py_tp_members, AsyncFor_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "AsyncFor(expr target, expr iter, stmt* body, stmt* orelse, string? type_comment)"},
     {Py_tp_new, AsyncFor_new},
@@ -7490,8 +8942,11 @@ static void While_dealloc(PyObject *self) {
     Py_XDECREF(obj->v.While.test);
     Py_XDECREF(obj->v.While.body);
     Py_XDECREF(obj->v.While.orelse);
-    Py_TYPE(self)->tp_free(obj);
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
 }
+
 static PyMemberDef While_members[] = {
     {"test", _Py_T_OBJECT, offsetof(struct _stmt, v.While.test), Py_READONLY,
       NULL},
@@ -7504,7 +8959,7 @@ static PyMemberDef While_members[] = {
 
 static PyType_Slot _While_type_slots[] = {
     {Py_tp_dealloc, &While_dealloc},
-{Py_tp_members, While_members},
+    {Py_tp_members, While_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "While(expr test, stmt* body, stmt* orelse)"},
     {Py_tp_new, While_new},
@@ -7600,8 +9055,11 @@ static void If_dealloc(PyObject *self) {
     Py_XDECREF(obj->v.If.test);
     Py_XDECREF(obj->v.If.body);
     Py_XDECREF(obj->v.If.orelse);
-    Py_TYPE(self)->tp_free(obj);
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
 }
+
 static PyMemberDef If_members[] = {
     {"test", _Py_T_OBJECT, offsetof(struct _stmt, v.If.test), Py_READONLY,
       NULL},
@@ -7614,7 +9072,7 @@ static PyMemberDef If_members[] = {
 
 static PyType_Slot _If_type_slots[] = {
     {Py_tp_dealloc, &If_dealloc},
-{Py_tp_members, If_members},
+    {Py_tp_members, If_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "If(expr test, stmt* body, stmt* orelse)"},
     {Py_tp_new, If_new},
@@ -7709,8 +9167,11 @@ static void With_dealloc(PyObject *self) {
     Py_XDECREF(obj->v.With.items);
     Py_XDECREF(obj->v.With.body);
     Py_XDECREF(obj->v.With.type_comment);
-    Py_TYPE(self)->tp_free(obj);
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
 }
+
 static PyMemberDef With_members[] = {
     {"items", _Py_T_OBJECT, offsetof(struct _stmt, v.With.items), Py_READONLY,
       NULL},
@@ -7723,7 +9184,7 @@ static PyMemberDef With_members[] = {
 
 static PyType_Slot _With_type_slots[] = {
     {Py_tp_dealloc, &With_dealloc},
-{Py_tp_members, With_members},
+    {Py_tp_members, With_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "With(withitem* items, stmt* body, string? type_comment)"},
     {Py_tp_new, With_new},
@@ -7819,8 +9280,11 @@ static void AsyncWith_dealloc(PyObject *self) {
     Py_XDECREF(obj->v.AsyncWith.items);
     Py_XDECREF(obj->v.AsyncWith.body);
     Py_XDECREF(obj->v.AsyncWith.type_comment);
-    Py_TYPE(self)->tp_free(obj);
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
 }
+
 static PyMemberDef AsyncWith_members[] = {
     {"items", _Py_T_OBJECT, offsetof(struct _stmt, v.AsyncWith.items),
       Py_READONLY, NULL},
@@ -7833,7 +9297,7 @@ static PyMemberDef AsyncWith_members[] = {
 
 static PyType_Slot _AsyncWith_type_slots[] = {
     {Py_tp_dealloc, &AsyncWith_dealloc},
-{Py_tp_members, AsyncWith_members},
+    {Py_tp_members, AsyncWith_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "AsyncWith(withitem* items, stmt* body, string? type_comment)"},
     {Py_tp_new, AsyncWith_new},
@@ -7921,8 +9385,11 @@ static void Match_dealloc(PyObject *self) {
     stmt_ty obj = (stmt_ty)self;
     Py_XDECREF(obj->v.Match.subject);
     Py_XDECREF(obj->v.Match.cases);
-    Py_TYPE(self)->tp_free(obj);
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
 }
+
 static PyMemberDef Match_members[] = {
     {"subject", _Py_T_OBJECT, offsetof(struct _stmt, v.Match.subject),
       Py_READONLY, NULL},
@@ -7933,7 +9400,7 @@ static PyMemberDef Match_members[] = {
 
 static PyType_Slot _Match_type_slots[] = {
     {Py_tp_dealloc, &Match_dealloc},
-{Py_tp_members, Match_members},
+    {Py_tp_members, Match_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "Match(expr subject, match_case* cases)"},
     {Py_tp_new, Match_new},
@@ -8012,8 +9479,11 @@ static void Raise_dealloc(PyObject *self) {
     stmt_ty obj = (stmt_ty)self;
     Py_XDECREF(obj->v.Raise.exc);
     Py_XDECREF(obj->v.Raise.cause);
-    Py_TYPE(self)->tp_free(obj);
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
 }
+
 static PyMemberDef Raise_members[] = {
     {"exc", _Py_T_OBJECT, offsetof(struct _stmt, v.Raise.exc), Py_READONLY,
       NULL},
@@ -8024,7 +9494,7 @@ static PyMemberDef Raise_members[] = {
 
 static PyType_Slot _Raise_type_slots[] = {
     {Py_tp_dealloc, &Raise_dealloc},
-{Py_tp_members, Raise_members},
+    {Py_tp_members, Raise_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "Raise(expr? exc, expr? cause)"},
     {Py_tp_new, Raise_new},
@@ -8125,8 +9595,11 @@ static void Try_dealloc(PyObject *self) {
     Py_XDECREF(obj->v.Try.handlers);
     Py_XDECREF(obj->v.Try.orelse);
     Py_XDECREF(obj->v.Try.finalbody);
-    Py_TYPE(self)->tp_free(obj);
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
 }
+
 static PyMemberDef Try_members[] = {
     {"body", _Py_T_OBJECT, offsetof(struct _stmt, v.Try.body), Py_READONLY,
       NULL},
@@ -8141,7 +9614,7 @@ static PyMemberDef Try_members[] = {
 
 static PyType_Slot _Try_type_slots[] = {
     {Py_tp_dealloc, &Try_dealloc},
-{Py_tp_members, Try_members},
+    {Py_tp_members, Try_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "Try(stmt* body, excepthandler* handlers, stmt* orelse, stmt* finalbody)"},
     {Py_tp_new, Try_new},
@@ -8254,8 +9727,11 @@ static void TryStar_dealloc(PyObject *self) {
     Py_XDECREF(obj->v.TryStar.handlers);
     Py_XDECREF(obj->v.TryStar.orelse);
     Py_XDECREF(obj->v.TryStar.finalbody);
-    Py_TYPE(self)->tp_free(obj);
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
 }
+
 static PyMemberDef TryStar_members[] = {
     {"body", _Py_T_OBJECT, offsetof(struct _stmt, v.TryStar.body), Py_READONLY,
       NULL},
@@ -8270,7 +9746,7 @@ static PyMemberDef TryStar_members[] = {
 
 static PyType_Slot _TryStar_type_slots[] = {
     {Py_tp_dealloc, &TryStar_dealloc},
-{Py_tp_members, TryStar_members},
+    {Py_tp_members, TryStar_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "TryStar(stmt* body, excepthandler* handlers, stmt* orelse, stmt* finalbody)"},
     {Py_tp_new, TryStar_new},
@@ -8363,8 +9839,11 @@ static void Assert_dealloc(PyObject *self) {
     stmt_ty obj = (stmt_ty)self;
     Py_XDECREF(obj->v.Assert.test);
     Py_XDECREF(obj->v.Assert.msg);
-    Py_TYPE(self)->tp_free(obj);
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
 }
+
 static PyMemberDef Assert_members[] = {
     {"test", _Py_T_OBJECT, offsetof(struct _stmt, v.Assert.test), Py_READONLY,
       NULL},
@@ -8375,7 +9854,7 @@ static PyMemberDef Assert_members[] = {
 
 static PyType_Slot _Assert_type_slots[] = {
     {Py_tp_dealloc, &Assert_dealloc},
-{Py_tp_members, Assert_members},
+    {Py_tp_members, Assert_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "Assert(expr test, expr? msg)"},
     {Py_tp_new, Assert_new},
@@ -8446,8 +9925,11 @@ Import_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
 static void Import_dealloc(PyObject *self) {
     stmt_ty obj = (stmt_ty)self;
     Py_XDECREF(obj->v.Import.names);
-    Py_TYPE(self)->tp_free(obj);
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
 }
+
 static PyMemberDef Import_members[] = {
     {"names", _Py_T_OBJECT, offsetof(struct _stmt, v.Import.names),
       Py_READONLY, NULL},
@@ -8456,7 +9938,7 @@ static PyMemberDef Import_members[] = {
 
 static PyType_Slot _Import_type_slots[] = {
     {Py_tp_dealloc, &Import_dealloc},
-{Py_tp_members, Import_members},
+    {Py_tp_members, Import_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "Import(alias* names)"},
     {Py_tp_new, Import_new},
@@ -8541,8 +10023,11 @@ static void ImportFrom_dealloc(PyObject *self) {
     stmt_ty obj = (stmt_ty)self;
     Py_XDECREF(obj->v.ImportFrom.module);
     Py_XDECREF(obj->v.ImportFrom.names);
-    Py_TYPE(self)->tp_free(obj);
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
 }
+
 static PyMemberDef ImportFrom_members[] = {
     {"module", _Py_T_OBJECT, offsetof(struct _stmt, v.ImportFrom.module),
       Py_READONLY, NULL},
@@ -8555,7 +10040,7 @@ static PyMemberDef ImportFrom_members[] = {
 
 static PyType_Slot _ImportFrom_type_slots[] = {
     {Py_tp_dealloc, &ImportFrom_dealloc},
-{Py_tp_members, ImportFrom_members},
+    {Py_tp_members, ImportFrom_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "ImportFrom(identifier? module, alias* names, int? level)"},
     {Py_tp_new, ImportFrom_new},
@@ -8628,8 +10113,11 @@ Global_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
 static void Global_dealloc(PyObject *self) {
     stmt_ty obj = (stmt_ty)self;
     Py_XDECREF(obj->v.Global.names);
-    Py_TYPE(self)->tp_free(obj);
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
 }
+
 static PyMemberDef Global_members[] = {
     {"names", _Py_T_OBJECT, offsetof(struct _stmt, v.Global.names),
       Py_READONLY, NULL},
@@ -8638,7 +10126,7 @@ static PyMemberDef Global_members[] = {
 
 static PyType_Slot _Global_type_slots[] = {
     {Py_tp_dealloc, &Global_dealloc},
-{Py_tp_members, Global_members},
+    {Py_tp_members, Global_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "Global(identifier* names)"},
     {Py_tp_new, Global_new},
@@ -8703,8 +10191,11 @@ Nonlocal_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
 static void Nonlocal_dealloc(PyObject *self) {
     stmt_ty obj = (stmt_ty)self;
     Py_XDECREF(obj->v.Nonlocal.names);
-    Py_TYPE(self)->tp_free(obj);
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
 }
+
 static PyMemberDef Nonlocal_members[] = {
     {"names", _Py_T_OBJECT, offsetof(struct _stmt, v.Nonlocal.names),
       Py_READONLY, NULL},
@@ -8713,7 +10204,7 @@ static PyMemberDef Nonlocal_members[] = {
 
 static PyType_Slot _Nonlocal_type_slots[] = {
     {Py_tp_dealloc, &Nonlocal_dealloc},
-{Py_tp_members, Nonlocal_members},
+    {Py_tp_members, Nonlocal_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "Nonlocal(identifier* names)"},
     {Py_tp_new, Nonlocal_new},
@@ -8778,8 +10269,11 @@ Expr_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
 static void Expr_dealloc(PyObject *self) {
     stmt_ty obj = (stmt_ty)self;
     Py_XDECREF(obj->v.Expr.value);
-    Py_TYPE(self)->tp_free(obj);
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
 }
+
 static PyMemberDef Expr_members[] = {
     {"value", _Py_T_OBJECT, offsetof(struct _stmt, v.Expr.value), Py_READONLY,
       NULL},
@@ -8788,7 +10282,7 @@ static PyMemberDef Expr_members[] = {
 
 static PyType_Slot _Expr_type_slots[] = {
     {Py_tp_dealloc, &Expr_dealloc},
-{Py_tp_members, Expr_members},
+    {Py_tp_members, Expr_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "Expr(expr value)"},
     {Py_tp_new, Expr_new},
@@ -8834,16 +10328,18 @@ Pass_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
 }
 
 static void Pass_dealloc(PyObject *self) {
-    stmt_ty obj = (stmt_ty)self;
-    Py_TYPE(self)->tp_free(obj);
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
 }
+
 static PyMemberDef Pass_members[] = {
     {0}
 };
 
 static PyType_Slot _Pass_type_slots[] = {
     {Py_tp_dealloc, &Pass_dealloc},
-{Py_tp_members, Pass_members},
+    {Py_tp_members, Pass_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "Pass"},
     {Py_tp_new, Pass_new},
@@ -8883,16 +10379,18 @@ Break_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
 }
 
 static void Break_dealloc(PyObject *self) {
-    stmt_ty obj = (stmt_ty)self;
-    Py_TYPE(self)->tp_free(obj);
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
 }
+
 static PyMemberDef Break_members[] = {
     {0}
 };
 
 static PyType_Slot _Break_type_slots[] = {
     {Py_tp_dealloc, &Break_dealloc},
-{Py_tp_members, Break_members},
+    {Py_tp_members, Break_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "Break"},
     {Py_tp_new, Break_new},
@@ -8933,16 +10431,18 @@ Continue_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
 }
 
 static void Continue_dealloc(PyObject *self) {
-    stmt_ty obj = (stmt_ty)self;
-    Py_TYPE(self)->tp_free(obj);
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
 }
+
 static PyMemberDef Continue_members[] = {
     {0}
 };
 
 static PyType_Slot _Continue_type_slots[] = {
     {Py_tp_dealloc, &Continue_dealloc},
-{Py_tp_members, Continue_members},
+    {Py_tp_members, Continue_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "Continue"},
     {Py_tp_new, Continue_new},
@@ -9046,16 +10546,18 @@ stmt_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
 }
 
 static void stmt_dealloc(PyObject *self) {
-    stmt_ty obj = (stmt_ty)self;
-    Py_TYPE(self)->tp_free(obj);
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
 }
+
 static PyMemberDef stmt_members[] = {
     {0}
 };
 
 static PyType_Slot _stmt_type_slots[] = {
     {Py_tp_dealloc, &stmt_dealloc},
-{Py_tp_members, stmt_members},
+    {Py_tp_members, stmt_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "stmt = FunctionDef(identifier name, arguments args, stmt* body, expr* decorator_list, expr? returns, string? type_comment, type_param* type_params)\n"
         "     | AsyncFunctionDef(identifier name, arguments args, stmt* body, expr* decorator_list, expr? returns, string? type_comment, type_param* type_params)\n"
@@ -9107,8 +10609,11 @@ static void stmt_seq_dealloc(PyObject *self) {
             Py_DECREF(value);
         }
     }
-    Py_TYPE(self)->tp_free(obj);
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
 }
+
 
 static PyType_Slot _PyAST_stmt_seq_type_slots[] = {
     {Py_tp_dealloc, &stmt_seq_dealloc},
@@ -9190,8 +10695,11 @@ BoolOp_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
 static void BoolOp_dealloc(PyObject *self) {
     expr_ty obj = (expr_ty)self;
     Py_XDECREF(obj->v.BoolOp.values);
-    Py_TYPE(self)->tp_free(obj);
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
 }
+
 static PyMemberDef BoolOp_members[] = {
     {"op", Py_T_INT, offsetof(struct _expr, v.BoolOp.op), Py_READONLY, NULL},
     {"values", _Py_T_OBJECT, offsetof(struct _expr, v.BoolOp.values),
@@ -9201,7 +10709,7 @@ static PyMemberDef BoolOp_members[] = {
 
 static PyType_Slot _BoolOp_type_slots[] = {
     {Py_tp_dealloc, &BoolOp_dealloc},
-{Py_tp_members, BoolOp_members},
+    {Py_tp_members, BoolOp_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "BoolOp(boolop op, expr* values)"},
     {Py_tp_new, BoolOp_new},
@@ -9275,8 +10783,11 @@ static void NamedExpr_dealloc(PyObject *self) {
     expr_ty obj = (expr_ty)self;
     Py_XDECREF(obj->v.NamedExpr.target);
     Py_XDECREF(obj->v.NamedExpr.value);
-    Py_TYPE(self)->tp_free(obj);
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
 }
+
 static PyMemberDef NamedExpr_members[] = {
     {"target", _Py_T_OBJECT, offsetof(struct _expr, v.NamedExpr.target),
       Py_READONLY, NULL},
@@ -9287,7 +10798,7 @@ static PyMemberDef NamedExpr_members[] = {
 
 static PyType_Slot _NamedExpr_type_slots[] = {
     {Py_tp_dealloc, &NamedExpr_dealloc},
-{Py_tp_members, NamedExpr_members},
+    {Py_tp_members, NamedExpr_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "NamedExpr(expr target, expr value)"},
     {Py_tp_new, NamedExpr_new},
@@ -9376,8 +10887,11 @@ static void BinOp_dealloc(PyObject *self) {
     expr_ty obj = (expr_ty)self;
     Py_XDECREF(obj->v.BinOp.left);
     Py_XDECREF(obj->v.BinOp.right);
-    Py_TYPE(self)->tp_free(obj);
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
 }
+
 static PyMemberDef BinOp_members[] = {
     {"left", _Py_T_OBJECT, offsetof(struct _expr, v.BinOp.left), Py_READONLY,
       NULL},
@@ -9389,7 +10903,7 @@ static PyMemberDef BinOp_members[] = {
 
 static PyType_Slot _BinOp_type_slots[] = {
     {Py_tp_dealloc, &BinOp_dealloc},
-{Py_tp_members, BinOp_members},
+    {Py_tp_members, BinOp_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "BinOp(expr left, operator op, expr right)"},
     {Py_tp_new, BinOp_new},
@@ -9470,8 +10984,11 @@ UnaryOp_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
 static void UnaryOp_dealloc(PyObject *self) {
     expr_ty obj = (expr_ty)self;
     Py_XDECREF(obj->v.UnaryOp.operand);
-    Py_TYPE(self)->tp_free(obj);
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
 }
+
 static PyMemberDef UnaryOp_members[] = {
     {"op", Py_T_INT, offsetof(struct _expr, v.UnaryOp.op), Py_READONLY, NULL},
     {"operand", _Py_T_OBJECT, offsetof(struct _expr, v.UnaryOp.operand),
@@ -9481,7 +10998,7 @@ static PyMemberDef UnaryOp_members[] = {
 
 static PyType_Slot _UnaryOp_type_slots[] = {
     {Py_tp_dealloc, &UnaryOp_dealloc},
-{Py_tp_members, UnaryOp_members},
+    {Py_tp_members, UnaryOp_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "UnaryOp(unaryop op, expr operand)"},
     {Py_tp_new, UnaryOp_new},
@@ -9555,8 +11072,11 @@ static void Lambda_dealloc(PyObject *self) {
     expr_ty obj = (expr_ty)self;
     Py_XDECREF(obj->v.Lambda.args);
     Py_XDECREF(obj->v.Lambda.body);
-    Py_TYPE(self)->tp_free(obj);
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
 }
+
 static PyMemberDef Lambda_members[] = {
     {"args", _Py_T_OBJECT, offsetof(struct _expr, v.Lambda.args), Py_READONLY,
       NULL},
@@ -9567,7 +11087,7 @@ static PyMemberDef Lambda_members[] = {
 
 static PyType_Slot _Lambda_type_slots[] = {
     {Py_tp_dealloc, &Lambda_dealloc},
-{Py_tp_members, Lambda_members},
+    {Py_tp_members, Lambda_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "Lambda(arguments args, expr body)"},
     {Py_tp_new, Lambda_new},
@@ -9655,8 +11175,11 @@ static void IfExp_dealloc(PyObject *self) {
     Py_XDECREF(obj->v.IfExp.test);
     Py_XDECREF(obj->v.IfExp.body);
     Py_XDECREF(obj->v.IfExp.orelse);
-    Py_TYPE(self)->tp_free(obj);
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
 }
+
 static PyMemberDef IfExp_members[] = {
     {"test", _Py_T_OBJECT, offsetof(struct _expr, v.IfExp.test), Py_READONLY,
       NULL},
@@ -9669,7 +11192,7 @@ static PyMemberDef IfExp_members[] = {
 
 static PyType_Slot _IfExp_type_slots[] = {
     {Py_tp_dealloc, &IfExp_dealloc},
-{Py_tp_members, IfExp_members},
+    {Py_tp_members, IfExp_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "IfExp(expr test, expr body, expr orelse)"},
     {Py_tp_new, IfExp_new},
@@ -9756,8 +11279,11 @@ static void Dict_dealloc(PyObject *self) {
     expr_ty obj = (expr_ty)self;
     Py_XDECREF(obj->v.Dict.keys);
     Py_XDECREF(obj->v.Dict.values);
-    Py_TYPE(self)->tp_free(obj);
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
 }
+
 static PyMemberDef Dict_members[] = {
     {"keys", _Py_T_OBJECT, offsetof(struct _expr, v.Dict.keys), Py_READONLY,
       NULL},
@@ -9768,7 +11294,7 @@ static PyMemberDef Dict_members[] = {
 
 static PyType_Slot _Dict_type_slots[] = {
     {Py_tp_dealloc, &Dict_dealloc},
-{Py_tp_members, Dict_members},
+    {Py_tp_members, Dict_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "Dict(expr?* keys, expr* values)"},
     {Py_tp_new, Dict_new},
@@ -9838,8 +11364,11 @@ Set_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
 static void Set_dealloc(PyObject *self) {
     expr_ty obj = (expr_ty)self;
     Py_XDECREF(obj->v.Set.elts);
-    Py_TYPE(self)->tp_free(obj);
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
 }
+
 static PyMemberDef Set_members[] = {
     {"elts", _Py_T_OBJECT, offsetof(struct _expr, v.Set.elts), Py_READONLY,
       NULL},
@@ -9848,7 +11377,7 @@ static PyMemberDef Set_members[] = {
 
 static PyType_Slot _Set_type_slots[] = {
     {Py_tp_dealloc, &Set_dealloc},
-{Py_tp_members, Set_members},
+    {Py_tp_members, Set_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "Set(expr* elts)"},
     {Py_tp_new, Set_new},
@@ -9921,8 +11450,11 @@ static void ListComp_dealloc(PyObject *self) {
     expr_ty obj = (expr_ty)self;
     Py_XDECREF(obj->v.ListComp.elt);
     Py_XDECREF(obj->v.ListComp.generators);
-    Py_TYPE(self)->tp_free(obj);
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
 }
+
 static PyMemberDef ListComp_members[] = {
     {"elt", _Py_T_OBJECT, offsetof(struct _expr, v.ListComp.elt), Py_READONLY,
       NULL},
@@ -9933,7 +11465,7 @@ static PyMemberDef ListComp_members[] = {
 
 static PyType_Slot _ListComp_type_slots[] = {
     {Py_tp_dealloc, &ListComp_dealloc},
-{Py_tp_members, ListComp_members},
+    {Py_tp_members, ListComp_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "ListComp(expr elt, comprehension* generators)"},
     {Py_tp_new, ListComp_new},
@@ -10014,8 +11546,11 @@ static void SetComp_dealloc(PyObject *self) {
     expr_ty obj = (expr_ty)self;
     Py_XDECREF(obj->v.SetComp.elt);
     Py_XDECREF(obj->v.SetComp.generators);
-    Py_TYPE(self)->tp_free(obj);
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
 }
+
 static PyMemberDef SetComp_members[] = {
     {"elt", _Py_T_OBJECT, offsetof(struct _expr, v.SetComp.elt), Py_READONLY,
       NULL},
@@ -10026,7 +11561,7 @@ static PyMemberDef SetComp_members[] = {
 
 static PyType_Slot _SetComp_type_slots[] = {
     {Py_tp_dealloc, &SetComp_dealloc},
-{Py_tp_members, SetComp_members},
+    {Py_tp_members, SetComp_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "SetComp(expr elt, comprehension* generators)"},
     {Py_tp_new, SetComp_new},
@@ -10116,8 +11651,11 @@ static void DictComp_dealloc(PyObject *self) {
     Py_XDECREF(obj->v.DictComp.key);
     Py_XDECREF(obj->v.DictComp.value);
     Py_XDECREF(obj->v.DictComp.generators);
-    Py_TYPE(self)->tp_free(obj);
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
 }
+
 static PyMemberDef DictComp_members[] = {
     {"key", _Py_T_OBJECT, offsetof(struct _expr, v.DictComp.key), Py_READONLY,
       NULL},
@@ -10130,7 +11668,7 @@ static PyMemberDef DictComp_members[] = {
 
 static PyType_Slot _DictComp_type_slots[] = {
     {Py_tp_dealloc, &DictComp_dealloc},
-{Py_tp_members, DictComp_members},
+    {Py_tp_members, DictComp_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "DictComp(expr key, expr value, comprehension* generators)"},
     {Py_tp_new, DictComp_new},
@@ -10217,8 +11755,11 @@ static void GeneratorExp_dealloc(PyObject *self) {
     expr_ty obj = (expr_ty)self;
     Py_XDECREF(obj->v.GeneratorExp.elt);
     Py_XDECREF(obj->v.GeneratorExp.generators);
-    Py_TYPE(self)->tp_free(obj);
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
 }
+
 static PyMemberDef GeneratorExp_members[] = {
     {"elt", _Py_T_OBJECT, offsetof(struct _expr, v.GeneratorExp.elt),
       Py_READONLY, NULL},
@@ -10229,7 +11770,7 @@ static PyMemberDef GeneratorExp_members[] = {
 
 static PyType_Slot _GeneratorExp_type_slots[] = {
     {Py_tp_dealloc, &GeneratorExp_dealloc},
-{Py_tp_members, GeneratorExp_members},
+    {Py_tp_members, GeneratorExp_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "GeneratorExp(expr elt, comprehension* generators)"},
     {Py_tp_new, GeneratorExp_new},
@@ -10300,8 +11841,11 @@ Await_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
 static void Await_dealloc(PyObject *self) {
     expr_ty obj = (expr_ty)self;
     Py_XDECREF(obj->v.Await.value);
-    Py_TYPE(self)->tp_free(obj);
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
 }
+
 static PyMemberDef Await_members[] = {
     {"value", _Py_T_OBJECT, offsetof(struct _expr, v.Await.value), Py_READONLY,
       NULL},
@@ -10310,7 +11854,7 @@ static PyMemberDef Await_members[] = {
 
 static PyType_Slot _Await_type_slots[] = {
     {Py_tp_dealloc, &Await_dealloc},
-{Py_tp_members, Await_members},
+    {Py_tp_members, Await_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "Await(expr value)"},
     {Py_tp_new, Await_new},
@@ -10374,8 +11918,11 @@ Yield_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
 static void Yield_dealloc(PyObject *self) {
     expr_ty obj = (expr_ty)self;
     Py_XDECREF(obj->v.Yield.value);
-    Py_TYPE(self)->tp_free(obj);
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
 }
+
 static PyMemberDef Yield_members[] = {
     {"value", _Py_T_OBJECT, offsetof(struct _expr, v.Yield.value), Py_READONLY,
       NULL},
@@ -10384,7 +11931,7 @@ static PyMemberDef Yield_members[] = {
 
 static PyType_Slot _Yield_type_slots[] = {
     {Py_tp_dealloc, &Yield_dealloc},
-{Py_tp_members, Yield_members},
+    {Py_tp_members, Yield_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "Yield(expr? value)"},
     {Py_tp_new, Yield_new},
@@ -10448,8 +11995,11 @@ YieldFrom_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
 static void YieldFrom_dealloc(PyObject *self) {
     expr_ty obj = (expr_ty)self;
     Py_XDECREF(obj->v.YieldFrom.value);
-    Py_TYPE(self)->tp_free(obj);
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
 }
+
 static PyMemberDef YieldFrom_members[] = {
     {"value", _Py_T_OBJECT, offsetof(struct _expr, v.YieldFrom.value),
       Py_READONLY, NULL},
@@ -10458,7 +12008,7 @@ static PyMemberDef YieldFrom_members[] = {
 
 static PyType_Slot _YieldFrom_type_slots[] = {
     {Py_tp_dealloc, &YieldFrom_dealloc},
-{Py_tp_members, YieldFrom_members},
+    {Py_tp_members, YieldFrom_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "YieldFrom(expr value)"},
     {Py_tp_new, YieldFrom_new},
@@ -10541,8 +12091,11 @@ static void Compare_dealloc(PyObject *self) {
     expr_ty obj = (expr_ty)self;
     Py_XDECREF(obj->v.Compare.left);
     Py_XDECREF(obj->v.Compare.comparators);
-    Py_TYPE(self)->tp_free(obj);
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
 }
+
 static PyMemberDef Compare_members[] = {
     {"left", _Py_T_OBJECT, offsetof(struct _expr, v.Compare.left), Py_READONLY,
       NULL},
@@ -10554,7 +12107,7 @@ static PyMemberDef Compare_members[] = {
 
 static PyType_Slot _Compare_type_slots[] = {
     {Py_tp_dealloc, &Compare_dealloc},
-{Py_tp_members, Compare_members},
+    {Py_tp_members, Compare_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "Compare(expr left, cmpop* ops, expr* comparators)"},
     {Py_tp_new, Compare_new},
@@ -10651,8 +12204,11 @@ static void Call_dealloc(PyObject *self) {
     Py_XDECREF(obj->v.Call.func);
     Py_XDECREF(obj->v.Call.args);
     Py_XDECREF(obj->v.Call.keywords);
-    Py_TYPE(self)->tp_free(obj);
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
 }
+
 static PyMemberDef Call_members[] = {
     {"func", _Py_T_OBJECT, offsetof(struct _expr, v.Call.func), Py_READONLY,
       NULL},
@@ -10665,7 +12221,7 @@ static PyMemberDef Call_members[] = {
 
 static PyType_Slot _Call_type_slots[] = {
     {Py_tp_dealloc, &Call_dealloc},
-{Py_tp_members, Call_members},
+    {Py_tp_members, Call_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "Call(expr func, expr* args, keyword* keywords)"},
     {Py_tp_new, Call_new},
@@ -10760,8 +12316,11 @@ static void FormattedValue_dealloc(PyObject *self) {
     expr_ty obj = (expr_ty)self;
     Py_XDECREF(obj->v.FormattedValue.value);
     Py_XDECREF(obj->v.FormattedValue.format_spec);
-    Py_TYPE(self)->tp_free(obj);
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
 }
+
 static PyMemberDef FormattedValue_members[] = {
     {"value", _Py_T_OBJECT, offsetof(struct _expr, v.FormattedValue.value),
       Py_READONLY, NULL},
@@ -10774,7 +12333,7 @@ static PyMemberDef FormattedValue_members[] = {
 
 static PyType_Slot _FormattedValue_type_slots[] = {
     {Py_tp_dealloc, &FormattedValue_dealloc},
-{Py_tp_members, FormattedValue_members},
+    {Py_tp_members, FormattedValue_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "FormattedValue(expr value, int conversion, expr? format_spec)"},
     {Py_tp_new, FormattedValue_new},
@@ -10877,8 +12436,11 @@ static void Interpolation_dealloc(PyObject *self) {
     Py_XDECREF(obj->v.Interpolation.value);
     Py_XDECREF(obj->v.Interpolation.str);
     Py_XDECREF(obj->v.Interpolation.format_spec);
-    Py_TYPE(self)->tp_free(obj);
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
 }
+
 static PyMemberDef Interpolation_members[] = {
     {"value", _Py_T_OBJECT, offsetof(struct _expr, v.Interpolation.value),
       Py_READONLY, NULL},
@@ -10893,7 +12455,7 @@ static PyMemberDef Interpolation_members[] = {
 
 static PyType_Slot _Interpolation_type_slots[] = {
     {Py_tp_dealloc, &Interpolation_dealloc},
-{Py_tp_members, Interpolation_members},
+    {Py_tp_members, Interpolation_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "Interpolation(expr value, constant str, int conversion, expr? format_spec)"},
     {Py_tp_new, Interpolation_new},
@@ -10973,8 +12535,11 @@ JoinedStr_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
 static void JoinedStr_dealloc(PyObject *self) {
     expr_ty obj = (expr_ty)self;
     Py_XDECREF(obj->v.JoinedStr.values);
-    Py_TYPE(self)->tp_free(obj);
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
 }
+
 static PyMemberDef JoinedStr_members[] = {
     {"values", _Py_T_OBJECT, offsetof(struct _expr, v.JoinedStr.values),
       Py_READONLY, NULL},
@@ -10983,7 +12548,7 @@ static PyMemberDef JoinedStr_members[] = {
 
 static PyType_Slot _JoinedStr_type_slots[] = {
     {Py_tp_dealloc, &JoinedStr_dealloc},
-{Py_tp_members, JoinedStr_members},
+    {Py_tp_members, JoinedStr_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "JoinedStr(expr* values)"},
     {Py_tp_new, JoinedStr_new},
@@ -11049,8 +12614,11 @@ TemplateStr_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
 static void TemplateStr_dealloc(PyObject *self) {
     expr_ty obj = (expr_ty)self;
     Py_XDECREF(obj->v.TemplateStr.values);
-    Py_TYPE(self)->tp_free(obj);
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
 }
+
 static PyMemberDef TemplateStr_members[] = {
     {"values", _Py_T_OBJECT, offsetof(struct _expr, v.TemplateStr.values),
       Py_READONLY, NULL},
@@ -11059,7 +12627,7 @@ static PyMemberDef TemplateStr_members[] = {
 
 static PyType_Slot _TemplateStr_type_slots[] = {
     {Py_tp_dealloc, &TemplateStr_dealloc},
-{Py_tp_members, TemplateStr_members},
+    {Py_tp_members, TemplateStr_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "TemplateStr(expr* values)"},
     {Py_tp_new, TemplateStr_new},
@@ -11133,8 +12701,11 @@ static void Constant_dealloc(PyObject *self) {
     expr_ty obj = (expr_ty)self;
     Py_XDECREF(obj->v.Constant.value);
     Py_XDECREF(obj->v.Constant.kind);
-    Py_TYPE(self)->tp_free(obj);
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
 }
+
 static PyMemberDef Constant_members[] = {
     {"value", _Py_T_OBJECT, offsetof(struct _expr, v.Constant.value),
       Py_READONLY, NULL},
@@ -11145,7 +12716,7 @@ static PyMemberDef Constant_members[] = {
 
 static PyType_Slot _Constant_type_slots[] = {
     {Py_tp_dealloc, &Constant_dealloc},
-{Py_tp_members, Constant_members},
+    {Py_tp_members, Constant_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "Constant(constant value, string? kind)"},
     {Py_tp_new, Constant_new},
@@ -11234,8 +12805,11 @@ static void Attribute_dealloc(PyObject *self) {
     expr_ty obj = (expr_ty)self;
     Py_XDECREF(obj->v.Attribute.value);
     Py_XDECREF(obj->v.Attribute.attr);
-    Py_TYPE(self)->tp_free(obj);
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
 }
+
 static PyMemberDef Attribute_members[] = {
     {"value", _Py_T_OBJECT, offsetof(struct _expr, v.Attribute.value),
       Py_READONLY, NULL},
@@ -11248,7 +12822,7 @@ static PyMemberDef Attribute_members[] = {
 
 static PyType_Slot _Attribute_type_slots[] = {
     {Py_tp_dealloc, &Attribute_dealloc},
-{Py_tp_members, Attribute_members},
+    {Py_tp_members, Attribute_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "Attribute(expr value, identifier attr, expr_context ctx)"},
     {Py_tp_new, Attribute_new},
@@ -11338,8 +12912,11 @@ static void Subscript_dealloc(PyObject *self) {
     expr_ty obj = (expr_ty)self;
     Py_XDECREF(obj->v.Subscript.value);
     Py_XDECREF(obj->v.Subscript.slice);
-    Py_TYPE(self)->tp_free(obj);
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
 }
+
 static PyMemberDef Subscript_members[] = {
     {"value", _Py_T_OBJECT, offsetof(struct _expr, v.Subscript.value),
       Py_READONLY, NULL},
@@ -11352,7 +12929,7 @@ static PyMemberDef Subscript_members[] = {
 
 static PyType_Slot _Subscript_type_slots[] = {
     {Py_tp_dealloc, &Subscript_dealloc},
-{Py_tp_members, Subscript_members},
+    {Py_tp_members, Subscript_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "Subscript(expr value, expr slice, expr_context ctx)"},
     {Py_tp_new, Subscript_new},
@@ -11433,8 +13010,11 @@ Starred_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
 static void Starred_dealloc(PyObject *self) {
     expr_ty obj = (expr_ty)self;
     Py_XDECREF(obj->v.Starred.value);
-    Py_TYPE(self)->tp_free(obj);
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
 }
+
 static PyMemberDef Starred_members[] = {
     {"value", _Py_T_OBJECT, offsetof(struct _expr, v.Starred.value),
       Py_READONLY, NULL},
@@ -11444,7 +13024,7 @@ static PyMemberDef Starred_members[] = {
 
 static PyType_Slot _Starred_type_slots[] = {
     {Py_tp_dealloc, &Starred_dealloc},
-{Py_tp_members, Starred_members},
+    {Py_tp_members, Starred_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "Starred(expr value, expr_context ctx)"},
     {Py_tp_new, Starred_new},
@@ -11519,8 +13099,11 @@ Name_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
 static void Name_dealloc(PyObject *self) {
     expr_ty obj = (expr_ty)self;
     Py_XDECREF(obj->v.Name.id);
-    Py_TYPE(self)->tp_free(obj);
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
 }
+
 static PyMemberDef Name_members[] = {
     {"id", _Py_T_OBJECT, offsetof(struct _expr, v.Name.id), Py_READONLY, NULL},
     {"ctx", Py_T_INT, offsetof(struct _expr, v.Name.ctx), Py_READONLY, NULL},
@@ -11529,7 +13112,7 @@ static PyMemberDef Name_members[] = {
 
 static PyType_Slot _Name_type_slots[] = {
     {Py_tp_dealloc, &Name_dealloc},
-{Py_tp_members, Name_members},
+    {Py_tp_members, Name_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "Name(identifier id, expr_context ctx)"},
     {Py_tp_new, Name_new},
@@ -11604,8 +13187,11 @@ List_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
 static void List_dealloc(PyObject *self) {
     expr_ty obj = (expr_ty)self;
     Py_XDECREF(obj->v.List.elts);
-    Py_TYPE(self)->tp_free(obj);
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
 }
+
 static PyMemberDef List_members[] = {
     {"elts", _Py_T_OBJECT, offsetof(struct _expr, v.List.elts), Py_READONLY,
       NULL},
@@ -11615,7 +13201,7 @@ static PyMemberDef List_members[] = {
 
 static PyType_Slot _List_type_slots[] = {
     {Py_tp_dealloc, &List_dealloc},
-{Py_tp_members, List_members},
+    {Py_tp_members, List_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "List(expr* elts, expr_context ctx)"},
     {Py_tp_new, List_new},
@@ -11690,8 +13276,11 @@ Tuple_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
 static void Tuple_dealloc(PyObject *self) {
     expr_ty obj = (expr_ty)self;
     Py_XDECREF(obj->v.Tuple.elts);
-    Py_TYPE(self)->tp_free(obj);
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
 }
+
 static PyMemberDef Tuple_members[] = {
     {"elts", _Py_T_OBJECT, offsetof(struct _expr, v.Tuple.elts), Py_READONLY,
       NULL},
@@ -11701,7 +13290,7 @@ static PyMemberDef Tuple_members[] = {
 
 static PyType_Slot _Tuple_type_slots[] = {
     {Py_tp_dealloc, &Tuple_dealloc},
-{Py_tp_members, Tuple_members},
+    {Py_tp_members, Tuple_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "Tuple(expr* elts, expr_context ctx)"},
     {Py_tp_new, Tuple_new},
@@ -11784,8 +13373,11 @@ static void Slice_dealloc(PyObject *self) {
     Py_XDECREF(obj->v.Slice.lower);
     Py_XDECREF(obj->v.Slice.upper);
     Py_XDECREF(obj->v.Slice.step);
-    Py_TYPE(self)->tp_free(obj);
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
 }
+
 static PyMemberDef Slice_members[] = {
     {"lower", _Py_T_OBJECT, offsetof(struct _expr, v.Slice.lower), Py_READONLY,
       NULL},
@@ -11798,7 +13390,7 @@ static PyMemberDef Slice_members[] = {
 
 static PyType_Slot _Slice_type_slots[] = {
     {Py_tp_dealloc, &Slice_dealloc},
-{Py_tp_members, Slice_members},
+    {Py_tp_members, Slice_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "Slice(expr? lower, expr? upper, expr? step)"},
     {Py_tp_new, Slice_new},
@@ -11922,16 +13514,18 @@ expr_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
 }
 
 static void expr_dealloc(PyObject *self) {
-    expr_ty obj = (expr_ty)self;
-    Py_TYPE(self)->tp_free(obj);
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
 }
+
 static PyMemberDef expr_members[] = {
     {0}
 };
 
 static PyType_Slot _expr_type_slots[] = {
     {Py_tp_dealloc, &expr_dealloc},
-{Py_tp_members, expr_members},
+    {Py_tp_members, expr_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "expr = BoolOp(boolop op, expr* values)\n"
         "     | NamedExpr(expr target, expr value)\n"
@@ -11984,8 +13578,11 @@ static void expr_seq_dealloc(PyObject *self) {
             Py_DECREF(value);
         }
     }
-    Py_TYPE(self)->tp_free(obj);
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
 }
+
 
 static PyType_Slot _PyAST_expr_seq_type_slots[] = {
     {Py_tp_dealloc, &expr_seq_dealloc},
@@ -12028,6 +13625,1449 @@ asdl_expr_seq *_PyAst_expr_seq_Copy(asdl_expr_seq *seq) {
     return NULL;
 }
 
+static PyObject *
+expr_context_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+{
+    PyObject *res = type->tp_alloc(type, 0);
+    if (!res) {
+        return NULL;
+    }
+    return res;
+}
+
+static void expr_context_dealloc(PyObject *self) {
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
+}
+
+static PyMemberDef expr_context_members[] = {
+    {0}
+};
+
+static PyType_Slot _expr_context_type_slots[] = {
+    {Py_tp_dealloc, &expr_context_dealloc},
+    {Py_tp_members, expr_context_members},
+    {Py_tp_free, PyObject_Free},
+    {Py_tp_doc, "expr_context = Load | Store | Del"},
+    {Py_tp_new, expr_context_new},
+    {0, 0},
+};
+
+static PyType_Spec _expr_context_type_spec = {
+    "ast._expr_context",
+    sizeof(struct _object),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
+    _expr_context_type_slots
+};
+
+
+
+static PyObject *
+Load_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+{
+    PyObject *res = type->tp_alloc(type, 0);
+    if (!res) {
+        return NULL;
+    }
+    return res;
+}
+
+static void Load_dealloc(PyObject *self) {
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
+}
+
+static PyMemberDef Load_members[] = {
+    {0}
+};
+
+static PyType_Slot _Load_type_slots[] = {
+    {Py_tp_dealloc, &Load_dealloc},
+    {Py_tp_members, Load_members},
+    {Py_tp_free, PyObject_Free},
+    {Py_tp_doc, "Load"},
+    {Py_tp_new, Load_new},
+    {0, 0},
+};
+
+static PyType_Spec _Load_type_spec = {
+    "ast._Load",
+    sizeof(struct _object),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
+    _Load_type_slots
+};
+
+
+
+static PyObject *
+Store_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+{
+    PyObject *res = type->tp_alloc(type, 0);
+    if (!res) {
+        return NULL;
+    }
+    return res;
+}
+
+static void Store_dealloc(PyObject *self) {
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
+}
+
+static PyMemberDef Store_members[] = {
+    {0}
+};
+
+static PyType_Slot _Store_type_slots[] = {
+    {Py_tp_dealloc, &Store_dealloc},
+    {Py_tp_members, Store_members},
+    {Py_tp_free, PyObject_Free},
+    {Py_tp_doc, "Store"},
+    {Py_tp_new, Store_new},
+    {0, 0},
+};
+
+static PyType_Spec _Store_type_spec = {
+    "ast._Store",
+    sizeof(struct _object),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
+    _Store_type_slots
+};
+
+
+
+static PyObject *
+Del_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+{
+    PyObject *res = type->tp_alloc(type, 0);
+    if (!res) {
+        return NULL;
+    }
+    return res;
+}
+
+static void Del_dealloc(PyObject *self) {
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
+}
+
+static PyMemberDef Del_members[] = {
+    {0}
+};
+
+static PyType_Slot _Del_type_slots[] = {
+    {Py_tp_dealloc, &Del_dealloc},
+    {Py_tp_members, Del_members},
+    {Py_tp_free, PyObject_Free},
+    {Py_tp_doc, "Del"},
+    {Py_tp_new, Del_new},
+    {0, 0},
+};
+
+static PyType_Spec _Del_type_spec = {
+    "ast._Del",
+    sizeof(struct _object),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
+    _Del_type_slots
+};
+
+
+
+static PyObject *
+boolop_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+{
+    PyObject *res = type->tp_alloc(type, 0);
+    if (!res) {
+        return NULL;
+    }
+    return res;
+}
+
+static void boolop_dealloc(PyObject *self) {
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
+}
+
+static PyMemberDef boolop_members[] = {
+    {0}
+};
+
+static PyType_Slot _boolop_type_slots[] = {
+    {Py_tp_dealloc, &boolop_dealloc},
+    {Py_tp_members, boolop_members},
+    {Py_tp_free, PyObject_Free},
+    {Py_tp_doc, "boolop = And | Or"},
+    {Py_tp_new, boolop_new},
+    {0, 0},
+};
+
+static PyType_Spec _boolop_type_spec = {
+    "ast._boolop",
+    sizeof(struct _object),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
+    _boolop_type_slots
+};
+
+
+
+static PyObject *
+And_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+{
+    PyObject *res = type->tp_alloc(type, 0);
+    if (!res) {
+        return NULL;
+    }
+    return res;
+}
+
+static void And_dealloc(PyObject *self) {
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
+}
+
+static PyMemberDef And_members[] = {
+    {0}
+};
+
+static PyType_Slot _And_type_slots[] = {
+    {Py_tp_dealloc, &And_dealloc},
+    {Py_tp_members, And_members},
+    {Py_tp_free, PyObject_Free},
+    {Py_tp_doc, "And"},
+    {Py_tp_new, And_new},
+    {0, 0},
+};
+
+static PyType_Spec _And_type_spec = {
+    "ast._And",
+    sizeof(struct _object),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
+    _And_type_slots
+};
+
+
+
+static PyObject *
+Or_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+{
+    PyObject *res = type->tp_alloc(type, 0);
+    if (!res) {
+        return NULL;
+    }
+    return res;
+}
+
+static void Or_dealloc(PyObject *self) {
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
+}
+
+static PyMemberDef Or_members[] = {
+    {0}
+};
+
+static PyType_Slot _Or_type_slots[] = {
+    {Py_tp_dealloc, &Or_dealloc},
+    {Py_tp_members, Or_members},
+    {Py_tp_free, PyObject_Free},
+    {Py_tp_doc, "Or"},
+    {Py_tp_new, Or_new},
+    {0, 0},
+};
+
+static PyType_Spec _Or_type_spec = {
+    "ast._Or",
+    sizeof(struct _object),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
+    _Or_type_slots
+};
+
+
+
+static PyObject *
+operator_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+{
+    PyObject *res = type->tp_alloc(type, 0);
+    if (!res) {
+        return NULL;
+    }
+    return res;
+}
+
+static void operator_dealloc(PyObject *self) {
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
+}
+
+static PyMemberDef operator_members[] = {
+    {0}
+};
+
+static PyType_Slot _operator_type_slots[] = {
+    {Py_tp_dealloc, &operator_dealloc},
+    {Py_tp_members, operator_members},
+    {Py_tp_free, PyObject_Free},
+    {Py_tp_doc, "operator = Add | Sub | Mult | MatMult | Div | Mod | Pow | LShift | RShift | BitOr | BitXor | BitAnd | FloorDiv"},
+    {Py_tp_new, operator_new},
+    {0, 0},
+};
+
+static PyType_Spec _operator_type_spec = {
+    "ast._operator",
+    sizeof(struct _object),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
+    _operator_type_slots
+};
+
+
+
+static PyObject *
+Add_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+{
+    PyObject *res = type->tp_alloc(type, 0);
+    if (!res) {
+        return NULL;
+    }
+    return res;
+}
+
+static void Add_dealloc(PyObject *self) {
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
+}
+
+static PyMemberDef Add_members[] = {
+    {0}
+};
+
+static PyType_Slot _Add_type_slots[] = {
+    {Py_tp_dealloc, &Add_dealloc},
+    {Py_tp_members, Add_members},
+    {Py_tp_free, PyObject_Free},
+    {Py_tp_doc, "Add"},
+    {Py_tp_new, Add_new},
+    {0, 0},
+};
+
+static PyType_Spec _Add_type_spec = {
+    "ast._Add",
+    sizeof(struct _object),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
+    _Add_type_slots
+};
+
+
+
+static PyObject *
+Sub_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+{
+    PyObject *res = type->tp_alloc(type, 0);
+    if (!res) {
+        return NULL;
+    }
+    return res;
+}
+
+static void Sub_dealloc(PyObject *self) {
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
+}
+
+static PyMemberDef Sub_members[] = {
+    {0}
+};
+
+static PyType_Slot _Sub_type_slots[] = {
+    {Py_tp_dealloc, &Sub_dealloc},
+    {Py_tp_members, Sub_members},
+    {Py_tp_free, PyObject_Free},
+    {Py_tp_doc, "Sub"},
+    {Py_tp_new, Sub_new},
+    {0, 0},
+};
+
+static PyType_Spec _Sub_type_spec = {
+    "ast._Sub",
+    sizeof(struct _object),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
+    _Sub_type_slots
+};
+
+
+
+static PyObject *
+Mult_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+{
+    PyObject *res = type->tp_alloc(type, 0);
+    if (!res) {
+        return NULL;
+    }
+    return res;
+}
+
+static void Mult_dealloc(PyObject *self) {
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
+}
+
+static PyMemberDef Mult_members[] = {
+    {0}
+};
+
+static PyType_Slot _Mult_type_slots[] = {
+    {Py_tp_dealloc, &Mult_dealloc},
+    {Py_tp_members, Mult_members},
+    {Py_tp_free, PyObject_Free},
+    {Py_tp_doc, "Mult"},
+    {Py_tp_new, Mult_new},
+    {0, 0},
+};
+
+static PyType_Spec _Mult_type_spec = {
+    "ast._Mult",
+    sizeof(struct _object),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
+    _Mult_type_slots
+};
+
+
+
+static PyObject *
+MatMult_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+{
+    PyObject *res = type->tp_alloc(type, 0);
+    if (!res) {
+        return NULL;
+    }
+    return res;
+}
+
+static void MatMult_dealloc(PyObject *self) {
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
+}
+
+static PyMemberDef MatMult_members[] = {
+    {0}
+};
+
+static PyType_Slot _MatMult_type_slots[] = {
+    {Py_tp_dealloc, &MatMult_dealloc},
+    {Py_tp_members, MatMult_members},
+    {Py_tp_free, PyObject_Free},
+    {Py_tp_doc, "MatMult"},
+    {Py_tp_new, MatMult_new},
+    {0, 0},
+};
+
+static PyType_Spec _MatMult_type_spec = {
+    "ast._MatMult",
+    sizeof(struct _object),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
+    _MatMult_type_slots
+};
+
+
+
+static PyObject *
+Div_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+{
+    PyObject *res = type->tp_alloc(type, 0);
+    if (!res) {
+        return NULL;
+    }
+    return res;
+}
+
+static void Div_dealloc(PyObject *self) {
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
+}
+
+static PyMemberDef Div_members[] = {
+    {0}
+};
+
+static PyType_Slot _Div_type_slots[] = {
+    {Py_tp_dealloc, &Div_dealloc},
+    {Py_tp_members, Div_members},
+    {Py_tp_free, PyObject_Free},
+    {Py_tp_doc, "Div"},
+    {Py_tp_new, Div_new},
+    {0, 0},
+};
+
+static PyType_Spec _Div_type_spec = {
+    "ast._Div",
+    sizeof(struct _object),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
+    _Div_type_slots
+};
+
+
+
+static PyObject *
+Mod_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+{
+    PyObject *res = type->tp_alloc(type, 0);
+    if (!res) {
+        return NULL;
+    }
+    return res;
+}
+
+static void Mod_dealloc(PyObject *self) {
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
+}
+
+static PyMemberDef Mod_members[] = {
+    {0}
+};
+
+static PyType_Slot _Mod_type_slots[] = {
+    {Py_tp_dealloc, &Mod_dealloc},
+    {Py_tp_members, Mod_members},
+    {Py_tp_free, PyObject_Free},
+    {Py_tp_doc, "Mod"},
+    {Py_tp_new, Mod_new},
+    {0, 0},
+};
+
+static PyType_Spec _Mod_type_spec = {
+    "ast._Mod",
+    sizeof(struct _object),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
+    _Mod_type_slots
+};
+
+
+
+static PyObject *
+Pow_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+{
+    PyObject *res = type->tp_alloc(type, 0);
+    if (!res) {
+        return NULL;
+    }
+    return res;
+}
+
+static void Pow_dealloc(PyObject *self) {
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
+}
+
+static PyMemberDef Pow_members[] = {
+    {0}
+};
+
+static PyType_Slot _Pow_type_slots[] = {
+    {Py_tp_dealloc, &Pow_dealloc},
+    {Py_tp_members, Pow_members},
+    {Py_tp_free, PyObject_Free},
+    {Py_tp_doc, "Pow"},
+    {Py_tp_new, Pow_new},
+    {0, 0},
+};
+
+static PyType_Spec _Pow_type_spec = {
+    "ast._Pow",
+    sizeof(struct _object),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
+    _Pow_type_slots
+};
+
+
+
+static PyObject *
+LShift_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+{
+    PyObject *res = type->tp_alloc(type, 0);
+    if (!res) {
+        return NULL;
+    }
+    return res;
+}
+
+static void LShift_dealloc(PyObject *self) {
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
+}
+
+static PyMemberDef LShift_members[] = {
+    {0}
+};
+
+static PyType_Slot _LShift_type_slots[] = {
+    {Py_tp_dealloc, &LShift_dealloc},
+    {Py_tp_members, LShift_members},
+    {Py_tp_free, PyObject_Free},
+    {Py_tp_doc, "LShift"},
+    {Py_tp_new, LShift_new},
+    {0, 0},
+};
+
+static PyType_Spec _LShift_type_spec = {
+    "ast._LShift",
+    sizeof(struct _object),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
+    _LShift_type_slots
+};
+
+
+
+static PyObject *
+RShift_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+{
+    PyObject *res = type->tp_alloc(type, 0);
+    if (!res) {
+        return NULL;
+    }
+    return res;
+}
+
+static void RShift_dealloc(PyObject *self) {
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
+}
+
+static PyMemberDef RShift_members[] = {
+    {0}
+};
+
+static PyType_Slot _RShift_type_slots[] = {
+    {Py_tp_dealloc, &RShift_dealloc},
+    {Py_tp_members, RShift_members},
+    {Py_tp_free, PyObject_Free},
+    {Py_tp_doc, "RShift"},
+    {Py_tp_new, RShift_new},
+    {0, 0},
+};
+
+static PyType_Spec _RShift_type_spec = {
+    "ast._RShift",
+    sizeof(struct _object),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
+    _RShift_type_slots
+};
+
+
+
+static PyObject *
+BitOr_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+{
+    PyObject *res = type->tp_alloc(type, 0);
+    if (!res) {
+        return NULL;
+    }
+    return res;
+}
+
+static void BitOr_dealloc(PyObject *self) {
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
+}
+
+static PyMemberDef BitOr_members[] = {
+    {0}
+};
+
+static PyType_Slot _BitOr_type_slots[] = {
+    {Py_tp_dealloc, &BitOr_dealloc},
+    {Py_tp_members, BitOr_members},
+    {Py_tp_free, PyObject_Free},
+    {Py_tp_doc, "BitOr"},
+    {Py_tp_new, BitOr_new},
+    {0, 0},
+};
+
+static PyType_Spec _BitOr_type_spec = {
+    "ast._BitOr",
+    sizeof(struct _object),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
+    _BitOr_type_slots
+};
+
+
+
+static PyObject *
+BitXor_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+{
+    PyObject *res = type->tp_alloc(type, 0);
+    if (!res) {
+        return NULL;
+    }
+    return res;
+}
+
+static void BitXor_dealloc(PyObject *self) {
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
+}
+
+static PyMemberDef BitXor_members[] = {
+    {0}
+};
+
+static PyType_Slot _BitXor_type_slots[] = {
+    {Py_tp_dealloc, &BitXor_dealloc},
+    {Py_tp_members, BitXor_members},
+    {Py_tp_free, PyObject_Free},
+    {Py_tp_doc, "BitXor"},
+    {Py_tp_new, BitXor_new},
+    {0, 0},
+};
+
+static PyType_Spec _BitXor_type_spec = {
+    "ast._BitXor",
+    sizeof(struct _object),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
+    _BitXor_type_slots
+};
+
+
+
+static PyObject *
+BitAnd_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+{
+    PyObject *res = type->tp_alloc(type, 0);
+    if (!res) {
+        return NULL;
+    }
+    return res;
+}
+
+static void BitAnd_dealloc(PyObject *self) {
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
+}
+
+static PyMemberDef BitAnd_members[] = {
+    {0}
+};
+
+static PyType_Slot _BitAnd_type_slots[] = {
+    {Py_tp_dealloc, &BitAnd_dealloc},
+    {Py_tp_members, BitAnd_members},
+    {Py_tp_free, PyObject_Free},
+    {Py_tp_doc, "BitAnd"},
+    {Py_tp_new, BitAnd_new},
+    {0, 0},
+};
+
+static PyType_Spec _BitAnd_type_spec = {
+    "ast._BitAnd",
+    sizeof(struct _object),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
+    _BitAnd_type_slots
+};
+
+
+
+static PyObject *
+FloorDiv_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+{
+    PyObject *res = type->tp_alloc(type, 0);
+    if (!res) {
+        return NULL;
+    }
+    return res;
+}
+
+static void FloorDiv_dealloc(PyObject *self) {
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
+}
+
+static PyMemberDef FloorDiv_members[] = {
+    {0}
+};
+
+static PyType_Slot _FloorDiv_type_slots[] = {
+    {Py_tp_dealloc, &FloorDiv_dealloc},
+    {Py_tp_members, FloorDiv_members},
+    {Py_tp_free, PyObject_Free},
+    {Py_tp_doc, "FloorDiv"},
+    {Py_tp_new, FloorDiv_new},
+    {0, 0},
+};
+
+static PyType_Spec _FloorDiv_type_spec = {
+    "ast._FloorDiv",
+    sizeof(struct _object),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
+    _FloorDiv_type_slots
+};
+
+
+
+static PyObject *
+unaryop_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+{
+    PyObject *res = type->tp_alloc(type, 0);
+    if (!res) {
+        return NULL;
+    }
+    return res;
+}
+
+static void unaryop_dealloc(PyObject *self) {
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
+}
+
+static PyMemberDef unaryop_members[] = {
+    {0}
+};
+
+static PyType_Slot _unaryop_type_slots[] = {
+    {Py_tp_dealloc, &unaryop_dealloc},
+    {Py_tp_members, unaryop_members},
+    {Py_tp_free, PyObject_Free},
+    {Py_tp_doc, "unaryop = Invert | Not | UAdd | USub"},
+    {Py_tp_new, unaryop_new},
+    {0, 0},
+};
+
+static PyType_Spec _unaryop_type_spec = {
+    "ast._unaryop",
+    sizeof(struct _object),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
+    _unaryop_type_slots
+};
+
+
+
+static PyObject *
+Invert_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+{
+    PyObject *res = type->tp_alloc(type, 0);
+    if (!res) {
+        return NULL;
+    }
+    return res;
+}
+
+static void Invert_dealloc(PyObject *self) {
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
+}
+
+static PyMemberDef Invert_members[] = {
+    {0}
+};
+
+static PyType_Slot _Invert_type_slots[] = {
+    {Py_tp_dealloc, &Invert_dealloc},
+    {Py_tp_members, Invert_members},
+    {Py_tp_free, PyObject_Free},
+    {Py_tp_doc, "Invert"},
+    {Py_tp_new, Invert_new},
+    {0, 0},
+};
+
+static PyType_Spec _Invert_type_spec = {
+    "ast._Invert",
+    sizeof(struct _object),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
+    _Invert_type_slots
+};
+
+
+
+static PyObject *
+Not_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+{
+    PyObject *res = type->tp_alloc(type, 0);
+    if (!res) {
+        return NULL;
+    }
+    return res;
+}
+
+static void Not_dealloc(PyObject *self) {
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
+}
+
+static PyMemberDef Not_members[] = {
+    {0}
+};
+
+static PyType_Slot _Not_type_slots[] = {
+    {Py_tp_dealloc, &Not_dealloc},
+    {Py_tp_members, Not_members},
+    {Py_tp_free, PyObject_Free},
+    {Py_tp_doc, "Not"},
+    {Py_tp_new, Not_new},
+    {0, 0},
+};
+
+static PyType_Spec _Not_type_spec = {
+    "ast._Not",
+    sizeof(struct _object),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
+    _Not_type_slots
+};
+
+
+
+static PyObject *
+UAdd_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+{
+    PyObject *res = type->tp_alloc(type, 0);
+    if (!res) {
+        return NULL;
+    }
+    return res;
+}
+
+static void UAdd_dealloc(PyObject *self) {
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
+}
+
+static PyMemberDef UAdd_members[] = {
+    {0}
+};
+
+static PyType_Slot _UAdd_type_slots[] = {
+    {Py_tp_dealloc, &UAdd_dealloc},
+    {Py_tp_members, UAdd_members},
+    {Py_tp_free, PyObject_Free},
+    {Py_tp_doc, "UAdd"},
+    {Py_tp_new, UAdd_new},
+    {0, 0},
+};
+
+static PyType_Spec _UAdd_type_spec = {
+    "ast._UAdd",
+    sizeof(struct _object),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
+    _UAdd_type_slots
+};
+
+
+
+static PyObject *
+USub_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+{
+    PyObject *res = type->tp_alloc(type, 0);
+    if (!res) {
+        return NULL;
+    }
+    return res;
+}
+
+static void USub_dealloc(PyObject *self) {
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
+}
+
+static PyMemberDef USub_members[] = {
+    {0}
+};
+
+static PyType_Slot _USub_type_slots[] = {
+    {Py_tp_dealloc, &USub_dealloc},
+    {Py_tp_members, USub_members},
+    {Py_tp_free, PyObject_Free},
+    {Py_tp_doc, "USub"},
+    {Py_tp_new, USub_new},
+    {0, 0},
+};
+
+static PyType_Spec _USub_type_spec = {
+    "ast._USub",
+    sizeof(struct _object),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
+    _USub_type_slots
+};
+
+
+
+static PyObject *
+cmpop_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+{
+    PyObject *res = type->tp_alloc(type, 0);
+    if (!res) {
+        return NULL;
+    }
+    return res;
+}
+
+static void cmpop_dealloc(PyObject *self) {
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
+}
+
+static PyMemberDef cmpop_members[] = {
+    {0}
+};
+
+static PyType_Slot _cmpop_type_slots[] = {
+    {Py_tp_dealloc, &cmpop_dealloc},
+    {Py_tp_members, cmpop_members},
+    {Py_tp_free, PyObject_Free},
+    {Py_tp_doc, "cmpop = Eq | NotEq | Lt | LtE | Gt | GtE | Is | IsNot | In | NotIn"},
+    {Py_tp_new, cmpop_new},
+    {0, 0},
+};
+
+static PyType_Spec _cmpop_type_spec = {
+    "ast._cmpop",
+    sizeof(struct _object),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
+    _cmpop_type_slots
+};
+
+
+
+static PyObject *
+Eq_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+{
+    PyObject *res = type->tp_alloc(type, 0);
+    if (!res) {
+        return NULL;
+    }
+    return res;
+}
+
+static void Eq_dealloc(PyObject *self) {
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
+}
+
+static PyMemberDef Eq_members[] = {
+    {0}
+};
+
+static PyType_Slot _Eq_type_slots[] = {
+    {Py_tp_dealloc, &Eq_dealloc},
+    {Py_tp_members, Eq_members},
+    {Py_tp_free, PyObject_Free},
+    {Py_tp_doc, "Eq"},
+    {Py_tp_new, Eq_new},
+    {0, 0},
+};
+
+static PyType_Spec _Eq_type_spec = {
+    "ast._Eq",
+    sizeof(struct _object),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
+    _Eq_type_slots
+};
+
+
+
+static PyObject *
+NotEq_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+{
+    PyObject *res = type->tp_alloc(type, 0);
+    if (!res) {
+        return NULL;
+    }
+    return res;
+}
+
+static void NotEq_dealloc(PyObject *self) {
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
+}
+
+static PyMemberDef NotEq_members[] = {
+    {0}
+};
+
+static PyType_Slot _NotEq_type_slots[] = {
+    {Py_tp_dealloc, &NotEq_dealloc},
+    {Py_tp_members, NotEq_members},
+    {Py_tp_free, PyObject_Free},
+    {Py_tp_doc, "NotEq"},
+    {Py_tp_new, NotEq_new},
+    {0, 0},
+};
+
+static PyType_Spec _NotEq_type_spec = {
+    "ast._NotEq",
+    sizeof(struct _object),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
+    _NotEq_type_slots
+};
+
+
+
+static PyObject *
+Lt_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+{
+    PyObject *res = type->tp_alloc(type, 0);
+    if (!res) {
+        return NULL;
+    }
+    return res;
+}
+
+static void Lt_dealloc(PyObject *self) {
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
+}
+
+static PyMemberDef Lt_members[] = {
+    {0}
+};
+
+static PyType_Slot _Lt_type_slots[] = {
+    {Py_tp_dealloc, &Lt_dealloc},
+    {Py_tp_members, Lt_members},
+    {Py_tp_free, PyObject_Free},
+    {Py_tp_doc, "Lt"},
+    {Py_tp_new, Lt_new},
+    {0, 0},
+};
+
+static PyType_Spec _Lt_type_spec = {
+    "ast._Lt",
+    sizeof(struct _object),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
+    _Lt_type_slots
+};
+
+
+
+static PyObject *
+LtE_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+{
+    PyObject *res = type->tp_alloc(type, 0);
+    if (!res) {
+        return NULL;
+    }
+    return res;
+}
+
+static void LtE_dealloc(PyObject *self) {
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
+}
+
+static PyMemberDef LtE_members[] = {
+    {0}
+};
+
+static PyType_Slot _LtE_type_slots[] = {
+    {Py_tp_dealloc, &LtE_dealloc},
+    {Py_tp_members, LtE_members},
+    {Py_tp_free, PyObject_Free},
+    {Py_tp_doc, "LtE"},
+    {Py_tp_new, LtE_new},
+    {0, 0},
+};
+
+static PyType_Spec _LtE_type_spec = {
+    "ast._LtE",
+    sizeof(struct _object),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
+    _LtE_type_slots
+};
+
+
+
+static PyObject *
+Gt_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+{
+    PyObject *res = type->tp_alloc(type, 0);
+    if (!res) {
+        return NULL;
+    }
+    return res;
+}
+
+static void Gt_dealloc(PyObject *self) {
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
+}
+
+static PyMemberDef Gt_members[] = {
+    {0}
+};
+
+static PyType_Slot _Gt_type_slots[] = {
+    {Py_tp_dealloc, &Gt_dealloc},
+    {Py_tp_members, Gt_members},
+    {Py_tp_free, PyObject_Free},
+    {Py_tp_doc, "Gt"},
+    {Py_tp_new, Gt_new},
+    {0, 0},
+};
+
+static PyType_Spec _Gt_type_spec = {
+    "ast._Gt",
+    sizeof(struct _object),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
+    _Gt_type_slots
+};
+
+
+
+static PyObject *
+GtE_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+{
+    PyObject *res = type->tp_alloc(type, 0);
+    if (!res) {
+        return NULL;
+    }
+    return res;
+}
+
+static void GtE_dealloc(PyObject *self) {
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
+}
+
+static PyMemberDef GtE_members[] = {
+    {0}
+};
+
+static PyType_Slot _GtE_type_slots[] = {
+    {Py_tp_dealloc, &GtE_dealloc},
+    {Py_tp_members, GtE_members},
+    {Py_tp_free, PyObject_Free},
+    {Py_tp_doc, "GtE"},
+    {Py_tp_new, GtE_new},
+    {0, 0},
+};
+
+static PyType_Spec _GtE_type_spec = {
+    "ast._GtE",
+    sizeof(struct _object),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
+    _GtE_type_slots
+};
+
+
+
+static PyObject *
+Is_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+{
+    PyObject *res = type->tp_alloc(type, 0);
+    if (!res) {
+        return NULL;
+    }
+    return res;
+}
+
+static void Is_dealloc(PyObject *self) {
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
+}
+
+static PyMemberDef Is_members[] = {
+    {0}
+};
+
+static PyType_Slot _Is_type_slots[] = {
+    {Py_tp_dealloc, &Is_dealloc},
+    {Py_tp_members, Is_members},
+    {Py_tp_free, PyObject_Free},
+    {Py_tp_doc, "Is"},
+    {Py_tp_new, Is_new},
+    {0, 0},
+};
+
+static PyType_Spec _Is_type_spec = {
+    "ast._Is",
+    sizeof(struct _object),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
+    _Is_type_slots
+};
+
+
+
+static PyObject *
+IsNot_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+{
+    PyObject *res = type->tp_alloc(type, 0);
+    if (!res) {
+        return NULL;
+    }
+    return res;
+}
+
+static void IsNot_dealloc(PyObject *self) {
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
+}
+
+static PyMemberDef IsNot_members[] = {
+    {0}
+};
+
+static PyType_Slot _IsNot_type_slots[] = {
+    {Py_tp_dealloc, &IsNot_dealloc},
+    {Py_tp_members, IsNot_members},
+    {Py_tp_free, PyObject_Free},
+    {Py_tp_doc, "IsNot"},
+    {Py_tp_new, IsNot_new},
+    {0, 0},
+};
+
+static PyType_Spec _IsNot_type_spec = {
+    "ast._IsNot",
+    sizeof(struct _object),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
+    _IsNot_type_slots
+};
+
+
+
+static PyObject *
+In_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+{
+    PyObject *res = type->tp_alloc(type, 0);
+    if (!res) {
+        return NULL;
+    }
+    return res;
+}
+
+static void In_dealloc(PyObject *self) {
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
+}
+
+static PyMemberDef In_members[] = {
+    {0}
+};
+
+static PyType_Slot _In_type_slots[] = {
+    {Py_tp_dealloc, &In_dealloc},
+    {Py_tp_members, In_members},
+    {Py_tp_free, PyObject_Free},
+    {Py_tp_doc, "In"},
+    {Py_tp_new, In_new},
+    {0, 0},
+};
+
+static PyType_Spec _In_type_spec = {
+    "ast._In",
+    sizeof(struct _object),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
+    _In_type_slots
+};
+
+
+
+static PyObject *
+NotIn_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+{
+    PyObject *res = type->tp_alloc(type, 0);
+    if (!res) {
+        return NULL;
+    }
+    return res;
+}
+
+static void NotIn_dealloc(PyObject *self) {
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
+}
+
+static PyMemberDef NotIn_members[] = {
+    {0}
+};
+
+static PyType_Slot _NotIn_type_slots[] = {
+    {Py_tp_dealloc, &NotIn_dealloc},
+    {Py_tp_members, NotIn_members},
+    {Py_tp_free, PyObject_Free},
+    {Py_tp_doc, "NotIn"},
+    {Py_tp_new, NotIn_new},
+    {0, 0},
+};
+
+static PyType_Spec _NotIn_type_spec = {
+    "ast._NotIn",
+    sizeof(struct _object),
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
+    _NotIn_type_slots
+};
+
+
+
 static void comprehension_seq_dealloc(PyObject *self) {
     asdl_comprehension_seq *obj = (asdl_comprehension_seq *)self;
     for (Py_ssize_t i = 0; i < obj->size; i++) {
@@ -12036,8 +15076,11 @@ static void comprehension_seq_dealloc(PyObject *self) {
             Py_DECREF(value);
         }
     }
-    Py_TYPE(self)->tp_free(obj);
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
 }
+
 
 static PyType_Slot _PyAST_comprehension_seq_type_slots[] = {
     {Py_tp_dealloc, &comprehension_seq_dealloc},
@@ -12138,15 +15181,18 @@ static void comprehension_dealloc(PyObject *self) {
     Py_XDECREF(obj->target);
     Py_XDECREF(obj->iter);
     Py_XDECREF(obj->ifs);
-    Py_TYPE(self)->tp_free(obj);
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
 }
+
 static PyMemberDef comprehension_members[] = {
     {0}
 };
 
 static PyType_Slot _comprehension_type_slots[] = {
     {Py_tp_dealloc, &comprehension_dealloc},
-{Py_tp_members, comprehension_members},
+    {Py_tp_members, comprehension_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "comprehension(expr target, expr iter, expr* ifs, int is_async)"},
     {Py_tp_new, comprehension_new},
@@ -12243,8 +15289,11 @@ static void ExceptHandler_dealloc(PyObject *self) {
     Py_XDECREF(obj->v.ExceptHandler.type);
     Py_XDECREF(obj->v.ExceptHandler.name);
     Py_XDECREF(obj->v.ExceptHandler.body);
-    Py_TYPE(self)->tp_free(obj);
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
 }
+
 static PyMemberDef ExceptHandler_members[] = {
     {"type", _Py_T_OBJECT, offsetof(struct _excepthandler,
       v.ExceptHandler.type), Py_READONLY, NULL},
@@ -12257,7 +15306,7 @@ static PyMemberDef ExceptHandler_members[] = {
 
 static PyType_Slot _ExceptHandler_type_slots[] = {
     {Py_tp_dealloc, &ExceptHandler_dealloc},
-{Py_tp_members, ExceptHandler_members},
+    {Py_tp_members, ExceptHandler_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "ExceptHandler(expr? type, identifier? name, stmt* body)"},
     {Py_tp_new, ExceptHandler_new},
@@ -12327,16 +15376,18 @@ excepthandler_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
 }
 
 static void excepthandler_dealloc(PyObject *self) {
-    excepthandler_ty obj = (excepthandler_ty)self;
-    Py_TYPE(self)->tp_free(obj);
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
 }
+
 static PyMemberDef excepthandler_members[] = {
     {0}
 };
 
 static PyType_Slot _excepthandler_type_slots[] = {
     {Py_tp_dealloc, &excepthandler_dealloc},
-{Py_tp_members, excepthandler_members},
+    {Py_tp_members, excepthandler_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "excepthandler = ExceptHandler(expr? type, identifier? name, stmt* body)"},
     {Py_tp_new, excepthandler_new},
@@ -12361,8 +15412,11 @@ static void excepthandler_seq_dealloc(PyObject *self) {
             Py_DECREF(value);
         }
     }
-    Py_TYPE(self)->tp_free(obj);
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
 }
+
 
 static PyType_Slot _PyAST_excepthandler_seq_type_slots[] = {
     {Py_tp_dealloc, &excepthandler_seq_dealloc},
@@ -12415,8 +15469,11 @@ static void arguments_seq_dealloc(PyObject *self) {
             Py_DECREF(value);
         }
     }
-    Py_TYPE(self)->tp_free(obj);
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
 }
+
 
 static PyType_Slot _PyAST_arguments_seq_type_slots[] = {
     {Py_tp_dealloc, &arguments_seq_dealloc},
@@ -12546,15 +15603,18 @@ static void arguments_dealloc(PyObject *self) {
     Py_XDECREF(obj->kw_defaults);
     Py_XDECREF(obj->kwarg);
     Py_XDECREF(obj->defaults);
-    Py_TYPE(self)->tp_free(obj);
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
 }
+
 static PyMemberDef arguments_members[] = {
     {0}
 };
 
 static PyType_Slot _arguments_type_slots[] = {
     {Py_tp_dealloc, &arguments_dealloc},
-{Py_tp_members, arguments_members},
+    {Py_tp_members, arguments_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "arguments(arg* posonlyargs, arg* args, arg? vararg, arg* kwonlyargs, expr* kw_defaults, arg? kwarg, expr* defaults)"},
     {Py_tp_new, arguments_new},
@@ -12634,8 +15694,11 @@ static void arg_seq_dealloc(PyObject *self) {
             Py_DECREF(value);
         }
     }
-    Py_TYPE(self)->tp_free(obj);
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
 }
+
 
 static PyType_Slot _PyAST_arg_seq_type_slots[] = {
     {Py_tp_dealloc, &arg_seq_dealloc},
@@ -12724,15 +15787,18 @@ static void arg_dealloc(PyObject *self) {
     Py_XDECREF(obj->arg);
     Py_XDECREF(obj->annotation);
     Py_XDECREF(obj->type_comment);
-    Py_TYPE(self)->tp_free(obj);
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
 }
+
 static PyMemberDef arg_members[] = {
     {0}
 };
 
 static PyType_Slot _arg_type_slots[] = {
     {Py_tp_dealloc, &arg_dealloc},
-{Py_tp_members, arg_members},
+    {Py_tp_members, arg_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "arg(identifier arg, expr? annotation, string? type_comment)"},
     {Py_tp_new, arg_new},
@@ -12787,8 +15853,11 @@ static void keyword_seq_dealloc(PyObject *self) {
             Py_DECREF(value);
         }
     }
-    Py_TYPE(self)->tp_free(obj);
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
 }
+
 
 static PyType_Slot _PyAST_keyword_seq_type_slots[] = {
     {Py_tp_dealloc, &keyword_seq_dealloc},
@@ -12869,15 +15938,18 @@ static void keyword_dealloc(PyObject *self) {
     keyword_ty obj = (keyword_ty)self;
     Py_XDECREF(obj->arg);
     Py_XDECREF(obj->value);
-    Py_TYPE(self)->tp_free(obj);
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
 }
+
 static PyMemberDef keyword_members[] = {
     {0}
 };
 
 static PyType_Slot _keyword_type_slots[] = {
     {Py_tp_dealloc, &keyword_dealloc},
-{Py_tp_members, keyword_members},
+    {Py_tp_members, keyword_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "keyword(identifier? arg, expr value)"},
     {Py_tp_new, keyword_new},
@@ -12927,8 +15999,11 @@ static void alias_seq_dealloc(PyObject *self) {
             Py_DECREF(value);
         }
     }
-    Py_TYPE(self)->tp_free(obj);
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
 }
+
 
 static PyType_Slot _PyAST_alias_seq_type_slots[] = {
     {Py_tp_dealloc, &alias_seq_dealloc},
@@ -13008,15 +16083,18 @@ static void alias_dealloc(PyObject *self) {
     alias_ty obj = (alias_ty)self;
     Py_XDECREF(obj->name);
     Py_XDECREF(obj->asname);
-    Py_TYPE(self)->tp_free(obj);
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
 }
+
 static PyMemberDef alias_members[] = {
     {0}
 };
 
 static PyType_Slot _alias_type_slots[] = {
     {Py_tp_dealloc, &alias_dealloc},
-{Py_tp_members, alias_members},
+    {Py_tp_members, alias_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "alias(identifier name, identifier? asname)"},
     {Py_tp_new, alias_new},
@@ -13066,8 +16144,11 @@ static void withitem_seq_dealloc(PyObject *self) {
             Py_DECREF(value);
         }
     }
-    Py_TYPE(self)->tp_free(obj);
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
 }
+
 
 static PyType_Slot _PyAST_withitem_seq_type_slots[] = {
     {Py_tp_dealloc, &withitem_seq_dealloc},
@@ -13148,15 +16229,18 @@ static void withitem_dealloc(PyObject *self) {
     withitem_ty obj = (withitem_ty)self;
     Py_XDECREF(obj->context_expr);
     Py_XDECREF(obj->optional_vars);
-    Py_TYPE(self)->tp_free(obj);
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
 }
+
 static PyMemberDef withitem_members[] = {
     {0}
 };
 
 static PyType_Slot _withitem_type_slots[] = {
     {Py_tp_dealloc, &withitem_dealloc},
-{Py_tp_members, withitem_members},
+    {Py_tp_members, withitem_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "withitem(expr context_expr, expr? optional_vars)"},
     {Py_tp_new, withitem_new},
@@ -13206,8 +16290,11 @@ static void match_case_seq_dealloc(PyObject *self) {
             Py_DECREF(value);
         }
     }
-    Py_TYPE(self)->tp_free(obj);
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
 }
+
 
 static PyType_Slot _PyAST_match_case_seq_type_slots[] = {
     {Py_tp_dealloc, &match_case_seq_dealloc},
@@ -13297,15 +16384,18 @@ static void match_case_dealloc(PyObject *self) {
     Py_XDECREF(obj->pattern);
     Py_XDECREF(obj->guard);
     Py_XDECREF(obj->body);
-    Py_TYPE(self)->tp_free(obj);
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
 }
+
 static PyMemberDef match_case_members[] = {
     {0}
 };
 
 static PyType_Slot _match_case_type_slots[] = {
     {Py_tp_dealloc, &match_case_dealloc},
-{Py_tp_members, match_case_members},
+    {Py_tp_members, match_case_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "match_case(pattern pattern, expr? guard, stmt* body)"},
     {Py_tp_new, match_case_new},
@@ -13381,8 +16471,11 @@ MatchValue_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
 static void MatchValue_dealloc(PyObject *self) {
     pattern_ty obj = (pattern_ty)self;
     Py_XDECREF(obj->v.MatchValue.value);
-    Py_TYPE(self)->tp_free(obj);
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
 }
+
 static PyMemberDef MatchValue_members[] = {
     {"value", _Py_T_OBJECT, offsetof(struct _pattern, v.MatchValue.value),
       Py_READONLY, NULL},
@@ -13391,7 +16484,7 @@ static PyMemberDef MatchValue_members[] = {
 
 static PyType_Slot _MatchValue_type_slots[] = {
     {Py_tp_dealloc, &MatchValue_dealloc},
-{Py_tp_members, MatchValue_members},
+    {Py_tp_members, MatchValue_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "MatchValue(expr value)"},
     {Py_tp_new, MatchValue_new},
@@ -13456,8 +16549,11 @@ MatchSingleton_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
 static void MatchSingleton_dealloc(PyObject *self) {
     pattern_ty obj = (pattern_ty)self;
     Py_XDECREF(obj->v.MatchSingleton.value);
-    Py_TYPE(self)->tp_free(obj);
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
 }
+
 static PyMemberDef MatchSingleton_members[] = {
     {"value", _Py_T_OBJECT, offsetof(struct _pattern, v.MatchSingleton.value),
       Py_READONLY, NULL},
@@ -13466,7 +16562,7 @@ static PyMemberDef MatchSingleton_members[] = {
 
 static PyType_Slot _MatchSingleton_type_slots[] = {
     {Py_tp_dealloc, &MatchSingleton_dealloc},
-{Py_tp_members, MatchSingleton_members},
+    {Py_tp_members, MatchSingleton_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "MatchSingleton(constant value)"},
     {Py_tp_new, MatchSingleton_new},
@@ -13531,8 +16627,11 @@ MatchSequence_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
 static void MatchSequence_dealloc(PyObject *self) {
     pattern_ty obj = (pattern_ty)self;
     Py_XDECREF(obj->v.MatchSequence.patterns);
-    Py_TYPE(self)->tp_free(obj);
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
 }
+
 static PyMemberDef MatchSequence_members[] = {
     {"patterns", _Py_T_OBJECT, offsetof(struct _pattern,
       v.MatchSequence.patterns), Py_READONLY, NULL},
@@ -13541,7 +16640,7 @@ static PyMemberDef MatchSequence_members[] = {
 
 static PyType_Slot _MatchSequence_type_slots[] = {
     {Py_tp_dealloc, &MatchSequence_dealloc},
-{Py_tp_members, MatchSequence_members},
+    {Py_tp_members, MatchSequence_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "MatchSequence(pattern* patterns)"},
     {Py_tp_new, MatchSequence_new},
@@ -13627,8 +16726,11 @@ static void MatchMapping_dealloc(PyObject *self) {
     Py_XDECREF(obj->v.MatchMapping.keys);
     Py_XDECREF(obj->v.MatchMapping.patterns);
     Py_XDECREF(obj->v.MatchMapping.rest);
-    Py_TYPE(self)->tp_free(obj);
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
 }
+
 static PyMemberDef MatchMapping_members[] = {
     {"keys", _Py_T_OBJECT, offsetof(struct _pattern, v.MatchMapping.keys),
       Py_READONLY, NULL},
@@ -13641,7 +16743,7 @@ static PyMemberDef MatchMapping_members[] = {
 
 static PyType_Slot _MatchMapping_type_slots[] = {
     {Py_tp_dealloc, &MatchMapping_dealloc},
-{Py_tp_members, MatchMapping_members},
+    {Py_tp_members, MatchMapping_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "MatchMapping(expr* keys, pattern* patterns, identifier? rest)"},
     {Py_tp_new, MatchMapping_new},
@@ -13749,8 +16851,11 @@ static void MatchClass_dealloc(PyObject *self) {
     Py_XDECREF(obj->v.MatchClass.patterns);
     Py_XDECREF(obj->v.MatchClass.kwd_attrs);
     Py_XDECREF(obj->v.MatchClass.kwd_patterns);
-    Py_TYPE(self)->tp_free(obj);
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
 }
+
 static PyMemberDef MatchClass_members[] = {
     {"cls", _Py_T_OBJECT, offsetof(struct _pattern, v.MatchClass.cls),
       Py_READONLY, NULL},
@@ -13765,7 +16870,7 @@ static PyMemberDef MatchClass_members[] = {
 
 static PyType_Slot _MatchClass_type_slots[] = {
     {Py_tp_dealloc, &MatchClass_dealloc},
-{Py_tp_members, MatchClass_members},
+    {Py_tp_members, MatchClass_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "MatchClass(expr cls, pattern* patterns, identifier* kwd_attrs, pattern* kwd_patterns)"},
     {Py_tp_new, MatchClass_new},
@@ -13850,8 +16955,11 @@ MatchStar_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
 static void MatchStar_dealloc(PyObject *self) {
     pattern_ty obj = (pattern_ty)self;
     Py_XDECREF(obj->v.MatchStar.name);
-    Py_TYPE(self)->tp_free(obj);
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
 }
+
 static PyMemberDef MatchStar_members[] = {
     {"name", _Py_T_OBJECT, offsetof(struct _pattern, v.MatchStar.name),
       Py_READONLY, NULL},
@@ -13860,7 +16968,7 @@ static PyMemberDef MatchStar_members[] = {
 
 static PyType_Slot _MatchStar_type_slots[] = {
     {Py_tp_dealloc, &MatchStar_dealloc},
-{Py_tp_members, MatchStar_members},
+    {Py_tp_members, MatchStar_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "MatchStar(identifier? name)"},
     {Py_tp_new, MatchStar_new},
@@ -13933,8 +17041,11 @@ static void MatchAs_dealloc(PyObject *self) {
     pattern_ty obj = (pattern_ty)self;
     Py_XDECREF(obj->v.MatchAs.pattern);
     Py_XDECREF(obj->v.MatchAs.name);
-    Py_TYPE(self)->tp_free(obj);
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
 }
+
 static PyMemberDef MatchAs_members[] = {
     {"pattern", _Py_T_OBJECT, offsetof(struct _pattern, v.MatchAs.pattern),
       Py_READONLY, NULL},
@@ -13945,7 +17056,7 @@ static PyMemberDef MatchAs_members[] = {
 
 static PyType_Slot _MatchAs_type_slots[] = {
     {Py_tp_dealloc, &MatchAs_dealloc},
-{Py_tp_members, MatchAs_members},
+    {Py_tp_members, MatchAs_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "MatchAs(pattern? pattern, identifier? name)"},
     {Py_tp_new, MatchAs_new},
@@ -14016,8 +17127,11 @@ MatchOr_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
 static void MatchOr_dealloc(PyObject *self) {
     pattern_ty obj = (pattern_ty)self;
     Py_XDECREF(obj->v.MatchOr.patterns);
-    Py_TYPE(self)->tp_free(obj);
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
 }
+
 static PyMemberDef MatchOr_members[] = {
     {"patterns", _Py_T_OBJECT, offsetof(struct _pattern, v.MatchOr.patterns),
       Py_READONLY, NULL},
@@ -14026,7 +17140,7 @@ static PyMemberDef MatchOr_members[] = {
 
 static PyType_Slot _MatchOr_type_slots[] = {
     {Py_tp_dealloc, &MatchOr_dealloc},
-{Py_tp_members, MatchOr_members},
+    {Py_tp_members, MatchOr_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "MatchOr(pattern* patterns)"},
     {Py_tp_new, MatchOr_new},
@@ -14097,16 +17211,18 @@ pattern_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
 }
 
 static void pattern_dealloc(PyObject *self) {
-    pattern_ty obj = (pattern_ty)self;
-    Py_TYPE(self)->tp_free(obj);
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
 }
+
 static PyMemberDef pattern_members[] = {
     {0}
 };
 
 static PyType_Slot _pattern_type_slots[] = {
     {Py_tp_dealloc, &pattern_dealloc},
-{Py_tp_members, pattern_members},
+    {Py_tp_members, pattern_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "pattern = MatchValue(expr value)\n"
         "        | MatchSingleton(constant value)\n"
@@ -14138,8 +17254,11 @@ static void pattern_seq_dealloc(PyObject *self) {
             Py_DECREF(value);
         }
     }
-    Py_TYPE(self)->tp_free(obj);
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
 }
+
 
 static PyType_Slot _PyAST_pattern_seq_type_slots[] = {
     {Py_tp_dealloc, &pattern_seq_dealloc},
@@ -14221,8 +17340,11 @@ TypeIgnore_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
 static void TypeIgnore_dealloc(PyObject *self) {
     type_ignore_ty obj = (type_ignore_ty)self;
     Py_XDECREF(obj->v.TypeIgnore.tag);
-    Py_TYPE(self)->tp_free(obj);
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
 }
+
 static PyMemberDef TypeIgnore_members[] = {
     {"lineno", Py_T_INT, offsetof(struct _type_ignore, v.TypeIgnore.lineno),
       Py_READONLY, NULL},
@@ -14233,7 +17355,7 @@ static PyMemberDef TypeIgnore_members[] = {
 
 static PyType_Slot _TypeIgnore_type_slots[] = {
     {Py_tp_dealloc, &TypeIgnore_dealloc},
-{Py_tp_members, TypeIgnore_members},
+    {Py_tp_members, TypeIgnore_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "TypeIgnore(int lineno, string tag)"},
     {Py_tp_new, TypeIgnore_new},
@@ -14290,16 +17412,18 @@ type_ignore_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
 }
 
 static void type_ignore_dealloc(PyObject *self) {
-    type_ignore_ty obj = (type_ignore_ty)self;
-    Py_TYPE(self)->tp_free(obj);
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
 }
+
 static PyMemberDef type_ignore_members[] = {
     {0}
 };
 
 static PyType_Slot _type_ignore_type_slots[] = {
     {Py_tp_dealloc, &type_ignore_dealloc},
-{Py_tp_members, type_ignore_members},
+    {Py_tp_members, type_ignore_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "type_ignore = TypeIgnore(int lineno, string tag)"},
     {Py_tp_new, type_ignore_new},
@@ -14324,8 +17448,11 @@ static void type_ignore_seq_dealloc(PyObject *self) {
             Py_DECREF(value);
         }
     }
-    Py_TYPE(self)->tp_free(obj);
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
 }
+
 
 static PyType_Slot _PyAST_type_ignore_seq_type_slots[] = {
     {Py_tp_dealloc, &type_ignore_seq_dealloc},
@@ -14416,8 +17543,11 @@ static void TypeVar_dealloc(PyObject *self) {
     Py_XDECREF(obj->v.TypeVar.name);
     Py_XDECREF(obj->v.TypeVar.bound);
     Py_XDECREF(obj->v.TypeVar.default_value);
-    Py_TYPE(self)->tp_free(obj);
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
 }
+
 static PyMemberDef TypeVar_members[] = {
     {"name", _Py_T_OBJECT, offsetof(struct _type_param, v.TypeVar.name),
       Py_READONLY, NULL},
@@ -14430,7 +17560,7 @@ static PyMemberDef TypeVar_members[] = {
 
 static PyType_Slot _TypeVar_type_slots[] = {
     {Py_tp_dealloc, &TypeVar_dealloc},
-{Py_tp_members, TypeVar_members},
+    {Py_tp_members, TypeVar_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "TypeVar(identifier name, expr? bound, expr? default_value)"},
     {Py_tp_new, TypeVar_new},
@@ -14517,8 +17647,11 @@ static void ParamSpec_dealloc(PyObject *self) {
     type_param_ty obj = (type_param_ty)self;
     Py_XDECREF(obj->v.ParamSpec.name);
     Py_XDECREF(obj->v.ParamSpec.default_value);
-    Py_TYPE(self)->tp_free(obj);
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
 }
+
 static PyMemberDef ParamSpec_members[] = {
     {"name", _Py_T_OBJECT, offsetof(struct _type_param, v.ParamSpec.name),
       Py_READONLY, NULL},
@@ -14529,7 +17662,7 @@ static PyMemberDef ParamSpec_members[] = {
 
 static PyType_Slot _ParamSpec_type_slots[] = {
     {Py_tp_dealloc, &ParamSpec_dealloc},
-{Py_tp_members, ParamSpec_members},
+    {Py_tp_members, ParamSpec_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "ParamSpec(identifier name, expr? default_value)"},
     {Py_tp_new, ParamSpec_new},
@@ -14611,8 +17744,11 @@ static void TypeVarTuple_dealloc(PyObject *self) {
     type_param_ty obj = (type_param_ty)self;
     Py_XDECREF(obj->v.TypeVarTuple.name);
     Py_XDECREF(obj->v.TypeVarTuple.default_value);
-    Py_TYPE(self)->tp_free(obj);
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
 }
+
 static PyMemberDef TypeVarTuple_members[] = {
     {"name", _Py_T_OBJECT, offsetof(struct _type_param, v.TypeVarTuple.name),
       Py_READONLY, NULL},
@@ -14623,7 +17759,7 @@ static PyMemberDef TypeVarTuple_members[] = {
 
 static PyType_Slot _TypeVarTuple_type_slots[] = {
     {Py_tp_dealloc, &TypeVarTuple_dealloc},
-{Py_tp_members, TypeVarTuple_members},
+    {Py_tp_members, TypeVarTuple_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "TypeVarTuple(identifier name, expr? default_value)"},
     {Py_tp_new, TypeVarTuple_new},
@@ -14690,16 +17826,18 @@ type_param_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
 }
 
 static void type_param_dealloc(PyObject *self) {
-    type_param_ty obj = (type_param_ty)self;
-    Py_TYPE(self)->tp_free(obj);
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
 }
+
 static PyMemberDef type_param_members[] = {
     {0}
 };
 
 static PyType_Slot _type_param_type_slots[] = {
     {Py_tp_dealloc, &type_param_dealloc},
-{Py_tp_members, type_param_members},
+    {Py_tp_members, type_param_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "type_param = TypeVar(identifier name, expr? bound, expr? default_value)\n"
         "           | ParamSpec(identifier name, expr? default_value)\n"
@@ -14726,8 +17864,11 @@ static void type_param_seq_dealloc(PyObject *self) {
             Py_DECREF(value);
         }
     }
-    Py_TYPE(self)->tp_free(obj);
+    PyTypeObject *type = Py_TYPE(self);
+    type->tp_free(self);
+    Py_DECREF(type);
 }
+
 
 static PyType_Slot _PyAST_type_param_seq_type_slots[] = {
     {Py_tp_dealloc, &type_param_seq_dealloc},
@@ -15825,7 +18966,10 @@ static int add_ast_fields(struct ast_state *state)
     if (!empty_tuple ||
         PyObject_SetAttrString(state->AST_type, "_fields", empty_tuple) < 0 ||
         PyObject_SetAttrString(state->AST_type, "__match_args__", empty_tuple) < 0 ||
-        PyObject_SetAttrString(state->AST_type, "_attributes", empty_tuple) < 0) {
+        PyObject_SetAttrString(state->AST_type, "_attributes", empty_tuple) < 0 ||
+        PyObject_SetAttrString(state->_AST_type, "_fields", empty_tuple) < 0 ||
+        PyObject_SetAttrString(state->_AST_type, "__match_args__", empty_tuple) < 0 ||
+        PyObject_SetAttrString(state->_AST_type, "_attributes", empty_tuple) < 0) {
         Py_XDECREF(empty_tuple);
         return -1;
     }
@@ -15846,11 +18990,11 @@ init_types(void *arg)
     if (!state->AST_type) {
         return -1;
     }
-    if (add_ast_fields(state) < 0) {
-        return -1;
-    }
     state->_AST_type = PyType_FromSpec(&_AST_type_spec);
     if (state->_AST_type == NULL) {
+        return -1;
+    }
+    if (add_ast_fields(state) < 0) {
         return -1;
     }
     PyObject *t;
@@ -16517,231 +19661,488 @@ init_types(void *arg)
         "expr_context = Load | Store | Del");
     if (!state->expr_context_type) return -1;
     if (add_attributes(state, state->expr_context_type, NULL, 0) < 0) return -1;
+    t = PyType_FromSpecWithBases(&_expr_context_type_spec, state->_AST_type);
+    state->_expr_context_type = t;
+    if (state->_expr_context_type == NULL) return -1;
+    if (add_attributes(state, state->_expr_context_type, NULL, 0) < 0) return
+        -1;
     state->Load_type = make_type(state, "Load", state->expr_context_type, NULL,
                                  0,
         "Load");
     if (!state->Load_type) return -1;
+    t = PyType_FromSpecWithBases(&_Load_type_spec, state->_expr_context_type);
+    state->_Load_type = t;
+    if (state->_Load_type == NULL) return -1;
+    if (add_fields(state->_Load_type, NULL, 0) < 0) return -1;
     state->Load_singleton = PyType_GenericNew((PyTypeObject *)state->Load_type,
                                               NULL, NULL);
     if (!state->Load_singleton) return -1;
+    state->_Load_singleton = PyType_GenericNew((PyTypeObject
+                                               *)state->_Load_type, NULL, NULL);
+    if (!state->_Load_singleton) return -1;
     state->Store_type = make_type(state, "Store", state->expr_context_type,
                                   NULL, 0,
         "Store");
     if (!state->Store_type) return -1;
+    t = PyType_FromSpecWithBases(&_Store_type_spec, state->_expr_context_type);
+    state->_Store_type = t;
+    if (state->_Store_type == NULL) return -1;
+    if (add_fields(state->_Store_type, NULL, 0) < 0) return -1;
     state->Store_singleton = PyType_GenericNew((PyTypeObject
                                                *)state->Store_type, NULL, NULL);
     if (!state->Store_singleton) return -1;
+    state->_Store_singleton = PyType_GenericNew((PyTypeObject
+                                                *)state->_Store_type, NULL,
+                                                NULL);
+    if (!state->_Store_singleton) return -1;
     state->Del_type = make_type(state, "Del", state->expr_context_type, NULL, 0,
         "Del");
     if (!state->Del_type) return -1;
+    t = PyType_FromSpecWithBases(&_Del_type_spec, state->_expr_context_type);
+    state->_Del_type = t;
+    if (state->_Del_type == NULL) return -1;
+    if (add_fields(state->_Del_type, NULL, 0) < 0) return -1;
     state->Del_singleton = PyType_GenericNew((PyTypeObject *)state->Del_type,
                                              NULL, NULL);
     if (!state->Del_singleton) return -1;
+    state->_Del_singleton = PyType_GenericNew((PyTypeObject *)state->_Del_type,
+                                              NULL, NULL);
+    if (!state->_Del_singleton) return -1;
     state->boolop_type = make_type(state, "boolop", state->AST_type, NULL, 0,
         "boolop = And | Or");
     if (!state->boolop_type) return -1;
     if (add_attributes(state, state->boolop_type, NULL, 0) < 0) return -1;
+    t = PyType_FromSpecWithBases(&_boolop_type_spec, state->_AST_type);
+    state->_boolop_type = t;
+    if (state->_boolop_type == NULL) return -1;
+    if (add_attributes(state, state->_boolop_type, NULL, 0) < 0) return -1;
     state->And_type = make_type(state, "And", state->boolop_type, NULL, 0,
         "And");
     if (!state->And_type) return -1;
+    t = PyType_FromSpecWithBases(&_And_type_spec, state->_boolop_type);
+    state->_And_type = t;
+    if (state->_And_type == NULL) return -1;
+    if (add_fields(state->_And_type, NULL, 0) < 0) return -1;
     state->And_singleton = PyType_GenericNew((PyTypeObject *)state->And_type,
                                              NULL, NULL);
     if (!state->And_singleton) return -1;
+    state->_And_singleton = PyType_GenericNew((PyTypeObject *)state->_And_type,
+                                              NULL, NULL);
+    if (!state->_And_singleton) return -1;
     state->Or_type = make_type(state, "Or", state->boolop_type, NULL, 0,
         "Or");
     if (!state->Or_type) return -1;
+    t = PyType_FromSpecWithBases(&_Or_type_spec, state->_boolop_type);
+    state->_Or_type = t;
+    if (state->_Or_type == NULL) return -1;
+    if (add_fields(state->_Or_type, NULL, 0) < 0) return -1;
     state->Or_singleton = PyType_GenericNew((PyTypeObject *)state->Or_type,
                                             NULL, NULL);
     if (!state->Or_singleton) return -1;
+    state->_Or_singleton = PyType_GenericNew((PyTypeObject *)state->_Or_type,
+                                             NULL, NULL);
+    if (!state->_Or_singleton) return -1;
     state->operator_type = make_type(state, "operator", state->AST_type, NULL,
                                      0,
         "operator = Add | Sub | Mult | MatMult | Div | Mod | Pow | LShift | RShift | BitOr | BitXor | BitAnd | FloorDiv");
     if (!state->operator_type) return -1;
     if (add_attributes(state, state->operator_type, NULL, 0) < 0) return -1;
+    t = PyType_FromSpecWithBases(&_operator_type_spec, state->_AST_type);
+    state->_operator_type = t;
+    if (state->_operator_type == NULL) return -1;
+    if (add_attributes(state, state->_operator_type, NULL, 0) < 0) return -1;
     state->Add_type = make_type(state, "Add", state->operator_type, NULL, 0,
         "Add");
     if (!state->Add_type) return -1;
+    t = PyType_FromSpecWithBases(&_Add_type_spec, state->_operator_type);
+    state->_Add_type = t;
+    if (state->_Add_type == NULL) return -1;
+    if (add_fields(state->_Add_type, NULL, 0) < 0) return -1;
     state->Add_singleton = PyType_GenericNew((PyTypeObject *)state->Add_type,
                                              NULL, NULL);
     if (!state->Add_singleton) return -1;
+    state->_Add_singleton = PyType_GenericNew((PyTypeObject *)state->_Add_type,
+                                              NULL, NULL);
+    if (!state->_Add_singleton) return -1;
     state->Sub_type = make_type(state, "Sub", state->operator_type, NULL, 0,
         "Sub");
     if (!state->Sub_type) return -1;
+    t = PyType_FromSpecWithBases(&_Sub_type_spec, state->_operator_type);
+    state->_Sub_type = t;
+    if (state->_Sub_type == NULL) return -1;
+    if (add_fields(state->_Sub_type, NULL, 0) < 0) return -1;
     state->Sub_singleton = PyType_GenericNew((PyTypeObject *)state->Sub_type,
                                              NULL, NULL);
     if (!state->Sub_singleton) return -1;
+    state->_Sub_singleton = PyType_GenericNew((PyTypeObject *)state->_Sub_type,
+                                              NULL, NULL);
+    if (!state->_Sub_singleton) return -1;
     state->Mult_type = make_type(state, "Mult", state->operator_type, NULL, 0,
         "Mult");
     if (!state->Mult_type) return -1;
+    t = PyType_FromSpecWithBases(&_Mult_type_spec, state->_operator_type);
+    state->_Mult_type = t;
+    if (state->_Mult_type == NULL) return -1;
+    if (add_fields(state->_Mult_type, NULL, 0) < 0) return -1;
     state->Mult_singleton = PyType_GenericNew((PyTypeObject *)state->Mult_type,
                                               NULL, NULL);
     if (!state->Mult_singleton) return -1;
+    state->_Mult_singleton = PyType_GenericNew((PyTypeObject
+                                               *)state->_Mult_type, NULL, NULL);
+    if (!state->_Mult_singleton) return -1;
     state->MatMult_type = make_type(state, "MatMult", state->operator_type,
                                     NULL, 0,
         "MatMult");
     if (!state->MatMult_type) return -1;
+    t = PyType_FromSpecWithBases(&_MatMult_type_spec, state->_operator_type);
+    state->_MatMult_type = t;
+    if (state->_MatMult_type == NULL) return -1;
+    if (add_fields(state->_MatMult_type, NULL, 0) < 0) return -1;
     state->MatMult_singleton = PyType_GenericNew((PyTypeObject
                                                  *)state->MatMult_type, NULL,
                                                  NULL);
     if (!state->MatMult_singleton) return -1;
+    state->_MatMult_singleton = PyType_GenericNew((PyTypeObject
+                                                  *)state->_MatMult_type, NULL,
+                                                  NULL);
+    if (!state->_MatMult_singleton) return -1;
     state->Div_type = make_type(state, "Div", state->operator_type, NULL, 0,
         "Div");
     if (!state->Div_type) return -1;
+    t = PyType_FromSpecWithBases(&_Div_type_spec, state->_operator_type);
+    state->_Div_type = t;
+    if (state->_Div_type == NULL) return -1;
+    if (add_fields(state->_Div_type, NULL, 0) < 0) return -1;
     state->Div_singleton = PyType_GenericNew((PyTypeObject *)state->Div_type,
                                              NULL, NULL);
     if (!state->Div_singleton) return -1;
+    state->_Div_singleton = PyType_GenericNew((PyTypeObject *)state->_Div_type,
+                                              NULL, NULL);
+    if (!state->_Div_singleton) return -1;
     state->Mod_type = make_type(state, "Mod", state->operator_type, NULL, 0,
         "Mod");
     if (!state->Mod_type) return -1;
+    t = PyType_FromSpecWithBases(&_Mod_type_spec, state->_operator_type);
+    state->_Mod_type = t;
+    if (state->_Mod_type == NULL) return -1;
+    if (add_fields(state->_Mod_type, NULL, 0) < 0) return -1;
     state->Mod_singleton = PyType_GenericNew((PyTypeObject *)state->Mod_type,
                                              NULL, NULL);
     if (!state->Mod_singleton) return -1;
+    state->_Mod_singleton = PyType_GenericNew((PyTypeObject *)state->_Mod_type,
+                                              NULL, NULL);
+    if (!state->_Mod_singleton) return -1;
     state->Pow_type = make_type(state, "Pow", state->operator_type, NULL, 0,
         "Pow");
     if (!state->Pow_type) return -1;
+    t = PyType_FromSpecWithBases(&_Pow_type_spec, state->_operator_type);
+    state->_Pow_type = t;
+    if (state->_Pow_type == NULL) return -1;
+    if (add_fields(state->_Pow_type, NULL, 0) < 0) return -1;
     state->Pow_singleton = PyType_GenericNew((PyTypeObject *)state->Pow_type,
                                              NULL, NULL);
     if (!state->Pow_singleton) return -1;
+    state->_Pow_singleton = PyType_GenericNew((PyTypeObject *)state->_Pow_type,
+                                              NULL, NULL);
+    if (!state->_Pow_singleton) return -1;
     state->LShift_type = make_type(state, "LShift", state->operator_type, NULL,
                                    0,
         "LShift");
     if (!state->LShift_type) return -1;
+    t = PyType_FromSpecWithBases(&_LShift_type_spec, state->_operator_type);
+    state->_LShift_type = t;
+    if (state->_LShift_type == NULL) return -1;
+    if (add_fields(state->_LShift_type, NULL, 0) < 0) return -1;
     state->LShift_singleton = PyType_GenericNew((PyTypeObject
                                                 *)state->LShift_type, NULL,
                                                 NULL);
     if (!state->LShift_singleton) return -1;
+    state->_LShift_singleton = PyType_GenericNew((PyTypeObject
+                                                 *)state->_LShift_type, NULL,
+                                                 NULL);
+    if (!state->_LShift_singleton) return -1;
     state->RShift_type = make_type(state, "RShift", state->operator_type, NULL,
                                    0,
         "RShift");
     if (!state->RShift_type) return -1;
+    t = PyType_FromSpecWithBases(&_RShift_type_spec, state->_operator_type);
+    state->_RShift_type = t;
+    if (state->_RShift_type == NULL) return -1;
+    if (add_fields(state->_RShift_type, NULL, 0) < 0) return -1;
     state->RShift_singleton = PyType_GenericNew((PyTypeObject
                                                 *)state->RShift_type, NULL,
                                                 NULL);
     if (!state->RShift_singleton) return -1;
+    state->_RShift_singleton = PyType_GenericNew((PyTypeObject
+                                                 *)state->_RShift_type, NULL,
+                                                 NULL);
+    if (!state->_RShift_singleton) return -1;
     state->BitOr_type = make_type(state, "BitOr", state->operator_type, NULL, 0,
         "BitOr");
     if (!state->BitOr_type) return -1;
+    t = PyType_FromSpecWithBases(&_BitOr_type_spec, state->_operator_type);
+    state->_BitOr_type = t;
+    if (state->_BitOr_type == NULL) return -1;
+    if (add_fields(state->_BitOr_type, NULL, 0) < 0) return -1;
     state->BitOr_singleton = PyType_GenericNew((PyTypeObject
                                                *)state->BitOr_type, NULL, NULL);
     if (!state->BitOr_singleton) return -1;
+    state->_BitOr_singleton = PyType_GenericNew((PyTypeObject
+                                                *)state->_BitOr_type, NULL,
+                                                NULL);
+    if (!state->_BitOr_singleton) return -1;
     state->BitXor_type = make_type(state, "BitXor", state->operator_type, NULL,
                                    0,
         "BitXor");
     if (!state->BitXor_type) return -1;
+    t = PyType_FromSpecWithBases(&_BitXor_type_spec, state->_operator_type);
+    state->_BitXor_type = t;
+    if (state->_BitXor_type == NULL) return -1;
+    if (add_fields(state->_BitXor_type, NULL, 0) < 0) return -1;
     state->BitXor_singleton = PyType_GenericNew((PyTypeObject
                                                 *)state->BitXor_type, NULL,
                                                 NULL);
     if (!state->BitXor_singleton) return -1;
+    state->_BitXor_singleton = PyType_GenericNew((PyTypeObject
+                                                 *)state->_BitXor_type, NULL,
+                                                 NULL);
+    if (!state->_BitXor_singleton) return -1;
     state->BitAnd_type = make_type(state, "BitAnd", state->operator_type, NULL,
                                    0,
         "BitAnd");
     if (!state->BitAnd_type) return -1;
+    t = PyType_FromSpecWithBases(&_BitAnd_type_spec, state->_operator_type);
+    state->_BitAnd_type = t;
+    if (state->_BitAnd_type == NULL) return -1;
+    if (add_fields(state->_BitAnd_type, NULL, 0) < 0) return -1;
     state->BitAnd_singleton = PyType_GenericNew((PyTypeObject
                                                 *)state->BitAnd_type, NULL,
                                                 NULL);
     if (!state->BitAnd_singleton) return -1;
+    state->_BitAnd_singleton = PyType_GenericNew((PyTypeObject
+                                                 *)state->_BitAnd_type, NULL,
+                                                 NULL);
+    if (!state->_BitAnd_singleton) return -1;
     state->FloorDiv_type = make_type(state, "FloorDiv", state->operator_type,
                                      NULL, 0,
         "FloorDiv");
     if (!state->FloorDiv_type) return -1;
+    t = PyType_FromSpecWithBases(&_FloorDiv_type_spec, state->_operator_type);
+    state->_FloorDiv_type = t;
+    if (state->_FloorDiv_type == NULL) return -1;
+    if (add_fields(state->_FloorDiv_type, NULL, 0) < 0) return -1;
     state->FloorDiv_singleton = PyType_GenericNew((PyTypeObject
                                                   *)state->FloorDiv_type, NULL,
                                                   NULL);
     if (!state->FloorDiv_singleton) return -1;
+    state->_FloorDiv_singleton = PyType_GenericNew((PyTypeObject
+                                                   *)state->_FloorDiv_type,
+                                                   NULL, NULL);
+    if (!state->_FloorDiv_singleton) return -1;
     state->unaryop_type = make_type(state, "unaryop", state->AST_type, NULL, 0,
         "unaryop = Invert | Not | UAdd | USub");
     if (!state->unaryop_type) return -1;
     if (add_attributes(state, state->unaryop_type, NULL, 0) < 0) return -1;
+    t = PyType_FromSpecWithBases(&_unaryop_type_spec, state->_AST_type);
+    state->_unaryop_type = t;
+    if (state->_unaryop_type == NULL) return -1;
+    if (add_attributes(state, state->_unaryop_type, NULL, 0) < 0) return -1;
     state->Invert_type = make_type(state, "Invert", state->unaryop_type, NULL,
                                    0,
         "Invert");
     if (!state->Invert_type) return -1;
+    t = PyType_FromSpecWithBases(&_Invert_type_spec, state->_unaryop_type);
+    state->_Invert_type = t;
+    if (state->_Invert_type == NULL) return -1;
+    if (add_fields(state->_Invert_type, NULL, 0) < 0) return -1;
     state->Invert_singleton = PyType_GenericNew((PyTypeObject
                                                 *)state->Invert_type, NULL,
                                                 NULL);
     if (!state->Invert_singleton) return -1;
+    state->_Invert_singleton = PyType_GenericNew((PyTypeObject
+                                                 *)state->_Invert_type, NULL,
+                                                 NULL);
+    if (!state->_Invert_singleton) return -1;
     state->Not_type = make_type(state, "Not", state->unaryop_type, NULL, 0,
         "Not");
     if (!state->Not_type) return -1;
+    t = PyType_FromSpecWithBases(&_Not_type_spec, state->_unaryop_type);
+    state->_Not_type = t;
+    if (state->_Not_type == NULL) return -1;
+    if (add_fields(state->_Not_type, NULL, 0) < 0) return -1;
     state->Not_singleton = PyType_GenericNew((PyTypeObject *)state->Not_type,
                                              NULL, NULL);
     if (!state->Not_singleton) return -1;
+    state->_Not_singleton = PyType_GenericNew((PyTypeObject *)state->_Not_type,
+                                              NULL, NULL);
+    if (!state->_Not_singleton) return -1;
     state->UAdd_type = make_type(state, "UAdd", state->unaryop_type, NULL, 0,
         "UAdd");
     if (!state->UAdd_type) return -1;
+    t = PyType_FromSpecWithBases(&_UAdd_type_spec, state->_unaryop_type);
+    state->_UAdd_type = t;
+    if (state->_UAdd_type == NULL) return -1;
+    if (add_fields(state->_UAdd_type, NULL, 0) < 0) return -1;
     state->UAdd_singleton = PyType_GenericNew((PyTypeObject *)state->UAdd_type,
                                               NULL, NULL);
     if (!state->UAdd_singleton) return -1;
+    state->_UAdd_singleton = PyType_GenericNew((PyTypeObject
+                                               *)state->_UAdd_type, NULL, NULL);
+    if (!state->_UAdd_singleton) return -1;
     state->USub_type = make_type(state, "USub", state->unaryop_type, NULL, 0,
         "USub");
     if (!state->USub_type) return -1;
+    t = PyType_FromSpecWithBases(&_USub_type_spec, state->_unaryop_type);
+    state->_USub_type = t;
+    if (state->_USub_type == NULL) return -1;
+    if (add_fields(state->_USub_type, NULL, 0) < 0) return -1;
     state->USub_singleton = PyType_GenericNew((PyTypeObject *)state->USub_type,
                                               NULL, NULL);
     if (!state->USub_singleton) return -1;
+    state->_USub_singleton = PyType_GenericNew((PyTypeObject
+                                               *)state->_USub_type, NULL, NULL);
+    if (!state->_USub_singleton) return -1;
     state->cmpop_type = make_type(state, "cmpop", state->AST_type, NULL, 0,
         "cmpop = Eq | NotEq | Lt | LtE | Gt | GtE | Is | IsNot | In | NotIn");
     if (!state->cmpop_type) return -1;
     if (add_attributes(state, state->cmpop_type, NULL, 0) < 0) return -1;
+    t = PyType_FromSpecWithBases(&_cmpop_type_spec, state->_AST_type);
+    state->_cmpop_type = t;
+    if (state->_cmpop_type == NULL) return -1;
+    if (add_attributes(state, state->_cmpop_type, NULL, 0) < 0) return -1;
     state->Eq_type = make_type(state, "Eq", state->cmpop_type, NULL, 0,
         "Eq");
     if (!state->Eq_type) return -1;
+    t = PyType_FromSpecWithBases(&_Eq_type_spec, state->_cmpop_type);
+    state->_Eq_type = t;
+    if (state->_Eq_type == NULL) return -1;
+    if (add_fields(state->_Eq_type, NULL, 0) < 0) return -1;
     state->Eq_singleton = PyType_GenericNew((PyTypeObject *)state->Eq_type,
                                             NULL, NULL);
     if (!state->Eq_singleton) return -1;
+    state->_Eq_singleton = PyType_GenericNew((PyTypeObject *)state->_Eq_type,
+                                             NULL, NULL);
+    if (!state->_Eq_singleton) return -1;
     state->NotEq_type = make_type(state, "NotEq", state->cmpop_type, NULL, 0,
         "NotEq");
     if (!state->NotEq_type) return -1;
+    t = PyType_FromSpecWithBases(&_NotEq_type_spec, state->_cmpop_type);
+    state->_NotEq_type = t;
+    if (state->_NotEq_type == NULL) return -1;
+    if (add_fields(state->_NotEq_type, NULL, 0) < 0) return -1;
     state->NotEq_singleton = PyType_GenericNew((PyTypeObject
                                                *)state->NotEq_type, NULL, NULL);
     if (!state->NotEq_singleton) return -1;
+    state->_NotEq_singleton = PyType_GenericNew((PyTypeObject
+                                                *)state->_NotEq_type, NULL,
+                                                NULL);
+    if (!state->_NotEq_singleton) return -1;
     state->Lt_type = make_type(state, "Lt", state->cmpop_type, NULL, 0,
         "Lt");
     if (!state->Lt_type) return -1;
+    t = PyType_FromSpecWithBases(&_Lt_type_spec, state->_cmpop_type);
+    state->_Lt_type = t;
+    if (state->_Lt_type == NULL) return -1;
+    if (add_fields(state->_Lt_type, NULL, 0) < 0) return -1;
     state->Lt_singleton = PyType_GenericNew((PyTypeObject *)state->Lt_type,
                                             NULL, NULL);
     if (!state->Lt_singleton) return -1;
+    state->_Lt_singleton = PyType_GenericNew((PyTypeObject *)state->_Lt_type,
+                                             NULL, NULL);
+    if (!state->_Lt_singleton) return -1;
     state->LtE_type = make_type(state, "LtE", state->cmpop_type, NULL, 0,
         "LtE");
     if (!state->LtE_type) return -1;
+    t = PyType_FromSpecWithBases(&_LtE_type_spec, state->_cmpop_type);
+    state->_LtE_type = t;
+    if (state->_LtE_type == NULL) return -1;
+    if (add_fields(state->_LtE_type, NULL, 0) < 0) return -1;
     state->LtE_singleton = PyType_GenericNew((PyTypeObject *)state->LtE_type,
                                              NULL, NULL);
     if (!state->LtE_singleton) return -1;
+    state->_LtE_singleton = PyType_GenericNew((PyTypeObject *)state->_LtE_type,
+                                              NULL, NULL);
+    if (!state->_LtE_singleton) return -1;
     state->Gt_type = make_type(state, "Gt", state->cmpop_type, NULL, 0,
         "Gt");
     if (!state->Gt_type) return -1;
+    t = PyType_FromSpecWithBases(&_Gt_type_spec, state->_cmpop_type);
+    state->_Gt_type = t;
+    if (state->_Gt_type == NULL) return -1;
+    if (add_fields(state->_Gt_type, NULL, 0) < 0) return -1;
     state->Gt_singleton = PyType_GenericNew((PyTypeObject *)state->Gt_type,
                                             NULL, NULL);
     if (!state->Gt_singleton) return -1;
+    state->_Gt_singleton = PyType_GenericNew((PyTypeObject *)state->_Gt_type,
+                                             NULL, NULL);
+    if (!state->_Gt_singleton) return -1;
     state->GtE_type = make_type(state, "GtE", state->cmpop_type, NULL, 0,
         "GtE");
     if (!state->GtE_type) return -1;
+    t = PyType_FromSpecWithBases(&_GtE_type_spec, state->_cmpop_type);
+    state->_GtE_type = t;
+    if (state->_GtE_type == NULL) return -1;
+    if (add_fields(state->_GtE_type, NULL, 0) < 0) return -1;
     state->GtE_singleton = PyType_GenericNew((PyTypeObject *)state->GtE_type,
                                              NULL, NULL);
     if (!state->GtE_singleton) return -1;
+    state->_GtE_singleton = PyType_GenericNew((PyTypeObject *)state->_GtE_type,
+                                              NULL, NULL);
+    if (!state->_GtE_singleton) return -1;
     state->Is_type = make_type(state, "Is", state->cmpop_type, NULL, 0,
         "Is");
     if (!state->Is_type) return -1;
+    t = PyType_FromSpecWithBases(&_Is_type_spec, state->_cmpop_type);
+    state->_Is_type = t;
+    if (state->_Is_type == NULL) return -1;
+    if (add_fields(state->_Is_type, NULL, 0) < 0) return -1;
     state->Is_singleton = PyType_GenericNew((PyTypeObject *)state->Is_type,
                                             NULL, NULL);
     if (!state->Is_singleton) return -1;
+    state->_Is_singleton = PyType_GenericNew((PyTypeObject *)state->_Is_type,
+                                             NULL, NULL);
+    if (!state->_Is_singleton) return -1;
     state->IsNot_type = make_type(state, "IsNot", state->cmpop_type, NULL, 0,
         "IsNot");
     if (!state->IsNot_type) return -1;
+    t = PyType_FromSpecWithBases(&_IsNot_type_spec, state->_cmpop_type);
+    state->_IsNot_type = t;
+    if (state->_IsNot_type == NULL) return -1;
+    if (add_fields(state->_IsNot_type, NULL, 0) < 0) return -1;
     state->IsNot_singleton = PyType_GenericNew((PyTypeObject
                                                *)state->IsNot_type, NULL, NULL);
     if (!state->IsNot_singleton) return -1;
+    state->_IsNot_singleton = PyType_GenericNew((PyTypeObject
+                                                *)state->_IsNot_type, NULL,
+                                                NULL);
+    if (!state->_IsNot_singleton) return -1;
     state->In_type = make_type(state, "In", state->cmpop_type, NULL, 0,
         "In");
     if (!state->In_type) return -1;
+    t = PyType_FromSpecWithBases(&_In_type_spec, state->_cmpop_type);
+    state->_In_type = t;
+    if (state->_In_type == NULL) return -1;
+    if (add_fields(state->_In_type, NULL, 0) < 0) return -1;
     state->In_singleton = PyType_GenericNew((PyTypeObject *)state->In_type,
                                             NULL, NULL);
     if (!state->In_singleton) return -1;
+    state->_In_singleton = PyType_GenericNew((PyTypeObject *)state->_In_type,
+                                             NULL, NULL);
+    if (!state->_In_singleton) return -1;
     state->NotIn_type = make_type(state, "NotIn", state->cmpop_type, NULL, 0,
         "NotIn");
     if (!state->NotIn_type) return -1;
+    t = PyType_FromSpecWithBases(&_NotIn_type_spec, state->_cmpop_type);
+    state->_NotIn_type = t;
+    if (state->_NotIn_type == NULL) return -1;
+    if (add_fields(state->_NotIn_type, NULL, 0) < 0) return -1;
     state->NotIn_singleton = PyType_GenericNew((PyTypeObject
                                                *)state->NotIn_type, NULL, NULL);
     if (!state->NotIn_singleton) return -1;
+    state->_NotIn_singleton = PyType_GenericNew((PyTypeObject
+                                                *)state->_NotIn_type, NULL,
+                                                NULL);
+    if (!state->_NotIn_singleton) return -1;
     state->comprehension_type = make_type(state, "comprehension",
                                           state->AST_type,
                                           comprehension_fields, 4,

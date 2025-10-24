@@ -1162,6 +1162,10 @@ class AnnotationsVisitor(PickleVisitor):
         self.emit_annotations_error(name, 1)
         self.emit(f'cond = PyObject_SetAttrString(state->{name}_type, "__annotations__", {name}_annotations) == 0;', 1)
         self.emit_annotations_error(name, 1)
+        self.emit(f'cond = PyObject_SetAttrString(state->_{name}_type, "_field_types", {name}_annotations) == 0;', 1)
+        self.emit_annotations_error(name, 1)
+        self.emit(f'cond = PyObject_SetAttrString(state->_{name}_type, "__annotations__", {name}_annotations) == 0;', 1)
+        self.emit_annotations_error(name, 1)
         self.emit(f"Py_DECREF({name}_annotations);", 1)
 
     def emit_annotations_error(self, name, depth):
@@ -2227,7 +2231,10 @@ static int add_ast_fields(struct ast_state *state)
     if (!empty_tuple ||
         PyObject_SetAttrString(state->AST_type, "_fields", empty_tuple) < 0 ||
         PyObject_SetAttrString(state->AST_type, "__match_args__", empty_tuple) < 0 ||
-        PyObject_SetAttrString(state->AST_type, "_attributes", empty_tuple) < 0) {
+        PyObject_SetAttrString(state->AST_type, "_attributes", empty_tuple) < 0 ||
+        PyObject_SetAttrString(state->_AST_type, "_fields", empty_tuple) < 0 ||
+        PyObject_SetAttrString(state->_AST_type, "__match_args__", empty_tuple) < 0 ||
+        PyObject_SetAttrString(state->_AST_type, "_attributes", empty_tuple) < 0) {
         Py_XDECREF(empty_tuple);
         return -1;
     }
@@ -2249,11 +2256,11 @@ static int add_ast_fields(struct ast_state *state)
                 if (!state->AST_type) {
                     return -1;
                 }
-                if (add_ast_fields(state) < 0) {
-                    return -1;
-                }
                 state->_AST_type = PyType_FromSpec(&_AST_type_spec);
                 if (state->_AST_type == NULL) {
+                    return -1;
+                }
+                if (add_ast_fields(state) < 0) {
                     return -1;
                 }
                 PyObject *t;
@@ -2316,12 +2323,12 @@ static int add_ast_fields(struct ast_state *state)
             self.emit("if (add_attributes(state, state->%s_type, NULL, 0) < 0) return -1;" % name, 1)
         self.emit_defaults(name, sum.attributes, 1)
         simple = is_simple(sum)
-        if not simple:
-            attributes = "NULL, 0"
-            if sum.attributes:
-                attributes = f"{name}_attributes, {len(sum.attributes)}"
+        attributes = "NULL, 0"
+        if sum.attributes:
+            attributes = f"{name}_attributes, {len(sum.attributes)}"
 
-            self.create_type(name, name, attributes=attributes)
+        self.create_type(name, name, attributes=attributes)
+        if not simple:
             self.create_type(name + "_seq", name + "_seq")
         for t in sum.types:
             self.visitConstructor(t, name, simple)
@@ -2336,13 +2343,16 @@ static int add_ast_fields(struct ast_state *state)
         self.emit('%s);' % reflow_c_string(asdl_of(cons.name, cons), 2), 2, reflow=False)
         self.emit("if (!state->%s_type) return -1;" % cons.name, 1)
         self.emit_defaults(cons.name, cons.fields, 1)
+        self.create_type(cons.name, name, name, fields=f"{fields}, {len(cons.fields)}")
         if simple:
             self.emit("state->%s_singleton = PyType_GenericNew((PyTypeObject *)"
                       "state->%s_type, NULL, NULL);" %
                              (cons.name, cons.name), 1)
             self.emit("if (!state->%s_singleton) return -1;" % cons.name, 1)
-        else:
-            self.create_type(cons.name, name, name, fields=f"{fields}, {len(cons.fields)}")
+            self.emit("state->_%s_singleton = PyType_GenericNew((PyTypeObject *)"
+                      "state->_%s_type, NULL, NULL);" %
+                             (cons.name, cons.name), 1)
+            self.emit("if (!state->_%s_singleton) return -1;" % cons.name, 1)
 
     def emit_defaults(self, name, fields, depth):
         for field in fields:
@@ -2690,6 +2700,10 @@ def generate_module_def(mod, metadata, f, internal_h):
         for singleton in metadata.singletons
     )
     module_state.update(
+        "_%s_singleton" % singleton
+        for singleton in metadata.singletons
+    )
+    module_state.update(
         "%s_type" % type
         for type in metadata.types
     )
@@ -2935,12 +2949,28 @@ class NodesVisitor(EmitVisitor):
 
     def visitSum(self, sum, name, depth = 0):
         if is_simple(sum):
+            self.emit_new("->", name, name)
+
+            self.emit(f"static void {name}_dealloc(PyObject *self) {{", 0)
+            self.emit_dealloc_footer()
+
+            self.emit_ast_members(name, [], name)
+            self.ast_type(name, "object", asdl_of(name, sum))
+            
+            for cons in sum.types:
+                self.emit_new(f"->v.{cons.name}.", cons.name, name, cons.fields)
+
+                self.emit(f"static void {cons.name}_dealloc(PyObject *self) {{", 0)
+                self.emit_dealloc_footer()
+                self.emit_ast_members(cons.name, cons.fields, name)
+                self.ast_type(cons.name, "object", asdl_of(cons.name, cons))
             return
+
+
 
         for cons in sum.types:
             self.emit_new(f"->v.{cons.name}.", cons.name, name, cons.fields)
-
-            self.emit_dealloc_header(cons.name, name)
+            self.emit_dealloc_header(cons.name, name, len(cons.fields) > 0)
             self.emit_type_dealloc(f"obj->v.{cons.name}.", cons, cons.fields, 1)
             self.emit_dealloc_footer()
             self.emit_ast_members(cons.name, cons.fields, name)
@@ -2961,7 +2991,7 @@ class NodesVisitor(EmitVisitor):
 
         self.emit_new("->", name, name)
 
-        self.emit_dealloc_header(name, name)
+        self.emit_dealloc_header(name, name, False)
         self.emit_type_dealloc(f"obj->", name, [], 1)
         self.emit_dealloc_footer()
         self.emit_ast_members(name, [], name)
@@ -2973,7 +3003,7 @@ class NodesVisitor(EmitVisitor):
 
         self.emit_new("->", name, name, product.fields)
 
-        self.emit_dealloc_header(name, name)
+        self.emit_dealloc_header(name, name, len(product.fields) > 0)
         self.emit_type_dealloc(f"obj->", name, product.fields, 1)
         self.emit_dealloc_footer()
 
@@ -3057,7 +3087,7 @@ static PyType_Slot _{node_name}_type_slots[] = {{
         if node_name == "AST":
             self.emit("{Py_tp_repr, ast_repr},", 0)
         self.emit(
-            f"""{{Py_tp_members, {node_name}_members}},
+            f"""    {{Py_tp_members, {node_name}_members}},
     {{Py_tp_free, PyObject_Free}},
     {{Py_tp_doc, {reflow_c_string(doc, 2)}}},
     {{Py_tp_new, {node_name}_new}},
@@ -3075,13 +3105,17 @@ static PyType_Spec _{node_name}_type_spec = {{
 
 """, 0, reflow=False)
 
-    def emit_dealloc_header(self, node_name, type_name):
+    def emit_dealloc_header(self, node_name, type_name, need_obj=True):
         self.emit(f"static void {node_name}_dealloc(PyObject *self) {{", 0)
-        self.emit(f"{type_name}_ty obj = ({type_name}_ty)self;", 1)
+        if need_obj:
+            self.emit(f"{type_name}_ty obj = ({type_name}_ty)self;", 1)
 
     def emit_dealloc_footer(self):
-        self.emit("Py_TYPE(self)->tp_free(obj);", 1)
+        self.emit("PyTypeObject *type = Py_TYPE(self);", 1)
+        self.emit("type->tp_free(self);", 1)
+        self.emit("Py_DECREF(type);", 1)
         self.emit("}", 0)
+        self.emit("", 0)
 
     def emit_type_dealloc(self, container, type, fields, depth):
         for field in fields:
@@ -3146,7 +3180,8 @@ static PyType_Spec _{node_name}_type_spec = {{
 
     def emit_seq_dealloc_header(self, name):
         self.emit(f"static void {name}_seq_dealloc(PyObject *self) {{", 0)
-        self.emit(f"asdl_{name}_seq *obj = (asdl_{name}_seq *)self;", 1)
+        if name not in self.metadata.simple_sums and name != "int":
+            self.emit(f"asdl_{name}_seq *obj = (asdl_{name}_seq *)self;", 1)
 
     def emit_seq_dealloc(self, name, dealloc_elems=True):
         self.emit_seq_dealloc_header(name)
