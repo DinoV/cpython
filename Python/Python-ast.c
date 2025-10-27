@@ -6873,6 +6873,22 @@ static PyGetSetDef ast_getsets[] = {
     {"__class__", ast_class, NULL, "Proxy for mutable __class__."}
 };
 
+static PyObject *
+seq_class(PyObject *self, void* Py_UNUSED(unused))
+{
+    return (PyObject *)&PyList_Type;
+}
+
+static PyGetSetDef seq_getsets[] = {
+    {"__class__", seq_class, NULL, "Proxy for mutable __class__."}
+};
+
+struct _simple_object {
+    PyObject_HEAD
+    int value;
+};
+
+
 static void int_seq_dealloc(PyObject *self) {
     PyTypeObject *type = Py_TYPE(self);
     type->tp_free(self);
@@ -6883,7 +6899,10 @@ static void int_seq_dealloc(PyObject *self) {
 static PyType_Slot _PyAST_int_seq_type_slots[] = {
     {Py_tp_dealloc, &int_seq_dealloc},
     //{Py_tp_members, int_seq_members},
+    {Py_tp_getset, seq_getsets},
     {Py_tp_free, PyObject_Free},
+    {Py_sq_length, &ast_seq_len},
+    {Py_mp_length, &ast_seq_len},
     {0},
 };
 
@@ -6895,7 +6914,8 @@ static PyType_Spec _int_seq_type_spec = {
     _PyAST_int_seq_type_slots
 };
 
-asdl_int_seq *_PyAst_int_seq_Copy(asdl_int_seq *seq) {
+asdl_int_seq *
+_PyAst_int_seq_Copy(asdl_int_seq *seq) {
     struct ast_state *state = get_ast_state();
     asdl_int_seq *res = PyObject_NewVar(asdl_int_seq, (PyTypeObject *)state->_int_seq_type, seq->size);
     if (res == NULL) {
@@ -6929,11 +6949,12 @@ static void identifier_seq_dealloc(PyObject *self) {
 static PyType_Slot _PyAST_identifier_seq_type_slots[] = {
     {Py_tp_dealloc, &identifier_seq_dealloc},
     //{Py_tp_members, identifier_seq_members},
+    {Py_tp_getset, seq_getsets},
     {Py_tp_free, PyObject_Free},
     {Py_sq_length, &ast_seq_len},
+    {Py_mp_length, &ast_seq_len},
     {Py_sq_item, &ast_seq_get},
     {Py_sq_contains, &ast_seq_contains},
-    {Py_mp_length, &ast_seq_len},
     {0},
 };
 
@@ -6945,7 +6966,8 @@ static PyType_Spec _identifier_seq_type_spec = {
     _PyAST_identifier_seq_type_slots
 };
 
-asdl_identifier_seq *_PyAst_identifier_seq_Copy(asdl_identifier_seq *seq) {
+asdl_identifier_seq *
+_PyAst_identifier_seq_Copy(asdl_identifier_seq *seq) {
     struct ast_state *state = get_ast_state();
     asdl_identifier_seq *res = PyObject_NewVar(asdl_identifier_seq, (PyTypeObject *)state->_identifier_seq_type, seq->size);
     if (res == NULL) {
@@ -7107,6 +7129,10 @@ static void Module_dealloc(PyObject *self) {
     Py_DECREF(type);
 }
 
+static PyGetSetDef Module_getset[] = {
+    {0}
+};
+
 static PyMemberDef Module_members[] = {
     {"body", _Py_T_OBJECT, offsetof(struct _mod, v.Module.body), Py_READONLY,
       NULL},
@@ -7117,6 +7143,7 @@ static PyMemberDef Module_members[] = {
 
 static PyType_Slot _Module_type_slots[] = {
     {Py_tp_dealloc, &Module_dealloc},
+    {Py_tp_getset, Module_getset},
     {Py_tp_members, Module_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "Module(stmt* body, type_ignore* type_ignores)"},
@@ -7224,6 +7251,10 @@ static void Interactive_dealloc(PyObject *self) {
     Py_DECREF(type);
 }
 
+static PyGetSetDef Interactive_getset[] = {
+    {0}
+};
+
 static PyMemberDef Interactive_members[] = {
     {"body", _Py_T_OBJECT, offsetof(struct _mod, v.Interactive.body),
       Py_READONLY, NULL},
@@ -7232,6 +7263,7 @@ static PyMemberDef Interactive_members[] = {
 
 static PyType_Slot _Interactive_type_slots[] = {
     {Py_tp_dealloc, &Interactive_dealloc},
+    {Py_tp_getset, Interactive_getset},
     {Py_tp_members, Interactive_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "Interactive(stmt* body)"},
@@ -7332,6 +7364,10 @@ static void Expression_dealloc(PyObject *self) {
     Py_DECREF(type);
 }
 
+static PyGetSetDef Expression_getset[] = {
+    {0}
+};
+
 static PyMemberDef Expression_members[] = {
     {"body", _Py_T_OBJECT, offsetof(struct _mod, v.Expression.body),
       Py_READONLY, NULL},
@@ -7340,6 +7376,7 @@ static PyMemberDef Expression_members[] = {
 
 static PyType_Slot _Expression_type_slots[] = {
     {Py_tp_dealloc, &Expression_dealloc},
+    {Py_tp_getset, Expression_getset},
     {Py_tp_members, Expression_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "Expression(expr body)"},
@@ -7461,6 +7498,10 @@ static void FunctionType_dealloc(PyObject *self) {
     Py_DECREF(type);
 }
 
+static PyGetSetDef FunctionType_getset[] = {
+    {0}
+};
+
 static PyMemberDef FunctionType_members[] = {
     {"argtypes", _Py_T_OBJECT, offsetof(struct _mod, v.FunctionType.argtypes),
       Py_READONLY, NULL},
@@ -7471,6 +7512,7 @@ static PyMemberDef FunctionType_members[] = {
 
 static PyType_Slot _FunctionType_type_slots[] = {
     {Py_tp_dealloc, &FunctionType_dealloc},
+    {Py_tp_getset, FunctionType_getset},
     {Py_tp_members, FunctionType_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "FunctionType(expr* argtypes, expr returns)"},
@@ -7565,12 +7607,17 @@ static void mod_dealloc(PyObject *self) {
     Py_DECREF(type);
 }
 
+static PyGetSetDef mod_getset[] = {
+    {0}
+};
+
 static PyMemberDef mod_members[] = {
     {0}
 };
 
 static PyType_Slot _mod_type_slots[] = {
     {Py_tp_dealloc, &mod_dealloc},
+    {Py_tp_getset, mod_getset},
     {Py_tp_members, mod_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "mod = Module(stmt* body, type_ignore* type_ignores)\n"
@@ -7608,11 +7655,12 @@ static void mod_seq_dealloc(PyObject *self) {
 static PyType_Slot _PyAST_mod_seq_type_slots[] = {
     {Py_tp_dealloc, &mod_seq_dealloc},
     //{Py_tp_members, mod_seq_members},
+    {Py_tp_getset, seq_getsets},
     {Py_tp_free, PyObject_Free},
     {Py_sq_length, &ast_seq_len},
+    {Py_mp_length, &ast_seq_len},
     {Py_sq_item, &ast_seq_get},
     {Py_sq_contains, &ast_seq_contains},
-    {Py_mp_length, &ast_seq_len},
     {0},
 };
 
@@ -7624,7 +7672,8 @@ static PyType_Spec _mod_seq_type_spec = {
     _PyAST_mod_seq_type_slots
 };
 
-asdl_mod_seq *_PyAst_mod_seq_Copy(asdl_mod_seq *seq) {
+asdl_mod_seq *
+_PyAst_mod_seq_Copy(asdl_mod_seq *seq) {
     struct ast_state *state = get_ast_state();
     asdl_mod_seq *res = PyObject_NewVar(asdl_mod_seq, (PyTypeObject *)state->_mod_seq_type, seq->size);
     if (res == NULL) {
@@ -7914,6 +7963,10 @@ static void FunctionDef_dealloc(PyObject *self) {
     Py_DECREF(type);
 }
 
+static PyGetSetDef FunctionDef_getset[] = {
+    {0}
+};
+
 static PyMemberDef FunctionDef_members[] = {
     {"name", _Py_T_OBJECT, offsetof(struct _stmt, v.FunctionDef.name),
       Py_READONLY, NULL},
@@ -7929,11 +7982,19 @@ static PyMemberDef FunctionDef_members[] = {
       v.FunctionDef.type_comment), Py_READONLY, NULL},
     {"type_params", _Py_T_OBJECT, offsetof(struct _stmt,
       v.FunctionDef.type_params), Py_READONLY, NULL},
+    {"lineno", Py_T_INT, offsetof(struct _stmt, lineno), Py_READONLY, NULL},
+    {"col_offset", Py_T_INT, offsetof(struct _stmt, col_offset), Py_READONLY,
+      NULL},
+    {"end_lineno", Py_T_INT, offsetof(struct _stmt, end_lineno), Py_READONLY,
+      NULL},
+    {"end_col_offset", Py_T_INT, offsetof(struct _stmt, end_col_offset),
+      Py_READONLY, NULL},
     {0}
 };
 
 static PyType_Slot _FunctionDef_type_slots[] = {
     {Py_tp_dealloc, &FunctionDef_dealloc},
+    {Py_tp_getset, FunctionDef_getset},
     {Py_tp_members, FunctionDef_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "FunctionDef(identifier name, arguments args, stmt* body, expr* decorator_list, expr? returns, string? type_comment, type_param* type_params)"},
@@ -8285,6 +8346,10 @@ static void AsyncFunctionDef_dealloc(PyObject *self) {
     Py_DECREF(type);
 }
 
+static PyGetSetDef AsyncFunctionDef_getset[] = {
+    {0}
+};
+
 static PyMemberDef AsyncFunctionDef_members[] = {
     {"name", _Py_T_OBJECT, offsetof(struct _stmt, v.AsyncFunctionDef.name),
       Py_READONLY, NULL},
@@ -8300,11 +8365,19 @@ static PyMemberDef AsyncFunctionDef_members[] = {
       v.AsyncFunctionDef.type_comment), Py_READONLY, NULL},
     {"type_params", _Py_T_OBJECT, offsetof(struct _stmt,
       v.AsyncFunctionDef.type_params), Py_READONLY, NULL},
+    {"lineno", Py_T_INT, offsetof(struct _stmt, lineno), Py_READONLY, NULL},
+    {"col_offset", Py_T_INT, offsetof(struct _stmt, col_offset), Py_READONLY,
+      NULL},
+    {"end_lineno", Py_T_INT, offsetof(struct _stmt, end_lineno), Py_READONLY,
+      NULL},
+    {"end_col_offset", Py_T_INT, offsetof(struct _stmt, end_col_offset),
+      Py_READONLY, NULL},
     {0}
 };
 
 static PyType_Slot _AsyncFunctionDef_type_slots[] = {
     {Py_tp_dealloc, &AsyncFunctionDef_dealloc},
+    {Py_tp_getset, AsyncFunctionDef_getset},
     {Py_tp_members, AsyncFunctionDef_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "AsyncFunctionDef(identifier name, arguments args, stmt* body, expr* decorator_list, expr? returns, string? type_comment, type_param* type_params)"},
@@ -8638,6 +8711,10 @@ static void ClassDef_dealloc(PyObject *self) {
     Py_DECREF(type);
 }
 
+static PyGetSetDef ClassDef_getset[] = {
+    {0}
+};
+
 static PyMemberDef ClassDef_members[] = {
     {"name", _Py_T_OBJECT, offsetof(struct _stmt, v.ClassDef.name),
       Py_READONLY, NULL},
@@ -8651,11 +8728,19 @@ static PyMemberDef ClassDef_members[] = {
       v.ClassDef.decorator_list), Py_READONLY, NULL},
     {"type_params", _Py_T_OBJECT, offsetof(struct _stmt,
       v.ClassDef.type_params), Py_READONLY, NULL},
+    {"lineno", Py_T_INT, offsetof(struct _stmt, lineno), Py_READONLY, NULL},
+    {"col_offset", Py_T_INT, offsetof(struct _stmt, col_offset), Py_READONLY,
+      NULL},
+    {"end_lineno", Py_T_INT, offsetof(struct _stmt, end_lineno), Py_READONLY,
+      NULL},
+    {"end_col_offset", Py_T_INT, offsetof(struct _stmt, end_col_offset),
+      Py_READONLY, NULL},
     {0}
 };
 
 static PyType_Slot _ClassDef_type_slots[] = {
     {Py_tp_dealloc, &ClassDef_dealloc},
+    {Py_tp_getset, ClassDef_getset},
     {Py_tp_members, ClassDef_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "ClassDef(identifier name, expr* bases, keyword* keywords, stmt* body, expr* decorator_list, type_param* type_params)"},
@@ -8872,14 +8957,26 @@ static void Return_dealloc(PyObject *self) {
     Py_DECREF(type);
 }
 
+static PyGetSetDef Return_getset[] = {
+    {0}
+};
+
 static PyMemberDef Return_members[] = {
     {"value", _Py_T_OBJECT, offsetof(struct _stmt, v.Return.value),
+      Py_READONLY, NULL},
+    {"lineno", Py_T_INT, offsetof(struct _stmt, lineno), Py_READONLY, NULL},
+    {"col_offset", Py_T_INT, offsetof(struct _stmt, col_offset), Py_READONLY,
+      NULL},
+    {"end_lineno", Py_T_INT, offsetof(struct _stmt, end_lineno), Py_READONLY,
+      NULL},
+    {"end_col_offset", Py_T_INT, offsetof(struct _stmt, end_col_offset),
       Py_READONLY, NULL},
     {0}
 };
 
 static PyType_Slot _Return_type_slots[] = {
     {Py_tp_dealloc, &Return_dealloc},
+    {Py_tp_getset, Return_getset},
     {Py_tp_members, Return_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "Return(expr? value)"},
@@ -9065,14 +9162,26 @@ static void Delete_dealloc(PyObject *self) {
     Py_DECREF(type);
 }
 
+static PyGetSetDef Delete_getset[] = {
+    {0}
+};
+
 static PyMemberDef Delete_members[] = {
     {"targets", _Py_T_OBJECT, offsetof(struct _stmt, v.Delete.targets),
+      Py_READONLY, NULL},
+    {"lineno", Py_T_INT, offsetof(struct _stmt, lineno), Py_READONLY, NULL},
+    {"col_offset", Py_T_INT, offsetof(struct _stmt, col_offset), Py_READONLY,
+      NULL},
+    {"end_lineno", Py_T_INT, offsetof(struct _stmt, end_lineno), Py_READONLY,
+      NULL},
+    {"end_col_offset", Py_T_INT, offsetof(struct _stmt, end_col_offset),
       Py_READONLY, NULL},
     {0}
 };
 
 static PyType_Slot _Delete_type_slots[] = {
     {Py_tp_dealloc, &Delete_dealloc},
+    {Py_tp_getset, Delete_getset},
     {Py_tp_members, Delete_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "Delete(expr* targets)"},
@@ -9298,6 +9407,10 @@ static void Assign_dealloc(PyObject *self) {
     Py_DECREF(type);
 }
 
+static PyGetSetDef Assign_getset[] = {
+    {0}
+};
+
 static PyMemberDef Assign_members[] = {
     {"targets", _Py_T_OBJECT, offsetof(struct _stmt, v.Assign.targets),
       Py_READONLY, NULL},
@@ -9305,11 +9418,19 @@ static PyMemberDef Assign_members[] = {
       Py_READONLY, NULL},
     {"type_comment", _Py_T_OBJECT, offsetof(struct _stmt,
       v.Assign.type_comment), Py_READONLY, NULL},
+    {"lineno", Py_T_INT, offsetof(struct _stmt, lineno), Py_READONLY, NULL},
+    {"col_offset", Py_T_INT, offsetof(struct _stmt, col_offset), Py_READONLY,
+      NULL},
+    {"end_lineno", Py_T_INT, offsetof(struct _stmt, end_lineno), Py_READONLY,
+      NULL},
+    {"end_col_offset", Py_T_INT, offsetof(struct _stmt, end_col_offset),
+      Py_READONLY, NULL},
     {0}
 };
 
 static PyType_Slot _Assign_type_slots[] = {
     {Py_tp_dealloc, &Assign_dealloc},
+    {Py_tp_getset, Assign_getset},
     {Py_tp_members, Assign_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "Assign(expr* targets, expr value, string? type_comment)"},
@@ -9547,6 +9668,10 @@ static void TypeAlias_dealloc(PyObject *self) {
     Py_DECREF(type);
 }
 
+static PyGetSetDef TypeAlias_getset[] = {
+    {0}
+};
+
 static PyMemberDef TypeAlias_members[] = {
     {"name", _Py_T_OBJECT, offsetof(struct _stmt, v.TypeAlias.name),
       Py_READONLY, NULL},
@@ -9554,11 +9679,19 @@ static PyMemberDef TypeAlias_members[] = {
       v.TypeAlias.type_params), Py_READONLY, NULL},
     {"value", _Py_T_OBJECT, offsetof(struct _stmt, v.TypeAlias.value),
       Py_READONLY, NULL},
+    {"lineno", Py_T_INT, offsetof(struct _stmt, lineno), Py_READONLY, NULL},
+    {"col_offset", Py_T_INT, offsetof(struct _stmt, col_offset), Py_READONLY,
+      NULL},
+    {"end_lineno", Py_T_INT, offsetof(struct _stmt, end_lineno), Py_READONLY,
+      NULL},
+    {"end_col_offset", Py_T_INT, offsetof(struct _stmt, end_col_offset),
+      Py_READONLY, NULL},
     {0}
 };
 
 static PyType_Slot _TypeAlias_type_slots[] = {
     {Py_tp_dealloc, &TypeAlias_dealloc},
+    {Py_tp_getset, TypeAlias_getset},
     {Py_tp_members, TypeAlias_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "TypeAlias(expr name, type_param* type_params, expr value)"},
@@ -9795,17 +9928,51 @@ static void AugAssign_dealloc(PyObject *self) {
     Py_DECREF(type);
 }
 
+static PyObject *
+AugAssign_op_get(PyObject *obj, void *unused) {
+    struct ast_state *state = get_ast_state();
+    struct _stmt *self = (struct _stmt *)obj;
+    switch (self->v.AugAssign.op) {
+        case Add: return Py_NewRef(state->_Add_singleton);
+        case Sub: return Py_NewRef(state->_Sub_singleton);
+        case Mult: return Py_NewRef(state->_Mult_singleton);
+        case MatMult: return Py_NewRef(state->_MatMult_singleton);
+        case Div: return Py_NewRef(state->_Div_singleton);
+        case Mod: return Py_NewRef(state->_Mod_singleton);
+        case Pow: return Py_NewRef(state->_Pow_singleton);
+        case LShift: return Py_NewRef(state->_LShift_singleton);
+        case RShift: return Py_NewRef(state->_RShift_singleton);
+        case BitOr: return Py_NewRef(state->_BitOr_singleton);
+        case BitXor: return Py_NewRef(state->_BitXor_singleton);
+        case BitAnd: return Py_NewRef(state->_BitAnd_singleton);
+        case FloorDiv: return Py_NewRef(state->_FloorDiv_singleton);
+    }
+    PyErr_SetString(PyExc_RuntimeError, "unknown kind");
+    return NULL;
+}
+static PyGetSetDef AugAssign_getset[] = {
+    {"op", AugAssign_op_get, NULL, NULL},
+    {0}
+};
+
 static PyMemberDef AugAssign_members[] = {
     {"target", _Py_T_OBJECT, offsetof(struct _stmt, v.AugAssign.target),
       Py_READONLY, NULL},
-    {"op", Py_T_INT, offsetof(struct _stmt, v.AugAssign.op), Py_READONLY, NULL},
     {"value", _Py_T_OBJECT, offsetof(struct _stmt, v.AugAssign.value),
+      Py_READONLY, NULL},
+    {"lineno", Py_T_INT, offsetof(struct _stmt, lineno), Py_READONLY, NULL},
+    {"col_offset", Py_T_INT, offsetof(struct _stmt, col_offset), Py_READONLY,
+      NULL},
+    {"end_lineno", Py_T_INT, offsetof(struct _stmt, end_lineno), Py_READONLY,
+      NULL},
+    {"end_col_offset", Py_T_INT, offsetof(struct _stmt, end_col_offset),
       Py_READONLY, NULL},
     {0}
 };
 
 static PyType_Slot _AugAssign_type_slots[] = {
     {Py_tp_dealloc, &AugAssign_dealloc},
+    {Py_tp_getset, AugAssign_getset},
     {Py_tp_members, AugAssign_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "AugAssign(expr target, operator op, expr value)"},
@@ -10056,6 +10223,10 @@ static void AnnAssign_dealloc(PyObject *self) {
     Py_DECREF(type);
 }
 
+static PyGetSetDef AnnAssign_getset[] = {
+    {0}
+};
+
 static PyMemberDef AnnAssign_members[] = {
     {"target", _Py_T_OBJECT, offsetof(struct _stmt, v.AnnAssign.target),
       Py_READONLY, NULL},
@@ -10063,13 +10234,21 @@ static PyMemberDef AnnAssign_members[] = {
       v.AnnAssign.annotation), Py_READONLY, NULL},
     {"value", _Py_T_OBJECT, offsetof(struct _stmt, v.AnnAssign.value),
       Py_READONLY, NULL},
-    {"simple", Py_T_INT, offsetof(struct _stmt, v.AnnAssign.simple),
+    {"simple", _Py_T_OBJECT, offsetof(struct _stmt, v.AnnAssign.simple),
+      Py_READONLY, NULL},
+    {"lineno", Py_T_INT, offsetof(struct _stmt, lineno), Py_READONLY, NULL},
+    {"col_offset", Py_T_INT, offsetof(struct _stmt, col_offset), Py_READONLY,
+      NULL},
+    {"end_lineno", Py_T_INT, offsetof(struct _stmt, end_lineno), Py_READONLY,
+      NULL},
+    {"end_col_offset", Py_T_INT, offsetof(struct _stmt, end_col_offset),
       Py_READONLY, NULL},
     {0}
 };
 
 static PyType_Slot _AnnAssign_type_slots[] = {
     {Py_tp_dealloc, &AnnAssign_dealloc},
+    {Py_tp_getset, AnnAssign_getset},
     {Py_tp_members, AnnAssign_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "AnnAssign(expr target, expr annotation, expr? value, int simple)"},
@@ -10348,6 +10527,10 @@ static void For_dealloc(PyObject *self) {
     Py_DECREF(type);
 }
 
+static PyGetSetDef For_getset[] = {
+    {0}
+};
+
 static PyMemberDef For_members[] = {
     {"target", _Py_T_OBJECT, offsetof(struct _stmt, v.For.target), Py_READONLY,
       NULL},
@@ -10359,11 +10542,19 @@ static PyMemberDef For_members[] = {
       NULL},
     {"type_comment", _Py_T_OBJECT, offsetof(struct _stmt, v.For.type_comment),
       Py_READONLY, NULL},
+    {"lineno", Py_T_INT, offsetof(struct _stmt, lineno), Py_READONLY, NULL},
+    {"col_offset", Py_T_INT, offsetof(struct _stmt, col_offset), Py_READONLY,
+      NULL},
+    {"end_lineno", Py_T_INT, offsetof(struct _stmt, end_lineno), Py_READONLY,
+      NULL},
+    {"end_col_offset", Py_T_INT, offsetof(struct _stmt, end_col_offset),
+      Py_READONLY, NULL},
     {0}
 };
 
 static PyType_Slot _For_type_slots[] = {
     {Py_tp_dealloc, &For_dealloc},
+    {Py_tp_getset, For_getset},
     {Py_tp_members, For_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "For(expr target, expr iter, stmt* body, stmt* orelse, string? type_comment)"},
@@ -10653,6 +10844,10 @@ static void AsyncFor_dealloc(PyObject *self) {
     Py_DECREF(type);
 }
 
+static PyGetSetDef AsyncFor_getset[] = {
+    {0}
+};
+
 static PyMemberDef AsyncFor_members[] = {
     {"target", _Py_T_OBJECT, offsetof(struct _stmt, v.AsyncFor.target),
       Py_READONLY, NULL},
@@ -10664,11 +10859,19 @@ static PyMemberDef AsyncFor_members[] = {
       Py_READONLY, NULL},
     {"type_comment", _Py_T_OBJECT, offsetof(struct _stmt,
       v.AsyncFor.type_comment), Py_READONLY, NULL},
+    {"lineno", Py_T_INT, offsetof(struct _stmt, lineno), Py_READONLY, NULL},
+    {"col_offset", Py_T_INT, offsetof(struct _stmt, col_offset), Py_READONLY,
+      NULL},
+    {"end_lineno", Py_T_INT, offsetof(struct _stmt, end_lineno), Py_READONLY,
+      NULL},
+    {"end_col_offset", Py_T_INT, offsetof(struct _stmt, end_col_offset),
+      Py_READONLY, NULL},
     {0}
 };
 
 static PyType_Slot _AsyncFor_type_slots[] = {
     {Py_tp_dealloc, &AsyncFor_dealloc},
+    {Py_tp_getset, AsyncFor_getset},
     {Py_tp_members, AsyncFor_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "AsyncFor(expr target, expr iter, stmt* body, stmt* orelse, string? type_comment)"},
@@ -10917,6 +11120,10 @@ static void While_dealloc(PyObject *self) {
     Py_DECREF(type);
 }
 
+static PyGetSetDef While_getset[] = {
+    {0}
+};
+
 static PyMemberDef While_members[] = {
     {"test", _Py_T_OBJECT, offsetof(struct _stmt, v.While.test), Py_READONLY,
       NULL},
@@ -10924,11 +11131,19 @@ static PyMemberDef While_members[] = {
       NULL},
     {"orelse", _Py_T_OBJECT, offsetof(struct _stmt, v.While.orelse),
       Py_READONLY, NULL},
+    {"lineno", Py_T_INT, offsetof(struct _stmt, lineno), Py_READONLY, NULL},
+    {"col_offset", Py_T_INT, offsetof(struct _stmt, col_offset), Py_READONLY,
+      NULL},
+    {"end_lineno", Py_T_INT, offsetof(struct _stmt, end_lineno), Py_READONLY,
+      NULL},
+    {"end_col_offset", Py_T_INT, offsetof(struct _stmt, end_col_offset),
+      Py_READONLY, NULL},
     {0}
 };
 
 static PyType_Slot _While_type_slots[] = {
     {Py_tp_dealloc, &While_dealloc},
+    {Py_tp_getset, While_getset},
     {Py_tp_members, While_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "While(expr test, stmt* body, stmt* orelse)"},
@@ -11164,6 +11379,10 @@ static void If_dealloc(PyObject *self) {
     Py_DECREF(type);
 }
 
+static PyGetSetDef If_getset[] = {
+    {0}
+};
+
 static PyMemberDef If_members[] = {
     {"test", _Py_T_OBJECT, offsetof(struct _stmt, v.If.test), Py_READONLY,
       NULL},
@@ -11171,11 +11390,19 @@ static PyMemberDef If_members[] = {
       NULL},
     {"orelse", _Py_T_OBJECT, offsetof(struct _stmt, v.If.orelse), Py_READONLY,
       NULL},
+    {"lineno", Py_T_INT, offsetof(struct _stmt, lineno), Py_READONLY, NULL},
+    {"col_offset", Py_T_INT, offsetof(struct _stmt, col_offset), Py_READONLY,
+      NULL},
+    {"end_lineno", Py_T_INT, offsetof(struct _stmt, end_lineno), Py_READONLY,
+      NULL},
+    {"end_col_offset", Py_T_INT, offsetof(struct _stmt, end_col_offset),
+      Py_READONLY, NULL},
     {0}
 };
 
 static PyType_Slot _If_type_slots[] = {
     {Py_tp_dealloc, &If_dealloc},
+    {Py_tp_getset, If_getset},
     {Py_tp_members, If_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "If(expr test, stmt* body, stmt* orelse)"},
@@ -11411,6 +11638,10 @@ static void With_dealloc(PyObject *self) {
     Py_DECREF(type);
 }
 
+static PyGetSetDef With_getset[] = {
+    {0}
+};
+
 static PyMemberDef With_members[] = {
     {"items", _Py_T_OBJECT, offsetof(struct _stmt, v.With.items), Py_READONLY,
       NULL},
@@ -11418,11 +11649,19 @@ static PyMemberDef With_members[] = {
       NULL},
     {"type_comment", _Py_T_OBJECT, offsetof(struct _stmt, v.With.type_comment),
       Py_READONLY, NULL},
+    {"lineno", Py_T_INT, offsetof(struct _stmt, lineno), Py_READONLY, NULL},
+    {"col_offset", Py_T_INT, offsetof(struct _stmt, col_offset), Py_READONLY,
+      NULL},
+    {"end_lineno", Py_T_INT, offsetof(struct _stmt, end_lineno), Py_READONLY,
+      NULL},
+    {"end_col_offset", Py_T_INT, offsetof(struct _stmt, end_col_offset),
+      Py_READONLY, NULL},
     {0}
 };
 
 static PyType_Slot _With_type_slots[] = {
     {Py_tp_dealloc, &With_dealloc},
+    {Py_tp_getset, With_getset},
     {Py_tp_members, With_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "With(withitem* items, stmt* body, string? type_comment)"},
@@ -11660,6 +11899,10 @@ static void AsyncWith_dealloc(PyObject *self) {
     Py_DECREF(type);
 }
 
+static PyGetSetDef AsyncWith_getset[] = {
+    {0}
+};
+
 static PyMemberDef AsyncWith_members[] = {
     {"items", _Py_T_OBJECT, offsetof(struct _stmt, v.AsyncWith.items),
       Py_READONLY, NULL},
@@ -11667,11 +11910,19 @@ static PyMemberDef AsyncWith_members[] = {
       Py_READONLY, NULL},
     {"type_comment", _Py_T_OBJECT, offsetof(struct _stmt,
       v.AsyncWith.type_comment), Py_READONLY, NULL},
+    {"lineno", Py_T_INT, offsetof(struct _stmt, lineno), Py_READONLY, NULL},
+    {"col_offset", Py_T_INT, offsetof(struct _stmt, col_offset), Py_READONLY,
+      NULL},
+    {"end_lineno", Py_T_INT, offsetof(struct _stmt, end_lineno), Py_READONLY,
+      NULL},
+    {"end_col_offset", Py_T_INT, offsetof(struct _stmt, end_col_offset),
+      Py_READONLY, NULL},
     {0}
 };
 
 static PyType_Slot _AsyncWith_type_slots[] = {
     {Py_tp_dealloc, &AsyncWith_dealloc},
+    {Py_tp_getset, AsyncWith_getset},
     {Py_tp_members, AsyncWith_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "AsyncWith(withitem* items, stmt* body, string? type_comment)"},
@@ -11891,16 +12142,28 @@ static void Match_dealloc(PyObject *self) {
     Py_DECREF(type);
 }
 
+static PyGetSetDef Match_getset[] = {
+    {0}
+};
+
 static PyMemberDef Match_members[] = {
     {"subject", _Py_T_OBJECT, offsetof(struct _stmt, v.Match.subject),
       Py_READONLY, NULL},
     {"cases", _Py_T_OBJECT, offsetof(struct _stmt, v.Match.cases), Py_READONLY,
       NULL},
+    {"lineno", Py_T_INT, offsetof(struct _stmt, lineno), Py_READONLY, NULL},
+    {"col_offset", Py_T_INT, offsetof(struct _stmt, col_offset), Py_READONLY,
+      NULL},
+    {"end_lineno", Py_T_INT, offsetof(struct _stmt, end_lineno), Py_READONLY,
+      NULL},
+    {"end_col_offset", Py_T_INT, offsetof(struct _stmt, end_col_offset),
+      Py_READONLY, NULL},
     {0}
 };
 
 static PyType_Slot _Match_type_slots[] = {
     {Py_tp_dealloc, &Match_dealloc},
+    {Py_tp_getset, Match_getset},
     {Py_tp_members, Match_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "Match(expr subject, match_case* cases)"},
@@ -12110,16 +12373,28 @@ static void Raise_dealloc(PyObject *self) {
     Py_DECREF(type);
 }
 
+static PyGetSetDef Raise_getset[] = {
+    {0}
+};
+
 static PyMemberDef Raise_members[] = {
     {"exc", _Py_T_OBJECT, offsetof(struct _stmt, v.Raise.exc), Py_READONLY,
       NULL},
     {"cause", _Py_T_OBJECT, offsetof(struct _stmt, v.Raise.cause), Py_READONLY,
       NULL},
+    {"lineno", Py_T_INT, offsetof(struct _stmt, lineno), Py_READONLY, NULL},
+    {"col_offset", Py_T_INT, offsetof(struct _stmt, col_offset), Py_READONLY,
+      NULL},
+    {"end_lineno", Py_T_INT, offsetof(struct _stmt, end_lineno), Py_READONLY,
+      NULL},
+    {"end_col_offset", Py_T_INT, offsetof(struct _stmt, end_col_offset),
+      Py_READONLY, NULL},
     {0}
 };
 
 static PyType_Slot _Raise_type_slots[] = {
     {Py_tp_dealloc, &Raise_dealloc},
+    {Py_tp_getset, Raise_getset},
     {Py_tp_members, Raise_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "Raise(expr? exc, expr? cause)"},
@@ -12374,6 +12649,10 @@ static void Try_dealloc(PyObject *self) {
     Py_DECREF(type);
 }
 
+static PyGetSetDef Try_getset[] = {
+    {0}
+};
+
 static PyMemberDef Try_members[] = {
     {"body", _Py_T_OBJECT, offsetof(struct _stmt, v.Try.body), Py_READONLY,
       NULL},
@@ -12383,11 +12662,19 @@ static PyMemberDef Try_members[] = {
       NULL},
     {"finalbody", _Py_T_OBJECT, offsetof(struct _stmt, v.Try.finalbody),
       Py_READONLY, NULL},
+    {"lineno", Py_T_INT, offsetof(struct _stmt, lineno), Py_READONLY, NULL},
+    {"col_offset", Py_T_INT, offsetof(struct _stmt, col_offset), Py_READONLY,
+      NULL},
+    {"end_lineno", Py_T_INT, offsetof(struct _stmt, end_lineno), Py_READONLY,
+      NULL},
+    {"end_col_offset", Py_T_INT, offsetof(struct _stmt, end_col_offset),
+      Py_READONLY, NULL},
     {0}
 };
 
 static PyType_Slot _Try_type_slots[] = {
     {Py_tp_dealloc, &Try_dealloc},
+    {Py_tp_getset, Try_getset},
     {Py_tp_members, Try_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "Try(stmt* body, excepthandler* handlers, stmt* orelse, stmt* finalbody)"},
@@ -12656,6 +12943,10 @@ static void TryStar_dealloc(PyObject *self) {
     Py_DECREF(type);
 }
 
+static PyGetSetDef TryStar_getset[] = {
+    {0}
+};
+
 static PyMemberDef TryStar_members[] = {
     {"body", _Py_T_OBJECT, offsetof(struct _stmt, v.TryStar.body), Py_READONLY,
       NULL},
@@ -12665,11 +12956,19 @@ static PyMemberDef TryStar_members[] = {
       Py_READONLY, NULL},
     {"finalbody", _Py_T_OBJECT, offsetof(struct _stmt, v.TryStar.finalbody),
       Py_READONLY, NULL},
+    {"lineno", Py_T_INT, offsetof(struct _stmt, lineno), Py_READONLY, NULL},
+    {"col_offset", Py_T_INT, offsetof(struct _stmt, col_offset), Py_READONLY,
+      NULL},
+    {"end_lineno", Py_T_INT, offsetof(struct _stmt, end_lineno), Py_READONLY,
+      NULL},
+    {"end_col_offset", Py_T_INT, offsetof(struct _stmt, end_col_offset),
+      Py_READONLY, NULL},
     {0}
 };
 
 static PyType_Slot _TryStar_type_slots[] = {
     {Py_tp_dealloc, &TryStar_dealloc},
+    {Py_tp_getset, TryStar_getset},
     {Py_tp_members, TryStar_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "TryStar(stmt* body, excepthandler* handlers, stmt* orelse, stmt* finalbody)"},
@@ -12893,16 +13192,28 @@ static void Assert_dealloc(PyObject *self) {
     Py_DECREF(type);
 }
 
+static PyGetSetDef Assert_getset[] = {
+    {0}
+};
+
 static PyMemberDef Assert_members[] = {
     {"test", _Py_T_OBJECT, offsetof(struct _stmt, v.Assert.test), Py_READONLY,
       NULL},
     {"msg", _Py_T_OBJECT, offsetof(struct _stmt, v.Assert.msg), Py_READONLY,
       NULL},
+    {"lineno", Py_T_INT, offsetof(struct _stmt, lineno), Py_READONLY, NULL},
+    {"col_offset", Py_T_INT, offsetof(struct _stmt, col_offset), Py_READONLY,
+      NULL},
+    {"end_lineno", Py_T_INT, offsetof(struct _stmt, end_lineno), Py_READONLY,
+      NULL},
+    {"end_col_offset", Py_T_INT, offsetof(struct _stmt, end_col_offset),
+      Py_READONLY, NULL},
     {0}
 };
 
 static PyType_Slot _Assert_type_slots[] = {
     {Py_tp_dealloc, &Assert_dealloc},
+    {Py_tp_getset, Assert_getset},
     {Py_tp_members, Assert_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "Assert(expr test, expr? msg)"},
@@ -13093,14 +13404,26 @@ static void Import_dealloc(PyObject *self) {
     Py_DECREF(type);
 }
 
+static PyGetSetDef Import_getset[] = {
+    {0}
+};
+
 static PyMemberDef Import_members[] = {
     {"names", _Py_T_OBJECT, offsetof(struct _stmt, v.Import.names),
+      Py_READONLY, NULL},
+    {"lineno", Py_T_INT, offsetof(struct _stmt, lineno), Py_READONLY, NULL},
+    {"col_offset", Py_T_INT, offsetof(struct _stmt, col_offset), Py_READONLY,
+      NULL},
+    {"end_lineno", Py_T_INT, offsetof(struct _stmt, end_lineno), Py_READONLY,
+      NULL},
+    {"end_col_offset", Py_T_INT, offsetof(struct _stmt, end_col_offset),
       Py_READONLY, NULL},
     {0}
 };
 
 static PyType_Slot _Import_type_slots[] = {
     {Py_tp_dealloc, &Import_dealloc},
+    {Py_tp_getset, Import_getset},
     {Py_tp_members, Import_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "Import(alias* names)"},
@@ -13326,18 +13649,30 @@ static void ImportFrom_dealloc(PyObject *self) {
     Py_DECREF(type);
 }
 
+static PyGetSetDef ImportFrom_getset[] = {
+    {0}
+};
+
 static PyMemberDef ImportFrom_members[] = {
     {"module", _Py_T_OBJECT, offsetof(struct _stmt, v.ImportFrom.module),
       Py_READONLY, NULL},
     {"names", _Py_T_OBJECT, offsetof(struct _stmt, v.ImportFrom.names),
       Py_READONLY, NULL},
-    {"level", Py_T_INT, offsetof(struct _stmt, v.ImportFrom.level),
+    {"level", _Py_T_OBJECT, offsetof(struct _stmt, v.ImportFrom.level),
+      Py_READONLY, NULL},
+    {"lineno", Py_T_INT, offsetof(struct _stmt, lineno), Py_READONLY, NULL},
+    {"col_offset", Py_T_INT, offsetof(struct _stmt, col_offset), Py_READONLY,
+      NULL},
+    {"end_lineno", Py_T_INT, offsetof(struct _stmt, end_lineno), Py_READONLY,
+      NULL},
+    {"end_col_offset", Py_T_INT, offsetof(struct _stmt, end_col_offset),
       Py_READONLY, NULL},
     {0}
 };
 
 static PyType_Slot _ImportFrom_type_slots[] = {
     {Py_tp_dealloc, &ImportFrom_dealloc},
+    {Py_tp_getset, ImportFrom_getset},
     {Py_tp_members, ImportFrom_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "ImportFrom(identifier? module, alias* names, int? level)"},
@@ -13531,14 +13866,26 @@ static void Global_dealloc(PyObject *self) {
     Py_DECREF(type);
 }
 
+static PyGetSetDef Global_getset[] = {
+    {0}
+};
+
 static PyMemberDef Global_members[] = {
     {"names", _Py_T_OBJECT, offsetof(struct _stmt, v.Global.names),
+      Py_READONLY, NULL},
+    {"lineno", Py_T_INT, offsetof(struct _stmt, lineno), Py_READONLY, NULL},
+    {"col_offset", Py_T_INT, offsetof(struct _stmt, col_offset), Py_READONLY,
+      NULL},
+    {"end_lineno", Py_T_INT, offsetof(struct _stmt, end_lineno), Py_READONLY,
+      NULL},
+    {"end_col_offset", Py_T_INT, offsetof(struct _stmt, end_col_offset),
       Py_READONLY, NULL},
     {0}
 };
 
 static PyType_Slot _Global_type_slots[] = {
     {Py_tp_dealloc, &Global_dealloc},
+    {Py_tp_getset, Global_getset},
     {Py_tp_members, Global_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "Global(identifier* names)"},
@@ -13724,14 +14071,26 @@ static void Nonlocal_dealloc(PyObject *self) {
     Py_DECREF(type);
 }
 
+static PyGetSetDef Nonlocal_getset[] = {
+    {0}
+};
+
 static PyMemberDef Nonlocal_members[] = {
     {"names", _Py_T_OBJECT, offsetof(struct _stmt, v.Nonlocal.names),
+      Py_READONLY, NULL},
+    {"lineno", Py_T_INT, offsetof(struct _stmt, lineno), Py_READONLY, NULL},
+    {"col_offset", Py_T_INT, offsetof(struct _stmt, col_offset), Py_READONLY,
+      NULL},
+    {"end_lineno", Py_T_INT, offsetof(struct _stmt, end_lineno), Py_READONLY,
+      NULL},
+    {"end_col_offset", Py_T_INT, offsetof(struct _stmt, end_col_offset),
       Py_READONLY, NULL},
     {0}
 };
 
 static PyType_Slot _Nonlocal_type_slots[] = {
     {Py_tp_dealloc, &Nonlocal_dealloc},
+    {Py_tp_getset, Nonlocal_getset},
     {Py_tp_members, Nonlocal_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "Nonlocal(identifier* names)"},
@@ -13916,14 +14275,26 @@ static void Expr_dealloc(PyObject *self) {
     Py_DECREF(type);
 }
 
+static PyGetSetDef Expr_getset[] = {
+    {0}
+};
+
 static PyMemberDef Expr_members[] = {
     {"value", _Py_T_OBJECT, offsetof(struct _stmt, v.Expr.value), Py_READONLY,
       NULL},
+    {"lineno", Py_T_INT, offsetof(struct _stmt, lineno), Py_READONLY, NULL},
+    {"col_offset", Py_T_INT, offsetof(struct _stmt, col_offset), Py_READONLY,
+      NULL},
+    {"end_lineno", Py_T_INT, offsetof(struct _stmt, end_lineno), Py_READONLY,
+      NULL},
+    {"end_col_offset", Py_T_INT, offsetof(struct _stmt, end_col_offset),
+      Py_READONLY, NULL},
     {0}
 };
 
 static PyType_Slot _Expr_type_slots[] = {
     {Py_tp_dealloc, &Expr_dealloc},
+    {Py_tp_getset, Expr_getset},
     {Py_tp_members, Expr_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "Expr(expr value)"},
@@ -14049,12 +14420,24 @@ static void Pass_dealloc(PyObject *self) {
     Py_DECREF(type);
 }
 
+static PyGetSetDef Pass_getset[] = {
+    {0}
+};
+
 static PyMemberDef Pass_members[] = {
+    {"lineno", Py_T_INT, offsetof(struct _stmt, lineno), Py_READONLY, NULL},
+    {"col_offset", Py_T_INT, offsetof(struct _stmt, col_offset), Py_READONLY,
+      NULL},
+    {"end_lineno", Py_T_INT, offsetof(struct _stmt, end_lineno), Py_READONLY,
+      NULL},
+    {"end_col_offset", Py_T_INT, offsetof(struct _stmt, end_col_offset),
+      Py_READONLY, NULL},
     {0}
 };
 
 static PyType_Slot _Pass_type_slots[] = {
     {Py_tp_dealloc, &Pass_dealloc},
+    {Py_tp_getset, Pass_getset},
     {Py_tp_members, Pass_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "Pass"},
@@ -14174,12 +14557,24 @@ static void Break_dealloc(PyObject *self) {
     Py_DECREF(type);
 }
 
+static PyGetSetDef Break_getset[] = {
+    {0}
+};
+
 static PyMemberDef Break_members[] = {
+    {"lineno", Py_T_INT, offsetof(struct _stmt, lineno), Py_READONLY, NULL},
+    {"col_offset", Py_T_INT, offsetof(struct _stmt, col_offset), Py_READONLY,
+      NULL},
+    {"end_lineno", Py_T_INT, offsetof(struct _stmt, end_lineno), Py_READONLY,
+      NULL},
+    {"end_col_offset", Py_T_INT, offsetof(struct _stmt, end_col_offset),
+      Py_READONLY, NULL},
     {0}
 };
 
 static PyType_Slot _Break_type_slots[] = {
     {Py_tp_dealloc, &Break_dealloc},
+    {Py_tp_getset, Break_getset},
     {Py_tp_members, Break_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "Break"},
@@ -14300,12 +14695,24 @@ static void Continue_dealloc(PyObject *self) {
     Py_DECREF(type);
 }
 
+static PyGetSetDef Continue_getset[] = {
+    {0}
+};
+
 static PyMemberDef Continue_members[] = {
+    {"lineno", Py_T_INT, offsetof(struct _stmt, lineno), Py_READONLY, NULL},
+    {"col_offset", Py_T_INT, offsetof(struct _stmt, col_offset), Py_READONLY,
+      NULL},
+    {"end_lineno", Py_T_INT, offsetof(struct _stmt, end_lineno), Py_READONLY,
+      NULL},
+    {"end_col_offset", Py_T_INT, offsetof(struct _stmt, end_col_offset),
+      Py_READONLY, NULL},
     {0}
 };
 
 static PyType_Slot _Continue_type_slots[] = {
     {Py_tp_dealloc, &Continue_dealloc},
+    {Py_tp_getset, Continue_getset},
     {Py_tp_members, Continue_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "Continue"},
@@ -14489,12 +14896,17 @@ static void stmt_dealloc(PyObject *self) {
     Py_DECREF(type);
 }
 
+static PyGetSetDef stmt_getset[] = {
+    {0}
+};
+
 static PyMemberDef stmt_members[] = {
     {0}
 };
 
 static PyType_Slot _stmt_type_slots[] = {
     {Py_tp_dealloc, &stmt_dealloc},
+    {Py_tp_getset, stmt_getset},
     {Py_tp_members, stmt_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "stmt = FunctionDef(identifier name, arguments args, stmt* body, expr* decorator_list, expr? returns, string? type_comment, type_param* type_params)\n"
@@ -14556,11 +14968,12 @@ static void stmt_seq_dealloc(PyObject *self) {
 static PyType_Slot _PyAST_stmt_seq_type_slots[] = {
     {Py_tp_dealloc, &stmt_seq_dealloc},
     //{Py_tp_members, stmt_seq_members},
+    {Py_tp_getset, seq_getsets},
     {Py_tp_free, PyObject_Free},
     {Py_sq_length, &ast_seq_len},
+    {Py_mp_length, &ast_seq_len},
     {Py_sq_item, &ast_seq_get},
     {Py_sq_contains, &ast_seq_contains},
-    {Py_mp_length, &ast_seq_len},
     {0},
 };
 
@@ -14572,7 +14985,8 @@ static PyType_Spec _stmt_seq_type_spec = {
     _PyAST_stmt_seq_type_slots
 };
 
-asdl_stmt_seq *_PyAst_stmt_seq_Copy(asdl_stmt_seq *seq) {
+asdl_stmt_seq *
+_PyAst_stmt_seq_Copy(asdl_stmt_seq *seq) {
     struct ast_state *state = get_ast_state();
     asdl_stmt_seq *res = PyObject_NewVar(asdl_stmt_seq, (PyTypeObject *)state->_stmt_seq_type, seq->size);
     if (res == NULL) {
@@ -14757,15 +15171,38 @@ static void BoolOp_dealloc(PyObject *self) {
     Py_DECREF(type);
 }
 
+static PyObject *
+BoolOp_op_get(PyObject *obj, void *unused) {
+    struct ast_state *state = get_ast_state();
+    struct _expr *self = (struct _expr *)obj;
+    switch (self->v.BoolOp.op) {
+        case And: return Py_NewRef(state->_And_singleton);
+        case Or: return Py_NewRef(state->_Or_singleton);
+    }
+    PyErr_SetString(PyExc_RuntimeError, "unknown kind");
+    return NULL;
+}
+static PyGetSetDef BoolOp_getset[] = {
+    {"op", BoolOp_op_get, NULL, NULL},
+    {0}
+};
+
 static PyMemberDef BoolOp_members[] = {
-    {"op", Py_T_INT, offsetof(struct _expr, v.BoolOp.op), Py_READONLY, NULL},
     {"values", _Py_T_OBJECT, offsetof(struct _expr, v.BoolOp.values),
+      Py_READONLY, NULL},
+    {"lineno", Py_T_INT, offsetof(struct _expr, lineno), Py_READONLY, NULL},
+    {"col_offset", Py_T_INT, offsetof(struct _expr, col_offset), Py_READONLY,
+      NULL},
+    {"end_lineno", Py_T_INT, offsetof(struct _expr, end_lineno), Py_READONLY,
+      NULL},
+    {"end_col_offset", Py_T_INT, offsetof(struct _expr, end_col_offset),
       Py_READONLY, NULL},
     {0}
 };
 
 static PyType_Slot _BoolOp_type_slots[] = {
     {Py_tp_dealloc, &BoolOp_dealloc},
+    {Py_tp_getset, BoolOp_getset},
     {Py_tp_members, BoolOp_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "BoolOp(boolop op, expr* values)"},
@@ -14970,16 +15407,28 @@ static void NamedExpr_dealloc(PyObject *self) {
     Py_DECREF(type);
 }
 
+static PyGetSetDef NamedExpr_getset[] = {
+    {0}
+};
+
 static PyMemberDef NamedExpr_members[] = {
     {"target", _Py_T_OBJECT, offsetof(struct _expr, v.NamedExpr.target),
       Py_READONLY, NULL},
     {"value", _Py_T_OBJECT, offsetof(struct _expr, v.NamedExpr.value),
+      Py_READONLY, NULL},
+    {"lineno", Py_T_INT, offsetof(struct _expr, lineno), Py_READONLY, NULL},
+    {"col_offset", Py_T_INT, offsetof(struct _expr, col_offset), Py_READONLY,
+      NULL},
+    {"end_lineno", Py_T_INT, offsetof(struct _expr, end_lineno), Py_READONLY,
+      NULL},
+    {"end_col_offset", Py_T_INT, offsetof(struct _expr, end_col_offset),
       Py_READONLY, NULL},
     {0}
 };
 
 static PyType_Slot _NamedExpr_type_slots[] = {
     {Py_tp_dealloc, &NamedExpr_dealloc},
+    {Py_tp_getset, NamedExpr_getset},
     {Py_tp_members, NamedExpr_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "NamedExpr(expr target, expr value)"},
@@ -15209,17 +15658,51 @@ static void BinOp_dealloc(PyObject *self) {
     Py_DECREF(type);
 }
 
+static PyObject *
+BinOp_op_get(PyObject *obj, void *unused) {
+    struct ast_state *state = get_ast_state();
+    struct _expr *self = (struct _expr *)obj;
+    switch (self->v.BinOp.op) {
+        case Add: return Py_NewRef(state->_Add_singleton);
+        case Sub: return Py_NewRef(state->_Sub_singleton);
+        case Mult: return Py_NewRef(state->_Mult_singleton);
+        case MatMult: return Py_NewRef(state->_MatMult_singleton);
+        case Div: return Py_NewRef(state->_Div_singleton);
+        case Mod: return Py_NewRef(state->_Mod_singleton);
+        case Pow: return Py_NewRef(state->_Pow_singleton);
+        case LShift: return Py_NewRef(state->_LShift_singleton);
+        case RShift: return Py_NewRef(state->_RShift_singleton);
+        case BitOr: return Py_NewRef(state->_BitOr_singleton);
+        case BitXor: return Py_NewRef(state->_BitXor_singleton);
+        case BitAnd: return Py_NewRef(state->_BitAnd_singleton);
+        case FloorDiv: return Py_NewRef(state->_FloorDiv_singleton);
+    }
+    PyErr_SetString(PyExc_RuntimeError, "unknown kind");
+    return NULL;
+}
+static PyGetSetDef BinOp_getset[] = {
+    {"op", BinOp_op_get, NULL, NULL},
+    {0}
+};
+
 static PyMemberDef BinOp_members[] = {
     {"left", _Py_T_OBJECT, offsetof(struct _expr, v.BinOp.left), Py_READONLY,
       NULL},
-    {"op", Py_T_INT, offsetof(struct _expr, v.BinOp.op), Py_READONLY, NULL},
     {"right", _Py_T_OBJECT, offsetof(struct _expr, v.BinOp.right), Py_READONLY,
       NULL},
+    {"lineno", Py_T_INT, offsetof(struct _expr, lineno), Py_READONLY, NULL},
+    {"col_offset", Py_T_INT, offsetof(struct _expr, col_offset), Py_READONLY,
+      NULL},
+    {"end_lineno", Py_T_INT, offsetof(struct _expr, end_lineno), Py_READONLY,
+      NULL},
+    {"end_col_offset", Py_T_INT, offsetof(struct _expr, end_col_offset),
+      Py_READONLY, NULL},
     {0}
 };
 
 static PyType_Slot _BinOp_type_slots[] = {
     {Py_tp_dealloc, &BinOp_dealloc},
+    {Py_tp_getset, BinOp_getset},
     {Py_tp_members, BinOp_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "BinOp(expr left, operator op, expr right)"},
@@ -15430,15 +15913,40 @@ static void UnaryOp_dealloc(PyObject *self) {
     Py_DECREF(type);
 }
 
+static PyObject *
+UnaryOp_op_get(PyObject *obj, void *unused) {
+    struct ast_state *state = get_ast_state();
+    struct _expr *self = (struct _expr *)obj;
+    switch (self->v.UnaryOp.op) {
+        case Invert: return Py_NewRef(state->_Invert_singleton);
+        case Not: return Py_NewRef(state->_Not_singleton);
+        case UAdd: return Py_NewRef(state->_UAdd_singleton);
+        case USub: return Py_NewRef(state->_USub_singleton);
+    }
+    PyErr_SetString(PyExc_RuntimeError, "unknown kind");
+    return NULL;
+}
+static PyGetSetDef UnaryOp_getset[] = {
+    {"op", UnaryOp_op_get, NULL, NULL},
+    {0}
+};
+
 static PyMemberDef UnaryOp_members[] = {
-    {"op", Py_T_INT, offsetof(struct _expr, v.UnaryOp.op), Py_READONLY, NULL},
     {"operand", _Py_T_OBJECT, offsetof(struct _expr, v.UnaryOp.operand),
+      Py_READONLY, NULL},
+    {"lineno", Py_T_INT, offsetof(struct _expr, lineno), Py_READONLY, NULL},
+    {"col_offset", Py_T_INT, offsetof(struct _expr, col_offset), Py_READONLY,
+      NULL},
+    {"end_lineno", Py_T_INT, offsetof(struct _expr, end_lineno), Py_READONLY,
+      NULL},
+    {"end_col_offset", Py_T_INT, offsetof(struct _expr, end_col_offset),
       Py_READONLY, NULL},
     {0}
 };
 
 static PyType_Slot _UnaryOp_type_slots[] = {
     {Py_tp_dealloc, &UnaryOp_dealloc},
+    {Py_tp_getset, UnaryOp_getset},
     {Py_tp_members, UnaryOp_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "UnaryOp(unaryop op, expr operand)"},
@@ -15643,16 +16151,28 @@ static void Lambda_dealloc(PyObject *self) {
     Py_DECREF(type);
 }
 
+static PyGetSetDef Lambda_getset[] = {
+    {0}
+};
+
 static PyMemberDef Lambda_members[] = {
     {"args", _Py_T_OBJECT, offsetof(struct _expr, v.Lambda.args), Py_READONLY,
       NULL},
     {"body", _Py_T_OBJECT, offsetof(struct _expr, v.Lambda.body), Py_READONLY,
       NULL},
+    {"lineno", Py_T_INT, offsetof(struct _expr, lineno), Py_READONLY, NULL},
+    {"col_offset", Py_T_INT, offsetof(struct _expr, col_offset), Py_READONLY,
+      NULL},
+    {"end_lineno", Py_T_INT, offsetof(struct _expr, end_lineno), Py_READONLY,
+      NULL},
+    {"end_col_offset", Py_T_INT, offsetof(struct _expr, end_col_offset),
+      Py_READONLY, NULL},
     {0}
 };
 
 static PyType_Slot _Lambda_type_slots[] = {
     {Py_tp_dealloc, &Lambda_dealloc},
+    {Py_tp_getset, Lambda_getset},
     {Py_tp_members, Lambda_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "Lambda(arguments args, expr body)"},
@@ -15882,6 +16402,10 @@ static void IfExp_dealloc(PyObject *self) {
     Py_DECREF(type);
 }
 
+static PyGetSetDef IfExp_getset[] = {
+    {0}
+};
+
 static PyMemberDef IfExp_members[] = {
     {"test", _Py_T_OBJECT, offsetof(struct _expr, v.IfExp.test), Py_READONLY,
       NULL},
@@ -15889,11 +16413,19 @@ static PyMemberDef IfExp_members[] = {
       NULL},
     {"orelse", _Py_T_OBJECT, offsetof(struct _expr, v.IfExp.orelse),
       Py_READONLY, NULL},
+    {"lineno", Py_T_INT, offsetof(struct _expr, lineno), Py_READONLY, NULL},
+    {"col_offset", Py_T_INT, offsetof(struct _expr, col_offset), Py_READONLY,
+      NULL},
+    {"end_lineno", Py_T_INT, offsetof(struct _expr, end_lineno), Py_READONLY,
+      NULL},
+    {"end_col_offset", Py_T_INT, offsetof(struct _expr, end_col_offset),
+      Py_READONLY, NULL},
     {0}
 };
 
 static PyType_Slot _IfExp_type_slots[] = {
     {Py_tp_dealloc, &IfExp_dealloc},
+    {Py_tp_getset, IfExp_getset},
     {Py_tp_members, IfExp_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "IfExp(expr test, expr body, expr orelse)"},
@@ -16110,16 +16642,28 @@ static void Dict_dealloc(PyObject *self) {
     Py_DECREF(type);
 }
 
+static PyGetSetDef Dict_getset[] = {
+    {0}
+};
+
 static PyMemberDef Dict_members[] = {
     {"keys", _Py_T_OBJECT, offsetof(struct _expr, v.Dict.keys), Py_READONLY,
       NULL},
     {"values", _Py_T_OBJECT, offsetof(struct _expr, v.Dict.values),
+      Py_READONLY, NULL},
+    {"lineno", Py_T_INT, offsetof(struct _expr, lineno), Py_READONLY, NULL},
+    {"col_offset", Py_T_INT, offsetof(struct _expr, col_offset), Py_READONLY,
+      NULL},
+    {"end_lineno", Py_T_INT, offsetof(struct _expr, end_lineno), Py_READONLY,
+      NULL},
+    {"end_col_offset", Py_T_INT, offsetof(struct _expr, end_col_offset),
       Py_READONLY, NULL},
     {0}
 };
 
 static PyType_Slot _Dict_type_slots[] = {
     {Py_tp_dealloc, &Dict_dealloc},
+    {Py_tp_getset, Dict_getset},
     {Py_tp_members, Dict_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "Dict(expr?* keys, expr* values)"},
@@ -16308,14 +16852,26 @@ static void Set_dealloc(PyObject *self) {
     Py_DECREF(type);
 }
 
+static PyGetSetDef Set_getset[] = {
+    {0}
+};
+
 static PyMemberDef Set_members[] = {
     {"elts", _Py_T_OBJECT, offsetof(struct _expr, v.Set.elts), Py_READONLY,
       NULL},
+    {"lineno", Py_T_INT, offsetof(struct _expr, lineno), Py_READONLY, NULL},
+    {"col_offset", Py_T_INT, offsetof(struct _expr, col_offset), Py_READONLY,
+      NULL},
+    {"end_lineno", Py_T_INT, offsetof(struct _expr, end_lineno), Py_READONLY,
+      NULL},
+    {"end_col_offset", Py_T_INT, offsetof(struct _expr, end_col_offset),
+      Py_READONLY, NULL},
     {0}
 };
 
 static PyType_Slot _Set_type_slots[] = {
     {Py_tp_dealloc, &Set_dealloc},
+    {Py_tp_getset, Set_getset},
     {Py_tp_members, Set_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "Set(expr* elts)"},
@@ -16520,16 +17076,28 @@ static void ListComp_dealloc(PyObject *self) {
     Py_DECREF(type);
 }
 
+static PyGetSetDef ListComp_getset[] = {
+    {0}
+};
+
 static PyMemberDef ListComp_members[] = {
     {"elt", _Py_T_OBJECT, offsetof(struct _expr, v.ListComp.elt), Py_READONLY,
       NULL},
     {"generators", _Py_T_OBJECT, offsetof(struct _expr, v.ListComp.generators),
+      Py_READONLY, NULL},
+    {"lineno", Py_T_INT, offsetof(struct _expr, lineno), Py_READONLY, NULL},
+    {"col_offset", Py_T_INT, offsetof(struct _expr, col_offset), Py_READONLY,
+      NULL},
+    {"end_lineno", Py_T_INT, offsetof(struct _expr, end_lineno), Py_READONLY,
+      NULL},
+    {"end_col_offset", Py_T_INT, offsetof(struct _expr, end_col_offset),
       Py_READONLY, NULL},
     {0}
 };
 
 static PyType_Slot _ListComp_type_slots[] = {
     {Py_tp_dealloc, &ListComp_dealloc},
+    {Py_tp_getset, ListComp_getset},
     {Py_tp_members, ListComp_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "ListComp(expr elt, comprehension* generators)"},
@@ -16742,16 +17310,28 @@ static void SetComp_dealloc(PyObject *self) {
     Py_DECREF(type);
 }
 
+static PyGetSetDef SetComp_getset[] = {
+    {0}
+};
+
 static PyMemberDef SetComp_members[] = {
     {"elt", _Py_T_OBJECT, offsetof(struct _expr, v.SetComp.elt), Py_READONLY,
       NULL},
     {"generators", _Py_T_OBJECT, offsetof(struct _expr, v.SetComp.generators),
+      Py_READONLY, NULL},
+    {"lineno", Py_T_INT, offsetof(struct _expr, lineno), Py_READONLY, NULL},
+    {"col_offset", Py_T_INT, offsetof(struct _expr, col_offset), Py_READONLY,
+      NULL},
+    {"end_lineno", Py_T_INT, offsetof(struct _expr, end_lineno), Py_READONLY,
+      NULL},
+    {"end_col_offset", Py_T_INT, offsetof(struct _expr, end_col_offset),
       Py_READONLY, NULL},
     {0}
 };
 
 static PyType_Slot _SetComp_type_slots[] = {
     {Py_tp_dealloc, &SetComp_dealloc},
+    {Py_tp_getset, SetComp_getset},
     {Py_tp_members, SetComp_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "SetComp(expr elt, comprehension* generators)"},
@@ -16984,6 +17564,10 @@ static void DictComp_dealloc(PyObject *self) {
     Py_DECREF(type);
 }
 
+static PyGetSetDef DictComp_getset[] = {
+    {0}
+};
+
 static PyMemberDef DictComp_members[] = {
     {"key", _Py_T_OBJECT, offsetof(struct _expr, v.DictComp.key), Py_READONLY,
       NULL},
@@ -16991,11 +17575,19 @@ static PyMemberDef DictComp_members[] = {
       Py_READONLY, NULL},
     {"generators", _Py_T_OBJECT, offsetof(struct _expr, v.DictComp.generators),
       Py_READONLY, NULL},
+    {"lineno", Py_T_INT, offsetof(struct _expr, lineno), Py_READONLY, NULL},
+    {"col_offset", Py_T_INT, offsetof(struct _expr, col_offset), Py_READONLY,
+      NULL},
+    {"end_lineno", Py_T_INT, offsetof(struct _expr, end_lineno), Py_READONLY,
+      NULL},
+    {"end_col_offset", Py_T_INT, offsetof(struct _expr, end_col_offset),
+      Py_READONLY, NULL},
     {0}
 };
 
 static PyType_Slot _DictComp_type_slots[] = {
     {Py_tp_dealloc, &DictComp_dealloc},
+    {Py_tp_getset, DictComp_getset},
     {Py_tp_members, DictComp_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "DictComp(expr key, expr value, comprehension* generators)"},
@@ -17214,16 +17806,28 @@ static void GeneratorExp_dealloc(PyObject *self) {
     Py_DECREF(type);
 }
 
+static PyGetSetDef GeneratorExp_getset[] = {
+    {0}
+};
+
 static PyMemberDef GeneratorExp_members[] = {
     {"elt", _Py_T_OBJECT, offsetof(struct _expr, v.GeneratorExp.elt),
       Py_READONLY, NULL},
     {"generators", _Py_T_OBJECT, offsetof(struct _expr,
       v.GeneratorExp.generators), Py_READONLY, NULL},
+    {"lineno", Py_T_INT, offsetof(struct _expr, lineno), Py_READONLY, NULL},
+    {"col_offset", Py_T_INT, offsetof(struct _expr, col_offset), Py_READONLY,
+      NULL},
+    {"end_lineno", Py_T_INT, offsetof(struct _expr, end_lineno), Py_READONLY,
+      NULL},
+    {"end_col_offset", Py_T_INT, offsetof(struct _expr, end_col_offset),
+      Py_READONLY, NULL},
     {0}
 };
 
 static PyType_Slot _GeneratorExp_type_slots[] = {
     {Py_tp_dealloc, &GeneratorExp_dealloc},
+    {Py_tp_getset, GeneratorExp_getset},
     {Py_tp_members, GeneratorExp_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "GeneratorExp(expr elt, comprehension* generators)"},
@@ -17414,14 +18018,26 @@ static void Await_dealloc(PyObject *self) {
     Py_DECREF(type);
 }
 
+static PyGetSetDef Await_getset[] = {
+    {0}
+};
+
 static PyMemberDef Await_members[] = {
     {"value", _Py_T_OBJECT, offsetof(struct _expr, v.Await.value), Py_READONLY,
       NULL},
+    {"lineno", Py_T_INT, offsetof(struct _expr, lineno), Py_READONLY, NULL},
+    {"col_offset", Py_T_INT, offsetof(struct _expr, col_offset), Py_READONLY,
+      NULL},
+    {"end_lineno", Py_T_INT, offsetof(struct _expr, end_lineno), Py_READONLY,
+      NULL},
+    {"end_col_offset", Py_T_INT, offsetof(struct _expr, end_col_offset),
+      Py_READONLY, NULL},
     {0}
 };
 
 static PyType_Slot _Await_type_slots[] = {
     {Py_tp_dealloc, &Await_dealloc},
+    {Py_tp_getset, Await_getset},
     {Py_tp_members, Await_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "Await(expr value)"},
@@ -17605,14 +18221,26 @@ static void Yield_dealloc(PyObject *self) {
     Py_DECREF(type);
 }
 
+static PyGetSetDef Yield_getset[] = {
+    {0}
+};
+
 static PyMemberDef Yield_members[] = {
     {"value", _Py_T_OBJECT, offsetof(struct _expr, v.Yield.value), Py_READONLY,
       NULL},
+    {"lineno", Py_T_INT, offsetof(struct _expr, lineno), Py_READONLY, NULL},
+    {"col_offset", Py_T_INT, offsetof(struct _expr, col_offset), Py_READONLY,
+      NULL},
+    {"end_lineno", Py_T_INT, offsetof(struct _expr, end_lineno), Py_READONLY,
+      NULL},
+    {"end_col_offset", Py_T_INT, offsetof(struct _expr, end_col_offset),
+      Py_READONLY, NULL},
     {0}
 };
 
 static PyType_Slot _Yield_type_slots[] = {
     {Py_tp_dealloc, &Yield_dealloc},
+    {Py_tp_getset, Yield_getset},
     {Py_tp_members, Yield_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "Yield(expr? value)"},
@@ -17796,14 +18424,26 @@ static void YieldFrom_dealloc(PyObject *self) {
     Py_DECREF(type);
 }
 
+static PyGetSetDef YieldFrom_getset[] = {
+    {0}
+};
+
 static PyMemberDef YieldFrom_members[] = {
     {"value", _Py_T_OBJECT, offsetof(struct _expr, v.YieldFrom.value),
+      Py_READONLY, NULL},
+    {"lineno", Py_T_INT, offsetof(struct _expr, lineno), Py_READONLY, NULL},
+    {"col_offset", Py_T_INT, offsetof(struct _expr, col_offset), Py_READONLY,
+      NULL},
+    {"end_lineno", Py_T_INT, offsetof(struct _expr, end_lineno), Py_READONLY,
+      NULL},
+    {"end_col_offset", Py_T_INT, offsetof(struct _expr, end_col_offset),
       Py_READONLY, NULL},
     {0}
 };
 
 static PyType_Slot _YieldFrom_type_slots[] = {
     {Py_tp_dealloc, &YieldFrom_dealloc},
+    {Py_tp_getset, YieldFrom_getset},
     {Py_tp_members, YieldFrom_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "YieldFrom(expr value)"},
@@ -18029,17 +18669,30 @@ static void Compare_dealloc(PyObject *self) {
     Py_DECREF(type);
 }
 
+static PyGetSetDef Compare_getset[] = {
+    {0}
+};
+
 static PyMemberDef Compare_members[] = {
     {"left", _Py_T_OBJECT, offsetof(struct _expr, v.Compare.left), Py_READONLY,
       NULL},
-    {"ops", Py_T_INT, offsetof(struct _expr, v.Compare.ops), Py_READONLY, NULL},
+    {"ops", _Py_T_OBJECT, offsetof(struct _expr, v.Compare.ops), Py_READONLY,
+      NULL},
     {"comparators", _Py_T_OBJECT, offsetof(struct _expr,
       v.Compare.comparators), Py_READONLY, NULL},
+    {"lineno", Py_T_INT, offsetof(struct _expr, lineno), Py_READONLY, NULL},
+    {"col_offset", Py_T_INT, offsetof(struct _expr, col_offset), Py_READONLY,
+      NULL},
+    {"end_lineno", Py_T_INT, offsetof(struct _expr, end_lineno), Py_READONLY,
+      NULL},
+    {"end_col_offset", Py_T_INT, offsetof(struct _expr, end_col_offset),
+      Py_READONLY, NULL},
     {0}
 };
 
 static PyType_Slot _Compare_type_slots[] = {
     {Py_tp_dealloc, &Compare_dealloc},
+    {Py_tp_getset, Compare_getset},
     {Py_tp_members, Compare_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "Compare(expr left, cmpop* ops, expr* comparators)"},
@@ -18278,6 +18931,10 @@ static void Call_dealloc(PyObject *self) {
     Py_DECREF(type);
 }
 
+static PyGetSetDef Call_getset[] = {
+    {0}
+};
+
 static PyMemberDef Call_members[] = {
     {"func", _Py_T_OBJECT, offsetof(struct _expr, v.Call.func), Py_READONLY,
       NULL},
@@ -18285,11 +18942,19 @@ static PyMemberDef Call_members[] = {
       NULL},
     {"keywords", _Py_T_OBJECT, offsetof(struct _expr, v.Call.keywords),
       Py_READONLY, NULL},
+    {"lineno", Py_T_INT, offsetof(struct _expr, lineno), Py_READONLY, NULL},
+    {"col_offset", Py_T_INT, offsetof(struct _expr, col_offset), Py_READONLY,
+      NULL},
+    {"end_lineno", Py_T_INT, offsetof(struct _expr, end_lineno), Py_READONLY,
+      NULL},
+    {"end_col_offset", Py_T_INT, offsetof(struct _expr, end_col_offset),
+      Py_READONLY, NULL},
     {0}
 };
 
 static PyType_Slot _Call_type_slots[] = {
     {Py_tp_dealloc, &Call_dealloc},
+    {Py_tp_getset, Call_getset},
     {Py_tp_members, Call_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "Call(expr func, expr* args, keyword* keywords)"},
@@ -18524,18 +19189,30 @@ static void FormattedValue_dealloc(PyObject *self) {
     Py_DECREF(type);
 }
 
+static PyGetSetDef FormattedValue_getset[] = {
+    {0}
+};
+
 static PyMemberDef FormattedValue_members[] = {
     {"value", _Py_T_OBJECT, offsetof(struct _expr, v.FormattedValue.value),
       Py_READONLY, NULL},
-    {"conversion", Py_T_INT, offsetof(struct _expr,
+    {"conversion", _Py_T_OBJECT, offsetof(struct _expr,
       v.FormattedValue.conversion), Py_READONLY, NULL},
     {"format_spec", _Py_T_OBJECT, offsetof(struct _expr,
       v.FormattedValue.format_spec), Py_READONLY, NULL},
+    {"lineno", Py_T_INT, offsetof(struct _expr, lineno), Py_READONLY, NULL},
+    {"col_offset", Py_T_INT, offsetof(struct _expr, col_offset), Py_READONLY,
+      NULL},
+    {"end_lineno", Py_T_INT, offsetof(struct _expr, end_lineno), Py_READONLY,
+      NULL},
+    {"end_col_offset", Py_T_INT, offsetof(struct _expr, end_col_offset),
+      Py_READONLY, NULL},
     {0}
 };
 
 static PyType_Slot _FormattedValue_type_slots[] = {
     {Py_tp_dealloc, &FormattedValue_dealloc},
+    {Py_tp_getset, FormattedValue_getset},
     {Py_tp_members, FormattedValue_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "FormattedValue(expr value, int conversion, expr? format_spec)"},
@@ -18788,20 +19465,32 @@ static void Interpolation_dealloc(PyObject *self) {
     Py_DECREF(type);
 }
 
+static PyGetSetDef Interpolation_getset[] = {
+    {0}
+};
+
 static PyMemberDef Interpolation_members[] = {
     {"value", _Py_T_OBJECT, offsetof(struct _expr, v.Interpolation.value),
       Py_READONLY, NULL},
     {"str", _Py_T_OBJECT, offsetof(struct _expr, v.Interpolation.str),
       Py_READONLY, NULL},
-    {"conversion", Py_T_INT, offsetof(struct _expr,
+    {"conversion", _Py_T_OBJECT, offsetof(struct _expr,
       v.Interpolation.conversion), Py_READONLY, NULL},
     {"format_spec", _Py_T_OBJECT, offsetof(struct _expr,
       v.Interpolation.format_spec), Py_READONLY, NULL},
+    {"lineno", Py_T_INT, offsetof(struct _expr, lineno), Py_READONLY, NULL},
+    {"col_offset", Py_T_INT, offsetof(struct _expr, col_offset), Py_READONLY,
+      NULL},
+    {"end_lineno", Py_T_INT, offsetof(struct _expr, end_lineno), Py_READONLY,
+      NULL},
+    {"end_col_offset", Py_T_INT, offsetof(struct _expr, end_col_offset),
+      Py_READONLY, NULL},
     {0}
 };
 
 static PyType_Slot _Interpolation_type_slots[] = {
     {Py_tp_dealloc, &Interpolation_dealloc},
+    {Py_tp_getset, Interpolation_getset},
     {Py_tp_members, Interpolation_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "Interpolation(expr value, constant str, int conversion, expr? format_spec)"},
@@ -19002,14 +19691,26 @@ static void JoinedStr_dealloc(PyObject *self) {
     Py_DECREF(type);
 }
 
+static PyGetSetDef JoinedStr_getset[] = {
+    {0}
+};
+
 static PyMemberDef JoinedStr_members[] = {
     {"values", _Py_T_OBJECT, offsetof(struct _expr, v.JoinedStr.values),
+      Py_READONLY, NULL},
+    {"lineno", Py_T_INT, offsetof(struct _expr, lineno), Py_READONLY, NULL},
+    {"col_offset", Py_T_INT, offsetof(struct _expr, col_offset), Py_READONLY,
+      NULL},
+    {"end_lineno", Py_T_INT, offsetof(struct _expr, end_lineno), Py_READONLY,
+      NULL},
+    {"end_col_offset", Py_T_INT, offsetof(struct _expr, end_col_offset),
       Py_READONLY, NULL},
     {0}
 };
 
 static PyType_Slot _JoinedStr_type_slots[] = {
     {Py_tp_dealloc, &JoinedStr_dealloc},
+    {Py_tp_getset, JoinedStr_getset},
     {Py_tp_members, JoinedStr_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "JoinedStr(expr* values)"},
@@ -19196,14 +19897,26 @@ static void TemplateStr_dealloc(PyObject *self) {
     Py_DECREF(type);
 }
 
+static PyGetSetDef TemplateStr_getset[] = {
+    {0}
+};
+
 static PyMemberDef TemplateStr_members[] = {
     {"values", _Py_T_OBJECT, offsetof(struct _expr, v.TemplateStr.values),
+      Py_READONLY, NULL},
+    {"lineno", Py_T_INT, offsetof(struct _expr, lineno), Py_READONLY, NULL},
+    {"col_offset", Py_T_INT, offsetof(struct _expr, col_offset), Py_READONLY,
+      NULL},
+    {"end_lineno", Py_T_INT, offsetof(struct _expr, end_lineno), Py_READONLY,
+      NULL},
+    {"end_col_offset", Py_T_INT, offsetof(struct _expr, end_col_offset),
       Py_READONLY, NULL},
     {0}
 };
 
 static PyType_Slot _TemplateStr_type_slots[] = {
     {Py_tp_dealloc, &TemplateStr_dealloc},
+    {Py_tp_getset, TemplateStr_getset},
     {Py_tp_members, TemplateStr_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "TemplateStr(expr* values)"},
@@ -19408,16 +20121,28 @@ static void Constant_dealloc(PyObject *self) {
     Py_DECREF(type);
 }
 
+static PyGetSetDef Constant_getset[] = {
+    {0}
+};
+
 static PyMemberDef Constant_members[] = {
     {"value", _Py_T_OBJECT, offsetof(struct _expr, v.Constant.value),
       Py_READONLY, NULL},
     {"kind", _Py_T_OBJECT, offsetof(struct _expr, v.Constant.kind),
+      Py_READONLY, NULL},
+    {"lineno", Py_T_INT, offsetof(struct _expr, lineno), Py_READONLY, NULL},
+    {"col_offset", Py_T_INT, offsetof(struct _expr, col_offset), Py_READONLY,
+      NULL},
+    {"end_lineno", Py_T_INT, offsetof(struct _expr, end_lineno), Py_READONLY,
+      NULL},
+    {"end_col_offset", Py_T_INT, offsetof(struct _expr, end_col_offset),
       Py_READONLY, NULL},
     {0}
 };
 
 static PyType_Slot _Constant_type_slots[] = {
     {Py_tp_dealloc, &Constant_dealloc},
+    {Py_tp_getset, Constant_getset},
     {Py_tp_members, Constant_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "Constant(constant value, string? kind)"},
@@ -19647,18 +20372,41 @@ static void Attribute_dealloc(PyObject *self) {
     Py_DECREF(type);
 }
 
+static PyObject *
+Attribute_ctx_get(PyObject *obj, void *unused) {
+    struct ast_state *state = get_ast_state();
+    struct _expr *self = (struct _expr *)obj;
+    switch (self->v.Attribute.ctx) {
+        case Load: return Py_NewRef(state->_Load_singleton);
+        case Store: return Py_NewRef(state->_Store_singleton);
+        case Del: return Py_NewRef(state->_Del_singleton);
+    }
+    PyErr_SetString(PyExc_RuntimeError, "unknown kind");
+    return NULL;
+}
+static PyGetSetDef Attribute_getset[] = {
+    {"ctx", Attribute_ctx_get, NULL, NULL},
+    {0}
+};
+
 static PyMemberDef Attribute_members[] = {
     {"value", _Py_T_OBJECT, offsetof(struct _expr, v.Attribute.value),
       Py_READONLY, NULL},
     {"attr", _Py_T_OBJECT, offsetof(struct _expr, v.Attribute.attr),
       Py_READONLY, NULL},
-    {"ctx", Py_T_INT, offsetof(struct _expr, v.Attribute.ctx), Py_READONLY,
+    {"lineno", Py_T_INT, offsetof(struct _expr, lineno), Py_READONLY, NULL},
+    {"col_offset", Py_T_INT, offsetof(struct _expr, col_offset), Py_READONLY,
       NULL},
+    {"end_lineno", Py_T_INT, offsetof(struct _expr, end_lineno), Py_READONLY,
+      NULL},
+    {"end_col_offset", Py_T_INT, offsetof(struct _expr, end_col_offset),
+      Py_READONLY, NULL},
     {0}
 };
 
 static PyType_Slot _Attribute_type_slots[] = {
     {Py_tp_dealloc, &Attribute_dealloc},
+    {Py_tp_getset, Attribute_getset},
     {Py_tp_members, Attribute_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "Attribute(expr value, identifier attr, expr_context ctx)"},
@@ -19889,18 +20637,41 @@ static void Subscript_dealloc(PyObject *self) {
     Py_DECREF(type);
 }
 
+static PyObject *
+Subscript_ctx_get(PyObject *obj, void *unused) {
+    struct ast_state *state = get_ast_state();
+    struct _expr *self = (struct _expr *)obj;
+    switch (self->v.Subscript.ctx) {
+        case Load: return Py_NewRef(state->_Load_singleton);
+        case Store: return Py_NewRef(state->_Store_singleton);
+        case Del: return Py_NewRef(state->_Del_singleton);
+    }
+    PyErr_SetString(PyExc_RuntimeError, "unknown kind");
+    return NULL;
+}
+static PyGetSetDef Subscript_getset[] = {
+    {"ctx", Subscript_ctx_get, NULL, NULL},
+    {0}
+};
+
 static PyMemberDef Subscript_members[] = {
     {"value", _Py_T_OBJECT, offsetof(struct _expr, v.Subscript.value),
       Py_READONLY, NULL},
     {"slice", _Py_T_OBJECT, offsetof(struct _expr, v.Subscript.slice),
       Py_READONLY, NULL},
-    {"ctx", Py_T_INT, offsetof(struct _expr, v.Subscript.ctx), Py_READONLY,
+    {"lineno", Py_T_INT, offsetof(struct _expr, lineno), Py_READONLY, NULL},
+    {"col_offset", Py_T_INT, offsetof(struct _expr, col_offset), Py_READONLY,
       NULL},
+    {"end_lineno", Py_T_INT, offsetof(struct _expr, end_lineno), Py_READONLY,
+      NULL},
+    {"end_col_offset", Py_T_INT, offsetof(struct _expr, end_col_offset),
+      Py_READONLY, NULL},
     {0}
 };
 
 static PyType_Slot _Subscript_type_slots[] = {
     {Py_tp_dealloc, &Subscript_dealloc},
+    {Py_tp_getset, Subscript_getset},
     {Py_tp_members, Subscript_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "Subscript(expr value, expr slice, expr_context ctx)"},
@@ -20111,15 +20882,39 @@ static void Starred_dealloc(PyObject *self) {
     Py_DECREF(type);
 }
 
+static PyObject *
+Starred_ctx_get(PyObject *obj, void *unused) {
+    struct ast_state *state = get_ast_state();
+    struct _expr *self = (struct _expr *)obj;
+    switch (self->v.Starred.ctx) {
+        case Load: return Py_NewRef(state->_Load_singleton);
+        case Store: return Py_NewRef(state->_Store_singleton);
+        case Del: return Py_NewRef(state->_Del_singleton);
+    }
+    PyErr_SetString(PyExc_RuntimeError, "unknown kind");
+    return NULL;
+}
+static PyGetSetDef Starred_getset[] = {
+    {"ctx", Starred_ctx_get, NULL, NULL},
+    {0}
+};
+
 static PyMemberDef Starred_members[] = {
     {"value", _Py_T_OBJECT, offsetof(struct _expr, v.Starred.value),
       Py_READONLY, NULL},
-    {"ctx", Py_T_INT, offsetof(struct _expr, v.Starred.ctx), Py_READONLY, NULL},
+    {"lineno", Py_T_INT, offsetof(struct _expr, lineno), Py_READONLY, NULL},
+    {"col_offset", Py_T_INT, offsetof(struct _expr, col_offset), Py_READONLY,
+      NULL},
+    {"end_lineno", Py_T_INT, offsetof(struct _expr, end_lineno), Py_READONLY,
+      NULL},
+    {"end_col_offset", Py_T_INT, offsetof(struct _expr, end_col_offset),
+      Py_READONLY, NULL},
     {0}
 };
 
 static PyType_Slot _Starred_type_slots[] = {
     {Py_tp_dealloc, &Starred_dealloc},
+    {Py_tp_getset, Starred_getset},
     {Py_tp_members, Starred_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "Starred(expr value, expr_context ctx)"},
@@ -20324,14 +21119,38 @@ static void Name_dealloc(PyObject *self) {
     Py_DECREF(type);
 }
 
+static PyObject *
+Name_ctx_get(PyObject *obj, void *unused) {
+    struct ast_state *state = get_ast_state();
+    struct _expr *self = (struct _expr *)obj;
+    switch (self->v.Name.ctx) {
+        case Load: return Py_NewRef(state->_Load_singleton);
+        case Store: return Py_NewRef(state->_Store_singleton);
+        case Del: return Py_NewRef(state->_Del_singleton);
+    }
+    PyErr_SetString(PyExc_RuntimeError, "unknown kind");
+    return NULL;
+}
+static PyGetSetDef Name_getset[] = {
+    {"ctx", Name_ctx_get, NULL, NULL},
+    {0}
+};
+
 static PyMemberDef Name_members[] = {
     {"id", _Py_T_OBJECT, offsetof(struct _expr, v.Name.id), Py_READONLY, NULL},
-    {"ctx", Py_T_INT, offsetof(struct _expr, v.Name.ctx), Py_READONLY, NULL},
+    {"lineno", Py_T_INT, offsetof(struct _expr, lineno), Py_READONLY, NULL},
+    {"col_offset", Py_T_INT, offsetof(struct _expr, col_offset), Py_READONLY,
+      NULL},
+    {"end_lineno", Py_T_INT, offsetof(struct _expr, end_lineno), Py_READONLY,
+      NULL},
+    {"end_col_offset", Py_T_INT, offsetof(struct _expr, end_col_offset),
+      Py_READONLY, NULL},
     {0}
 };
 
 static PyType_Slot _Name_type_slots[] = {
     {Py_tp_dealloc, &Name_dealloc},
+    {Py_tp_getset, Name_getset},
     {Py_tp_members, Name_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "Name(identifier id, expr_context ctx)"},
@@ -20535,15 +21354,39 @@ static void List_dealloc(PyObject *self) {
     Py_DECREF(type);
 }
 
+static PyObject *
+List_ctx_get(PyObject *obj, void *unused) {
+    struct ast_state *state = get_ast_state();
+    struct _expr *self = (struct _expr *)obj;
+    switch (self->v.List.ctx) {
+        case Load: return Py_NewRef(state->_Load_singleton);
+        case Store: return Py_NewRef(state->_Store_singleton);
+        case Del: return Py_NewRef(state->_Del_singleton);
+    }
+    PyErr_SetString(PyExc_RuntimeError, "unknown kind");
+    return NULL;
+}
+static PyGetSetDef List_getset[] = {
+    {"ctx", List_ctx_get, NULL, NULL},
+    {0}
+};
+
 static PyMemberDef List_members[] = {
     {"elts", _Py_T_OBJECT, offsetof(struct _expr, v.List.elts), Py_READONLY,
       NULL},
-    {"ctx", Py_T_INT, offsetof(struct _expr, v.List.ctx), Py_READONLY, NULL},
+    {"lineno", Py_T_INT, offsetof(struct _expr, lineno), Py_READONLY, NULL},
+    {"col_offset", Py_T_INT, offsetof(struct _expr, col_offset), Py_READONLY,
+      NULL},
+    {"end_lineno", Py_T_INT, offsetof(struct _expr, end_lineno), Py_READONLY,
+      NULL},
+    {"end_col_offset", Py_T_INT, offsetof(struct _expr, end_col_offset),
+      Py_READONLY, NULL},
     {0}
 };
 
 static PyType_Slot _List_type_slots[] = {
     {Py_tp_dealloc, &List_dealloc},
+    {Py_tp_getset, List_getset},
     {Py_tp_members, List_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "List(expr* elts, expr_context ctx)"},
@@ -20747,15 +21590,39 @@ static void Tuple_dealloc(PyObject *self) {
     Py_DECREF(type);
 }
 
+static PyObject *
+Tuple_ctx_get(PyObject *obj, void *unused) {
+    struct ast_state *state = get_ast_state();
+    struct _expr *self = (struct _expr *)obj;
+    switch (self->v.Tuple.ctx) {
+        case Load: return Py_NewRef(state->_Load_singleton);
+        case Store: return Py_NewRef(state->_Store_singleton);
+        case Del: return Py_NewRef(state->_Del_singleton);
+    }
+    PyErr_SetString(PyExc_RuntimeError, "unknown kind");
+    return NULL;
+}
+static PyGetSetDef Tuple_getset[] = {
+    {"ctx", Tuple_ctx_get, NULL, NULL},
+    {0}
+};
+
 static PyMemberDef Tuple_members[] = {
     {"elts", _Py_T_OBJECT, offsetof(struct _expr, v.Tuple.elts), Py_READONLY,
       NULL},
-    {"ctx", Py_T_INT, offsetof(struct _expr, v.Tuple.ctx), Py_READONLY, NULL},
+    {"lineno", Py_T_INT, offsetof(struct _expr, lineno), Py_READONLY, NULL},
+    {"col_offset", Py_T_INT, offsetof(struct _expr, col_offset), Py_READONLY,
+      NULL},
+    {"end_lineno", Py_T_INT, offsetof(struct _expr, end_lineno), Py_READONLY,
+      NULL},
+    {"end_col_offset", Py_T_INT, offsetof(struct _expr, end_col_offset),
+      Py_READONLY, NULL},
     {0}
 };
 
 static PyType_Slot _Tuple_type_slots[] = {
     {Py_tp_dealloc, &Tuple_dealloc},
+    {Py_tp_getset, Tuple_getset},
     {Py_tp_members, Tuple_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "Tuple(expr* elts, expr_context ctx)"},
@@ -20980,6 +21847,10 @@ static void Slice_dealloc(PyObject *self) {
     Py_DECREF(type);
 }
 
+static PyGetSetDef Slice_getset[] = {
+    {0}
+};
+
 static PyMemberDef Slice_members[] = {
     {"lower", _Py_T_OBJECT, offsetof(struct _expr, v.Slice.lower), Py_READONLY,
       NULL},
@@ -20987,11 +21858,19 @@ static PyMemberDef Slice_members[] = {
       NULL},
     {"step", _Py_T_OBJECT, offsetof(struct _expr, v.Slice.step), Py_READONLY,
       NULL},
+    {"lineno", Py_T_INT, offsetof(struct _expr, lineno), Py_READONLY, NULL},
+    {"col_offset", Py_T_INT, offsetof(struct _expr, col_offset), Py_READONLY,
+      NULL},
+    {"end_lineno", Py_T_INT, offsetof(struct _expr, end_lineno), Py_READONLY,
+      NULL},
+    {"end_col_offset", Py_T_INT, offsetof(struct _expr, end_col_offset),
+      Py_READONLY, NULL},
     {0}
 };
 
 static PyType_Slot _Slice_type_slots[] = {
     {Py_tp_dealloc, &Slice_dealloc},
+    {Py_tp_getset, Slice_getset},
     {Py_tp_members, Slice_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "Slice(expr? lower, expr? upper, expr? step)"},
@@ -21195,12 +22074,17 @@ static void expr_dealloc(PyObject *self) {
     Py_DECREF(type);
 }
 
+static PyGetSetDef expr_getset[] = {
+    {0}
+};
+
 static PyMemberDef expr_members[] = {
     {0}
 };
 
 static PyType_Slot _expr_type_slots[] = {
     {Py_tp_dealloc, &expr_dealloc},
+    {Py_tp_getset, expr_getset},
     {Py_tp_members, expr_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "expr = BoolOp(boolop op, expr* values)\n"
@@ -21263,11 +22147,12 @@ static void expr_seq_dealloc(PyObject *self) {
 static PyType_Slot _PyAST_expr_seq_type_slots[] = {
     {Py_tp_dealloc, &expr_seq_dealloc},
     //{Py_tp_members, expr_seq_members},
+    {Py_tp_getset, seq_getsets},
     {Py_tp_free, PyObject_Free},
     {Py_sq_length, &ast_seq_len},
+    {Py_mp_length, &ast_seq_len},
     {Py_sq_item, &ast_seq_get},
     {Py_sq_contains, &ast_seq_contains},
-    {Py_mp_length, &ast_seq_len},
     {0},
 };
 
@@ -21279,7 +22164,8 @@ static PyType_Spec _expr_seq_type_spec = {
     _PyAST_expr_seq_type_slots
 };
 
-asdl_expr_seq *_PyAst_expr_seq_Copy(asdl_expr_seq *seq) {
+asdl_expr_seq *
+_PyAst_expr_seq_Copy(asdl_expr_seq *seq) {
     struct ast_state *state = get_ast_state();
     asdl_expr_seq *res = PyObject_NewVar(asdl_expr_seq, (PyTypeObject *)state->_expr_seq_type, seq->size);
     if (res == NULL) {
@@ -21333,12 +22219,17 @@ static void expr_context_dealloc(PyObject *self) {
     Py_DECREF(type);
 }
 
+static PyGetSetDef expr_context_getset[] = {
+    {0}
+};
+
 static PyMemberDef expr_context_members[] = {
     {0}
 };
 
 static PyType_Slot _expr_context_type_slots[] = {
     {Py_tp_dealloc, &expr_context_dealloc},
+    {Py_tp_getset, expr_context_getset},
     {Py_tp_members, expr_context_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "expr_context = Load | Store | Del"},
@@ -21348,7 +22239,7 @@ static PyType_Slot _expr_context_type_slots[] = {
 
 static PyType_Spec _expr_context_type_spec = {
     "ast.expr_context",
-    sizeof(struct _object),
+    sizeof(struct _simple_object),
     0,
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _expr_context_type_slots
@@ -21389,12 +22280,17 @@ static void Load_dealloc(PyObject *self) {
     Py_DECREF(type);
 }
 
+static PyGetSetDef Load_getset[] = {
+    {0}
+};
+
 static PyMemberDef Load_members[] = {
     {0}
 };
 
 static PyType_Slot _Load_type_slots[] = {
     {Py_tp_dealloc, &Load_dealloc},
+    {Py_tp_getset, Load_getset},
     {Py_tp_members, Load_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "Load"},
@@ -21404,7 +22300,7 @@ static PyType_Slot _Load_type_slots[] = {
 
 static PyType_Spec _Load_type_spec = {
     "ast.Load",
-    sizeof(struct _object),
+    sizeof(struct _simple_object),
     0,
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _Load_type_slots
@@ -21445,12 +22341,17 @@ static void Store_dealloc(PyObject *self) {
     Py_DECREF(type);
 }
 
+static PyGetSetDef Store_getset[] = {
+    {0}
+};
+
 static PyMemberDef Store_members[] = {
     {0}
 };
 
 static PyType_Slot _Store_type_slots[] = {
     {Py_tp_dealloc, &Store_dealloc},
+    {Py_tp_getset, Store_getset},
     {Py_tp_members, Store_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "Store"},
@@ -21460,7 +22361,7 @@ static PyType_Slot _Store_type_slots[] = {
 
 static PyType_Spec _Store_type_spec = {
     "ast.Store",
-    sizeof(struct _object),
+    sizeof(struct _simple_object),
     0,
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _Store_type_slots
@@ -21501,12 +22402,17 @@ static void Del_dealloc(PyObject *self) {
     Py_DECREF(type);
 }
 
+static PyGetSetDef Del_getset[] = {
+    {0}
+};
+
 static PyMemberDef Del_members[] = {
     {0}
 };
 
 static PyType_Slot _Del_type_slots[] = {
     {Py_tp_dealloc, &Del_dealloc},
+    {Py_tp_getset, Del_getset},
     {Py_tp_members, Del_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "Del"},
@@ -21516,7 +22422,7 @@ static PyType_Slot _Del_type_slots[] = {
 
 static PyType_Spec _Del_type_spec = {
     "ast.Del",
-    sizeof(struct _object),
+    sizeof(struct _simple_object),
     0,
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _Del_type_slots
@@ -21556,12 +22462,17 @@ static void boolop_dealloc(PyObject *self) {
     Py_DECREF(type);
 }
 
+static PyGetSetDef boolop_getset[] = {
+    {0}
+};
+
 static PyMemberDef boolop_members[] = {
     {0}
 };
 
 static PyType_Slot _boolop_type_slots[] = {
     {Py_tp_dealloc, &boolop_dealloc},
+    {Py_tp_getset, boolop_getset},
     {Py_tp_members, boolop_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "boolop = And | Or"},
@@ -21571,7 +22482,7 @@ static PyType_Slot _boolop_type_slots[] = {
 
 static PyType_Spec _boolop_type_spec = {
     "ast.boolop",
-    sizeof(struct _object),
+    sizeof(struct _simple_object),
     0,
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _boolop_type_slots
@@ -21612,12 +22523,17 @@ static void And_dealloc(PyObject *self) {
     Py_DECREF(type);
 }
 
+static PyGetSetDef And_getset[] = {
+    {0}
+};
+
 static PyMemberDef And_members[] = {
     {0}
 };
 
 static PyType_Slot _And_type_slots[] = {
     {Py_tp_dealloc, &And_dealloc},
+    {Py_tp_getset, And_getset},
     {Py_tp_members, And_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "And"},
@@ -21627,7 +22543,7 @@ static PyType_Slot _And_type_slots[] = {
 
 static PyType_Spec _And_type_spec = {
     "ast.And",
-    sizeof(struct _object),
+    sizeof(struct _simple_object),
     0,
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _And_type_slots
@@ -21668,12 +22584,17 @@ static void Or_dealloc(PyObject *self) {
     Py_DECREF(type);
 }
 
+static PyGetSetDef Or_getset[] = {
+    {0}
+};
+
 static PyMemberDef Or_members[] = {
     {0}
 };
 
 static PyType_Slot _Or_type_slots[] = {
     {Py_tp_dealloc, &Or_dealloc},
+    {Py_tp_getset, Or_getset},
     {Py_tp_members, Or_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "Or"},
@@ -21683,7 +22604,7 @@ static PyType_Slot _Or_type_slots[] = {
 
 static PyType_Spec _Or_type_spec = {
     "ast.Or",
-    sizeof(struct _object),
+    sizeof(struct _simple_object),
     0,
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _Or_type_slots
@@ -21723,12 +22644,17 @@ static void operator_dealloc(PyObject *self) {
     Py_DECREF(type);
 }
 
+static PyGetSetDef operator_getset[] = {
+    {0}
+};
+
 static PyMemberDef operator_members[] = {
     {0}
 };
 
 static PyType_Slot _operator_type_slots[] = {
     {Py_tp_dealloc, &operator_dealloc},
+    {Py_tp_getset, operator_getset},
     {Py_tp_members, operator_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "operator = Add | Sub | Mult | MatMult | Div | Mod | Pow | LShift | RShift | BitOr | BitXor | BitAnd | FloorDiv"},
@@ -21738,7 +22664,7 @@ static PyType_Slot _operator_type_slots[] = {
 
 static PyType_Spec _operator_type_spec = {
     "ast.operator",
-    sizeof(struct _object),
+    sizeof(struct _simple_object),
     0,
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _operator_type_slots
@@ -21779,12 +22705,17 @@ static void Add_dealloc(PyObject *self) {
     Py_DECREF(type);
 }
 
+static PyGetSetDef Add_getset[] = {
+    {0}
+};
+
 static PyMemberDef Add_members[] = {
     {0}
 };
 
 static PyType_Slot _Add_type_slots[] = {
     {Py_tp_dealloc, &Add_dealloc},
+    {Py_tp_getset, Add_getset},
     {Py_tp_members, Add_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "Add"},
@@ -21794,7 +22725,7 @@ static PyType_Slot _Add_type_slots[] = {
 
 static PyType_Spec _Add_type_spec = {
     "ast.Add",
-    sizeof(struct _object),
+    sizeof(struct _simple_object),
     0,
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _Add_type_slots
@@ -21835,12 +22766,17 @@ static void Sub_dealloc(PyObject *self) {
     Py_DECREF(type);
 }
 
+static PyGetSetDef Sub_getset[] = {
+    {0}
+};
+
 static PyMemberDef Sub_members[] = {
     {0}
 };
 
 static PyType_Slot _Sub_type_slots[] = {
     {Py_tp_dealloc, &Sub_dealloc},
+    {Py_tp_getset, Sub_getset},
     {Py_tp_members, Sub_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "Sub"},
@@ -21850,7 +22786,7 @@ static PyType_Slot _Sub_type_slots[] = {
 
 static PyType_Spec _Sub_type_spec = {
     "ast.Sub",
-    sizeof(struct _object),
+    sizeof(struct _simple_object),
     0,
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _Sub_type_slots
@@ -21891,12 +22827,17 @@ static void Mult_dealloc(PyObject *self) {
     Py_DECREF(type);
 }
 
+static PyGetSetDef Mult_getset[] = {
+    {0}
+};
+
 static PyMemberDef Mult_members[] = {
     {0}
 };
 
 static PyType_Slot _Mult_type_slots[] = {
     {Py_tp_dealloc, &Mult_dealloc},
+    {Py_tp_getset, Mult_getset},
     {Py_tp_members, Mult_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "Mult"},
@@ -21906,7 +22847,7 @@ static PyType_Slot _Mult_type_slots[] = {
 
 static PyType_Spec _Mult_type_spec = {
     "ast.Mult",
-    sizeof(struct _object),
+    sizeof(struct _simple_object),
     0,
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _Mult_type_slots
@@ -21947,12 +22888,17 @@ static void MatMult_dealloc(PyObject *self) {
     Py_DECREF(type);
 }
 
+static PyGetSetDef MatMult_getset[] = {
+    {0}
+};
+
 static PyMemberDef MatMult_members[] = {
     {0}
 };
 
 static PyType_Slot _MatMult_type_slots[] = {
     {Py_tp_dealloc, &MatMult_dealloc},
+    {Py_tp_getset, MatMult_getset},
     {Py_tp_members, MatMult_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "MatMult"},
@@ -21962,7 +22908,7 @@ static PyType_Slot _MatMult_type_slots[] = {
 
 static PyType_Spec _MatMult_type_spec = {
     "ast.MatMult",
-    sizeof(struct _object),
+    sizeof(struct _simple_object),
     0,
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _MatMult_type_slots
@@ -22003,12 +22949,17 @@ static void Div_dealloc(PyObject *self) {
     Py_DECREF(type);
 }
 
+static PyGetSetDef Div_getset[] = {
+    {0}
+};
+
 static PyMemberDef Div_members[] = {
     {0}
 };
 
 static PyType_Slot _Div_type_slots[] = {
     {Py_tp_dealloc, &Div_dealloc},
+    {Py_tp_getset, Div_getset},
     {Py_tp_members, Div_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "Div"},
@@ -22018,7 +22969,7 @@ static PyType_Slot _Div_type_slots[] = {
 
 static PyType_Spec _Div_type_spec = {
     "ast.Div",
-    sizeof(struct _object),
+    sizeof(struct _simple_object),
     0,
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _Div_type_slots
@@ -22059,12 +23010,17 @@ static void Mod_dealloc(PyObject *self) {
     Py_DECREF(type);
 }
 
+static PyGetSetDef Mod_getset[] = {
+    {0}
+};
+
 static PyMemberDef Mod_members[] = {
     {0}
 };
 
 static PyType_Slot _Mod_type_slots[] = {
     {Py_tp_dealloc, &Mod_dealloc},
+    {Py_tp_getset, Mod_getset},
     {Py_tp_members, Mod_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "Mod"},
@@ -22074,7 +23030,7 @@ static PyType_Slot _Mod_type_slots[] = {
 
 static PyType_Spec _Mod_type_spec = {
     "ast.Mod",
-    sizeof(struct _object),
+    sizeof(struct _simple_object),
     0,
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _Mod_type_slots
@@ -22115,12 +23071,17 @@ static void Pow_dealloc(PyObject *self) {
     Py_DECREF(type);
 }
 
+static PyGetSetDef Pow_getset[] = {
+    {0}
+};
+
 static PyMemberDef Pow_members[] = {
     {0}
 };
 
 static PyType_Slot _Pow_type_slots[] = {
     {Py_tp_dealloc, &Pow_dealloc},
+    {Py_tp_getset, Pow_getset},
     {Py_tp_members, Pow_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "Pow"},
@@ -22130,7 +23091,7 @@ static PyType_Slot _Pow_type_slots[] = {
 
 static PyType_Spec _Pow_type_spec = {
     "ast.Pow",
-    sizeof(struct _object),
+    sizeof(struct _simple_object),
     0,
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _Pow_type_slots
@@ -22171,12 +23132,17 @@ static void LShift_dealloc(PyObject *self) {
     Py_DECREF(type);
 }
 
+static PyGetSetDef LShift_getset[] = {
+    {0}
+};
+
 static PyMemberDef LShift_members[] = {
     {0}
 };
 
 static PyType_Slot _LShift_type_slots[] = {
     {Py_tp_dealloc, &LShift_dealloc},
+    {Py_tp_getset, LShift_getset},
     {Py_tp_members, LShift_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "LShift"},
@@ -22186,7 +23152,7 @@ static PyType_Slot _LShift_type_slots[] = {
 
 static PyType_Spec _LShift_type_spec = {
     "ast.LShift",
-    sizeof(struct _object),
+    sizeof(struct _simple_object),
     0,
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _LShift_type_slots
@@ -22227,12 +23193,17 @@ static void RShift_dealloc(PyObject *self) {
     Py_DECREF(type);
 }
 
+static PyGetSetDef RShift_getset[] = {
+    {0}
+};
+
 static PyMemberDef RShift_members[] = {
     {0}
 };
 
 static PyType_Slot _RShift_type_slots[] = {
     {Py_tp_dealloc, &RShift_dealloc},
+    {Py_tp_getset, RShift_getset},
     {Py_tp_members, RShift_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "RShift"},
@@ -22242,7 +23213,7 @@ static PyType_Slot _RShift_type_slots[] = {
 
 static PyType_Spec _RShift_type_spec = {
     "ast.RShift",
-    sizeof(struct _object),
+    sizeof(struct _simple_object),
     0,
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _RShift_type_slots
@@ -22283,12 +23254,17 @@ static void BitOr_dealloc(PyObject *self) {
     Py_DECREF(type);
 }
 
+static PyGetSetDef BitOr_getset[] = {
+    {0}
+};
+
 static PyMemberDef BitOr_members[] = {
     {0}
 };
 
 static PyType_Slot _BitOr_type_slots[] = {
     {Py_tp_dealloc, &BitOr_dealloc},
+    {Py_tp_getset, BitOr_getset},
     {Py_tp_members, BitOr_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "BitOr"},
@@ -22298,7 +23274,7 @@ static PyType_Slot _BitOr_type_slots[] = {
 
 static PyType_Spec _BitOr_type_spec = {
     "ast.BitOr",
-    sizeof(struct _object),
+    sizeof(struct _simple_object),
     0,
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _BitOr_type_slots
@@ -22339,12 +23315,17 @@ static void BitXor_dealloc(PyObject *self) {
     Py_DECREF(type);
 }
 
+static PyGetSetDef BitXor_getset[] = {
+    {0}
+};
+
 static PyMemberDef BitXor_members[] = {
     {0}
 };
 
 static PyType_Slot _BitXor_type_slots[] = {
     {Py_tp_dealloc, &BitXor_dealloc},
+    {Py_tp_getset, BitXor_getset},
     {Py_tp_members, BitXor_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "BitXor"},
@@ -22354,7 +23335,7 @@ static PyType_Slot _BitXor_type_slots[] = {
 
 static PyType_Spec _BitXor_type_spec = {
     "ast.BitXor",
-    sizeof(struct _object),
+    sizeof(struct _simple_object),
     0,
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _BitXor_type_slots
@@ -22395,12 +23376,17 @@ static void BitAnd_dealloc(PyObject *self) {
     Py_DECREF(type);
 }
 
+static PyGetSetDef BitAnd_getset[] = {
+    {0}
+};
+
 static PyMemberDef BitAnd_members[] = {
     {0}
 };
 
 static PyType_Slot _BitAnd_type_slots[] = {
     {Py_tp_dealloc, &BitAnd_dealloc},
+    {Py_tp_getset, BitAnd_getset},
     {Py_tp_members, BitAnd_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "BitAnd"},
@@ -22410,7 +23396,7 @@ static PyType_Slot _BitAnd_type_slots[] = {
 
 static PyType_Spec _BitAnd_type_spec = {
     "ast.BitAnd",
-    sizeof(struct _object),
+    sizeof(struct _simple_object),
     0,
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _BitAnd_type_slots
@@ -22451,12 +23437,17 @@ static void FloorDiv_dealloc(PyObject *self) {
     Py_DECREF(type);
 }
 
+static PyGetSetDef FloorDiv_getset[] = {
+    {0}
+};
+
 static PyMemberDef FloorDiv_members[] = {
     {0}
 };
 
 static PyType_Slot _FloorDiv_type_slots[] = {
     {Py_tp_dealloc, &FloorDiv_dealloc},
+    {Py_tp_getset, FloorDiv_getset},
     {Py_tp_members, FloorDiv_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "FloorDiv"},
@@ -22466,7 +23457,7 @@ static PyType_Slot _FloorDiv_type_slots[] = {
 
 static PyType_Spec _FloorDiv_type_spec = {
     "ast.FloorDiv",
-    sizeof(struct _object),
+    sizeof(struct _simple_object),
     0,
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _FloorDiv_type_slots
@@ -22506,12 +23497,17 @@ static void unaryop_dealloc(PyObject *self) {
     Py_DECREF(type);
 }
 
+static PyGetSetDef unaryop_getset[] = {
+    {0}
+};
+
 static PyMemberDef unaryop_members[] = {
     {0}
 };
 
 static PyType_Slot _unaryop_type_slots[] = {
     {Py_tp_dealloc, &unaryop_dealloc},
+    {Py_tp_getset, unaryop_getset},
     {Py_tp_members, unaryop_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "unaryop = Invert | Not | UAdd | USub"},
@@ -22521,7 +23517,7 @@ static PyType_Slot _unaryop_type_slots[] = {
 
 static PyType_Spec _unaryop_type_spec = {
     "ast.unaryop",
-    sizeof(struct _object),
+    sizeof(struct _simple_object),
     0,
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _unaryop_type_slots
@@ -22562,12 +23558,17 @@ static void Invert_dealloc(PyObject *self) {
     Py_DECREF(type);
 }
 
+static PyGetSetDef Invert_getset[] = {
+    {0}
+};
+
 static PyMemberDef Invert_members[] = {
     {0}
 };
 
 static PyType_Slot _Invert_type_slots[] = {
     {Py_tp_dealloc, &Invert_dealloc},
+    {Py_tp_getset, Invert_getset},
     {Py_tp_members, Invert_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "Invert"},
@@ -22577,7 +23578,7 @@ static PyType_Slot _Invert_type_slots[] = {
 
 static PyType_Spec _Invert_type_spec = {
     "ast.Invert",
-    sizeof(struct _object),
+    sizeof(struct _simple_object),
     0,
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _Invert_type_slots
@@ -22618,12 +23619,17 @@ static void Not_dealloc(PyObject *self) {
     Py_DECREF(type);
 }
 
+static PyGetSetDef Not_getset[] = {
+    {0}
+};
+
 static PyMemberDef Not_members[] = {
     {0}
 };
 
 static PyType_Slot _Not_type_slots[] = {
     {Py_tp_dealloc, &Not_dealloc},
+    {Py_tp_getset, Not_getset},
     {Py_tp_members, Not_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "Not"},
@@ -22633,7 +23639,7 @@ static PyType_Slot _Not_type_slots[] = {
 
 static PyType_Spec _Not_type_spec = {
     "ast.Not",
-    sizeof(struct _object),
+    sizeof(struct _simple_object),
     0,
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _Not_type_slots
@@ -22674,12 +23680,17 @@ static void UAdd_dealloc(PyObject *self) {
     Py_DECREF(type);
 }
 
+static PyGetSetDef UAdd_getset[] = {
+    {0}
+};
+
 static PyMemberDef UAdd_members[] = {
     {0}
 };
 
 static PyType_Slot _UAdd_type_slots[] = {
     {Py_tp_dealloc, &UAdd_dealloc},
+    {Py_tp_getset, UAdd_getset},
     {Py_tp_members, UAdd_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "UAdd"},
@@ -22689,7 +23700,7 @@ static PyType_Slot _UAdd_type_slots[] = {
 
 static PyType_Spec _UAdd_type_spec = {
     "ast.UAdd",
-    sizeof(struct _object),
+    sizeof(struct _simple_object),
     0,
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _UAdd_type_slots
@@ -22730,12 +23741,17 @@ static void USub_dealloc(PyObject *self) {
     Py_DECREF(type);
 }
 
+static PyGetSetDef USub_getset[] = {
+    {0}
+};
+
 static PyMemberDef USub_members[] = {
     {0}
 };
 
 static PyType_Slot _USub_type_slots[] = {
     {Py_tp_dealloc, &USub_dealloc},
+    {Py_tp_getset, USub_getset},
     {Py_tp_members, USub_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "USub"},
@@ -22745,7 +23761,7 @@ static PyType_Slot _USub_type_slots[] = {
 
 static PyType_Spec _USub_type_spec = {
     "ast.USub",
-    sizeof(struct _object),
+    sizeof(struct _simple_object),
     0,
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _USub_type_slots
@@ -22785,12 +23801,17 @@ static void cmpop_dealloc(PyObject *self) {
     Py_DECREF(type);
 }
 
+static PyGetSetDef cmpop_getset[] = {
+    {0}
+};
+
 static PyMemberDef cmpop_members[] = {
     {0}
 };
 
 static PyType_Slot _cmpop_type_slots[] = {
     {Py_tp_dealloc, &cmpop_dealloc},
+    {Py_tp_getset, cmpop_getset},
     {Py_tp_members, cmpop_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "cmpop = Eq | NotEq | Lt | LtE | Gt | GtE | Is | IsNot | In | NotIn"},
@@ -22800,7 +23821,7 @@ static PyType_Slot _cmpop_type_slots[] = {
 
 static PyType_Spec _cmpop_type_spec = {
     "ast.cmpop",
-    sizeof(struct _object),
+    sizeof(struct _simple_object),
     0,
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _cmpop_type_slots
@@ -22841,12 +23862,17 @@ static void Eq_dealloc(PyObject *self) {
     Py_DECREF(type);
 }
 
+static PyGetSetDef Eq_getset[] = {
+    {0}
+};
+
 static PyMemberDef Eq_members[] = {
     {0}
 };
 
 static PyType_Slot _Eq_type_slots[] = {
     {Py_tp_dealloc, &Eq_dealloc},
+    {Py_tp_getset, Eq_getset},
     {Py_tp_members, Eq_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "Eq"},
@@ -22856,7 +23882,7 @@ static PyType_Slot _Eq_type_slots[] = {
 
 static PyType_Spec _Eq_type_spec = {
     "ast.Eq",
-    sizeof(struct _object),
+    sizeof(struct _simple_object),
     0,
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _Eq_type_slots
@@ -22897,12 +23923,17 @@ static void NotEq_dealloc(PyObject *self) {
     Py_DECREF(type);
 }
 
+static PyGetSetDef NotEq_getset[] = {
+    {0}
+};
+
 static PyMemberDef NotEq_members[] = {
     {0}
 };
 
 static PyType_Slot _NotEq_type_slots[] = {
     {Py_tp_dealloc, &NotEq_dealloc},
+    {Py_tp_getset, NotEq_getset},
     {Py_tp_members, NotEq_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "NotEq"},
@@ -22912,7 +23943,7 @@ static PyType_Slot _NotEq_type_slots[] = {
 
 static PyType_Spec _NotEq_type_spec = {
     "ast.NotEq",
-    sizeof(struct _object),
+    sizeof(struct _simple_object),
     0,
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _NotEq_type_slots
@@ -22953,12 +23984,17 @@ static void Lt_dealloc(PyObject *self) {
     Py_DECREF(type);
 }
 
+static PyGetSetDef Lt_getset[] = {
+    {0}
+};
+
 static PyMemberDef Lt_members[] = {
     {0}
 };
 
 static PyType_Slot _Lt_type_slots[] = {
     {Py_tp_dealloc, &Lt_dealloc},
+    {Py_tp_getset, Lt_getset},
     {Py_tp_members, Lt_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "Lt"},
@@ -22968,7 +24004,7 @@ static PyType_Slot _Lt_type_slots[] = {
 
 static PyType_Spec _Lt_type_spec = {
     "ast.Lt",
-    sizeof(struct _object),
+    sizeof(struct _simple_object),
     0,
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _Lt_type_slots
@@ -23009,12 +24045,17 @@ static void LtE_dealloc(PyObject *self) {
     Py_DECREF(type);
 }
 
+static PyGetSetDef LtE_getset[] = {
+    {0}
+};
+
 static PyMemberDef LtE_members[] = {
     {0}
 };
 
 static PyType_Slot _LtE_type_slots[] = {
     {Py_tp_dealloc, &LtE_dealloc},
+    {Py_tp_getset, LtE_getset},
     {Py_tp_members, LtE_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "LtE"},
@@ -23024,7 +24065,7 @@ static PyType_Slot _LtE_type_slots[] = {
 
 static PyType_Spec _LtE_type_spec = {
     "ast.LtE",
-    sizeof(struct _object),
+    sizeof(struct _simple_object),
     0,
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _LtE_type_slots
@@ -23065,12 +24106,17 @@ static void Gt_dealloc(PyObject *self) {
     Py_DECREF(type);
 }
 
+static PyGetSetDef Gt_getset[] = {
+    {0}
+};
+
 static PyMemberDef Gt_members[] = {
     {0}
 };
 
 static PyType_Slot _Gt_type_slots[] = {
     {Py_tp_dealloc, &Gt_dealloc},
+    {Py_tp_getset, Gt_getset},
     {Py_tp_members, Gt_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "Gt"},
@@ -23080,7 +24126,7 @@ static PyType_Slot _Gt_type_slots[] = {
 
 static PyType_Spec _Gt_type_spec = {
     "ast.Gt",
-    sizeof(struct _object),
+    sizeof(struct _simple_object),
     0,
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _Gt_type_slots
@@ -23121,12 +24167,17 @@ static void GtE_dealloc(PyObject *self) {
     Py_DECREF(type);
 }
 
+static PyGetSetDef GtE_getset[] = {
+    {0}
+};
+
 static PyMemberDef GtE_members[] = {
     {0}
 };
 
 static PyType_Slot _GtE_type_slots[] = {
     {Py_tp_dealloc, &GtE_dealloc},
+    {Py_tp_getset, GtE_getset},
     {Py_tp_members, GtE_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "GtE"},
@@ -23136,7 +24187,7 @@ static PyType_Slot _GtE_type_slots[] = {
 
 static PyType_Spec _GtE_type_spec = {
     "ast.GtE",
-    sizeof(struct _object),
+    sizeof(struct _simple_object),
     0,
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _GtE_type_slots
@@ -23177,12 +24228,17 @@ static void Is_dealloc(PyObject *self) {
     Py_DECREF(type);
 }
 
+static PyGetSetDef Is_getset[] = {
+    {0}
+};
+
 static PyMemberDef Is_members[] = {
     {0}
 };
 
 static PyType_Slot _Is_type_slots[] = {
     {Py_tp_dealloc, &Is_dealloc},
+    {Py_tp_getset, Is_getset},
     {Py_tp_members, Is_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "Is"},
@@ -23192,7 +24248,7 @@ static PyType_Slot _Is_type_slots[] = {
 
 static PyType_Spec _Is_type_spec = {
     "ast.Is",
-    sizeof(struct _object),
+    sizeof(struct _simple_object),
     0,
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _Is_type_slots
@@ -23233,12 +24289,17 @@ static void IsNot_dealloc(PyObject *self) {
     Py_DECREF(type);
 }
 
+static PyGetSetDef IsNot_getset[] = {
+    {0}
+};
+
 static PyMemberDef IsNot_members[] = {
     {0}
 };
 
 static PyType_Slot _IsNot_type_slots[] = {
     {Py_tp_dealloc, &IsNot_dealloc},
+    {Py_tp_getset, IsNot_getset},
     {Py_tp_members, IsNot_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "IsNot"},
@@ -23248,7 +24309,7 @@ static PyType_Slot _IsNot_type_slots[] = {
 
 static PyType_Spec _IsNot_type_spec = {
     "ast.IsNot",
-    sizeof(struct _object),
+    sizeof(struct _simple_object),
     0,
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _IsNot_type_slots
@@ -23289,12 +24350,17 @@ static void In_dealloc(PyObject *self) {
     Py_DECREF(type);
 }
 
+static PyGetSetDef In_getset[] = {
+    {0}
+};
+
 static PyMemberDef In_members[] = {
     {0}
 };
 
 static PyType_Slot _In_type_slots[] = {
     {Py_tp_dealloc, &In_dealloc},
+    {Py_tp_getset, In_getset},
     {Py_tp_members, In_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "In"},
@@ -23304,7 +24370,7 @@ static PyType_Slot _In_type_slots[] = {
 
 static PyType_Spec _In_type_spec = {
     "ast.In",
-    sizeof(struct _object),
+    sizeof(struct _simple_object),
     0,
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _In_type_slots
@@ -23345,12 +24411,17 @@ static void NotIn_dealloc(PyObject *self) {
     Py_DECREF(type);
 }
 
+static PyGetSetDef NotIn_getset[] = {
+    {0}
+};
+
 static PyMemberDef NotIn_members[] = {
     {0}
 };
 
 static PyType_Slot _NotIn_type_slots[] = {
     {Py_tp_dealloc, &NotIn_dealloc},
+    {Py_tp_getset, NotIn_getset},
     {Py_tp_members, NotIn_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "NotIn"},
@@ -23360,7 +24431,7 @@ static PyType_Slot _NotIn_type_slots[] = {
 
 static PyType_Spec _NotIn_type_spec = {
     "ast.NotIn",
-    sizeof(struct _object),
+    sizeof(struct _simple_object),
     0,
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     _NotIn_type_slots
@@ -23385,11 +24456,12 @@ static void comprehension_seq_dealloc(PyObject *self) {
 static PyType_Slot _PyAST_comprehension_seq_type_slots[] = {
     {Py_tp_dealloc, &comprehension_seq_dealloc},
     //{Py_tp_members, comprehension_seq_members},
+    {Py_tp_getset, seq_getsets},
     {Py_tp_free, PyObject_Free},
     {Py_sq_length, &ast_seq_len},
+    {Py_mp_length, &ast_seq_len},
     {Py_sq_item, &ast_seq_get},
     {Py_sq_contains, &ast_seq_contains},
-    {Py_mp_length, &ast_seq_len},
     {0},
 };
 
@@ -23401,8 +24473,8 @@ static PyType_Spec _comprehension_seq_type_spec = {
     _PyAST_comprehension_seq_type_slots
 };
 
-asdl_comprehension_seq *_PyAst_comprehension_seq_Copy(asdl_comprehension_seq
-                                                      *seq) {
+asdl_comprehension_seq *
+_PyAst_comprehension_seq_Copy(asdl_comprehension_seq *seq) {
     struct ast_state *state = get_ast_state();
     asdl_comprehension_seq *res = PyObject_NewVar(asdl_comprehension_seq, (PyTypeObject *)state->_comprehension_seq_type, seq->size);
     if (res == NULL) {
@@ -23550,12 +24622,25 @@ static void comprehension_dealloc(PyObject *self) {
     Py_DECREF(type);
 }
 
+static PyGetSetDef comprehension_getset[] = {
+    {0}
+};
+
 static PyMemberDef comprehension_members[] = {
+    {"target", _Py_T_OBJECT, offsetof(struct _comprehension, target),
+      Py_READONLY, NULL},
+    {"iter", _Py_T_OBJECT, offsetof(struct _comprehension, iter), Py_READONLY,
+      NULL},
+    {"ifs", _Py_T_OBJECT, offsetof(struct _comprehension, ifs), Py_READONLY,
+      NULL},
+    {"is_async", _Py_T_OBJECT, offsetof(struct _comprehension, is_async),
+      Py_READONLY, NULL},
     {0}
 };
 
 static PyType_Slot _comprehension_type_slots[] = {
     {Py_tp_dealloc, &comprehension_dealloc},
+    {Py_tp_getset, comprehension_getset},
     {Py_tp_members, comprehension_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "comprehension(expr target, expr iter, expr* ifs, int is_async)"},
@@ -23790,6 +24875,10 @@ static void ExceptHandler_dealloc(PyObject *self) {
     Py_DECREF(type);
 }
 
+static PyGetSetDef ExceptHandler_getset[] = {
+    {0}
+};
+
 static PyMemberDef ExceptHandler_members[] = {
     {"type", _Py_T_OBJECT, offsetof(struct _excepthandler,
       v.ExceptHandler.type), Py_READONLY, NULL},
@@ -23797,11 +24886,20 @@ static PyMemberDef ExceptHandler_members[] = {
       v.ExceptHandler.name), Py_READONLY, NULL},
     {"body", _Py_T_OBJECT, offsetof(struct _excepthandler,
       v.ExceptHandler.body), Py_READONLY, NULL},
+    {"lineno", Py_T_INT, offsetof(struct _excepthandler, lineno), Py_READONLY,
+      NULL},
+    {"col_offset", Py_T_INT, offsetof(struct _excepthandler, col_offset),
+      Py_READONLY, NULL},
+    {"end_lineno", Py_T_INT, offsetof(struct _excepthandler, end_lineno),
+      Py_READONLY, NULL},
+    {"end_col_offset", Py_T_INT, offsetof(struct _excepthandler,
+      end_col_offset), Py_READONLY, NULL},
     {0}
 };
 
 static PyType_Slot _ExceptHandler_type_slots[] = {
     {Py_tp_dealloc, &ExceptHandler_dealloc},
+    {Py_tp_getset, ExceptHandler_getset},
     {Py_tp_members, ExceptHandler_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "ExceptHandler(expr? type, identifier? name, stmt* body)"},
@@ -23952,12 +25050,17 @@ static void excepthandler_dealloc(PyObject *self) {
     Py_DECREF(type);
 }
 
+static PyGetSetDef excepthandler_getset[] = {
+    {0}
+};
+
 static PyMemberDef excepthandler_members[] = {
     {0}
 };
 
 static PyType_Slot _excepthandler_type_slots[] = {
     {Py_tp_dealloc, &excepthandler_dealloc},
+    {Py_tp_getset, excepthandler_getset},
     {Py_tp_members, excepthandler_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "excepthandler = ExceptHandler(expr? type, identifier? name, stmt* body)"},
@@ -23992,11 +25095,12 @@ static void excepthandler_seq_dealloc(PyObject *self) {
 static PyType_Slot _PyAST_excepthandler_seq_type_slots[] = {
     {Py_tp_dealloc, &excepthandler_seq_dealloc},
     //{Py_tp_members, excepthandler_seq_members},
+    {Py_tp_getset, seq_getsets},
     {Py_tp_free, PyObject_Free},
     {Py_sq_length, &ast_seq_len},
+    {Py_mp_length, &ast_seq_len},
     {Py_sq_item, &ast_seq_get},
     {Py_sq_contains, &ast_seq_contains},
-    {Py_mp_length, &ast_seq_len},
     {0},
 };
 
@@ -24008,8 +25112,8 @@ static PyType_Spec _excepthandler_seq_type_spec = {
     _PyAST_excepthandler_seq_type_slots
 };
 
-asdl_excepthandler_seq *_PyAst_excepthandler_seq_Copy(asdl_excepthandler_seq
-                                                      *seq) {
+asdl_excepthandler_seq *
+_PyAst_excepthandler_seq_Copy(asdl_excepthandler_seq *seq) {
     struct ast_state *state = get_ast_state();
     asdl_excepthandler_seq *res = PyObject_NewVar(asdl_excepthandler_seq, (PyTypeObject *)state->_excepthandler_seq_type, seq->size);
     if (res == NULL) {
@@ -24049,11 +25153,12 @@ static void arguments_seq_dealloc(PyObject *self) {
 static PyType_Slot _PyAST_arguments_seq_type_slots[] = {
     {Py_tp_dealloc, &arguments_seq_dealloc},
     //{Py_tp_members, arguments_seq_members},
+    {Py_tp_getset, seq_getsets},
     {Py_tp_free, PyObject_Free},
     {Py_sq_length, &ast_seq_len},
+    {Py_mp_length, &ast_seq_len},
     {Py_sq_item, &ast_seq_get},
     {Py_sq_contains, &ast_seq_contains},
-    {Py_mp_length, &ast_seq_len},
     {0},
 };
 
@@ -24065,7 +25170,8 @@ static PyType_Spec _arguments_seq_type_spec = {
     _PyAST_arguments_seq_type_slots
 };
 
-asdl_arguments_seq *_PyAst_arguments_seq_Copy(asdl_arguments_seq *seq) {
+asdl_arguments_seq *
+_PyAst_arguments_seq_Copy(asdl_arguments_seq *seq) {
     struct ast_state *state = get_ast_state();
     asdl_arguments_seq *res = PyObject_NewVar(asdl_arguments_seq, (PyTypeObject *)state->_arguments_seq_type, seq->size);
     if (res == NULL) {
@@ -24279,12 +25385,31 @@ static void arguments_dealloc(PyObject *self) {
     Py_DECREF(type);
 }
 
+static PyGetSetDef arguments_getset[] = {
+    {0}
+};
+
 static PyMemberDef arguments_members[] = {
+    {"posonlyargs", _Py_T_OBJECT, offsetof(struct _arguments, posonlyargs),
+      Py_READONLY, NULL},
+    {"args", _Py_T_OBJECT, offsetof(struct _arguments, args), Py_READONLY,
+      NULL},
+    {"vararg", _Py_T_OBJECT, offsetof(struct _arguments, vararg), Py_READONLY,
+      NULL},
+    {"kwonlyargs", _Py_T_OBJECT, offsetof(struct _arguments, kwonlyargs),
+      Py_READONLY, NULL},
+    {"kw_defaults", _Py_T_OBJECT, offsetof(struct _arguments, kw_defaults),
+      Py_READONLY, NULL},
+    {"kwarg", _Py_T_OBJECT, offsetof(struct _arguments, kwarg), Py_READONLY,
+      NULL},
+    {"defaults", _Py_T_OBJECT, offsetof(struct _arguments, defaults),
+      Py_READONLY, NULL},
     {0}
 };
 
 static PyType_Slot _arguments_type_slots[] = {
     {Py_tp_dealloc, &arguments_dealloc},
+    {Py_tp_getset, arguments_getset},
     {Py_tp_members, arguments_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "arguments(arg* posonlyargs, arg* args, arg? vararg, arg* kwonlyargs, expr* kw_defaults, arg? kwarg, expr* defaults)"},
@@ -24374,11 +25499,12 @@ static void arg_seq_dealloc(PyObject *self) {
 static PyType_Slot _PyAST_arg_seq_type_slots[] = {
     {Py_tp_dealloc, &arg_seq_dealloc},
     //{Py_tp_members, arg_seq_members},
+    {Py_tp_getset, seq_getsets},
     {Py_tp_free, PyObject_Free},
     {Py_sq_length, &ast_seq_len},
+    {Py_mp_length, &ast_seq_len},
     {Py_sq_item, &ast_seq_get},
     {Py_sq_contains, &ast_seq_contains},
-    {Py_mp_length, &ast_seq_len},
     {0},
 };
 
@@ -24390,7 +25516,8 @@ static PyType_Spec _arg_seq_type_spec = {
     _PyAST_arg_seq_type_slots
 };
 
-asdl_arg_seq *_PyAst_arg_seq_Copy(asdl_arg_seq *seq) {
+asdl_arg_seq *
+_PyAst_arg_seq_Copy(asdl_arg_seq *seq) {
     struct ast_state *state = get_ast_state();
     asdl_arg_seq *res = PyObject_NewVar(asdl_arg_seq, (PyTypeObject *)state->_arg_seq_type, seq->size);
     if (res == NULL) {
@@ -24514,12 +25641,29 @@ static void arg_dealloc(PyObject *self) {
     Py_DECREF(type);
 }
 
+static PyGetSetDef arg_getset[] = {
+    {0}
+};
+
 static PyMemberDef arg_members[] = {
+    {"arg", _Py_T_OBJECT, offsetof(struct _arg, arg), Py_READONLY, NULL},
+    {"annotation", _Py_T_OBJECT, offsetof(struct _arg, annotation),
+      Py_READONLY, NULL},
+    {"type_comment", _Py_T_OBJECT, offsetof(struct _arg, type_comment),
+      Py_READONLY, NULL},
+    {"lineno", Py_T_INT, offsetof(struct _arg, lineno), Py_READONLY, NULL},
+    {"col_offset", Py_T_INT, offsetof(struct _arg, col_offset), Py_READONLY,
+      NULL},
+    {"end_lineno", Py_T_INT, offsetof(struct _arg, end_lineno), Py_READONLY,
+      NULL},
+    {"end_col_offset", Py_T_INT, offsetof(struct _arg, end_col_offset),
+      Py_READONLY, NULL},
     {0}
 };
 
 static PyType_Slot _arg_type_slots[] = {
     {Py_tp_dealloc, &arg_dealloc},
+    {Py_tp_getset, arg_getset},
     {Py_tp_members, arg_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "arg(identifier arg, expr? annotation, string? type_comment)"},
@@ -24588,11 +25732,12 @@ static void keyword_seq_dealloc(PyObject *self) {
 static PyType_Slot _PyAST_keyword_seq_type_slots[] = {
     {Py_tp_dealloc, &keyword_seq_dealloc},
     //{Py_tp_members, keyword_seq_members},
+    {Py_tp_getset, seq_getsets},
     {Py_tp_free, PyObject_Free},
     {Py_sq_length, &ast_seq_len},
+    {Py_mp_length, &ast_seq_len},
     {Py_sq_item, &ast_seq_get},
     {Py_sq_contains, &ast_seq_contains},
-    {Py_mp_length, &ast_seq_len},
     {0},
 };
 
@@ -24604,7 +25749,8 @@ static PyType_Spec _keyword_seq_type_spec = {
     _PyAST_keyword_seq_type_slots
 };
 
-asdl_keyword_seq *_PyAst_keyword_seq_Copy(asdl_keyword_seq *seq) {
+asdl_keyword_seq *
+_PyAst_keyword_seq_Copy(asdl_keyword_seq *seq) {
     struct ast_state *state = get_ast_state();
     asdl_keyword_seq *res = PyObject_NewVar(asdl_keyword_seq, (PyTypeObject *)state->_keyword_seq_type, seq->size);
     if (res == NULL) {
@@ -24709,12 +25855,27 @@ static void keyword_dealloc(PyObject *self) {
     Py_DECREF(type);
 }
 
+static PyGetSetDef keyword_getset[] = {
+    {0}
+};
+
 static PyMemberDef keyword_members[] = {
+    {"arg", _Py_T_OBJECT, offsetof(struct _keyword, arg), Py_READONLY, NULL},
+    {"value", _Py_T_OBJECT, offsetof(struct _keyword, value), Py_READONLY,
+      NULL},
+    {"lineno", Py_T_INT, offsetof(struct _keyword, lineno), Py_READONLY, NULL},
+    {"col_offset", Py_T_INT, offsetof(struct _keyword, col_offset),
+      Py_READONLY, NULL},
+    {"end_lineno", Py_T_INT, offsetof(struct _keyword, end_lineno),
+      Py_READONLY, NULL},
+    {"end_col_offset", Py_T_INT, offsetof(struct _keyword, end_col_offset),
+      Py_READONLY, NULL},
     {0}
 };
 
 static PyType_Slot _keyword_type_slots[] = {
     {Py_tp_dealloc, &keyword_dealloc},
+    {Py_tp_getset, keyword_getset},
     {Py_tp_members, keyword_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "keyword(identifier? arg, expr value)"},
@@ -24778,11 +25939,12 @@ static void alias_seq_dealloc(PyObject *self) {
 static PyType_Slot _PyAST_alias_seq_type_slots[] = {
     {Py_tp_dealloc, &alias_seq_dealloc},
     //{Py_tp_members, alias_seq_members},
+    {Py_tp_getset, seq_getsets},
     {Py_tp_free, PyObject_Free},
     {Py_sq_length, &ast_seq_len},
+    {Py_mp_length, &ast_seq_len},
     {Py_sq_item, &ast_seq_get},
     {Py_sq_contains, &ast_seq_contains},
-    {Py_mp_length, &ast_seq_len},
     {0},
 };
 
@@ -24794,7 +25956,8 @@ static PyType_Spec _alias_seq_type_spec = {
     _PyAST_alias_seq_type_slots
 };
 
-asdl_alias_seq *_PyAst_alias_seq_Copy(asdl_alias_seq *seq) {
+asdl_alias_seq *
+_PyAst_alias_seq_Copy(asdl_alias_seq *seq) {
     struct ast_state *state = get_ast_state();
     asdl_alias_seq *res = PyObject_NewVar(asdl_alias_seq, (PyTypeObject *)state->_alias_seq_type, seq->size);
     if (res == NULL) {
@@ -24898,12 +26061,27 @@ static void alias_dealloc(PyObject *self) {
     Py_DECREF(type);
 }
 
+static PyGetSetDef alias_getset[] = {
+    {0}
+};
+
 static PyMemberDef alias_members[] = {
+    {"name", _Py_T_OBJECT, offsetof(struct _alias, name), Py_READONLY, NULL},
+    {"asname", _Py_T_OBJECT, offsetof(struct _alias, asname), Py_READONLY,
+      NULL},
+    {"lineno", Py_T_INT, offsetof(struct _alias, lineno), Py_READONLY, NULL},
+    {"col_offset", Py_T_INT, offsetof(struct _alias, col_offset), Py_READONLY,
+      NULL},
+    {"end_lineno", Py_T_INT, offsetof(struct _alias, end_lineno), Py_READONLY,
+      NULL},
+    {"end_col_offset", Py_T_INT, offsetof(struct _alias, end_col_offset),
+      Py_READONLY, NULL},
     {0}
 };
 
 static PyType_Slot _alias_type_slots[] = {
     {Py_tp_dealloc, &alias_dealloc},
+    {Py_tp_getset, alias_getset},
     {Py_tp_members, alias_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "alias(identifier name, identifier? asname)"},
@@ -24967,11 +26145,12 @@ static void withitem_seq_dealloc(PyObject *self) {
 static PyType_Slot _PyAST_withitem_seq_type_slots[] = {
     {Py_tp_dealloc, &withitem_seq_dealloc},
     //{Py_tp_members, withitem_seq_members},
+    {Py_tp_getset, seq_getsets},
     {Py_tp_free, PyObject_Free},
     {Py_sq_length, &ast_seq_len},
+    {Py_mp_length, &ast_seq_len},
     {Py_sq_item, &ast_seq_get},
     {Py_sq_contains, &ast_seq_contains},
-    {Py_mp_length, &ast_seq_len},
     {0},
 };
 
@@ -24983,7 +26162,8 @@ static PyType_Spec _withitem_seq_type_spec = {
     _PyAST_withitem_seq_type_slots
 };
 
-asdl_withitem_seq *_PyAst_withitem_seq_Copy(asdl_withitem_seq *seq) {
+asdl_withitem_seq *
+_PyAst_withitem_seq_Copy(asdl_withitem_seq *seq) {
     struct ast_state *state = get_ast_state();
     asdl_withitem_seq *res = PyObject_NewVar(asdl_withitem_seq, (PyTypeObject *)state->_withitem_seq_type, seq->size);
     if (res == NULL) {
@@ -25088,12 +26268,21 @@ static void withitem_dealloc(PyObject *self) {
     Py_DECREF(type);
 }
 
+static PyGetSetDef withitem_getset[] = {
+    {0}
+};
+
 static PyMemberDef withitem_members[] = {
+    {"context_expr", _Py_T_OBJECT, offsetof(struct _withitem, context_expr),
+      Py_READONLY, NULL},
+    {"optional_vars", _Py_T_OBJECT, offsetof(struct _withitem, optional_vars),
+      Py_READONLY, NULL},
     {0}
 };
 
 static PyType_Slot _withitem_type_slots[] = {
     {Py_tp_dealloc, &withitem_dealloc},
+    {Py_tp_getset, withitem_getset},
     {Py_tp_members, withitem_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "withitem(expr context_expr, expr? optional_vars)"},
@@ -25153,11 +26342,12 @@ static void match_case_seq_dealloc(PyObject *self) {
 static PyType_Slot _PyAST_match_case_seq_type_slots[] = {
     {Py_tp_dealloc, &match_case_seq_dealloc},
     //{Py_tp_members, match_case_seq_members},
+    {Py_tp_getset, seq_getsets},
     {Py_tp_free, PyObject_Free},
     {Py_sq_length, &ast_seq_len},
+    {Py_mp_length, &ast_seq_len},
     {Py_sq_item, &ast_seq_get},
     {Py_sq_contains, &ast_seq_contains},
-    {Py_mp_length, &ast_seq_len},
     {0},
 };
 
@@ -25169,7 +26359,8 @@ static PyType_Spec _match_case_seq_type_spec = {
     _PyAST_match_case_seq_type_slots
 };
 
-asdl_match_case_seq *_PyAst_match_case_seq_Copy(asdl_match_case_seq *seq) {
+asdl_match_case_seq *
+_PyAst_match_case_seq_Copy(asdl_match_case_seq *seq) {
     struct ast_state *state = get_ast_state();
     asdl_match_case_seq *res = PyObject_NewVar(asdl_match_case_seq, (PyTypeObject *)state->_match_case_seq_type, seq->size);
     if (res == NULL) {
@@ -25295,12 +26486,23 @@ static void match_case_dealloc(PyObject *self) {
     Py_DECREF(type);
 }
 
+static PyGetSetDef match_case_getset[] = {
+    {0}
+};
+
 static PyMemberDef match_case_members[] = {
+    {"pattern", _Py_T_OBJECT, offsetof(struct _match_case, pattern),
+      Py_READONLY, NULL},
+    {"guard", _Py_T_OBJECT, offsetof(struct _match_case, guard), Py_READONLY,
+      NULL},
+    {"body", _Py_T_OBJECT, offsetof(struct _match_case, body), Py_READONLY,
+      NULL},
     {0}
 };
 
 static PyType_Slot _match_case_type_slots[] = {
     {Py_tp_dealloc, &match_case_dealloc},
+    {Py_tp_getset, match_case_getset},
     {Py_tp_members, match_case_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "match_case(pattern pattern, expr? guard, stmt* body)"},
@@ -25491,14 +26693,26 @@ static void MatchValue_dealloc(PyObject *self) {
     Py_DECREF(type);
 }
 
+static PyGetSetDef MatchValue_getset[] = {
+    {0}
+};
+
 static PyMemberDef MatchValue_members[] = {
     {"value", _Py_T_OBJECT, offsetof(struct _pattern, v.MatchValue.value),
+      Py_READONLY, NULL},
+    {"lineno", Py_T_INT, offsetof(struct _pattern, lineno), Py_READONLY, NULL},
+    {"col_offset", Py_T_INT, offsetof(struct _pattern, col_offset),
+      Py_READONLY, NULL},
+    {"end_lineno", Py_T_INT, offsetof(struct _pattern, end_lineno),
+      Py_READONLY, NULL},
+    {"end_col_offset", Py_T_INT, offsetof(struct _pattern, end_col_offset),
       Py_READONLY, NULL},
     {0}
 };
 
 static PyType_Slot _MatchValue_type_slots[] = {
     {Py_tp_dealloc, &MatchValue_dealloc},
+    {Py_tp_getset, MatchValue_getset},
     {Py_tp_members, MatchValue_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "MatchValue(expr value)"},
@@ -25682,14 +26896,26 @@ static void MatchSingleton_dealloc(PyObject *self) {
     Py_DECREF(type);
 }
 
+static PyGetSetDef MatchSingleton_getset[] = {
+    {0}
+};
+
 static PyMemberDef MatchSingleton_members[] = {
     {"value", _Py_T_OBJECT, offsetof(struct _pattern, v.MatchSingleton.value),
+      Py_READONLY, NULL},
+    {"lineno", Py_T_INT, offsetof(struct _pattern, lineno), Py_READONLY, NULL},
+    {"col_offset", Py_T_INT, offsetof(struct _pattern, col_offset),
+      Py_READONLY, NULL},
+    {"end_lineno", Py_T_INT, offsetof(struct _pattern, end_lineno),
+      Py_READONLY, NULL},
+    {"end_col_offset", Py_T_INT, offsetof(struct _pattern, end_col_offset),
       Py_READONLY, NULL},
     {0}
 };
 
 static PyType_Slot _MatchSingleton_type_slots[] = {
     {Py_tp_dealloc, &MatchSingleton_dealloc},
+    {Py_tp_getset, MatchSingleton_getset},
     {Py_tp_members, MatchSingleton_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "MatchSingleton(constant value)"},
@@ -25875,14 +27101,26 @@ static void MatchSequence_dealloc(PyObject *self) {
     Py_DECREF(type);
 }
 
+static PyGetSetDef MatchSequence_getset[] = {
+    {0}
+};
+
 static PyMemberDef MatchSequence_members[] = {
     {"patterns", _Py_T_OBJECT, offsetof(struct _pattern,
       v.MatchSequence.patterns), Py_READONLY, NULL},
+    {"lineno", Py_T_INT, offsetof(struct _pattern, lineno), Py_READONLY, NULL},
+    {"col_offset", Py_T_INT, offsetof(struct _pattern, col_offset),
+      Py_READONLY, NULL},
+    {"end_lineno", Py_T_INT, offsetof(struct _pattern, end_lineno),
+      Py_READONLY, NULL},
+    {"end_col_offset", Py_T_INT, offsetof(struct _pattern, end_col_offset),
+      Py_READONLY, NULL},
     {0}
 };
 
 static PyType_Slot _MatchSequence_type_slots[] = {
     {Py_tp_dealloc, &MatchSequence_dealloc},
+    {Py_tp_getset, MatchSequence_getset},
     {Py_tp_members, MatchSequence_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "MatchSequence(pattern* patterns)"},
@@ -26111,6 +27349,10 @@ static void MatchMapping_dealloc(PyObject *self) {
     Py_DECREF(type);
 }
 
+static PyGetSetDef MatchMapping_getset[] = {
+    {0}
+};
+
 static PyMemberDef MatchMapping_members[] = {
     {"keys", _Py_T_OBJECT, offsetof(struct _pattern, v.MatchMapping.keys),
       Py_READONLY, NULL},
@@ -26118,11 +27360,19 @@ static PyMemberDef MatchMapping_members[] = {
       v.MatchMapping.patterns), Py_READONLY, NULL},
     {"rest", _Py_T_OBJECT, offsetof(struct _pattern, v.MatchMapping.rest),
       Py_READONLY, NULL},
+    {"lineno", Py_T_INT, offsetof(struct _pattern, lineno), Py_READONLY, NULL},
+    {"col_offset", Py_T_INT, offsetof(struct _pattern, col_offset),
+      Py_READONLY, NULL},
+    {"end_lineno", Py_T_INT, offsetof(struct _pattern, end_lineno),
+      Py_READONLY, NULL},
+    {"end_col_offset", Py_T_INT, offsetof(struct _pattern, end_col_offset),
+      Py_READONLY, NULL},
     {0}
 };
 
 static PyType_Slot _MatchMapping_type_slots[] = {
     {Py_tp_dealloc, &MatchMapping_dealloc},
+    {Py_tp_getset, MatchMapping_getset},
     {Py_tp_members, MatchMapping_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "MatchMapping(expr* keys, pattern* patterns, identifier? rest)"},
@@ -26386,6 +27636,10 @@ static void MatchClass_dealloc(PyObject *self) {
     Py_DECREF(type);
 }
 
+static PyGetSetDef MatchClass_getset[] = {
+    {0}
+};
+
 static PyMemberDef MatchClass_members[] = {
     {"cls", _Py_T_OBJECT, offsetof(struct _pattern, v.MatchClass.cls),
       Py_READONLY, NULL},
@@ -26395,11 +27649,19 @@ static PyMemberDef MatchClass_members[] = {
       v.MatchClass.kwd_attrs), Py_READONLY, NULL},
     {"kwd_patterns", _Py_T_OBJECT, offsetof(struct _pattern,
       v.MatchClass.kwd_patterns), Py_READONLY, NULL},
+    {"lineno", Py_T_INT, offsetof(struct _pattern, lineno), Py_READONLY, NULL},
+    {"col_offset", Py_T_INT, offsetof(struct _pattern, col_offset),
+      Py_READONLY, NULL},
+    {"end_lineno", Py_T_INT, offsetof(struct _pattern, end_lineno),
+      Py_READONLY, NULL},
+    {"end_col_offset", Py_T_INT, offsetof(struct _pattern, end_col_offset),
+      Py_READONLY, NULL},
     {0}
 };
 
 static PyType_Slot _MatchClass_type_slots[] = {
     {Py_tp_dealloc, &MatchClass_dealloc},
+    {Py_tp_getset, MatchClass_getset},
     {Py_tp_members, MatchClass_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "MatchClass(expr cls, pattern* patterns, identifier* kwd_attrs, pattern* kwd_patterns)"},
@@ -26604,14 +27866,26 @@ static void MatchStar_dealloc(PyObject *self) {
     Py_DECREF(type);
 }
 
+static PyGetSetDef MatchStar_getset[] = {
+    {0}
+};
+
 static PyMemberDef MatchStar_members[] = {
     {"name", _Py_T_OBJECT, offsetof(struct _pattern, v.MatchStar.name),
+      Py_READONLY, NULL},
+    {"lineno", Py_T_INT, offsetof(struct _pattern, lineno), Py_READONLY, NULL},
+    {"col_offset", Py_T_INT, offsetof(struct _pattern, col_offset),
+      Py_READONLY, NULL},
+    {"end_lineno", Py_T_INT, offsetof(struct _pattern, end_lineno),
+      Py_READONLY, NULL},
+    {"end_col_offset", Py_T_INT, offsetof(struct _pattern, end_col_offset),
       Py_READONLY, NULL},
     {0}
 };
 
 static PyType_Slot _MatchStar_type_slots[] = {
     {Py_tp_dealloc, &MatchStar_dealloc},
+    {Py_tp_getset, MatchStar_getset},
     {Py_tp_members, MatchStar_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "MatchStar(identifier? name)"},
@@ -26815,16 +28089,28 @@ static void MatchAs_dealloc(PyObject *self) {
     Py_DECREF(type);
 }
 
+static PyGetSetDef MatchAs_getset[] = {
+    {0}
+};
+
 static PyMemberDef MatchAs_members[] = {
     {"pattern", _Py_T_OBJECT, offsetof(struct _pattern, v.MatchAs.pattern),
       Py_READONLY, NULL},
     {"name", _Py_T_OBJECT, offsetof(struct _pattern, v.MatchAs.name),
+      Py_READONLY, NULL},
+    {"lineno", Py_T_INT, offsetof(struct _pattern, lineno), Py_READONLY, NULL},
+    {"col_offset", Py_T_INT, offsetof(struct _pattern, col_offset),
+      Py_READONLY, NULL},
+    {"end_lineno", Py_T_INT, offsetof(struct _pattern, end_lineno),
+      Py_READONLY, NULL},
+    {"end_col_offset", Py_T_INT, offsetof(struct _pattern, end_col_offset),
       Py_READONLY, NULL},
     {0}
 };
 
 static PyType_Slot _MatchAs_type_slots[] = {
     {Py_tp_dealloc, &MatchAs_dealloc},
+    {Py_tp_getset, MatchAs_getset},
     {Py_tp_members, MatchAs_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "MatchAs(pattern? pattern, identifier? name)"},
@@ -27016,14 +28302,26 @@ static void MatchOr_dealloc(PyObject *self) {
     Py_DECREF(type);
 }
 
+static PyGetSetDef MatchOr_getset[] = {
+    {0}
+};
+
 static PyMemberDef MatchOr_members[] = {
     {"patterns", _Py_T_OBJECT, offsetof(struct _pattern, v.MatchOr.patterns),
+      Py_READONLY, NULL},
+    {"lineno", Py_T_INT, offsetof(struct _pattern, lineno), Py_READONLY, NULL},
+    {"col_offset", Py_T_INT, offsetof(struct _pattern, col_offset),
+      Py_READONLY, NULL},
+    {"end_lineno", Py_T_INT, offsetof(struct _pattern, end_lineno),
+      Py_READONLY, NULL},
+    {"end_col_offset", Py_T_INT, offsetof(struct _pattern, end_col_offset),
       Py_READONLY, NULL},
     {0}
 };
 
 static PyType_Slot _MatchOr_type_slots[] = {
     {Py_tp_dealloc, &MatchOr_dealloc},
+    {Py_tp_getset, MatchOr_getset},
     {Py_tp_members, MatchOr_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "MatchOr(pattern* patterns)"},
@@ -27174,12 +28472,17 @@ static void pattern_dealloc(PyObject *self) {
     Py_DECREF(type);
 }
 
+static PyGetSetDef pattern_getset[] = {
+    {0}
+};
+
 static PyMemberDef pattern_members[] = {
     {0}
 };
 
 static PyType_Slot _pattern_type_slots[] = {
     {Py_tp_dealloc, &pattern_dealloc},
+    {Py_tp_getset, pattern_getset},
     {Py_tp_members, pattern_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "pattern = MatchValue(expr value)\n"
@@ -27221,11 +28524,12 @@ static void pattern_seq_dealloc(PyObject *self) {
 static PyType_Slot _PyAST_pattern_seq_type_slots[] = {
     {Py_tp_dealloc, &pattern_seq_dealloc},
     //{Py_tp_members, pattern_seq_members},
+    {Py_tp_getset, seq_getsets},
     {Py_tp_free, PyObject_Free},
     {Py_sq_length, &ast_seq_len},
+    {Py_mp_length, &ast_seq_len},
     {Py_sq_item, &ast_seq_get},
     {Py_sq_contains, &ast_seq_contains},
-    {Py_mp_length, &ast_seq_len},
     {0},
 };
 
@@ -27237,7 +28541,8 @@ static PyType_Spec _pattern_seq_type_spec = {
     _PyAST_pattern_seq_type_slots
 };
 
-asdl_pattern_seq *_PyAst_pattern_seq_Copy(asdl_pattern_seq *seq) {
+asdl_pattern_seq *
+_PyAst_pattern_seq_Copy(asdl_pattern_seq *seq) {
     struct ast_state *state = get_ast_state();
     asdl_pattern_seq *res = PyObject_NewVar(asdl_pattern_seq, (PyTypeObject *)state->_pattern_seq_type, seq->size);
     if (res == NULL) {
@@ -27343,9 +28648,13 @@ static void TypeIgnore_dealloc(PyObject *self) {
     Py_DECREF(type);
 }
 
+static PyGetSetDef TypeIgnore_getset[] = {
+    {0}
+};
+
 static PyMemberDef TypeIgnore_members[] = {
-    {"lineno", Py_T_INT, offsetof(struct _type_ignore, v.TypeIgnore.lineno),
-      Py_READONLY, NULL},
+    {"lineno", _Py_T_OBJECT, offsetof(struct _type_ignore,
+      v.TypeIgnore.lineno), Py_READONLY, NULL},
     {"tag", _Py_T_OBJECT, offsetof(struct _type_ignore, v.TypeIgnore.tag),
       Py_READONLY, NULL},
     {0}
@@ -27353,6 +28662,7 @@ static PyMemberDef TypeIgnore_members[] = {
 
 static PyType_Slot _TypeIgnore_type_slots[] = {
     {Py_tp_dealloc, &TypeIgnore_dealloc},
+    {Py_tp_getset, TypeIgnore_getset},
     {Py_tp_members, TypeIgnore_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "TypeIgnore(int lineno, string tag)"},
@@ -27435,12 +28745,17 @@ static void type_ignore_dealloc(PyObject *self) {
     Py_DECREF(type);
 }
 
+static PyGetSetDef type_ignore_getset[] = {
+    {0}
+};
+
 static PyMemberDef type_ignore_members[] = {
     {0}
 };
 
 static PyType_Slot _type_ignore_type_slots[] = {
     {Py_tp_dealloc, &type_ignore_dealloc},
+    {Py_tp_getset, type_ignore_getset},
     {Py_tp_members, type_ignore_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "type_ignore = TypeIgnore(int lineno, string tag)"},
@@ -27475,11 +28790,12 @@ static void type_ignore_seq_dealloc(PyObject *self) {
 static PyType_Slot _PyAST_type_ignore_seq_type_slots[] = {
     {Py_tp_dealloc, &type_ignore_seq_dealloc},
     //{Py_tp_members, type_ignore_seq_members},
+    {Py_tp_getset, seq_getsets},
     {Py_tp_free, PyObject_Free},
     {Py_sq_length, &ast_seq_len},
+    {Py_mp_length, &ast_seq_len},
     {Py_sq_item, &ast_seq_get},
     {Py_sq_contains, &ast_seq_contains},
-    {Py_mp_length, &ast_seq_len},
     {0},
 };
 
@@ -27491,7 +28807,8 @@ static PyType_Spec _type_ignore_seq_type_spec = {
     _PyAST_type_ignore_seq_type_slots
 };
 
-asdl_type_ignore_seq *_PyAst_type_ignore_seq_Copy(asdl_type_ignore_seq *seq) {
+asdl_type_ignore_seq *
+_PyAst_type_ignore_seq_Copy(asdl_type_ignore_seq *seq) {
     struct ast_state *state = get_ast_state();
     asdl_type_ignore_seq *res = PyObject_NewVar(asdl_type_ignore_seq, (PyTypeObject *)state->_type_ignore_seq_type, seq->size);
     if (res == NULL) {
@@ -27696,6 +29013,10 @@ static void TypeVar_dealloc(PyObject *self) {
     Py_DECREF(type);
 }
 
+static PyGetSetDef TypeVar_getset[] = {
+    {0}
+};
+
 static PyMemberDef TypeVar_members[] = {
     {"name", _Py_T_OBJECT, offsetof(struct _type_param, v.TypeVar.name),
       Py_READONLY, NULL},
@@ -27703,11 +29024,20 @@ static PyMemberDef TypeVar_members[] = {
       Py_READONLY, NULL},
     {"default_value", _Py_T_OBJECT, offsetof(struct _type_param,
       v.TypeVar.default_value), Py_READONLY, NULL},
+    {"lineno", Py_T_INT, offsetof(struct _type_param, lineno), Py_READONLY,
+      NULL},
+    {"col_offset", Py_T_INT, offsetof(struct _type_param, col_offset),
+      Py_READONLY, NULL},
+    {"end_lineno", Py_T_INT, offsetof(struct _type_param, end_lineno),
+      Py_READONLY, NULL},
+    {"end_col_offset", Py_T_INT, offsetof(struct _type_param, end_col_offset),
+      Py_READONLY, NULL},
     {0}
 };
 
 static PyType_Slot _TypeVar_type_slots[] = {
     {Py_tp_dealloc, &TypeVar_dealloc},
+    {Py_tp_getset, TypeVar_getset},
     {Py_tp_members, TypeVar_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "TypeVar(identifier name, expr? bound, expr? default_value)"},
@@ -27924,16 +29254,29 @@ static void ParamSpec_dealloc(PyObject *self) {
     Py_DECREF(type);
 }
 
+static PyGetSetDef ParamSpec_getset[] = {
+    {0}
+};
+
 static PyMemberDef ParamSpec_members[] = {
     {"name", _Py_T_OBJECT, offsetof(struct _type_param, v.ParamSpec.name),
       Py_READONLY, NULL},
     {"default_value", _Py_T_OBJECT, offsetof(struct _type_param,
       v.ParamSpec.default_value), Py_READONLY, NULL},
+    {"lineno", Py_T_INT, offsetof(struct _type_param, lineno), Py_READONLY,
+      NULL},
+    {"col_offset", Py_T_INT, offsetof(struct _type_param, col_offset),
+      Py_READONLY, NULL},
+    {"end_lineno", Py_T_INT, offsetof(struct _type_param, end_lineno),
+      Py_READONLY, NULL},
+    {"end_col_offset", Py_T_INT, offsetof(struct _type_param, end_col_offset),
+      Py_READONLY, NULL},
     {0}
 };
 
 static PyType_Slot _ParamSpec_type_slots[] = {
     {Py_tp_dealloc, &ParamSpec_dealloc},
+    {Py_tp_getset, ParamSpec_getset},
     {Py_tp_members, ParamSpec_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "ParamSpec(identifier name, expr? default_value)"},
@@ -28144,16 +29487,29 @@ static void TypeVarTuple_dealloc(PyObject *self) {
     Py_DECREF(type);
 }
 
+static PyGetSetDef TypeVarTuple_getset[] = {
+    {0}
+};
+
 static PyMemberDef TypeVarTuple_members[] = {
     {"name", _Py_T_OBJECT, offsetof(struct _type_param, v.TypeVarTuple.name),
       Py_READONLY, NULL},
     {"default_value", _Py_T_OBJECT, offsetof(struct _type_param,
       v.TypeVarTuple.default_value), Py_READONLY, NULL},
+    {"lineno", Py_T_INT, offsetof(struct _type_param, lineno), Py_READONLY,
+      NULL},
+    {"col_offset", Py_T_INT, offsetof(struct _type_param, col_offset),
+      Py_READONLY, NULL},
+    {"end_lineno", Py_T_INT, offsetof(struct _type_param, end_lineno),
+      Py_READONLY, NULL},
+    {"end_col_offset", Py_T_INT, offsetof(struct _type_param, end_col_offset),
+      Py_READONLY, NULL},
     {0}
 };
 
 static PyType_Slot _TypeVarTuple_type_slots[] = {
     {Py_tp_dealloc, &TypeVarTuple_dealloc},
+    {Py_tp_getset, TypeVarTuple_getset},
     {Py_tp_members, TypeVarTuple_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "TypeVarTuple(identifier name, expr? default_value)"},
@@ -28300,12 +29656,17 @@ static void type_param_dealloc(PyObject *self) {
     Py_DECREF(type);
 }
 
+static PyGetSetDef type_param_getset[] = {
+    {0}
+};
+
 static PyMemberDef type_param_members[] = {
     {0}
 };
 
 static PyType_Slot _type_param_type_slots[] = {
     {Py_tp_dealloc, &type_param_dealloc},
+    {Py_tp_getset, type_param_getset},
     {Py_tp_members, type_param_members},
     {Py_tp_free, PyObject_Free},
     {Py_tp_doc, "type_param = TypeVar(identifier name, expr? bound, expr? default_value)\n"
@@ -28342,11 +29703,12 @@ static void type_param_seq_dealloc(PyObject *self) {
 static PyType_Slot _PyAST_type_param_seq_type_slots[] = {
     {Py_tp_dealloc, &type_param_seq_dealloc},
     //{Py_tp_members, type_param_seq_members},
+    {Py_tp_getset, seq_getsets},
     {Py_tp_free, PyObject_Free},
     {Py_sq_length, &ast_seq_len},
+    {Py_mp_length, &ast_seq_len},
     {Py_sq_item, &ast_seq_get},
     {Py_sq_contains, &ast_seq_contains},
-    {Py_mp_length, &ast_seq_len},
     {0},
 };
 
@@ -28358,7 +29720,8 @@ static PyType_Spec _type_param_seq_type_spec = {
     _PyAST_type_param_seq_type_slots
 };
 
-asdl_type_param_seq *_PyAst_type_param_seq_Copy(asdl_type_param_seq *seq) {
+asdl_type_param_seq *
+_PyAst_type_param_seq_Copy(asdl_type_param_seq *seq) {
     struct ast_state *state = get_ast_state();
     asdl_type_param_seq *res = PyObject_NewVar(asdl_type_param_seq, (PyTypeObject *)state->_type_param_seq_type, seq->size);
     if (res == NULL) {
@@ -29567,11 +30930,6 @@ init_types(void *arg)
     if (state->_stmt_type == NULL) return -1;
     if (add_attributes(state, state->_stmt_type, stmt_attributes, 4) < 0)
         return -1;
-    if (PyObject_SetAttr(state->_stmt_type, state->end_lineno, Py_None) == -1)
-        return -1;
-    if (PyObject_SetAttr(state->_stmt_type, state->end_col_offset, Py_None) ==
-        -1)
-        return -1;
     t = PyType_FromSpecWithBases(&_stmt_seq_type_spec, state->_AST_type);
     state->_stmt_seq_type = t;
     if (state->_stmt_seq_type == NULL) return -1;
@@ -29590,12 +30948,6 @@ init_types(void *arg)
     if (state->_FunctionDef_type == NULL) return -1;
     if (add_fields(state->_FunctionDef_type, FunctionDef_fields, 7) < 0) return
         -1;
-    if (PyObject_SetAttr(state->_FunctionDef_type, state->returns, Py_None) ==
-        -1)
-        return -1;
-    if (PyObject_SetAttr(state->_FunctionDef_type, state->type_comment,
-        Py_None) == -1)
-        return -1;
     state->AsyncFunctionDef_type = make_type(state, "AsyncFunctionDef",
                                              state->stmt_type,
                                              AsyncFunctionDef_fields, 7,
@@ -29613,12 +30965,6 @@ init_types(void *arg)
     if (state->_AsyncFunctionDef_type == NULL) return -1;
     if (add_fields(state->_AsyncFunctionDef_type, AsyncFunctionDef_fields, 7) <
         0) return -1;
-    if (PyObject_SetAttr(state->_AsyncFunctionDef_type, state->returns,
-        Py_None) == -1)
-        return -1;
-    if (PyObject_SetAttr(state->_AsyncFunctionDef_type, state->type_comment,
-        Py_None) == -1)
-        return -1;
     state->ClassDef_type = make_type(state, "ClassDef", state->stmt_type,
                                      ClassDef_fields, 6,
         "ClassDef(identifier name, expr* bases, keyword* keywords, stmt* body, expr* decorator_list, type_param* type_params)");
@@ -29637,8 +30983,6 @@ init_types(void *arg)
     state->_Return_type = t;
     if (state->_Return_type == NULL) return -1;
     if (add_fields(state->_Return_type, Return_fields, 1) < 0) return -1;
-    if (PyObject_SetAttr(state->_Return_type, state->value, Py_None) == -1)
-        return -1;
     state->Delete_type = make_type(state, "Delete", state->stmt_type,
                                    Delete_fields, 1,
         "Delete(expr* targets)");
@@ -29658,9 +31002,6 @@ init_types(void *arg)
     state->_Assign_type = t;
     if (state->_Assign_type == NULL) return -1;
     if (add_fields(state->_Assign_type, Assign_fields, 3) < 0) return -1;
-    if (PyObject_SetAttr(state->_Assign_type, state->type_comment, Py_None) ==
-        -1)
-        return -1;
     state->TypeAlias_type = make_type(state, "TypeAlias", state->stmt_type,
                                       TypeAlias_fields, 3,
         "TypeAlias(expr name, type_param* type_params, expr value)");
@@ -29687,8 +31028,6 @@ init_types(void *arg)
     state->_AnnAssign_type = t;
     if (state->_AnnAssign_type == NULL) return -1;
     if (add_fields(state->_AnnAssign_type, AnnAssign_fields, 4) < 0) return -1;
-    if (PyObject_SetAttr(state->_AnnAssign_type, state->value, Py_None) == -1)
-        return -1;
     state->For_type = make_type(state, "For", state->stmt_type, For_fields, 5,
         "For(expr target, expr iter, stmt* body, stmt* orelse, string? type_comment)");
     if (!state->For_type) return -1;
@@ -29698,8 +31037,6 @@ init_types(void *arg)
     state->_For_type = t;
     if (state->_For_type == NULL) return -1;
     if (add_fields(state->_For_type, For_fields, 5) < 0) return -1;
-    if (PyObject_SetAttr(state->_For_type, state->type_comment, Py_None) == -1)
-        return -1;
     state->AsyncFor_type = make_type(state, "AsyncFor", state->stmt_type,
                                      AsyncFor_fields, 5,
         "AsyncFor(expr target, expr iter, stmt* body, stmt* orelse, string? type_comment)");
@@ -29711,9 +31048,6 @@ init_types(void *arg)
     state->_AsyncFor_type = t;
     if (state->_AsyncFor_type == NULL) return -1;
     if (add_fields(state->_AsyncFor_type, AsyncFor_fields, 5) < 0) return -1;
-    if (PyObject_SetAttr(state->_AsyncFor_type, state->type_comment, Py_None)
-        == -1)
-        return -1;
     state->While_type = make_type(state, "While", state->stmt_type,
                                   While_fields, 3,
         "While(expr test, stmt* body, stmt* orelse)");
@@ -29739,8 +31073,6 @@ init_types(void *arg)
     state->_With_type = t;
     if (state->_With_type == NULL) return -1;
     if (add_fields(state->_With_type, With_fields, 3) < 0) return -1;
-    if (PyObject_SetAttr(state->_With_type, state->type_comment, Py_None) == -1)
-        return -1;
     state->AsyncWith_type = make_type(state, "AsyncWith", state->stmt_type,
                                       AsyncWith_fields, 3,
         "AsyncWith(withitem* items, stmt* body, string? type_comment)");
@@ -29752,9 +31084,6 @@ init_types(void *arg)
     state->_AsyncWith_type = t;
     if (state->_AsyncWith_type == NULL) return -1;
     if (add_fields(state->_AsyncWith_type, AsyncWith_fields, 3) < 0) return -1;
-    if (PyObject_SetAttr(state->_AsyncWith_type, state->type_comment, Py_None)
-        == -1)
-        return -1;
     state->Match_type = make_type(state, "Match", state->stmt_type,
                                   Match_fields, 2,
         "Match(expr subject, match_case* cases)");
@@ -29775,10 +31104,6 @@ init_types(void *arg)
     state->_Raise_type = t;
     if (state->_Raise_type == NULL) return -1;
     if (add_fields(state->_Raise_type, Raise_fields, 2) < 0) return -1;
-    if (PyObject_SetAttr(state->_Raise_type, state->exc, Py_None) == -1)
-        return -1;
-    if (PyObject_SetAttr(state->_Raise_type, state->cause, Py_None) == -1)
-        return -1;
     state->Try_type = make_type(state, "Try", state->stmt_type, Try_fields, 4,
         "Try(stmt* body, excepthandler* handlers, stmt* orelse, stmt* finalbody)");
     if (!state->Try_type) return -1;
@@ -29804,8 +31129,6 @@ init_types(void *arg)
     state->_Assert_type = t;
     if (state->_Assert_type == NULL) return -1;
     if (add_fields(state->_Assert_type, Assert_fields, 2) < 0) return -1;
-    if (PyObject_SetAttr(state->_Assert_type, state->msg, Py_None) == -1)
-        return -1;
     state->Import_type = make_type(state, "Import", state->stmt_type,
                                    Import_fields, 1,
         "Import(alias* names)");
@@ -29827,10 +31150,6 @@ init_types(void *arg)
     if (state->_ImportFrom_type == NULL) return -1;
     if (add_fields(state->_ImportFrom_type, ImportFrom_fields, 3) < 0) return
         -1;
-    if (PyObject_SetAttr(state->_ImportFrom_type, state->module, Py_None) == -1)
-        return -1;
-    if (PyObject_SetAttr(state->_ImportFrom_type, state->level, Py_None) == -1)
-        return -1;
     state->Global_type = make_type(state, "Global", state->stmt_type,
                                    Global_fields, 1,
         "Global(identifier* names)");
@@ -29919,11 +31238,6 @@ init_types(void *arg)
     state->_expr_type = t;
     if (state->_expr_type == NULL) return -1;
     if (add_attributes(state, state->_expr_type, expr_attributes, 4) < 0)
-        return -1;
-    if (PyObject_SetAttr(state->_expr_type, state->end_lineno, Py_None) == -1)
-        return -1;
-    if (PyObject_SetAttr(state->_expr_type, state->end_col_offset, Py_None) ==
-        -1)
         return -1;
     t = PyType_FromSpecWithBases(&_expr_seq_type_spec, state->_AST_type);
     state->_expr_seq_type = t;
@@ -30043,8 +31357,6 @@ init_types(void *arg)
     state->_Yield_type = t;
     if (state->_Yield_type == NULL) return -1;
     if (add_fields(state->_Yield_type, Yield_fields, 1) < 0) return -1;
-    if (PyObject_SetAttr(state->_Yield_type, state->value, Py_None) == -1)
-        return -1;
     state->YieldFrom_type = make_type(state, "YieldFrom", state->expr_type,
                                       YieldFrom_fields, 1,
         "YieldFrom(expr value)");
@@ -30082,9 +31394,6 @@ init_types(void *arg)
     if (state->_FormattedValue_type == NULL) return -1;
     if (add_fields(state->_FormattedValue_type, FormattedValue_fields, 3) < 0)
         return -1;
-    if (PyObject_SetAttr(state->_FormattedValue_type, state->format_spec,
-        Py_None) == -1)
-        return -1;
     state->Interpolation_type = make_type(state, "Interpolation",
                                           state->expr_type,
                                           Interpolation_fields, 4,
@@ -30097,9 +31406,6 @@ init_types(void *arg)
     state->_Interpolation_type = t;
     if (state->_Interpolation_type == NULL) return -1;
     if (add_fields(state->_Interpolation_type, Interpolation_fields, 4) < 0)
-        return -1;
-    if (PyObject_SetAttr(state->_Interpolation_type, state->format_spec,
-        Py_None) == -1)
         return -1;
     state->JoinedStr_type = make_type(state, "JoinedStr", state->expr_type,
                                       JoinedStr_fields, 1,
@@ -30128,8 +31434,6 @@ init_types(void *arg)
     state->_Constant_type = t;
     if (state->_Constant_type == NULL) return -1;
     if (add_fields(state->_Constant_type, Constant_fields, 2) < 0) return -1;
-    if (PyObject_SetAttr(state->_Constant_type, state->kind, Py_None) == -1)
-        return -1;
     state->Attribute_type = make_type(state, "Attribute", state->expr_type,
                                       Attribute_fields, 3,
         "Attribute(expr value, identifier attr, expr_context ctx)");
@@ -30192,12 +31496,6 @@ init_types(void *arg)
     state->_Slice_type = t;
     if (state->_Slice_type == NULL) return -1;
     if (add_fields(state->_Slice_type, Slice_fields, 3) < 0) return -1;
-    if (PyObject_SetAttr(state->_Slice_type, state->lower, Py_None) == -1)
-        return -1;
-    if (PyObject_SetAttr(state->_Slice_type, state->upper, Py_None) == -1)
-        return -1;
-    if (PyObject_SetAttr(state->_Slice_type, state->step, Py_None) == -1)
-        return -1;
     state->expr_context_type = make_type(state, "expr_context",
                                          state->AST_type, NULL, 0,
         "expr_context = Load | Store | Del");
@@ -30712,12 +32010,6 @@ init_types(void *arg)
     if (state->_excepthandler_type == NULL) return -1;
     if (add_attributes(state, state->_excepthandler_type,
         excepthandler_attributes, 4) < 0) return -1;
-    if (PyObject_SetAttr(state->_excepthandler_type, state->end_lineno,
-        Py_None) == -1)
-        return -1;
-    if (PyObject_SetAttr(state->_excepthandler_type, state->end_col_offset,
-        Py_None) == -1)
-        return -1;
     t = PyType_FromSpecWithBases(&_excepthandler_seq_type_spec,
                                  state->_AST_type);
     state->_excepthandler_seq_type = t;
@@ -30737,12 +32029,6 @@ init_types(void *arg)
     if (state->_ExceptHandler_type == NULL) return -1;
     if (add_fields(state->_ExceptHandler_type, ExceptHandler_fields, 3) < 0)
         return -1;
-    if (PyObject_SetAttr(state->_ExceptHandler_type, state->type, Py_None) ==
-        -1)
-        return -1;
-    if (PyObject_SetAttr(state->_ExceptHandler_type, state->name, Py_None) ==
-        -1)
-        return -1;
     state->arguments_type = make_type(state, "arguments", state->AST_type,
                                       arguments_fields, 7,
         "arguments(arg* posonlyargs, arg* args, arg? vararg, arg* kwonlyargs, expr* kw_defaults, arg? kwarg, expr* defaults)");
@@ -30756,10 +32042,6 @@ init_types(void *arg)
     state->_arguments_type = t;
     if (state->_arguments_type == NULL) return -1;
     if (add_fields(state->_arguments_type, arguments_fields, 7) < 0) return -1;
-    if (PyObject_SetAttr(state->_arguments_type, state->vararg, Py_None) == -1)
-        return -1;
-    if (PyObject_SetAttr(state->_arguments_type, state->kwarg, Py_None) == -1)
-        return -1;
     t = PyType_FromSpecWithBases(&_arguments_seq_type_spec, state->_AST_type);
     state->_arguments_seq_type = t;
     if (state->_arguments_seq_type == NULL) return -1;
@@ -30782,15 +32064,6 @@ init_types(void *arg)
     if (add_fields(state->_arg_type, arg_fields, 3) < 0) return -1;
     if (add_attributes(state, state->_arg_type, arg_attributes, 4) < 0) return
         -1;
-    if (PyObject_SetAttr(state->_arg_type, state->annotation, Py_None) == -1)
-        return -1;
-    if (PyObject_SetAttr(state->_arg_type, state->type_comment, Py_None) == -1)
-        return -1;
-    if (PyObject_SetAttr(state->_arg_type, state->end_lineno, Py_None) == -1)
-        return -1;
-    if (PyObject_SetAttr(state->_arg_type, state->end_col_offset, Py_None) ==
-        -1)
-        return -1;
     t = PyType_FromSpecWithBases(&_arg_seq_type_spec, state->_AST_type);
     state->_arg_seq_type = t;
     if (state->_arg_seq_type == NULL) return -1;
@@ -30812,14 +32085,6 @@ init_types(void *arg)
     if (state->_keyword_type == NULL) return -1;
     if (add_fields(state->_keyword_type, keyword_fields, 2) < 0) return -1;
     if (add_attributes(state, state->_keyword_type, keyword_attributes, 4) < 0)
-        return -1;
-    if (PyObject_SetAttr(state->_keyword_type, state->arg, Py_None) == -1)
-        return -1;
-    if (PyObject_SetAttr(state->_keyword_type, state->end_lineno, Py_None) ==
-        -1)
-        return -1;
-    if (PyObject_SetAttr(state->_keyword_type, state->end_col_offset, Py_None)
-        == -1)
         return -1;
     t = PyType_FromSpecWithBases(&_keyword_seq_type_spec, state->_AST_type);
     state->_keyword_seq_type = t;
@@ -30843,13 +32108,6 @@ init_types(void *arg)
     if (add_fields(state->_alias_type, alias_fields, 2) < 0) return -1;
     if (add_attributes(state, state->_alias_type, alias_attributes, 4) < 0)
         return -1;
-    if (PyObject_SetAttr(state->_alias_type, state->asname, Py_None) == -1)
-        return -1;
-    if (PyObject_SetAttr(state->_alias_type, state->end_lineno, Py_None) == -1)
-        return -1;
-    if (PyObject_SetAttr(state->_alias_type, state->end_col_offset, Py_None) ==
-        -1)
-        return -1;
     t = PyType_FromSpecWithBases(&_alias_seq_type_spec, state->_AST_type);
     state->_alias_seq_type = t;
     if (state->_alias_seq_type == NULL) return -1;
@@ -30865,9 +32123,6 @@ init_types(void *arg)
     state->_withitem_type = t;
     if (state->_withitem_type == NULL) return -1;
     if (add_fields(state->_withitem_type, withitem_fields, 2) < 0) return -1;
-    if (PyObject_SetAttr(state->_withitem_type, state->optional_vars, Py_None)
-        == -1)
-        return -1;
     t = PyType_FromSpecWithBases(&_withitem_seq_type_spec, state->_AST_type);
     state->_withitem_seq_type = t;
     if (state->_withitem_seq_type == NULL) return -1;
@@ -30883,8 +32138,6 @@ init_types(void *arg)
     if (state->_match_case_type == NULL) return -1;
     if (add_fields(state->_match_case_type, match_case_fields, 3) < 0) return
         -1;
-    if (PyObject_SetAttr(state->_match_case_type, state->guard, Py_None) == -1)
-        return -1;
     t = PyType_FromSpecWithBases(&_match_case_seq_type_spec, state->_AST_type);
     state->_match_case_seq_type = t;
     if (state->_match_case_seq_type == NULL) return -1;
@@ -30953,8 +32206,6 @@ init_types(void *arg)
     if (state->_MatchMapping_type == NULL) return -1;
     if (add_fields(state->_MatchMapping_type, MatchMapping_fields, 3) < 0)
         return -1;
-    if (PyObject_SetAttr(state->_MatchMapping_type, state->rest, Py_None) == -1)
-        return -1;
     state->MatchClass_type = make_type(state, "MatchClass",
                                        state->pattern_type, MatchClass_fields,
                                        4,
@@ -30975,8 +32226,6 @@ init_types(void *arg)
     state->_MatchStar_type = t;
     if (state->_MatchStar_type == NULL) return -1;
     if (add_fields(state->_MatchStar_type, MatchStar_fields, 1) < 0) return -1;
-    if (PyObject_SetAttr(state->_MatchStar_type, state->name, Py_None) == -1)
-        return -1;
     state->MatchAs_type = make_type(state, "MatchAs", state->pattern_type,
                                     MatchAs_fields, 2,
         "MatchAs(pattern? pattern, identifier? name)");
@@ -30989,10 +32238,6 @@ init_types(void *arg)
     state->_MatchAs_type = t;
     if (state->_MatchAs_type == NULL) return -1;
     if (add_fields(state->_MatchAs_type, MatchAs_fields, 2) < 0) return -1;
-    if (PyObject_SetAttr(state->_MatchAs_type, state->pattern, Py_None) == -1)
-        return -1;
-    if (PyObject_SetAttr(state->_MatchAs_type, state->name, Py_None) == -1)
-        return -1;
     state->MatchOr_type = make_type(state, "MatchOr", state->pattern_type,
                                     MatchOr_fields, 1,
         "MatchOr(pattern* patterns)");
@@ -31052,11 +32297,6 @@ init_types(void *arg)
     state->_TypeVar_type = t;
     if (state->_TypeVar_type == NULL) return -1;
     if (add_fields(state->_TypeVar_type, TypeVar_fields, 3) < 0) return -1;
-    if (PyObject_SetAttr(state->_TypeVar_type, state->bound, Py_None) == -1)
-        return -1;
-    if (PyObject_SetAttr(state->_TypeVar_type, state->default_value, Py_None)
-        == -1)
-        return -1;
     state->ParamSpec_type = make_type(state, "ParamSpec",
                                       state->type_param_type, ParamSpec_fields,
                                       2,
@@ -31070,9 +32310,6 @@ init_types(void *arg)
     state->_ParamSpec_type = t;
     if (state->_ParamSpec_type == NULL) return -1;
     if (add_fields(state->_ParamSpec_type, ParamSpec_fields, 2) < 0) return -1;
-    if (PyObject_SetAttr(state->_ParamSpec_type, state->default_value, Py_None)
-        == -1)
-        return -1;
     state->TypeVarTuple_type = make_type(state, "TypeVarTuple",
                                          state->type_param_type,
                                          TypeVarTuple_fields, 2,
@@ -31086,9 +32323,6 @@ init_types(void *arg)
     state->_TypeVarTuple_type = t;
     if (state->_TypeVarTuple_type == NULL) return -1;
     if (add_fields(state->_TypeVarTuple_type, TypeVarTuple_fields, 2) < 0)
-        return -1;
-    if (PyObject_SetAttr(state->_TypeVarTuple_type, state->default_value,
-        Py_None) == -1)
         return -1;
     t = PyType_FromSpecWithBases(&_int_seq_type_spec, state->_AST_type);
     state->_int_seq_type = t;

@@ -166,7 +166,7 @@ class MetadataVisitor(asdl.VisitorBase):
         #    - types:       List of all top level type names
         #
         self.metadata = types.SimpleNamespace(
-            simple_sums=set(),
+            simple_sums={},
             identifiers=set(),
             singletons=set(),
             types={self.ROOT_TYPE},
@@ -188,7 +188,7 @@ class MetadataVisitor(asdl.VisitorBase):
 
         simple_sum = is_simple(sum)
         if simple_sum:
-            self.metadata.simple_sums.add(name)
+            self.metadata.simple_sums[name] = sum
 
         for constructor in sum.types:
             if simple_sum:
@@ -2306,10 +2306,6 @@ static int add_ast_fields(struct ast_state *state)
                 attrs_name = "NULL"
                 attrs_cnt = 0
             self.emit(f"if (add_attributes(state, state->_{type_name}_type, {attrs_name}, {attrs_cnt}) < 0) return -1;", 1)
-        if fields:
-            self.emit_defaults2(type_name, fields, 1)
-        if attributes:
-            self.emit_defaults2(type_name, attributes, 1)
 
     def visitProduct(self, prod, name):
         if prod.fields:
@@ -2379,12 +2375,6 @@ static int add_ast_fields(struct ast_state *state)
                             (name, field.name), depth)
                 self.emit("return -1;", depth+1)
 
-    def emit_defaults2(self, name, fields, depth):
-        for field in fields:
-            if field.opt:
-                self.emit('if (PyObject_SetAttr(state->_%s_type, state->%s, Py_None) == -1)' %
-                            (name, field.name), depth)
-                self.emit("return -1;", depth+1)
 
 class ASTModuleVisitor(PickleVisitor):
 
@@ -2999,6 +2989,22 @@ class NodesVisitor(EmitVisitor):
         static PyGetSetDef ast_getsets[] = {
             {"__class__", ast_class, NULL, "Proxy for mutable __class__."}
         };
+
+        static PyObject *
+        seq_class(PyObject *self, void* Py_UNUSED(unused))
+        {
+            return (PyObject *)&PyList_Type;
+        }
+
+        static PyGetSetDef seq_getsets[] = {
+            {"__class__", seq_class, NULL, "Proxy for mutable __class__."}
+        };
+
+        struct _simple_object {
+            PyObject_HEAD
+            int value;
+        };
+
         """), 0, reflow=False)
 
         self.seq_type("int", "int", dealloc_elems=False)
@@ -3009,7 +3015,7 @@ class NodesVisitor(EmitVisitor):
         self.emit("}", 0)
 
         self.emit_new("", "AST", "object")
-        self.emit_ast_members("AST", [], "AST")
+        self.emit_ast_members("AST", [], [], "AST")
         self.ast_type("AST", "object")
         for dfn in mod.dfns:
             self.visit(dfn)
@@ -3025,16 +3031,16 @@ class NodesVisitor(EmitVisitor):
             self.emit(f"static void {name}_dealloc(PyObject *self) {{", 0)
             self.emit_dealloc_footer()
 
-            self.emit_ast_members(name, [], name)
-            self.ast_type(name, "object", asdl_of(name, sum))
+            self.emit_ast_members(name, [], [], name)
+            self.ast_type(name, "simple_object", asdl_of(name, sum))
             
             for cons in sum.types:
                 self.emit_new(f"->v.{cons.name}.", cons.name, name, cons.fields, sum.attributes)
 
                 self.emit(f"static void {cons.name}_dealloc(PyObject *self) {{", 0)
                 self.emit_dealloc_footer()
-                self.emit_ast_members(cons.name, cons.fields, name)
-                self.ast_type(cons.name, "object", asdl_of(cons.name, cons))
+                self.emit_ast_members(cons.name, cons.fields, sum.attributes, name, f"v.{cons.name}.")
+                self.ast_type(cons.name, "simple_object", asdl_of(cons.name, cons))
             return
 
         for cons in sum.types:
@@ -3043,7 +3049,7 @@ class NodesVisitor(EmitVisitor):
             self.emit_dealloc_header(cons.name, name, len(cons.fields) > 0)
             self.emit_type_dealloc(f"obj->v.{cons.name}.", cons, cons.fields, 1)
             self.emit_dealloc_footer()
-            self.emit_ast_members(cons.name, cons.fields, name)
+            self.emit_ast_members(cons.name, cons.fields, sum.attributes, name, f"v.{cons.name}.")
             self.ast_type(cons.name, name, asdl_of(cons.name, cons))
             self.emit_type_copy(cons.name, cons.fields, name, f"v.{cons.name}.", sum.attributes, True)
 
@@ -3064,7 +3070,7 @@ class NodesVisitor(EmitVisitor):
         self.emit_dealloc_header(name, name, False)
         self.emit_type_dealloc(f"obj->", name, [], 1)
         self.emit_dealloc_footer()
-        self.emit_ast_members(name, [], name)
+        self.emit_ast_members(name, [], [], name, f"v.{name}.")
         self.ast_type(name, name, asdl_of(name, sum))
         self.seq_type(name, name, True)
 
@@ -3076,18 +3082,57 @@ class NodesVisitor(EmitVisitor):
         self.emit_dealloc_header(name, name, len(product.fields) > 0)
         self.emit_type_dealloc(f"obj->", name, product.fields, 1)
         self.emit_dealloc_footer()
-
-        self.emit_ast_members(name, [], name)
+        self.emit_ast_members(name, product.fields, product.attributes, name)
         self.ast_type(name, name, asdl_of(name, product))
         self.emit_type_copy(name, product.fields + product.attributes, name)
 
-    def emit_ast_members(self, node_name, fields, type_name):
+    def is_simple_field(self, field):
+        return field.type in self.metadata.simple_sums and asdl.Quantifier.SEQUENCE not in field.quantifiers
+
+    def emit_ast_members(self, node_name, fields, attributes, type_name, attrs=""):
+        for field in fields:
+            if not self.is_simple_field(field):
+                continue
+            self.emit("static PyObject *", 0)
+            self.emit(f"{node_name}_{field.name}_get(PyObject *obj, void *unused) {{", 0)
+            self.emit("struct ast_state *state = get_ast_state();", 1)
+            self.emit(f"struct _{type_name} *self = (struct _{type_name} *)obj;", 1)
+            self.emit(f"switch (self->{attrs}{field.name}) {{", 1)
+            for t in self.metadata.simple_sums[field.type].types:
+                self.emit(f"case {t.name}: return Py_NewRef(state->_{t.name}_singleton);", 2)
+            self.emit("}", 1)
+            self.emit('PyErr_SetString(PyExc_RuntimeError, "unknown kind");', 1)
+            self.emit("return NULL;", 1)
+            self.emit("}", 0)
+
+        if node_name != "AST":
+            self.emit(f"static PyGetSetDef {node_name}_getset[] = {{", 0)
+            for field in fields:        
+                if not self.is_simple_field(field):
+                    continue
+                member_type = "_Py_T_OBJECT"
+                if field.type in self.metadata.simple_sums or field.type == "int":
+                    member_type = "Py_T_INT"
+                self.emit(f'{{"{field.name}", {node_name}_{field.name}_get, NULL, NULL}},', 1)
+            self.emit("{0}", 1)
+            self.emit("};", 0)
+            self.emit("", 0)
+
         self.emit(f"static PyMemberDef {node_name}_members[] = {{", 0)
         for field in fields:
+            if self.is_simple_field(field):
+                continue
             member_type = "_Py_T_OBJECT"
-            if field.type in self.metadata.simple_sums or field.type == "int":
+            self.emit(f'{{"{field.name}", {member_type}, offsetof(struct _{type_name}, {attrs}{field.name}), Py_READONLY, NULL}},', 1)
+
+        for attr in attributes:
+            if self.is_simple_field(attr):
+                continue
+            member_type = "_Py_T_OBJECT"
+            if attr.type in self.metadata.simple_sums or attr.type == "int":
                 member_type = "Py_T_INT"
-            self.emit(f'{{"{field.name}", {member_type}, offsetof(struct _{type_name}, v.{node_name}.{field.name}), Py_READONLY, NULL}},', 1)
+            self.emit(f'{{"{attr.name}", {member_type}, offsetof(struct _{type_name}, {attr.name}), Py_READONLY, NULL}},', 1)
+
         self.emit("{0}", 1)
         self.emit("};", 0)
 
@@ -3233,6 +3278,8 @@ static PyType_Slot _{node_name}_type_slots[] = {{
         if node_name == "AST":
             self.emit("{Py_tp_repr, ast_repr},", 1)
             self.emit("{Py_tp_getset, ast_getsets},", 1)
+        else:
+            self.emit(f"{{Py_tp_getset, {node_name}_getset}},", 1)
         self.emit(
             f"""    {{Py_tp_members, {node_name}_members}},
     {{Py_tp_free, PyObject_Free}},
@@ -3354,18 +3401,20 @@ static PyType_Spec _{node_name}_type_spec = {{
     def seq_type(self, name, elem_type, dealloc_elems=True):
         ctype = get_c_type(name)
         self.emit_seq_dealloc(name, dealloc_elems)
-
         self.emit(
             f"""static PyType_Slot _PyAST_{name}_seq_type_slots[] = {{
     {{Py_tp_dealloc, &{name}_seq_dealloc}},
     //{{Py_tp_members, {name}_seq_members}},
+    {{Py_tp_getset, seq_getsets}},
     {{Py_tp_free, PyObject_Free}},""", 0, reflow=False)
+        self.emit("{Py_sq_length, &ast_seq_len},", 1)
+        self.emit("{Py_mp_length, &ast_seq_len},", 1)
 
         if dealloc_elems:
-            self.emit("{Py_sq_length, &ast_seq_len},", 1)
             self.emit("{Py_sq_item, &ast_seq_get},", 1)
             self.emit("{Py_sq_contains, &ast_seq_contains},", 1)
-            self.emit("{Py_mp_length, &ast_seq_len},", 1)
+        else:
+            pass
 
         self.emit("{0},", 1)
         self.emit(f"""}};

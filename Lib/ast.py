@@ -526,9 +526,9 @@ class NodeVisitor(object):
         for field, value in iter_fields(node):
             if isinstance(value, list):
                 for item in value:
-                    if isinstance(item, AST):
+                    if isinstance(item, (AST, _ALT_AST)):
                         self.visit(item)
-            elif isinstance(value, AST):
+            elif isinstance(value, (AST, _ALT_AST)):
                 self.visit(value)
 
 
@@ -748,6 +748,7 @@ def _make_mutable_types(cur_type, base_type, res):
 
 _MUT_TYPES = {}
 _make_mutable_types(_ast._AST, object, _MUT_TYPES)
+_ALT_AST = _MUT_TYPES["AST"]
 #globals().update(_MUT_TYPES)
 
 if __name__ == '__main__':

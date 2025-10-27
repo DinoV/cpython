@@ -3818,6 +3818,43 @@ class Immutable_AST_Tests(unittest.TestCase):
         exec(compiled, g, g)
         self.assertEqual(g["x"], 42)
 
+    def visit_test(self, code):
+        class Visitor(ast.NodeVisitor):
+            def __init__(self):
+                self.visited_count = 0
+                self.visited = []
+
+            def visit(self, node):
+                self.visited_count += 1
+                self.visited.append((type(node).__name__, getattr(node, 'lineno', None)))
+                super().visit(node)
+
+        code = ast.parse(code, optimize=2, immutable=True)
+        immvis = Visitor()
+        immvis.visit(code)
+        code = ast.parse(code, optimize=2, immutable=False)
+        mutvis = Visitor()
+        mutvis.visit(code)
+        #for imm, mut in zip(immvis.visited, mutvis.visited):
+        #    print(imm, mut)
+        self.maxDiff = 99999999
+        self.assertEqual(immvis.visited, mutvis.visited)
+        self.assertEqual(immvis.visited_count, mutvis.visited_count)
+
+    def test_visit(self):
+        with open('/home/dinoviehland/cpython_upstream/Lib/socket.py') as f:
+            socket = f.read()
+
+        self.visit_test("foo = 42")
+        self.visit_test("""
+try:
+    import errno
+except ImportError:
+    errno = None
+""")
+        self.visit_test("if x <= 0: pass")
+        self.visit_test(socket)
+
     def test_roundtrip2(self):
         with open('/home/dinoviehland/cpython_upstream/Lib/socket.py') as f:
             socket = f.read()
@@ -3827,7 +3864,6 @@ class Immutable_AST_Tests(unittest.TestCase):
             start = time.perf_counter()        
             for i in range(1):
                 code = ast.parse(socket, optimize=2, immutable=immutable)
-                Visitor().visit(code)
                 compiled = compile(code, "<string>", "exec")
             end = time.perf_counter()
             #print(immutable, end-start)
